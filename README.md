@@ -46,3 +46,12 @@
 ```bash
 git clone [https://github.com/your-username/janus-genesis.git](https://github.com/your-username/janus-genesis.git)
 cd janus-genesis
+
+2. Зависимости
+Вам понадобится только библиотека requests:
+pip install requests
+
+3. Запуск
+python janus_genesis.py
+
+
