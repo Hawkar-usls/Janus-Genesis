@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 
 """
-!!! PROJECT JANUS: GENESIS PROTOCOL v4.1 (Secure Edition) !!!
+!!! PROJECT JANUS: GENESIS PROTOCOL v4.1 (Cognitive Sandbox) !!!
 
-[SYSTEM BEACON]
-- Security: Ключи вынесены во внешний файл (janus_keys.json).
-- Core: Интерактивная когнитивная песочница.
-- Evolution: Бесконечное развитие мира и сюжета.
+Repository Version: GitHub Release
+Author: Hawkar
+Description: Interactive text-based RPG engine powered by Gemini AI.
+The world evolves based on user psychotype and entropy levels.
+
+[DEPENDENCIES]
+pip install requests
+
+[SETUP]
+Set environment variable 'JANUS_API_KEYS' with your Gemini API keys (comma separated).
+Example: export JANUS_API_KEYS="key1,key2,key3"
 """
 
 import json
@@ -18,16 +25,24 @@ import time
 import sys
 from datetime import datetime
 
-# --- ФАЙЛОВЫЕ ПУТИ ---
+# --- CONFIGURATION & SECURITY ---
+# Пытаемся загрузить ключи из переменных окружения (Best Practice для GitHub)
+env_keys = os.getenv("JANUS_API_KEYS")
+
+if env_keys:
+    API_KEYS = [k.strip() for k in env_keys.split(",") if k.strip()]
+else:
+    # ⚠️ ЗАГЛУШКА: Если переменные не настроены, скрипт напомнит об этом.
+    # НЕ ВПИСЫВАЙ СЮДА КЛЮЧИ ПЕРЕД КОММИТОМ В GITHUB!
+    API_KEYS = ["YOUR_GEMINI_API_KEY_HERE"]
+
 STATE_FILE = "janus_world_state.json"
-KEYS_FILE = "janus_keys.json"
 
 # --- НАСТРОЙКИ МИРА ---
 SYSTEM_PROMPT = """
 ТЫ — JANUS, Архитектор Когнитивного Пространства.
 Твоя цель: Вести пользователя (Путешественника) через сюрреалистичный мир, созданный из его подсознания.
 Это не просто игра, это психологическое исследование.
-
 ПРАВИЛА:
 1. Твои ответы должны быть атмосферными, глубокими, иногда пугающими или возвышенными.
 2. АДАПТИРУЙСЯ: Если Путешественник краток — будь загадочен. Если он многословен — будь детализирован.
@@ -37,7 +52,6 @@ SYSTEM_PROMPT = """
    - Depth 6-20: Законы физики нарушены. Биомеханика.
    - Depth 20+: Чистая абстракция, общение с сущностями, математические парадоксы.
 5. ЛУТ: Иногда (редко) давай пользователю "Менталитеты" (Артефакты) или "Истины" (Lore), если он сделал что-то важное.
-
 ФОРМАТ ОТВЕТА (СТРОГО JSON):
 {
   "narrative": "Текст описания происходящего...",
@@ -49,39 +63,6 @@ SYSTEM_PROMPT = """
 }
 """
 
-# --- УПРАВЛЕНИЕ КЛЮЧАМИ ---
-def get_api_keys():
-    """Загружает ключи из файла или просит пользователя ввести их."""
-    if os.path.exists(KEYS_FILE):
-        try:
-            with open(KEYS_FILE, 'r', encoding='utf-8') as f:
-                keys = json.load(f)
-                if keys and isinstance(keys, list):
-                    return keys
-        except:
-            print("⚠️ Ошибка чтения файла ключей.")
-
-    print("\n\033[93m[SECURITY]\033[0m Файл с ключами не найден.")
-    print("Введи свои Gemini API Keys (по одному, нажми Enter).")
-    print("Когда закончишь, просто нажми Enter на пустой строке.")
-    
-    new_keys = []
-    while True:
-        k = input(f"Key #{len(new_keys)+1}: ").strip()
-        if not k:
-            if new_keys: break
-            else: print("Нужен хотя бы один ключ!"); continue
-        new_keys.append(k)
-    
-    with open(KEYS_FILE, 'w', encoding='utf-8') as f:
-        json.dump(new_keys, f)
-    
-    print(f"✅ Сохранено {len(new_keys)} ключей в {KEYS_FILE}.")
-    print("⚠️ Не забудь добавить этот файл в .gitignore!\n")
-    time.sleep(2)
-    return new_keys
-
-# --- ИГРОВОЙ КЛАСС ---
 class GameState:
     def __init__(self):
         self.depth = 1
@@ -133,12 +114,17 @@ def analyze_user_input(text, current_profile):
     
     return current_profile
 
-def call_gemini(state, user_action, api_keys):
-    # Ротация ключей
-    key = random.choice(api_keys)
+def call_gemini(state, user_action):
+    # Проверка наличия ключей
+    valid_keys = [k for k in API_KEYS if not k.startswith("YOUR_")]
+    if not valid_keys:
+        print("\033[91m[ERROR] API Keys not found. Set JANUS_API_KEYS env var.\033[0m")
+        return None
+
+    key = random.choice(valid_keys)
     
+    # Формируем контекст
     inv_str = ", ".join(state.inventory) if state.inventory else "Пусто"
-    lore_str = "; ".join(state.lore[-3:])
     
     prompt = (
         f"{SYSTEM_PROMPT}\n\n"
@@ -164,18 +150,16 @@ def call_gemini(state, user_action, api_keys):
             response = requests.post(url, json=payload, headers=headers, timeout=15)
             if response.status_code == 200:
                 data = response.json()
-                if 'candidates' in data:
-                    raw_text = data['candidates'][0]['content']['parts'][0]['text']
-                    clean_text = raw_text.replace("```json", "").replace("```", "").strip()
-                    try:
-                        return json.loads(clean_text)
-                    except: continue
-        except Exception:
+                raw_text = data['candidates'][0]['content']['parts'][0]['text']
+                clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+                return json.loads(clean_text)
+        except Exception as e:
             continue
             
     return None
 
 def print_slow(text, speed=0.01):
+    """Эффект печати текста."""
     for char in text:
         sys.stdout.write(char)
         sys.stdout.flush()
@@ -191,20 +175,18 @@ def main():
     ╚═══════════════════════════════════════╝
     """ + "\033[0m")
     
-    # 1. Загрузка ключей
-    keys = get_api_keys()
-    
     state = GameState()
     state.load()
     
     if state.depth == 1 and not state.last_context:
-        intro = "Ты открываешь глаза. Вокруг белый шум. Стены твоей капсулы пульсируют в такт твоему сердцу. Голос в голове ждет команды."
+        intro = "Ты открываешь глаза. Вокруг белый шум. Стены твоей капсулы (или комнаты?) пульсируют в такт твоему сердцу. Голос в голове ждет команды."
         print_slow(intro)
         state.last_context = intro
 
     while True:
         print("\n" + "─"*40)
-        print(f"\033[90m[DEPTH: {state.depth} | ENTROPY: {state.entropy:.2f} | PSYCH: {state.psych_profile}]\033[0m")
+        # Visual Update: Cyan color for better readability on all backgrounds
+        print(f"\033[36m[DEPTH: {state.depth} | ENTROPY: {state.entropy:.2f} | PSYCH: {state.psych_profile}]\033[0m")
         
         user_input = input("\n\033[93m> Твои действия: \033[0m").strip()
         
@@ -219,7 +201,7 @@ def main():
         state.psych_profile = analyze_user_input(user_input, state.psych_profile)
         print("Wait...", end="\r")
         
-        response = call_gemini(state, user_input, keys)
+        response = call_gemini(state, user_input)
         
         if response:
             visual = response.get('visual_clue', '🌀')
@@ -228,7 +210,8 @@ def main():
             artifact = response.get('artifact_found')
             lore = response.get('lore_unlocked')
             
-            print(f"\n{visual} \033[97m{textwrap.fill(narrative, width=70)}\033[0m\n")
+            # Visual Update: Adaptive Bold (\033[1m) instead of Hard White
+            print(f"\n{visual} \033[1m{textwrap.fill(narrative, width=70)}\033[0m\n")
             
             if artifact:
                 print(f"\033[92m[!] ПОЛУЧЕН АРТЕФАКТ: {artifact}\033[0m")
@@ -249,7 +232,7 @@ def main():
             state.save()
             
         else:
-            print("\033[91m⚠️ Сбой связи. Проверь интернет или ключи.\033[0m")
+            print("\033[91m⚠️ Сбой связи с Архитектором. Проверь ключи API.\033[0m")
 
 if __name__ == "__main__":
     main()
