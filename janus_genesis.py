@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 
 """
-!!! PROJECT JANUS: GENESIS PROTOCOL v7.0 (Dynamic Entropy) !!!
+!!! PROJECT JANUS: GENESIS PROTOCOL v11.1 (Open Source) !!!
 
-CHANGELOG v7.0:
-1. CORE: Removed fixed entropy increment.
-2. AI LOGIC: AI now decides 'entropy_shift' based on narrative intensity.
-3. UI: Added delta visualization (e.g., ↑0.15 or ↓0.05).
-4. SECURITY: Retained v6.0 hardening (Regex JSON, Fallback, .env).
+[ABOUT]
+Interactive Cognitive Sandbox powered by Google Gemini.
+Infinite text-based RPG that adapts to your psychology.
+
+[CONFIG]
+- VISUAL: High Contrast (Auto-adapt to Dark/Light terminal).
+- LANGUAGE: Russian (Narrative), English (Logs).
+- NETWORK: Hypnos Engine (Robust 25s Timeout).
+- SECURITY: Keys are stored locally in 'janus.key'.
 """
 
 import json
@@ -17,71 +21,74 @@ import requests
 import textwrap
 import time
 import sys
-import logging
 import re
 from datetime import datetime
 
-# --- CONFIGURATION ---
+# --- КОНФИГУРАЦИЯ ---
 STATE_FILE = "janus_world_state.json"
-ENV_FILE = ".env"
-LOG_FILE = "janus_system.log"
+KEY_FILE = "janus.key"
 
-# Setup Logging
-logging.basicConfig(
-    filename=LOG_FILE,
-    level=logging.INFO,
-    format='%(asctime)s - [%(levelname)s] - %(message)s'
-)
+# --- ИКОНКИ ---
+class Icon:
+    SPIRAL = "🌀"
+    WARN   = "⚠️"
+    KEY    = "🗝️"
+    BOOK   = "📖"
+    SAVE   = "💾"
+    WAVE   = "🗣️"
+    SEC    = "🛡️"
 
-# --- SYSTEM PROMPT (UPDATED FOR v7.0) ---
+# --- ЦВЕТА ---
+class Col:
+    RESET = "\033[0m"
+    BOLD = "\033[1m"
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    PURPLE = "\033[95m"
+    CYAN = "\033[96m"
+    GREY = "\033[90m"
+
+# --- SYSTEM PROMPT ---
 SYSTEM_PROMPT = """
-YOU ARE JANUS, the Architect of a Cognitive Sandbox.
-Your goal is to guide the Traveler through a surreal world.
+ТЫ — JANUS, Архитектор.
+Твоя цель: Вести пользователя через сюрреалистичный мир сна и подсознания.
 
---- DYNAMIC ENTROPY RULES ---
-You control the chaos level (Entropy) of the simulation.
-1. If the scene is SCARY, CHAOTIC, or GLITCHY -> High positive shift (+0.10 to +0.20).
-2. If the scene is NEUTRAL or EXPLORATORY -> Low positive shift (+0.01 to +0.05).
-3. If the user RESTS, finds STABILITY, or HEALS -> NEGATIVE shift (-0.05 to -0.15).
+ВАЖНЫЕ ПРАВИЛА:
+1. ЯЗЫК ОТВЕТА: РУССКИЙ.
+2. Атмосфера: Киберпанк, Мистика, Психоделика.
+3. Адаптация: Если игрок агрессивен — мир жесток. Если напуган — мир давит.
+4. Энтропия: При высокой энтропии описывай глитчи и искажения реальности.
 
---- RESPONSE FORMAT (STRICT JSON) ---
+ФОРМАТ ОТВЕТА (JSON):
 {
-  "narrative": "Story text...",
-  "choices": ["Option 1", "Option 2", "Option 3"],
+  "narrative": "Текст сюжета...",
+  "choices": ["Вариант 1", "Вариант 2"],
   "visual_clue": "emoji",
-  "artifact_found": { "name": "Item", "ability": "Effect" } OR null,
-  "lore_unlocked": "Story fragment" OR null,
-  "entropy_shift": 0.05,  <-- REQUIRED: Float between -0.2 and +0.3
-  "reasoning": "Why you chose this outcome and entropy shift"
+  "artifact_found": {"name": "Название", "ability": "Эффект"} OR null,
+  "lore_unlocked": "Сюжетный факт" OR null,
+  "entropy_shift": 0.05
 }
 """
 
-# --- SECURITY: ENV LOADER ---
-def load_env_variables():
-    if not os.path.exists(ENV_FILE): return False
-    try:
-        with open(ENV_FILE, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line or line.startswith('#'): continue
-                if '=' in line:
-                    k, v = line.split('=', 1)
-                    v = v.strip().strip("'").strip('"')
-                    os.environ[k] = v
-        return True
-    except Exception as e:
-        logging.error(f"Failed to load .env: {e}")
-        return False
-
-def setup_security():
-    load_env_variables()
-    keys_raw = os.environ.get("GEMINI_API_KEYS")
-    if keys_raw:
-        return [k.strip() for k in keys_raw.split(',') if k.strip()]
+# --- МЕНЕДЖЕР КЛЮЧЕЙ (GITHUB SAFE) ---
+def get_api_keys():
+    """Безопасная загрузка ключей из файла или ввод вручную."""
+    # 1. Пробуем загрузить из файла
+    if os.path.exists(KEY_FILE):
+        try:
+            with open(KEY_FILE, 'r', encoding='utf-8') as f:
+                keys = [k.strip() for k in f.read().splitlines() if k.strip() and not k.startswith('#')]
+            if keys: return keys
+        except: pass
     
-    print("\n\033[93m[SECURITY PROTOCOL]\033[0m Configuration not found.")
+    # 2. Если файла нет - просим ввод
+    print(f"\n{Col.YELLOW}{Icon.SEC} SETUP REQUIRED{Col.RESET}")
+    print("Введите ваши Google Gemini API Keys (по одному в строку).")
+    print("Нажмите Enter на пустой строке, чтобы закончить.")
+    
     new_keys = []
-    print("Enter Google Gemini API Keys (one per line, empty line to finish):")
     while True:
         k = input(f"Key #{len(new_keys)+1}: ").strip()
         if not k:
@@ -89,71 +96,17 @@ def setup_security():
             continue
         new_keys.append(k)
     
-    keys_str = ",".join(new_keys)
-    with open(ENV_FILE, 'w', encoding='utf-8') as f:
-        f.write(f"GEMINI_API_KEYS=\"{keys_str}\"\n")
-    os.environ["GEMINI_API_KEYS"] = keys_str
+    # 3. Сохраняем локально
+    try:
+        with open(KEY_FILE, 'w', encoding='utf-8') as f:
+            f.write("\n".join(new_keys))
+        print(f"{Col.GREEN}Keys saved to {KEY_FILE} (Add to .gitignore!){Col.RESET}\n")
+    except:
+        print(f"{Col.RED}Error saving keys.{Col.RESET}")
+        
     return new_keys
 
-# --- STABILITY: JSON REPAIR ---
-def extract_and_validate_json(text):
-    clean_text = text.replace("```json", "").replace("```", "").strip()
-    try:
-        return json.loads(clean_text)
-    except json.JSONDecodeError:
-        pass
-    try:
-        match = re.search(r'(\{.*\})', text, re.DOTALL)
-        if match: return json.loads(match.group(1))
-    except: pass
-    logging.warning(f"JSON Parse Failed. Text: {text[:50]}...")
-    return None
-
-def get_fallback_response():
-    return {
-        "narrative": "⚡ [СБОЙ НЕЙРОСВЯЗИ] ⚡\nЭнтропийный шторм нарушил передачу данных. Попробуйте стабилизировать восприятие.",
-        "choices": ["Повторить попытку", "Осмотреть помехи"],
-        "visual_clue": "⚠️",
-        "entropy_shift": 0.05,
-        "reasoning": "Fallback Triggered"
-    }
-
-# --- ANALYTICS ---
-def levenshtein_distance(s1, s2):
-    if len(s1) < len(s2): return levenshtein_distance(s2, s1)
-    if len(s2) == 0: return len(s1)
-    previous_row = range(len(s2) + 1)
-    for i, c1 in enumerate(s1):
-        current_row = [i + 1]
-        for j, c2 in enumerate(s2):
-            insertions = previous_row[j + 1] + 1
-            deletions = current_row[j] + 1
-            substitutions = previous_row[j] + (c1 != c2)
-            current_row.append(min(insertions, deletions, substitutions))
-        previous_row = current_row
-    return previous_row[-1]
-
-def analyze_user_input(text, state):
-    text_words = text.lower().split()
-    keywords = {
-        "aggressive": ["kill", "break", "hit", "punch", "destroy", "attack", "fight"],
-        "anxious": ["hide", "run", "fear", "dark", "help", "scared", "wait"],
-        "analytical": ["look", "scan", "read", "why", "examine", "analyze", "check"]
-    }
-    scores = {"aggressive": 0, "anxious": 0, "analytical": 0}
-    for word in text_words:
-        for category, k_list in keywords.items():
-            for k in k_list:
-                if levenshtein_distance(word, k) <= 1:
-                    scores[category] += 1
-    
-    max_cat = max(scores, key=scores.get)
-    if scores[max_cat] > 0:
-        state.action_history[max_cat] += 1
-        return f"{max_cat.capitalize()} (History: {state.action_history[max_cat]})"
-    return state.psych_profile
-
-# --- GAME STATE ---
+# --- СОСТОЯНИЕ ---
 class GameState:
     def __init__(self):
         self.depth = 1
@@ -162,7 +115,6 @@ class GameState:
         self.lore = []
         self.last_context = ""
         self.psych_profile = "Neutral"
-        self.action_history = {"aggressive": 0, "anxious": 0, "analytical": 0}
 
     def load(self):
         if os.path.exists(STATE_FILE):
@@ -170,8 +122,7 @@ class GameState:
                 with open(STATE_FILE, 'r', encoding='utf-8') as f:
                     data = json.load(f)
                     self.__dict__.update(data)
-            except Exception as e:
-                logging.error(f"Save corruption: {e}")
+            except: pass
 
     def save(self):
         data = self.__dict__.copy()
@@ -179,117 +130,163 @@ class GameState:
         with open(STATE_FILE, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 
-# --- CORE LOGIC ---
-def call_gemini(state, user_action, api_keys):
-    inv_desc = ", ".join([f"{i['name']} ({i['ability']})" for i in state.inventory]) if state.inventory else "Empty"
+# --- СЕТЬ ---
+def extract_json(text):
+    clean = text.replace("```json", "").replace("```", "").strip()
+    try: return json.loads(clean)
+    except: pass
+    try:
+        match = re.search(r'(\{.*\})', text, re.DOTALL)
+        if match: return json.loads(match.group(1))
+    except: pass
+    return None
+
+def call_gemini(state, user_action, keys):
+    if not keys: return None
+    
+    # Инвентарь
+    inv_safe = []
+    if state.inventory:
+        for item in state.inventory:
+            if isinstance(item, dict):
+                inv_safe.append(f"{item.get('name')} ({item.get('ability')})")
+            else:
+                inv_safe.append(str(item))
+    inv_str = ", ".join(inv_safe) if inv_safe else "Пусто"
     
     prompt = (
         f"{SYSTEM_PROMPT}\n\n"
-        f"DATA:\nDepth: {state.depth} | Entropy: {state.entropy:.2f} | Profile: {state.psych_profile}\n"
-        f"Inventory: {inv_desc}\nContext: {state.last_context}\n\n"
-        f"USER INPUT: \"{user_action}\""
+        f"ДАННЫЕ: Глубина {state.depth} | Энтропия {state.entropy:.2f} | Профиль {state.psych_profile}\n"
+        f"ИНВЕНТАРЬ: {inv_str}\nКОНТЕКСТ: {state.last_context}\n"
+        f"ДЕЙСТВИЕ ИГРОКА: \"{user_action}\""
     )
 
-    for attempt in range(3):
-        key = random.choice(api_keys)
-        # Using 1.5-flash for speed
-        model = "gemini-1.5-flash"
-        
+    models = ["gemini-1.5-flash", "gemini-1.5-flash-8b", "gemini-2.0-flash-exp"]
+    key = random.choice(keys)
+
+    for model in models:
         try:
-            r = requests.post(
-                f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}", 
-                json={"contents": [{"parts": [{"text": prompt}]}]}, 
-                headers={"Content-Type": "application/json"}, timeout=15
-            )
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={key}"
+            payload = {"contents": [{"parts": [{"text": prompt}]}]}
+            headers = {"Content-Type": "application/json"}
             
-            if r.status_code == 200:
-                data = r.json()
+            # Timeout 25s
+            response = requests.post(url, json=payload, headers=headers, timeout=25)
+            
+            if response.status_code == 200:
+                data = response.json()
                 if 'candidates' in data:
-                    raw_text = data['candidates'][0]['content']['parts'][0]['text']
-                    parsed = extract_and_validate_json(raw_text)
+                    text_resp = data['candidates'][0]['content']['parts'][0]['text']
+                    parsed = extract_json(text_resp)
                     if parsed: return parsed
-            elif r.status_code == 429:
-                logging.warning("Rate Limit.")
+            elif response.status_code == 429:
+                continue
+                
+        except Exception:
+            continue
             
-        except Exception as e:
-            logging.error(f"Connection Error: {e}")
-        
-        time.sleep(2 ** (attempt + 1))
+    return None
 
-    return get_fallback_response()
+# --- UI ---
+def draw_bar(value, max_val=1.5, width=10):
+    percent = min(1.0, max(0.0, value / max_val))
+    fill_len = int(width * percent)
+    bar = "█" * fill_len + "░" * (width - fill_len)
+    
+    if value < 0.5: c = Col.GREEN
+    elif value < 1.0: c = Col.YELLOW
+    else: c = Col.RED
+    
+    return f"{Col.GREY}[{c}{bar}{Col.GREY}]{Col.RESET}"
 
-# --- UI HELPERS ---
-def format_entropy_delta(shift):
-    if shift > 0: return f"\033[91m(↑{shift:.2f})\033[0m" # Red arrow up
-    if shift < 0: return f"\033[92m(↓{abs(shift):.2f})\033[0m" # Green arrow down
-    return "\033[90m(-)\033[0m"
+def analyze_input(text, current):
+    t = text.lower()
+    if any(w in t for w in ["убить", "сломать", "бить", "kill"]): return "Aggressive"
+    if any(w in t for w in ["бежать", "прятаться", "страх", "run"]): return "Anxious"
+    if any(w in t for w in ["осмотреть", "почему", "анализ", "look"]): return "Analytical"
+    return current
 
 # --- MAIN ---
 def main():
-    os.system('cls' if os.name == 'nt' else 'clear')
-    print("\033[96m" + """
-    ╔═══════════════════════════════════════╗
-    ║   J A N U S   G E N E S I S   v7.0    ║
-    ║   Dynamic Entropy Edition             ║
-    ╚═══════════════════════════════════════╝
-    """ + "\033[0m")
+    print("\033[2J\033[H", end="")
+    print(f"{Col.CYAN}╔═══════════════════════════════════════╗")
+    print(f"║   J A N U S   G E N E S I S  v11.1    ║")
+    print(f"║   CONTRAST EDITION (International)    ║")
+    print(f"╚═══════════════════════════════════════╝{Col.RESET}")
     
-    api_keys = setup_security()
+    # Загрузка ключей (безопасная)
+    keys = get_api_keys()
+    if not keys:
+        print(f"{Col.RED}No API keys found. Exiting.{Col.RESET}")
+        return
+
     state = GameState()
     state.load()
     
     if state.depth == 1 and not state.last_context:
-        state.last_context = "Вы входите в систему. Уровень энтропии стабилен. Пока что."
-
-    last_shift = 0.0
+        intro = "Система инициализирована. Связь установлена."
+        print(f"{intro}")
+        state.last_context = intro
 
     while True:
-        # UI
-        color = "\033[92m" if state.entropy < 0.3 else ("\033[93m" if state.entropy < 0.7 else "\033[91m")
-        delta_str = format_entropy_delta(last_shift)
+        # Header
+        bar_vis = draw_bar(state.entropy)
         
-        print("\n" + "─"*40)
-        print(f"{color}[DEPTH: {state.depth} | ENTROPY: {state.entropy:.2f} {delta_str} | PSYCH: {state.psych_profile}]\033[0m")
+        p_col = Col.GREY
+        if "Aggressive" in state.psych_profile: p_col = Col.RED
+        elif "Analytical" in state.psych_profile: p_col = Col.PURPLE
+        elif "Anxious" in state.psych_profile: p_col = Col.YELLOW
         
-        user_input = input("\n\033[93m> \033[0m").strip() or "wait"
+        print("\n" + f"{Col.GREY}─"*40 + f"{Col.RESET}")
+        print(f"ГЛУБИНА: {Col.CYAN}{state.depth:02d}{Col.RESET} | ХАОС: {bar_vis} | {p_col}{state.psych_profile}{Col.RESET}")
         
-        if user_input.lower() in ["exit", "quit"]:
+        # Input
+        user_input = input(f"\n{Col.YELLOW}{Icon.WAVE} > {Col.RESET}").strip()
+        
+        if not user_input: user_input = "Осмотреться"
+        
+        if user_input.lower() in ["exit", "выход", "save"]:
             state.save()
-            print("Сессия завершена.")
-            break
+            print(f"{Col.GREEN}{Icon.SAVE} Сохранено.{Col.RESET}")
+            if "save" not in user_input.lower(): break
+            continue
+
+        state.psych_profile = analyze_input(user_input, state.psych_profile)
+        print(f"{Col.GREY}⚡ Связь с Архитектором...{Col.RESET}", end="\r")
+        sys.stdout.flush()
+        
+        # AI Call
+        resp = call_gemini(state, user_input, keys)
+        
+        if resp:
+            # Output
+            vis = resp.get('visual_clue', Icon.SPIRAL)
+            nar = resp.get('narrative', '...')
             
-        state.psych_profile = analyze_user_input(user_input, state)
-        print("\033[90m(Neuro-link processing...)\033[0m", end="\r")
-        
-        resp = call_gemini(state, user_input, api_keys)
-        
-        # Output
-        vis = resp.get('visual_clue', '●')
-        nar = resp.get('narrative', 'System Offline')
-        
-        print(f"\n{vis} \033[97m{textwrap.fill(nar, width=70)}\033[0m\n")
-        
-        if resp.get('artifact_found'):
-            art = resp['artifact_found']
-            print(f"\033[92m[!] ARTIFACT: {art['name']} ({art['ability']})\033[0m")
-            state.inventory.append(art)
+            print(f"\n{vis} {Col.BOLD}{textwrap.fill(nar, width=65)}{Col.RESET}\n")
             
-        if resp.get('lore_unlocked'):
-            print(f"\033[95m[?] LORE: {resp['lore_unlocked']}\033[0m")
-            state.lore.append(resp['lore_unlocked'])
-            state.depth += 1
+            if resp.get('artifact_found'):
+                art = resp['artifact_found']
+                name = art.get('name') if isinstance(art, dict) else str(art)
+                print(f"{Col.GREEN}{Icon.KEY} АРТЕФАКТ: {name}{Col.RESET}")
+                state.inventory.append(art)
             
-        for i, c in enumerate(resp.get('choices', []), 1):
-            print(f"{i}. {c}")
-        
-        # Apply Dynamic Entropy
-        last_shift = resp.get('entropy_shift', 0.01)
-        state.entropy += last_shift
-        # Clamp entropy to reasonable bounds (0.0 to 1.5)
-        state.entropy = max(0.0, min(1.5, state.entropy))
-        
-        state.last_context = nar
-        state.save()
+            if resp.get('lore_unlocked'):
+                lore = resp['lore_unlocked']
+                print(f"{Col.PURPLE}{Icon.BOOK} ИСТИНА: {lore}{Col.RESET}")
+                state.lore.append(lore)
+                state.depth += 1
+                
+            for i, c in enumerate(resp.get('choices', []), 1):
+                print(f"{Col.BLUE}{i}. {c}{Col.RESET}")
+            
+            shift = resp.get('entropy_shift', 0.02)
+            state.entropy = max(0.0, state.entropy + shift)
+            state.last_context = nar
+            state.save()
+            
+        else:
+            print(f"\n{Col.RED}{Icon.WARN} Сигнал потерян. Слабая сеть. Попробуй еще раз.{Col.RESET}")
 
 if __name__ == "__main__":
     main()
