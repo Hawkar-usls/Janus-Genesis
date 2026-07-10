@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pla-janus-genesis"
+version = "0.1.0"
+description = "Physics-first generative design laboratory for strong, material-efficient FDM parts."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "Hawkar-usls" }]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.5",
+]
+geometry = [
+  "numpy>=2.0",
+  "scipy>=1.13",
+  "meshio>=5.3",
+  "pyvista>=0.44",
+]
+
+[project.scripts]
+janus-genesis = "janus_genesis.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/janus_genesis"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
