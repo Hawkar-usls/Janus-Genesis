@@ -1,0 +1,23 @@
+name: Inspect upload
+
+on:
+  push:
+    branches: [release/v0.4.7-upload]
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect binary
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ls -l .upload/release.zip
+          sha256sum .upload/release.zip
+          file .upload/release.zip
+          unzip -t .upload/release.zip
+          unzip -l .upload/release.zip | head -80
