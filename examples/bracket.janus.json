@@ -1,0 +1,34 @@
+{
+  "schema_version": "0.1",
+  "model": "bracket.stl",
+  "units": "mm",
+  "protected_regions": [
+    {
+      "id": "mounting_holes",
+      "type": "cylinders",
+      "behavior": "freeze_geometry",
+      "note": "Диаметры и положение отверстий нельзя изменять."
+    }
+  ],
+  "load_cases": [
+    {
+      "id": "downward_service_load",
+      "force_n": [0.0, 0.0, -150.0],
+      "application_region": "outer_tip",
+      "fixed_region": "mounting_holes"
+    }
+  ],
+  "constraints": {
+    "safety_factor": 2.0,
+    "max_displacement_mm": 1.0,
+    "min_wall_mm": 1.2,
+    "supports_allowed": false,
+    "preserve_scale": true
+  },
+  "objectives": {
+    "mass": 0.45,
+    "stiffness": 0.35,
+    "printability": 0.20
+  },
+  "status": "contract_example_not_yet_enforced"
+}

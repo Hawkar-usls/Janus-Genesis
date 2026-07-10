@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/project.schema.json",
+  "title": "PLA Janus Genesis model contract",
+  "type": "object",
+  "required": ["schema_version", "model", "units", "constraints"],
+  "properties": {
+    "schema_version": {"type": "string"},
+    "model": {"type": "string"},
+    "units": {"enum": ["mm"]},
+    "protected_regions": {"type": "array", "items": {"type": "object"}},
+    "load_cases": {"type": "array", "items": {"type": "object"}},
+    "constraints": {
+      "type": "object",
+      "required": ["min_wall_mm", "preserve_scale"],
+      "properties": {
+        "safety_factor": {"type": "number", "exclusiveMinimum": 0},
+        "max_displacement_mm": {"type": "number", "exclusiveMinimum": 0},
+        "min_wall_mm": {"type": "number", "exclusiveMinimum": 0},
+        "supports_allowed": {"type": "boolean"},
+        "preserve_scale": {"type": "boolean"}
+      }
+    },
+    "objectives": {"type": "object"}
+  }
+}
