@@ -19,9 +19,11 @@ Thumbs.db
 workspace/inbox/*
 workspace/outbox/*
 workspace/reports/*
+workspace/memory/*
 !workspace/inbox/.gitkeep
 !workspace/outbox/.gitkeep
 !workspace/reports/.gitkeep
+!workspace/memory/.gitkeep
 
 # Large CAD / mesh artifacts
 *.3mf

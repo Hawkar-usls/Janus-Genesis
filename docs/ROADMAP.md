@@ -37,6 +37,8 @@
 - [ ] Displacement and stress reports
 - [ ] FDM anisotropy model
 - [ ] Creep and temperature warnings
+- [ ] Residual authority and independent reference solver
+- [ ] Mesh and voxel-phase convergence gates
 
 ## JG-4 — Transformer
 
@@ -46,15 +48,38 @@
 - [ ] Shell-to-lattice transitions
 - [ ] Minimum feature and overhang filters
 
-## JG-5 — Janus Evolution
+## JG-5 — Bidirectional Mutation Fitness + Retrieval Memory
+
+Implemented as a non-mutating research scaffold:
+
+- [x] Machine-readable mutation experiment record
+- [x] JSON Schema for experiment memory
+- [x] Append-only atomic JSONL memory
+- [x] Deterministic retrieval by baseline/contract/load/operator fingerprints
+- [x] Forward improvement score
+- [x] Reverse preservation/recoverability score
+- [x] 1 / 3 / 5 / 7 multiscale agreement
+- [x] Directional disagreement uncertainty
+- [x] Hard-gate-first ranking
+- [x] Epistemic provenance: fact / analogy / hypothesis / tested mechanism
+- [x] Research intake gate: NOTICE → SEPARATE → SEARCH → FALSIFY → MODEL → GATE
+- [ ] Connect scorer to Geometry Contract outputs
+- [ ] Connect scorer to Physics Judge evidence
+- [ ] Connect scorer to slicer/Printability evidence
+- [ ] Geometry-descriptor retrieval beyond exact fingerprints
+- [ ] Controlled candidate generation inside mutable regions
+
+## JG-6 — Janus Evolution
 
 - [ ] Candidate mutations
 - [ ] Reproducible seeds
 - [ ] Pareto archive
-- [ ] Failure memory
+- [x] Failure-memory foundation
 - [ ] Surrogate model for faster proposals
+- [ ] Retrieval-informed operator selection
+- [ ] Bidirectional disagreement as a pruning signal
 
-## JG-6 — Physical Calibration
+## JG-7 — Physical Calibration
 
 - [ ] Printable coupon generator
 - [ ] Test rig protocol
@@ -71,3 +96,5 @@ For a selected model and declared loads, Janus should produce at least one candi
 3. uses less material than the baseline;
 4. can be sliced with the declared printer profile;
 5. survives a repeatable physical test.
+
+A bidirectional fitness score is only a ranking mechanism after steps 1–4 have been independently demonstrated. It is never a substitute for physical validation.

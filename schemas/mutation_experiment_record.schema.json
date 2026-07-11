@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/mutation_experiment_record.schema.json",
+  "title": "PLA Janus Genesis Mutation Experiment Record",
+  "type": "object",
+  "required": [
+    "schema",
+    "created_at_utc",
+    "baseline_fingerprint",
+    "contract_fingerprint",
+    "load_fingerprint",
+    "mutation_operator",
+    "region_descriptor",
+    "evidence",
+    "evaluation",
+    "outcome"
+  ],
+  "properties": {
+    "schema": {"const": "janus-mutation-experiment/1.0"},
+    "created_at_utc": {"type": "string", "format": "date-time"},
+    "baseline_fingerprint": {"type": "string", "minLength": 1},
+    "contract_fingerprint": {"type": "string", "minLength": 1},
+    "load_fingerprint": {"type": "string", "minLength": 1},
+    "mutation_operator": {"type": "string", "minLength": 1},
+    "region_descriptor": {"type": "string", "minLength": 1},
+    "descriptor_tokens": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "evidence": {"type": "object"},
+    "evaluation": {
+      "type": "object",
+      "required": ["eligible_for_ranking", "fitness", "verdict", "authority"],
+      "properties": {
+        "eligible_for_ranking": {"type": "boolean"},
+        "fitness": {"type": "number", "minimum": 0, "maximum": 1},
+        "verdict": {
+          "enum": [
+            "HARD_GATE_REJECTED",
+            "BIDIRECTIONAL_CONFIRMED",
+            "FORWARD_ONLY_UNCERTAIN",
+            "REVERSE_PRESERVED_NO_GAIN",
+            "BIDIRECTIONAL_REJECTED"
+          ]
+        },
+        "authority": {"const": "ranking_only_after_hard_gates"}
+      },
+      "additionalProperties": true
+    },
+    "physics_gate": {"type": "string"},
+    "printability_gate": {"type": "string"},
+    "phase_state": {"type": "string"},
+    "outcome": {"type": "string"},
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "primary_fact": {"type": "array", "items": {"type": "string"}},
+        "project_analogy": {"type": "array", "items": {"type": "string"}},
+        "hypothesis": {"type": "array", "items": {"type": "string"}},
+        "tested_mechanism": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
