@@ -1,0 +1,36 @@
+{
+  "schema": "janus-mutation-experiment/1.0",
+  "created_at_utc": "2026-07-11T12:00:00+00:00",
+  "baseline_fingerprint": "sha256:example-baseline",
+  "contract_fingerprint": "sha256:example-contract",
+  "load_fingerprint": "sha256:example-load-set",
+  "mutation_operator": "stress_aligned_rib",
+  "region_descriptor": "mutable shell between protected hooks",
+  "descriptor_tokens": ["shell", "hook", "center_press", "pla"],
+  "evidence": {
+    "forward_score": 0.78,
+    "reverse_score": 0.81,
+    "retrieval_score": 0.74,
+    "printability_score": 0.86,
+    "multiscale_scores": {"1": 0.82, "3": 0.79, "5": 0.76, "7": 0.74},
+    "uncertainty": 0.08,
+    "irreversibility": 0.04,
+    "phase_sensitivity": 0.10
+  },
+  "evaluation": {
+    "eligible_for_ranking": true,
+    "fitness": 0.716642,
+    "verdict": "BIDIRECTIONAL_CONFIRMED",
+    "authority": "ranking_only_after_hard_gates"
+  },
+  "physics_gate": "EXAMPLE_ONLY",
+  "printability_gate": "EXAMPLE_ONLY",
+  "phase_state": "PHASE_NOT_EVALUATED",
+  "outcome": "EXAMPLE_NOT_PHYSICAL_EVIDENCE",
+  "provenance": {
+    "primary_fact": ["Tranception uses inference-time retrieval and mirrored sequence scoring."],
+    "project_analogy": ["Genesis uses forward/reverse engineering evidence."],
+    "hypothesis": ["Retrieval memory may reduce repeated invalid mutations."],
+    "tested_mechanism": ["Deterministic hard-gate-first score aggregation."]
+  }
+}
