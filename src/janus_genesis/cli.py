@@ -15,13 +15,14 @@ def _load_config(path: Path) -> JanusConfig:
 
 
 def init_workspace(workspace: Path) -> None:
-    for name in ("inbox", "outbox", "reports"):
+    for name in ("inbox", "outbox", "reports", "memory"):
         (workspace / name).mkdir(parents=True, exist_ok=True)
     config_path = workspace / "janus.config.json"
     if not config_path.exists():
         JanusConfig().save(config_path)
     print(f"[JANUS] Workspace готов: {workspace.resolve()}")
     print(f"[JANUS] Положи STL/OBJ/PLY в: {(workspace / 'inbox').resolve()}")
+    print(f"[JANUS] Mutation memory: {(workspace / 'memory').resolve()}")
 
 
 def build_parser() -> argparse.ArgumentParser:
