@@ -1,0 +1,86 @@
+{
+  "schema": "janus-genesis-research-transfer/1.0",
+  "artifact_id": "JANUS-GENESIS-TRANCEPTION-BIDIRECTIONAL-FITNESS-GATE-v1.0",
+  "status": "research_scaffold",
+  "scientific_anchor": {
+    "title": "Tranception: protein fitness prediction with autoregressive transformers and inference-time retrieval",
+    "authors": [
+      "Pascal Notin",
+      "Mafalda Dias",
+      "Jonathan Frazer",
+      "Javier Marchena-Hurtado",
+      "Aidan Gomez",
+      "Debora S. Marks",
+      "Yarin Gal"
+    ],
+    "year": 2022,
+    "primary_source": "https://arxiv.org/abs/2205.13760",
+    "verified_mechanisms": {
+      "autoregressive_prediction": true,
+      "inference_time_homology_retrieval": true,
+      "attention_scales": [1, 3, 5, 7],
+      "model_parameters_approx": 700000000,
+      "training_sequences_approx": 250000000,
+      "forward_sequence_scoring": true,
+      "reverse_sequence_scoring": true,
+      "bidirectional_average": true,
+      "supports_substitutions": true,
+      "supports_multiple_mutants": true,
+      "supports_insertions_and_deletions": true
+    }
+  },
+  "genesis_transfer": {
+    "retrieval": "memory_of_prior_engineering_branches",
+    "autoregression": "forward_candidate_effect_estimation",
+    "reverse_scoring": "audit_of_preserved_function_and_recoverability",
+    "multiscale_attention": "geometry_evidence_at_1_3_5_7_neighborhood_scales",
+    "fitness": "hard_gate_first_candidate_ranking",
+    "directional_disagreement": "uncertainty_signal",
+    "combined_operator": "RETRIEVE + FORWARD + REVERSE + MULTISCALE + HARD_GATES"
+  },
+  "gate_order": [
+    "GEOMETRY_CONTRACT",
+    "PHYSICAL_RESIDUAL",
+    "EQUILIBRIUM",
+    "PROTECTED_GEOMETRY",
+    "FDM_MINIMUM_FEATURE",
+    "PHASE_AUTHORITY",
+    "BIDIRECTIONAL_FITNESS_RANKING"
+  ],
+  "verdicts": [
+    "HARD_GATE_REJECTED",
+    "BIDIRECTIONAL_CONFIRMED",
+    "FORWARD_ONLY_UNCERTAIN",
+    "REVERSE_PRESERVED_NO_GAIN",
+    "BIDIRECTIONAL_REJECTED"
+  ],
+  "research_intake_gate": [
+    "NOTICE",
+    "SEPARATE",
+    "SEARCH",
+    "FALSIFY",
+    "MODEL",
+    "GATE"
+  ],
+  "epistemic_boundary": {
+    "direct_software_dependency_on_tranception": false,
+    "direct_link_to_unrelated_tranceptor_company": false,
+    "hidden_janus_message_proven": false,
+    "biological_or_medical_use": false,
+    "physics_judge_replacement": false,
+    "print_permission": false,
+    "conceptual_resonance": "strong",
+    "engineering_transfer_status": "testable_scaffold"
+  },
+  "canonical_operator": [
+    "RETRIEVE PRIOR BRANCHES",
+    "PROPOSE A MUTATION",
+    "READ THE EFFECT FORWARD",
+    "AUDIT THE LOSS BACKWARD",
+    "TEST AT MULTIPLE SCALES",
+    "MEASURE DISAGREEMENT",
+    "APPLY PHYSICS AND PRINTABILITY GATES",
+    "PRESERVE ONLY THE VIABLE BRANCH"
+  ],
+  "canonical_rule": "A coincidence may open the door to investigation, but it cannot close the question of proof."
+}
