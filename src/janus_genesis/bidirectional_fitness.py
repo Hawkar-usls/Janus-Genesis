@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import json
 import os
+import time
+import uuid
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -164,10 +167,7 @@ def evaluate_candidate(evidence: MutationEvidence) -> dict[str, Any]:
     """
 
     evidence.validate()
-    gates = {
-        name: bool(evidence.hard_gates.get(name, False))
-        for name in DEFAULT_HARD_GATES
-    }
+    gates = {name: bool(evidence.hard_gates.get(name, False)) for name in DEFAULT_HARD_GATES}
     gates.update({str(name): bool(value) for name, value in evidence.hard_gates.items()})
     failed_gates = sorted(name for name, passed in gates.items() if not passed)
 
@@ -261,12 +261,105 @@ def record_similarity(record: MutationExperimentRecord, query: MutationQuery) ->
 class MutationMemory:
     """Append-only JSONL memory with deterministic retrieval.
 
-    The atomic rewrite keeps the file valid if the process is interrupted while
-    a new record is being committed.
+    Writers are serialized with an inter-process lock file. The record is then
+    committed through a unique, fsynced temporary file and ``os.replace``. This
+    preserves crash safety without allowing concurrent read/replace cycles to
+    silently overwrite each other's records.
     """
 
-    def __init__(self, path: Path) -> None:
+    def __init__(
+        self,
+        path: Path,
+        *,
+        lock_timeout_seconds: float = 10.0,
+        stale_lock_seconds: float = 300.0,
+        lock_poll_seconds: float = 0.02,
+    ) -> None:
         self.path = Path(path)
+        self.lock_timeout_seconds = float(lock_timeout_seconds)
+        self.stale_lock_seconds = float(stale_lock_seconds)
+        self.lock_poll_seconds = float(lock_poll_seconds)
+        if self.lock_timeout_seconds <= 0.0:
+            raise ValueError("lock_timeout_seconds must be positive")
+        if self.stale_lock_seconds <= 0.0:
+            raise ValueError("stale_lock_seconds must be positive")
+        if self.lock_poll_seconds <= 0.0:
+            raise ValueError("lock_poll_seconds must be positive")
+
+    @property
+    def lock_path(self) -> Path:
+        return Path(f"{self.path}.lock")
+
+    def _remove_stale_lock(self) -> bool:
+        try:
+            age_seconds = max(0.0, time.time() - self.lock_path.stat().st_mtime)
+        except FileNotFoundError:
+            return True
+        if age_seconds <= self.stale_lock_seconds:
+            return False
+        try:
+            self.lock_path.unlink()
+        except FileNotFoundError:
+            return True
+        except OSError:
+            return False
+        return True
+
+    @contextmanager
+    def _exclusive_write_lock(self) -> Iterable[str]:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        token = uuid.uuid4().hex
+        deadline = time.monotonic() + self.lock_timeout_seconds
+        owner = {
+            "pid": os.getpid(),
+            "token": token,
+            "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        }
+        encoded_owner = json.dumps(owner, sort_keys=True).encode("utf-8")
+
+        while True:
+            try:
+                descriptor = os.open(
+                    self.lock_path,
+                    os.O_CREAT | os.O_EXCL | os.O_WRONLY,
+                    0o600,
+                )
+            except FileExistsError:
+                if self._remove_stale_lock():
+                    continue
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(
+                        f"Timed out waiting for mutation-memory lock: {self.lock_path}"
+                    )
+                time.sleep(self.lock_poll_seconds)
+                continue
+
+            try:
+                os.write(descriptor, encoded_owner)
+                os.fsync(descriptor)
+            except BaseException:
+                try:
+                    self.lock_path.unlink()
+                except FileNotFoundError:
+                    pass
+                raise
+            finally:
+                os.close(descriptor)
+            break
+
+        try:
+            yield token
+        finally:
+            current_owner: dict[str, Any] | None = None
+            try:
+                current_owner = json.loads(self.lock_path.read_text(encoding="utf-8"))
+            except (FileNotFoundError, OSError, json.JSONDecodeError):
+                pass
+            if current_owner is not None and current_owner.get("token") == token:
+                try:
+                    self.lock_path.unlink()
+                except FileNotFoundError:
+                    pass
 
     def iter_records(self) -> Iterable[MutationExperimentRecord]:
         if not self.path.exists():
@@ -286,17 +379,28 @@ class MutationMemory:
         return records
 
     def append(self, record: MutationExperimentRecord) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        existing = self.path.read_text(encoding="utf-8") if self.path.exists() else ""
         line = json.dumps(record.to_dict(), ensure_ascii=False, sort_keys=True)
-        payload = existing
-        if payload and not payload.endswith("\n"):
-            payload += "\n"
-        payload += line + "\n"
+        with self._exclusive_write_lock() as lock_token:
+            existing = self.path.read_text(encoding="utf-8") if self.path.exists() else ""
+            payload = existing
+            if payload and not payload.endswith("\n"):
+                payload += "\n"
+            payload += line + "\n"
 
-        temporary = self.path.with_suffix(self.path.suffix + ".tmp")
-        temporary.write_text(payload, encoding="utf-8", newline="\n")
-        os.replace(temporary, self.path)
+            temporary = self.path.parent / (
+                f".{self.path.name}.{os.getpid()}.{lock_token}.tmp"
+            )
+            try:
+                with temporary.open("w", encoding="utf-8", newline="\n") as handle:
+                    handle.write(payload)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+                os.replace(temporary, self.path)
+            finally:
+                try:
+                    temporary.unlink()
+                except FileNotFoundError:
+                    pass
 
     def retrieve(self, query: MutationQuery, limit: int = 5) -> list[dict[str, Any]]:
         if limit < 1:

@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+import os
+import time
 from dataclasses import asdict
+from multiprocessing import get_context
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -103,6 +107,76 @@ def make_record(operator: str, baseline: str, tokens: list[str]) -> MutationExpe
         evaluation=evaluate_candidate(evidence),
         outcome="VALID",
     )
+
+
+def _concurrent_append_worker(
+    path_text: str,
+    worker_id: int,
+    records_per_worker: int,
+    start_event: Any,
+) -> None:
+    if not start_event.wait(timeout=10.0):
+        raise RuntimeError("concurrent append test did not receive the start signal")
+    memory = MutationMemory(Path(path_text), lock_timeout_seconds=20.0)
+    for record_index in range(records_per_worker):
+        baseline = f"worker-{worker_id}-record-{record_index}"
+        memory.append(make_record("stress_aligned_rib", baseline, ["hook", "shell"]))
+
+
+def test_jsonl_memory_serializes_concurrent_process_appends(tmp_path: Path) -> None:
+    path = tmp_path / "memory" / "mutation_experiments.jsonl"
+    context = get_context("spawn")
+    start_event = context.Event()
+    worker_count = 4
+    records_per_worker = 6
+    workers = [
+        context.Process(
+            target=_concurrent_append_worker,
+            args=(str(path), worker_id, records_per_worker, start_event),
+        )
+        for worker_id in range(worker_count)
+    ]
+
+    for worker in workers:
+        worker.start()
+    start_event.set()
+    for worker in workers:
+        worker.join(timeout=30.0)
+        assert worker.is_alive() is False
+        assert worker.exitcode == 0
+
+    memory = MutationMemory(path)
+    records = list(memory.iter_records())
+    expected = {
+        f"worker-{worker_id}-record-{record_index}"
+        for worker_id in range(worker_count)
+        for record_index in range(records_per_worker)
+    }
+    assert len(records) == worker_count * records_per_worker
+    assert {record.baseline_fingerprint for record in records} == expected
+    assert memory.lock_path.exists() is False
+    assert list(path.parent.glob(f".{path.name}.*.tmp")) == []
+
+
+def test_jsonl_memory_recovers_abandoned_stale_lock(tmp_path: Path) -> None:
+    path = tmp_path / "memory" / "mutation_experiments.jsonl"
+    memory = MutationMemory(
+        path,
+        lock_timeout_seconds=1.0,
+        stale_lock_seconds=0.05,
+        lock_poll_seconds=0.005,
+    )
+    memory.lock_path.parent.mkdir(parents=True, exist_ok=True)
+    memory.lock_path.write_text('{"pid": -1, "token": "abandoned"}', encoding="utf-8")
+    old_timestamp = time.time() - 1.0
+    os.utime(memory.lock_path, (old_timestamp, old_timestamp))
+
+    memory.append(make_record("stress_aligned_rib", "baseline-stale", ["hook"]))
+
+    records = list(memory.iter_records())
+    assert len(records) == 1
+    assert records[0].baseline_fingerprint == "baseline-stale"
+    assert memory.lock_path.exists() is False
 
 
 def test_jsonl_memory_roundtrip_and_retrieval(tmp_path: Path) -> None:
