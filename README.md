@@ -4,7 +4,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.11%2B-blue)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Project status](https://img.shields.io/badge/status-foundation-orange)](docs/ROADMAP.md)
+[![Project status](https://img.shields.io/badge/status-foundation%20%2B%20research-orange)](docs/ROADMAP.md)
 
 **PLA Janus Genesis** — открытая physics-first лаборатория преобразования существующих 3D-моделей для FDM-печати. Пользователь кладёт STL/OBJ/PLY в папку `workspace/inbox`, задаёт принтер, PLA, защищённые зоны и нагрузки, а Janus строит и сравнивает улучшенные варианты.
 
@@ -31,16 +31,28 @@ existing model
 
 Репозиторий содержит **Foundation MVP**:
 
-- пакетная загрузка моделей из папки;
+- пакетную загрузку моделей из папки;
 - STL, OBJ и PLY;
-- проверка и консервативный ремонт сетки;
+- проверку и консервативный ремонт сетки;
 - поиск базовой ориентации печати по эвристике нависаний;
 - сравнение исходной и преобразованной модели;
 - экспорт кандидата и JSON-отчёта;
-- конфигурация Bambu Lab A1 + PLA;
+- конфигурацию Bambu Lab A1 + PLA;
 - контракт будущих protected regions и load cases.
 
-**Важно:** текущая foundation-версия ещё не выполняет FEA и топологическую оптимизацию, поэтому не заявляет доказанное увеличение прочности. Она создаёт безопасный и воспроизводимый входной слой для следующих этапов.
+Также добавлен **research scaffold двунаправленной оценки мутаций**:
+
+- JSONL-память успешных и провальных экспериментов;
+- forward score ожидаемого улучшения;
+- reverse score сохранения и восстанавливаемости функции;
+- согласование геометрии на масштабах 1 / 3 / 5 / 7;
+- directional disagreement как сигнал неопределённости;
+- hard-gate-first ranking, который не может обойти Geometry, Physics или Printability.
+
+Документация: [`docs/BIDIRECTIONAL_MUTATION_FITNESS.md`](docs/BIDIRECTIONAL_MUTATION_FITNESS.md)  
+Машиночитаемый research-transfer: [`data/JANUS-GENESIS-TRANCEPTION-BIDIRECTIONAL-FITNESS-GATE-v1.0.json`](data/JANUS-GENESIS-TRANCEPTION-BIDIRECTIONAL-FITNESS-GATE-v1.0.json)
+
+**Важно:** Foundation-версия репозитория ещё не выполняет полноценную FEA, топологическую оптимизацию или реальную STL-мутацию. Новый fitness-модуль является проверяемой архитектурной заготовкой, а не разрешением печати.
 
 ## Быстрый запуск на Windows
 
@@ -72,6 +84,12 @@ workspace/outbox/my_model__janus_candidate.stl
 workspace/reports/my_model__janus_report.json
 ```
 
+Память будущих mutation-экспериментов хранится здесь:
+
+```text
+workspace/memory/mutation_experiments.jsonl
+```
+
 Анализ одной модели без пакетного режима:
 
 ```powershell
@@ -81,12 +99,14 @@ janus-genesis analyze path\to\model.stl
 ## Структура проекта
 
 ```text
-src/janus_genesis/     код конвейера
+src/janus_genesis/     код конвейера и исследовательских операторов
 workspace/inbox/       входные модели
 workspace/outbox/      преобразованные кандидаты
 workspace/reports/     измерения и отчёты
-examples/              пример контракта модели
+workspace/memory/      локальная память mutation-экспериментов
+examples/              примеры контрактов и записей памяти
 schemas/               JSON Schema
+data/                  машиночитаемые research-transfer артефакты
 scripts/               удобный запуск на Windows
 docs/                  архитектура, roadmap и правила проверки
 ```
@@ -117,14 +137,18 @@ docs/                  архитектура, roadmap и правила про�
 - минимальное время печати;
 - устойчивость к нескольким сценариям нагрузки.
 
+Fitness может ранжировать только кандидатов, которые уже прошли обязательные инженерные gates. Высокий score никогда не отменяет провал Geometry Contract, residual/equilibrium, protected geometry или минимальной печатной толщины.
+
 ## Дорожная карта
 
 1. **Foundation** — импорт, ремонт, ориентация, отчёт. `ACTIVE`
 2. **Printability** — стенки, нависания, мосты, сопло, слои.
-3. **Physics** — Gmsh + CalculiX/FEniCSx, несколько load cases.
-4. **Transformation** — topology optimization и stress-aware lattice.
-5. **Evolution** — популяция кандидатов и Pareto-отбор.
-6. **Calibration** — обучение на реально напечатанных образцах.
+3. **Geometry Contract** — защищённые интерфейсы и mutable regions.
+4. **Physics** — несколько load cases, residual authority, mesh/phase convergence.
+5. **Bidirectional Mutation Fitness** — retrieval memory, forward/reverse scoring, multiscale agreement. `SCAFFOLD`
+6. **Transformation** — topology optimization и stress-aware lattice.
+7. **Evolution** — популяция кандидатов и Pareto-отбор.
+8. **Calibration** — обучение на реально напечатанных образцах.
 
 Подробно: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
