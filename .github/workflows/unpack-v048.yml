@@ -4,17 +4,22 @@ on:
   push:
     branches:
       - release/v0.4.8-repository-unification
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: write
 
 jobs:
   unpack:
+    if: github.head_ref == 'release/v0.4.8-repository-unification' || github.ref_name == 'release/v0.4.8-repository-unification'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Decode and unpack unified repository
         shell: bash
