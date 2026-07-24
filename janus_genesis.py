@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Janus Genesis v16 — Golden Mirror MMO Foundation.
+"""Janus Genesis v16.1 — Golden Mirror MMO Foundation.
 
 A kindness-first evolving interactive-fiction engine. It can run standalone,
 be imported as a module, or serve as deterministic domain logic for a future
@@ -16,15 +16,17 @@ import re
 import sys
 import tempfile
 import threading
+import time
 import urllib.error
 import urllib.request
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
-__version__ = "16.0.0"
+__version__ = "16.1.0"
 
 
 class Shard(StrEnum):
@@ -140,16 +142,78 @@ class GenesisConfig:
         )
 
 
+class InterProcessFileLock:
+    """Dependency-free lock for workers sharing one data directory."""
+
+    def __init__(
+        self,
+        path: Path,
+        *,
+        timeout: float = 30.0,
+        stale_after: float = 120.0,
+        poll_interval: float = 0.02,
+    ) -> None:
+        self.path = Path(path)
+        self.timeout = timeout
+        self.stale_after = stale_after
+        self.poll_interval = poll_interval
+        self._owned = False
+
+    def acquire(self) -> None:
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        deadline = time.monotonic() + self.timeout
+        payload = json.dumps(
+            {"pid": os.getpid(), "created_at": datetime.now(timezone.utc).isoformat()},
+            sort_keys=True,
+        ).encode("utf-8")
+        while True:
+            try:
+                fd = os.open(self.path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+                try:
+                    os.write(fd, payload)
+                    os.fsync(fd)
+                finally:
+                    os.close(fd)
+                self._owned = True
+                return
+            except FileExistsError:
+                try:
+                    if time.time() - self.path.stat().st_mtime > self.stale_after:
+                        self.path.unlink(missing_ok=True)
+                        continue
+                except FileNotFoundError:
+                    continue
+                if time.monotonic() >= deadline:
+                    raise TimeoutError(f"Timed out waiting for lock: {self.path}")
+                time.sleep(self.poll_interval)
+
+    def release(self) -> None:
+        if self._owned:
+            try:
+                self.path.unlink(missing_ok=True)
+            finally:
+                self._owned = False
+
+    def __enter__(self) -> "InterProcessFileLock":
+        self.acquire()
+        return self
+
+    def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> None:
+        self.release()
+
+
 class GenesisMemory:
-    """Atomic player states and an append-only SHA-256 event chain."""
+    """Atomic player states and a process-safe SHA-256 event chain."""
 
     def __init__(self, data_dir: Path):
         self.data_dir = Path(data_dir)
         self.players_dir = self.data_dir / "players"
         self.chronicle_path = self.data_dir / "genesis_chronicle.jsonl"
         self.dreams_path = self.data_dir / "dreams.json"
+        self.locks_dir = self.data_dir / ".locks"
         self._lock = threading.RLock()
         self.players_dir.mkdir(parents=True, exist_ok=True)
+        self.locks_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def _safe_player_id(player_id: str) -> str:
@@ -160,6 +224,9 @@ class GenesisMemory:
 
     def _player_path(self, player_id: str) -> Path:
         return self.players_dir / f"{self._safe_player_id(player_id)}.json"
+
+    def _file_lock(self, name: str) -> InterProcessFileLock:
+        return InterProcessFileLock(self.locks_dir / f"{name}.lock")
 
     @staticmethod
     def _atomic_json_write(path: Path, payload: Any) -> None:
@@ -178,30 +245,49 @@ class GenesisMemory:
             if os.path.exists(temp_name):
                 os.unlink(temp_name)
 
-    def load_player(self, player_id: str, display_name: str | None = None) -> PlayerState:
-        path = self._player_path(player_id)
-        with self._lock:
-            if path.exists():
+    def _load_player_unlocked(
+        self, player_id: str, display_name: str | None = None
+    ) -> PlayerState:
+        safe_id = self._safe_player_id(player_id)
+        path = self._player_path(safe_id)
+        if path.exists():
+            try:
+                return PlayerState.from_dict(json.loads(path.read_text(encoding="utf-8")))
+            except (OSError, ValueError, TypeError, json.JSONDecodeError):
                 try:
-                    return PlayerState.from_dict(
-                        json.loads(path.read_text(encoding="utf-8"))
-                    )
-                except (OSError, ValueError, TypeError, json.JSONDecodeError):
-                    try:
-                        os.replace(path, path.with_suffix(path.suffix + ".damaged"))
-                    except OSError:
-                        pass
-            return PlayerState(
-                player_id=self._safe_player_id(player_id),
-                display_name=display_name or "Traveler",
-            )
+                    os.replace(path, path.with_suffix(path.suffix + ".damaged"))
+                except OSError:
+                    pass
+        return PlayerState(player_id=safe_id, display_name=display_name or "Traveler")
+
+    def _save_player_unlocked(self, state: PlayerState) -> None:
+        state.normalize()
+        self._atomic_json_write(self._player_path(state.player_id), state.to_dict())
+
+    def load_player(self, player_id: str, display_name: str | None = None) -> PlayerState:
+        safe_id = self._safe_player_id(player_id)
+        with self._lock, self._file_lock(f"player-{safe_id}"):
+            return self._load_player_unlocked(safe_id, display_name)
 
     def save_player(self, state: PlayerState) -> None:
-        state.normalize()
-        with self._lock:
-            self._atomic_json_write(self._player_path(state.player_id), state.to_dict())
+        safe_id = self._safe_player_id(state.player_id)
+        with self._lock, self._file_lock(f"player-{safe_id}"):
+            self._save_player_unlocked(state)
 
-    def _last_hash(self) -> str:
+    @contextmanager
+    def player_transaction(
+        self, player_id: str, display_name: str | None = None
+    ) -> Iterator[PlayerState]:
+        """Serialize one player's read-modify-write cycle across MMO workers."""
+        safe_id = self._safe_player_id(player_id)
+        with self._lock, self._file_lock(f"player-{safe_id}"):
+            state = self._load_player_unlocked(safe_id, display_name)
+            try:
+                yield state
+            finally:
+                self._save_player_unlocked(state)
+
+    def _last_hash_unlocked(self) -> str:
         if not self.chronicle_path.exists():
             return "GENESIS"
         last = ""
@@ -219,13 +305,13 @@ class GenesisMemory:
     def append_event(
         self, player_id: str, event_type: str, payload: dict[str, Any]
     ) -> dict[str, Any]:
-        with self._lock:
+        with self._lock, self._file_lock("chronicle"):
             event = {
                 "timestamp": datetime.now(timezone.utc).isoformat(),
                 "player_id": self._safe_player_id(player_id),
                 "event_type": event_type,
                 "payload": payload,
-                "previous_hash": self._last_hash(),
+                "previous_hash": self._last_hash_unlocked(),
             }
             canonical = json.dumps(
                 event, ensure_ascii=False, sort_keys=True, separators=(",", ":")
@@ -238,10 +324,37 @@ class GenesisMemory:
                 os.fsync(handle.fileno())
             return event
 
+    def verify_chronicle(self) -> tuple[bool, int, str | None]:
+        """Validate predecessor links and every event hash."""
+        with self._lock, self._file_lock("chronicle"):
+            if not self.chronicle_path.exists():
+                return True, 0, None
+            previous = "GENESIS"
+            count = 0
+            with self.chronicle_path.open("r", encoding="utf-8") as handle:
+                for line_number, line in enumerate(handle, 1):
+                    if not line.strip():
+                        continue
+                    try:
+                        event = json.loads(line)
+                    except json.JSONDecodeError:
+                        return False, count, f"invalid JSON at line {line_number}"
+                    event_hash = str(event.pop("event_hash", ""))
+                    if event.get("previous_hash") != previous:
+                        return False, count, f"broken predecessor at line {line_number}"
+                    canonical = json.dumps(
+                        event, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+                    ).encode("utf-8")
+                    if event_hash != hashlib.sha256(canonical).hexdigest():
+                        return False, count, f"invalid event hash at line {line_number}"
+                    previous = event_hash
+                    count += 1
+            return True, count, None
+
     def export_dream(
         self, state: PlayerState, label: str, content: str, dream_type: str
     ) -> None:
-        with self._lock:
+        with self._lock, self._file_lock("dreams"):
             dreams: list[dict[str, Any]] = []
             if self.dreams_path.exists():
                 try:
@@ -252,7 +365,7 @@ class GenesisMemory:
                     dreams = []
             dreams.append(
                 {
-                    "id": f"genesis-{state.player_id}-{len(dreams)+1}",
+                    "id": f"genesis-{state.player_id}-{len(dreams) + 1}",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                     "type": dream_type,
                     "label": f"[GENESIS] {label}",
@@ -301,7 +414,10 @@ class GoldenMirror:
 
     @staticmethod
     def _normalized(text: str) -> str:
-        return re.sub(r"\s+", " ", text.strip().lower())
+        without_punctuation = re.sub(
+            r"[^\w\s-]+", " ", text.strip().lower(), flags=re.UNICODE
+        )
+        return re.sub(r"\s+", " ", without_punctuation).strip()
 
     def classify(self, text: str) -> Intent:
         normalized = self._normalized(text)
@@ -392,9 +508,7 @@ class MMOGateway:
             state.god_mode = False
             reason = "Reflection — безопасная личная песочница, а не наказание."
         return RouteDecision(
-            state.shard,
-            state.god_mode,
-            reason,
+            state.shard, state.god_mode, reason,
             previous != (state.shard, state.god_mode),
         )
 
@@ -472,7 +586,6 @@ class TrinityNarrator:
             or intent is Intent.EXIT
         ):
             return self._offline(state, intent, safe_message)
-
         icon, archetype, temperature = self.archetype(state)
         system = (
             "Ты рассказчик Janus Genesis — мира, где созидание открывает больше "
@@ -492,7 +605,7 @@ class TrinityNarrator:
         )
         body = {
             "contents": [{"parts": [{"text": prompt}]}],
-            "system_instruction": {"parts": [{"text": system}]} ,
+            "system_instruction": {"parts": [{"text": system}]},
             "generationConfig": {
                 "temperature": temperature,
                 "responseMimeType": "application/json",
@@ -529,7 +642,7 @@ class TrinityNarrator:
             )
         except (
             OSError, KeyError, ValueError, TypeError, json.JSONDecodeError,
-            urllib.error.URLError
+            urllib.error.URLError,
         ):
             return self._offline(state, intent, safe_message)
 
@@ -560,63 +673,57 @@ class JanusWorld:
         action: str,
         display_name: str | None = None,
     ) -> WorldReply:
-        state = self.get_player(player_id, display_name)
-        decision = self.golden_mirror.decide(state, action)
-
-        if decision.intent is Intent.EXIT:
+        with self.memory.player_transaction(player_id, display_name) as state:
+            decision = self.golden_mirror.decide(state, action)
+            if decision.intent is Intent.EXIT:
+                self.memory.append_event(
+                    state.player_id, "exit", {"action": action, "respected": True}
+                )
+                return WorldReply(
+                    "EXIT", decision.message, [], decision.intent, state.shard,
+                    state.god_mode, state.light, state.trust,
+                    route_reason="Явный выход всегда исполняется.",
+                )
+            state.light += decision.light_delta
+            state.trust += decision.trust_delta
+            state.entropy += decision.entropy_delta
+            state.last_action = action
+            if len(action.strip()) > 10:
+                state.echoes = (state.echoes + [action.strip()])[-30:]
+            state.normalize()
+            route = self.gateway.route(state, decision.intent)
+            narrative = self.narrator.generate(
+                state, action, decision.intent, decision.message,
+                decision.transformed_action,
+            )
+            if narrative.artifact:
+                state.inventory.append(narrative.artifact)
+            if narrative.lore:
+                state.lore.append(narrative.lore)
+                state.depth += 1
+            state.last_context = narrative.narrative
+            state.normalize()
+            reply = WorldReply(
+                "CONTINUE", narrative.narrative, narrative.choices, decision.intent,
+                state.shard, state.god_mode, state.light, state.trust,
+                decision.transformed_action, narrative.artifact, narrative.lore,
+                route.reason, narrative.source,
+            )
             self.memory.append_event(
-                state.player_id, "exit", {"action": action, "respected": True}
+                state.player_id,
+                "action",
+                {"action": action, "reply": reply.to_dict(), "route_changed": route.changed},
             )
-            self.memory.save_player(state)
-            return WorldReply(
-                "EXIT", decision.message, [], decision.intent, state.shard,
-                state.god_mode, state.light, state.trust,
-                route_reason="Явный выход всегда исполняется.",
+            self.memory.export_dream(
+                state, f"Путь: {decision.intent.value}", narrative.narrative, "game_event"
             )
-
-        state.light += decision.light_delta
-        state.trust += decision.trust_delta
-        state.entropy += decision.entropy_delta
-        state.last_action = action
-        if len(action.strip()) > 10:
-            state.echoes = (state.echoes + [action.strip()])[-30:]
-        state.normalize()
-
-        route = self.gateway.route(state, decision.intent)
-        narrative = self.narrator.generate(
-            state, action, decision.intent, decision.message,
-            decision.transformed_action,
-        )
-        if narrative.artifact:
-            state.inventory.append(narrative.artifact)
-        if narrative.lore:
-            state.lore.append(narrative.lore)
-            state.depth += 1
-        state.last_context = narrative.narrative
-        state.normalize()
-
-        reply = WorldReply(
-            "CONTINUE", narrative.narrative, narrative.choices, decision.intent,
-            state.shard, state.god_mode, state.light, state.trust,
-            decision.transformed_action, narrative.artifact, narrative.lore,
-            route.reason, narrative.source,
-        )
-        self.memory.append_event(
-            state.player_id,
-            "action",
-            {"action": action, "reply": reply.to_dict(), "route_changed": route.changed},
-        )
-        self.memory.export_dream(
-            state, f"Путь: {decision.intent.value}", narrative.narrative, "game_event"
-        )
-        self.memory.save_player(state)
-        return reply
+            return reply
 
 
 def _banner() -> None:
     print(
         "\n╔══════════════════════════════════════════════════╗\n"
-        "║        JANUS GENESIS v16 — GOLDEN MIRROR         ║\n"
+        "║       JANUS GENESIS v16.1 — GOLDEN MIRROR        ║\n"
         "║ Reflection → Trust → Utopia → Shared Creation    ║\n"
         "╚══════════════════════════════════════════════════╝\n"
     )
@@ -662,14 +769,31 @@ def build_parser() -> argparse.ArgumentParser:
         help="Process one action, print JSON and exit instead of opening the game.",
     )
     parser.add_argument("--status", action="store_true", help="Print player state and exit.")
+    parser.add_argument(
+        "--verify-chronicle",
+        action="store_true",
+        help="Validate the complete SHA-256 chronicle and exit.",
+    )
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     world = JanusWorld(GenesisConfig.load(args.data_dir))
+    if args.verify_chronicle:
+        valid, count, error = world.memory.verify_chronicle()
+        print(json.dumps(
+            {"valid": valid, "events": count, "error": error},
+            ensure_ascii=False,
+            indent=2,
+        ))
+        return 0 if valid else 1
     if args.status:
-        print(json.dumps(world.get_player(args.player, args.name).to_dict(), ensure_ascii=False, indent=2))
+        print(json.dumps(
+            world.get_player(args.player, args.name).to_dict(),
+            ensure_ascii=False,
+            indent=2,
+        ))
         return 0
     if args.action is not None:
         print(json.dumps(
