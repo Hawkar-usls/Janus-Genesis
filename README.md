@@ -8,7 +8,7 @@ Janus Genesis снова является игрой: бесконечной и�
 
 Reflection Instance → доверие и созидание → God Mode → Utopia Shard → совместное строительство.
 
-Явный выход из игры всегда выполняется сразу.
+Явный выход из игры всегда выполняется сразу — в том числе команды с обычной пунктуацией: `выйти!`, `exit.`.
 
 ## Возвращённые механики
 
@@ -17,7 +17,8 @@ Reflection Instance → доверие и созидание → God Mode → Ut
 - Adaptive Psyche: свет, доверие, энтропия, глубина и архив эха.
 - Instant Sync: атомарное сохранение после каждого хода.
 - Genesis Chronicle: JSONL-хроника с SHA-256 цепочкой событий.
-- Dream Bridge: экспорт приключений в dreams.json для Janus Core.
+- Process-Safe Black Box: блокировки между несколькими MMO-воркерами.
+- Dream Bridge: экспорт приключений в `dreams.json` для Janus Core.
 - MMO Gateway: маршрутизация Reflection и Utopia.
 - Offline First: игра работает без внешней модели; Gemini является необязательным рассказчиком.
 
@@ -25,7 +26,7 @@ Reflection Instance → доверие и созидание → God Mode → Ut
 
 Требуется Python 3.11 или новее.
 
-Windows: запусти START_JANUS_GENESIS.bat.
+Windows: запусти `START_JANUS_GENESIS.bat`.
 
 Терминал:
 
@@ -39,7 +40,13 @@ python janus_genesis.py
 python janus_genesis.py --action "Помочь построить мост"
 ```
 
-Для AI-нарратора значение GEMINI_API_KEY задаётся только через переменную окружения. Ключи не должны попадать в Git или игровые сохранения.
+Проверка всей хеш-цепочки хроники:
+
+```bash
+python janus_genesis.py --verify-chronicle
+```
+
+Для AI-нарратора значение `GEMINI_API_KEY` задаётся только через переменную окружения. Ключи не должны попадать в Git или игровые сохранения.
 
 ## Интеграция
 
@@ -53,7 +60,7 @@ print(reply.to_dict())
 
 ## Архив PLA-направления
 
-Предыдущее PLA-состояние сохранено в ветке archive/pla-genesis-before-game-restore. Оно не уничтожено и может быть перенесено в отдельный репозиторий.
+Предыдущее PLA-состояние сохранено в ветке `archive/pla-genesis-before-game-restore`. Оно не уничтожено и может быть перенесено в отдельный репозиторий.
 
 ## Проверка
 
@@ -61,6 +68,6 @@ print(reply.to_dict())
 python -m unittest discover -s tests -v
 ```
 
-Сейчас это восстановленная MMO foundation: локальная игра, память, Golden Mirror и маршрутизация работают. Сетевой transport, аккаунты, общая база мира и Unreal-клиент ещё предстоит создать.
+Сейчас это восстановленная MMO foundation: локальная игра, память, Golden Mirror и маршрутизация работают. Сетевой transport, аккаунты, общая база мира, протокол взаимного согласия/party и Unreal-клиент ещё предстоит создать.
 
 MIT © Hawkar-usls
