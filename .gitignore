@@ -1,34 +1,7 @@
-# Python
 __pycache__/
 *.py[cod]
-*.egg-info/
-.pytest_cache/
-.ruff_cache/
 .venv/
-venv/
-dist/
-build/
-
-# IDE / OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
-
-# Generated Janus work
-workspace/inbox/*
-workspace/outbox/*
-workspace/reports/*
-workspace/memory/*
-!workspace/inbox/.gitkeep
-!workspace/outbox/.gitkeep
-!workspace/reports/.gitkeep
-!workspace/memory/.gitkeep
-
-# Large CAD / mesh artifacts
-*.3mf
-*.stl
-*.obj
-*.ply
-!examples/**/*.obj
-!examples/**/*.ply
+.env
+janus_keys.json
+data/
+*.log
