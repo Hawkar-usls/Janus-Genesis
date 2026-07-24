@@ -6,7 +6,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from janus_genesis import GenesisConfig, GenesisMemory, Intent, JanusWorld, Shard
+from janus_genesis import (
+    GenesisConfig,
+    GenesisMemory,
+    Intent,
+    InterProcessFileLock,
+    JanusWorld,
+    Shard,
+)
 
 
 def config(path: Path) -> GenesisConfig:
@@ -99,6 +106,20 @@ class GenesisTests(unittest.TestCase):
                 self.assertEqual(process.exitcode, 0)
             memory = GenesisMemory(Path(directory))
             self.assertEqual(memory.verify_chronicle(), (True, 48, None))
+
+    def test_second_owner_cannot_steal_or_unlink_lock(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "owner.lock"
+            first = InterProcessFileLock(path, timeout=0.2)
+            second = InterProcessFileLock(path, timeout=0.05, poll_interval=0.005)
+            first.acquire()
+            with self.assertRaises(TimeoutError):
+                second.acquire()
+            first.release()
+            self.assertTrue(path.exists())
+            with second:
+                self.assertTrue(path.exists())
+            self.assertTrue(path.exists())
 
     def test_invalid_player_path_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
