@@ -1,0 +1,30 @@
+{
+  "record_type": "janus_genesis_origins_archive_index",
+  "format_version": "1.1.0",
+  "archive": {
+    "filename": "JANUS_GENESIS_ORIGINS_2026-01.tar.gz",
+    "sha256": "8e868d6fa820115707107c4bcec8e025fcc14c92d7054b09cd08c6c1cd56a38f",
+    "bytes": 156020,
+    "storage": "owner persistent Library",
+    "library_path": "/Janus Genesis/Origins/JANUS_GENESIS_ORIGINS_2026-01.tar.gz",
+    "library_file_id": "libfile_fad1a231df708191bf5c764e12e03ea8",
+    "note": "Private preservation reference. The Git repository contains readable canonical origins and complete content hashes; it does not expose the original credentials."
+  },
+  "members": [
+    {"path":"README.txt","bytes":326,"sha256":"18ff7bd2918bbbdc76fe58100253d42f50cb7661854e6716b562b248a2515fce"},
+    {"path":"code/bloodrayne_v5_7_evolution.py","bytes":15657,"sha256":"fbc03d43c5c60ad2e071f65f403d7c7451f0900e9f6c2cb53aa29ff3bcda4abd"},
+    {"path":"code/chronosync.py","bytes":7367,"sha256":"f07205e4c4634c502359c3972a41394ac152dd0920d495c52393897b56e68d18"},
+    {"path":"code/hypnos_v1_ultimate_unlocker.py","bytes":4666,"sha256":"a79e90de51d8444417f6f88072c2dfed231055384d050f965d5f1733862ac0f2"},
+    {"path":"code/hypnos_v2_9_golden_mean.py","bytes":9553,"sha256":"9cdfe84e8feb481d0aed023c8b5f8d24e2622c6fcbf3542bc4c3e02594442c89"},
+    {"path":"code/hypnos_v3_3_chronos_sync.py","bytes":10201,"sha256":"a07e01bfccb4fa8d8b40727d01eae9edd5454fc0fc02ae5b645763e99df075a8"},
+    {"path":"code/memory_graph.py","bytes":8015,"sha256":"9276eefdea6857605ca3dede787b4e3a4967956d6cc1d03134256f66228e4027"},
+    {"path":"code/mnemosyne.py","bytes":7015,"sha256":"037ccb76ad58d5b009543ec5195208afb61ba8ffe5c4ac7be25d371b6b73e19e"},
+    {"path":"dreams/dream_ledger_01.json","bytes":183713,"sha256":"8db4caecec8559b6f7035ee30d57239efad6566e584f6f8293a12c6d36865e7f"},
+    {"path":"dreams/dream_ledger_02.json","bytes":626383,"sha256":"c715d2efe75f6278971c11f8852b327044a2e51167c8e28dcfeb487871ea39f3"},
+    {"path":"dreams/dream_ledger_03.json","bytes":950,"sha256":"59dcc0bb01e1489daf9132ce972a70a29a44c0438f4a6769e291f8faa013dceb"},
+    {"path":"dreams/dream_ledger_04.json","bytes":3975,"sha256":"614b11ea517f0da76ad94495e39c1d606196cd567f07fee624d32000824945a3"},
+    {"path":"dreams/dream_ledger_05.json","bytes":3245,"sha256":"ac661079ca08d46410547516b1bef5419e7c9152ac35dea48c7c0a79372bad60"},
+    {"path":"dreams/dream_ledger_06.json","bytes":473445,"sha256":"0bc7e3558c73807823188da3e1c41745d5cc5ef78605af70a310296763989ffb"},
+    {"path":"memory/mnemosyne_cache.json","bytes":3585,"sha256":"1f486b17a02bb9077b16e3c3c82c1447ba879c7368f56bab04ecf5e2e0b5ae4b"}
+  ]
+}

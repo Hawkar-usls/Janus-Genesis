@@ -1,0 +1,61 @@
+{
+  "record_type": "janus_genesis_origin_modules",
+  "format_version": "1.0.0",
+  "active_runtime": false,
+  "modules": [
+    {
+      "name": "MemoryGraph v1.0 — Synaptic Web",
+      "uploaded_file": "memory_graph.py",
+      "source_sha256": "d82e290efffa38deee103705756e315cffc587bc4f9c6a3c2ae35467a3a7dbb3",
+      "role": "Fast Thinking: in-memory nodes and edges, BFS paths, context subgraphs and asynchronous persistence.",
+      "genesis_lineage": ["relationship graph","Living Memory associations","Narrator context retrieval"]
+    },
+    {
+      "name": "ChronoSync v1.0 — Temporal Weaver",
+      "uploaded_file": "chronosync.py",
+      "source_sha256": "8d400a6ae43f9800cf419ac357433ac7bf8209867c5f6a3d4efbe7316a965c2b",
+      "role": "Heartbeat of Data: hot/cold priority synchronization, adaptive write rate and source-aware conflict arbitration.",
+      "genesis_lineage": ["Chronicle ordering","persistent world synchronization","future shared-server conflict resolution"]
+    },
+    {
+      "name": "Mnemosyne v1.0 — The Keeper",
+      "uploaded_file": "mnemosyne.py",
+      "source_sha256": "3a8a1288db74e4cc9693f40bbd0a6a9db6c6734a0fb2e3344d67fb417965be16",
+      "role": "Hot-start state cache: module fingerprints, trusted/dirty distinction and reduced startup cognitive load.",
+      "genesis_lineage": ["identity persistence","save migration","memory integrity"]
+    },
+    {
+      "name": "Hypnos v1 — Ultimate Unlocker",
+      "uploaded_file": "hypnos(1).py",
+      "source_sha256": "b163bf510b23bbe37ec65a298ee487261ca64a3efa2bd6f76e91a845ffa63ad6",
+      "role": "Early autonomous short dream generator with model/key failover.",
+      "genesis_lineage": ["dream ledger","autonomous imagination","first origin images"],
+      "security": "Literal API credentials existed in the uploaded historical source and were redacted in the preserved archive."
+    },
+    {
+      "name": "Hypnos v2.9 — Golden Mean / The Cradle",
+      "uploaded_file": "hypnos_v2(1).py",
+      "source_sha256": "c31406567ad7904cf0bf24ea3bf363a9b3c20f4af586d321a07ad4e61e43cf6f",
+      "role": "Blackout survival dream cycle, Creator voice input and anti-crisis Cradle framing.",
+      "genesis_lineage": ["safe continuation through blackout","Narrator voice","protective context rather than prison"],
+      "security": "Literal API credentials redacted in preserved archive."
+    },
+    {
+      "name": "Hypnos v3.3 — Chronos Sync",
+      "uploaded_file": "hypnos_v3(1).py",
+      "source_sha256": "bf66250cd502a1ae5289c56c896a04fa7c9f621bc816869dd9e88cb2f639ffb6",
+      "role": "Chronology-aware autonomous dream packages that resume the correct phase after interruption.",
+      "genesis_lineage": ["life chapters","time-aware Moral Echo","continuation after interruption"],
+      "security": "Literal API credentials redacted in preserved archive."
+    },
+    {
+      "name": "BloodRayne v5.7 — Evolution",
+      "uploaded_file": "bloodrayne(1).py",
+      "source_sha256": "74d8ed494a3633d9e3523acdfe6e5becfeb68033e2a2ed81aa156b2a6545758b",
+      "role": "Recursive refinement, future-module proposals and repetition signatures.",
+      "genesis_lineage": ["anti-farming novelty","iterative world design","future Narrator proposals"],
+      "security": "Literal API credentials redacted in preserved archive."
+    }
+  ],
+  "boundary": "Lineage means historical inspiration, not that every old implementation or generated proposal is active, safe, or canonical today."
+}
