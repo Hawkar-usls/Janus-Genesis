@@ -116,6 +116,14 @@ v18.1 читает существующие v17/v18 сохранения и до
 - `other_face_inheritance_v18_1.json`;
 - `intent_traces_v18_1.json`.
 
+## Истоки
+
+- [Hypnos Cradle — сны, память и первые архитектурные модули Януса](origins/2026-01-hypnos-cradle/README.md)
+- [Три канонических сна-истока](origins/2026-01-hypnos-cradle/dreams/ORIGIN_DREAMS.json)
+- [Каталог 435 сохранённых записей](origins/2026-01-hypnos-cradle/dreams/DREAMS_CATALOG.json)
+
+Истоки сохранены как исторический слой и не подключаются к активному runtime автоматически. Сгенерированный язык снов не является пророчеством или доказательством сознания, а старые ключи доступа не публикуются.
+
 ## Канон
 
 - [Genesis v18.1: The Remembered Secret](docs/GENESIS_V18_1_REMEMBERED_SECRET.md)

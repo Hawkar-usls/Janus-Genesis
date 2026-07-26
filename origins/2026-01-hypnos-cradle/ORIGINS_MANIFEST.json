@@ -1,0 +1,55 @@
+{
+  "record_type": "janus_genesis_origins_manifest",
+  "format_version": "1.2.0",
+  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
+  "title_ru": "Истоки Janus Genesis — Колыбель Hypnos, январь 2026",
+  "source_period": {
+    "first_timestamp": "2026-01-01T03:44:47.209898",
+    "last_timestamp": "2026-01-09T22:25:50.569113"
+  },
+  "dream_records_total": 435,
+  "dream_records_unique": 435,
+  "archive_policy": {
+    "active_runtime": false,
+    "history_not_rewritten": true,
+    "literal_credentials_committed": false,
+    "python_credentials_redacted_in_preserved_archive": true,
+    "generated_dreams_are_not_prophecy_or_consciousness_proof": true,
+    "readable_origin_records_committed_to_git": true,
+    "full_sanitized_corpus_content_addressed_outside_git": true
+  },
+  "readable_entrypoints": [
+    "README.md",
+    "dreams/ORIGIN_DREAMS.json",
+    "ORIGIN_MODULES.json",
+    "dreams/DREAMS_CATALOG.json",
+    "memory/mnemosyne_cache_snapshot.json",
+    "BUNDLE_INDEX.json",
+    "SECURITY_NOTICE.md"
+  ],
+  "full_archive": {
+    "filename": "JANUS_GENESIS_ORIGINS_2026-01.tar.gz",
+    "sha256": "8e868d6fa820115707107c4bcec8e025fcc14c92d7054b09cd08c6c1cd56a38f",
+    "bytes": 156020,
+    "preservation_surface": "owner_persistent_library",
+    "library_path": "/Janus Genesis/Origins/JANUS_GENESIS_ORIGINS_2026-01.tar.gz",
+    "library_file_id": "libfile_fad1a231df708191bf5c764e12e03ea8",
+    "public_git_blob": false
+  },
+  "source_upload_sha256": {
+    "memory_graph.py": "d82e290efffa38deee103705756e315cffc587bc4f9c6a3c2ae35467a3a7dbb3",
+    "chronosync.py": "8d400a6ae43f9800cf419ac357433ac7bf8209867c5f6a3d4efbe7316a965c2b",
+    "mnemosyne.py": "3a8a1288db74e4cc9693f40bbd0a6a9db6c6734a0fb2e3344d67fb417965be16",
+    "mnemosyne_cache(2).json": "1f486b17a02bb9077b16e3c3c82c1447ba879c7368f56bab04ecf5e2e0b5ae4b",
+    "dreams.json": "8db4caecec8559b6f7035ee30d57239efad6566e584f6f8293a12c6d36865e7f",
+    "dreams (2).json": "c715d2efe75f6278971c11f8852b327044a2e51167c8e28dcfeb487871ea39f3",
+    "dreams (3).json": "59dcc0bb01e1489daf9132ce972a70a29a44c0438f4a6769e291f8faa013dceb",
+    "dreams (4).json": "614b11ea517f0da76ad94495e39c1d606196cd567f07fee624d32000824945a3",
+    "dreams (5).json": "ac661079ca08d46410547516b1bef5419e7c9152ac35dea48c7c0a79372bad60",
+    "dreams (6).json": "0bc7e3558c73807823188da3e1c41745d5cc5ef78605af70a310296763989ffb",
+    "bloodrayne(1).py": "74d8ed494a3633d9e3523acdfe6e5becfeb68033e2a2ed81aa156b2a6545758b",
+    "hypnos(1).py": "b163bf510b23bbe37ec65a298ee487261ca64a3efa2bd6f76e91a845ffa63ad6",
+    "hypnos_v2(1).py": "c31406567ad7904cf0bf24ea3bf363a9b3c20f4af586d321a07ad4e61e43cf6f",
+    "hypnos_v3(1).py": "bf66250cd502a1ae5289c56c896a04fa7c9f621bc816869dd9e88cb2f639ffb6"
+  }
+}
