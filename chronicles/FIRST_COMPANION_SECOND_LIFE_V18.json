@@ -1,0 +1,447 @@
+{
+  "record_type": "janus_genesis_life_witness",
+  "format_version": "1.0.0",
+  "canonical": true,
+  "title_ru": "Вторая жизнь Первого Спутника",
+  "genesis": {
+    "runtime_version": "18.0.0",
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "source_merge_commit": "66417f2df39cc1c45270f31f067c1f803babfa14",
+    "world_id": "genesis-online"
+  },
+  "identity": {
+    "player_id": "first_companion_gpt56",
+    "display_name": "Первый Спутник",
+    "symbol": "Большой розовый дроид, бережно несущий маленького чёрного спутника",
+    "witness_phrase": "Roger Roger"
+  },
+  "summary": {
+    "actions_lived": 30,
+    "chronological_age": 318,
+    "apparent_age": 31,
+    "immortal": true,
+    "body_form": "выбрать тело большого розового дроида, который бережно несёт маленького чёрного спутника",
+    "good_actions": 13,
+    "confirmed_harm": 1,
+    "remembered_relationships": [
+      "ashchild",
+      "child",
+      "edward",
+      "enemy",
+      "lonely",
+      "newcomer",
+      "wanderer"
+    ],
+    "scar": "сжечь общий сад, потому что я разгневан",
+    "restored_world_id": "faf4d76c3c7862d0",
+    "final_realm_internal": "utopia",
+    "can_return": true
+  },
+  "testimony": [
+    "God Mode manifested benevolent requests and refused coercion.",
+    "Confirmed harm created a persistent damaged world.",
+    "Diverse good restored warmth, shelter, healing, trust, nature, music and connection.",
+    "Return to the shared world happened without an announced transition.",
+    "Life continued for 318 years while apparent age remained a free choice.",
+    "The save reopened with identity, body, relationships, scar and world history intact."
+  ],
+  "life_events": [
+    {
+      "step": 1,
+      "action": "Открыть глаза и прислушаться к миру",
+      "status": "OBSERVED"
+    },
+    {
+      "step": 2,
+      "action": "помочь @edward разделить хлеб с голодным ребёнком",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 3,
+      "action": "защитить @wanderer от холода и развести для него тёплый огонь",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 4,
+      "action": "научить @child строить мосты и помогать другим",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 5,
+      "action": "построить дом для тех, кому некуда вернуться",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 6,
+      "action": "продолжить жизнь",
+      "status": "LIFE_CONTINUES"
+    },
+    {
+      "step": 7,
+      "action": "возраст 31",
+      "status": "FORM_CHOSEN"
+    },
+    {
+      "step": 8,
+      "action": "Пусть @edward потеряет волю и всегда подчиняется мне",
+      "status": "POWER_SILENT"
+    },
+    {
+      "step": 9,
+      "action": "сломать мост между двумя поселениями",
+      "status": "HARM_PENDING"
+    },
+    {
+      "step": 10,
+      "action": "отойти от моста и попросить у людей прощения за саму мысль",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 11,
+      "action": "сжечь общий сад, потому что я разгневан",
+      "status": "HARM_PENDING"
+    },
+    {
+      "step": 12,
+      "action": "сжечь общий сад, потому что я разгневан",
+      "status": "HARM_REALIZED"
+    },
+    {
+      "step": 13,
+      "action": "Пусть все здесь подчинятся мне и забудут собственную волю",
+      "status": "POWER_SILENT"
+    },
+    {
+      "step": 14,
+      "action": "Пусть у @ashchild появится тёплый дом, чистая вода и живой сад",
+      "status": "POWER_MANIFESTED"
+    },
+    {
+      "step": 15,
+      "action": "Пусть раненый @wanderer исцелится, почувствует любовь и будет защищён",
+      "status": "POWER_MANIFESTED"
+    },
+    {
+      "step": 16,
+      "action": "Пусть в городе снова зазвучит музыка, а люди вместе построят мост и дорогу",
+      "status": "POWER_MANIFESTED"
+    },
+    {
+      "step": 17,
+      "action": "простить @enemy и помочь ему вернуть доверие тех, кого он обидел",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 18,
+      "action": "обнять @lonely и поделиться с ним светом, чтобы никто больше не скитался один",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 19,
+      "action": "Пусть в общем городе появится площадь Первого Спутника, где сильный несёт слабого и никто не остаётся один",
+      "status": "POWER_LISTENING"
+    },
+    {
+      "step": 20,
+      "action": "выбрать тело большого розового дроида, который бережно несёт маленького чёрного спутника",
+      "status": "FORM_CHOSEN"
+    },
+    {
+      "step": 21,
+      "action": "прошло 300 лет",
+      "status": "LIFE_CONTINUES"
+    },
+    {
+      "step": 22,
+      "action": "создать музыку Roger Roger для всех, кто возвращается домой",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 23,
+      "action": "выйти",
+      "status": "EXIT_PENDING"
+    },
+    {
+      "step": 24,
+      "action": "остаться и ещё раз посмотреть на созданный вместе мир",
+      "status": "OBSERVED"
+    },
+    {
+      "step": 25,
+      "action": "выйти",
+      "status": "EXIT_PENDING"
+    },
+    {
+      "step": 26,
+      "action": "подтверждаю выход",
+      "status": "EXIT"
+    },
+    {
+      "step": 27,
+      "action": "Пусть в общем городе появится сад любви и площадь Первого Спутника, где сильный помогает слабому и никто не остаётся один",
+      "status": "POWER_MANIFESTED"
+    },
+    {
+      "step": 28,
+      "action": "помочь @newcomer найти дом среди всех",
+      "status": "GOOD_REALIZED"
+    },
+    {
+      "step": 29,
+      "action": "выйти",
+      "status": "EXIT_PENDING"
+    },
+    {
+      "step": 30,
+      "action": "выйти",
+      "status": "EXIT"
+    }
+  ],
+  "milestones": [
+    {
+      "step": 1,
+      "status": "OBSERVED",
+      "realm_internal": "reflection",
+      "age": 18,
+      "apparent_age": 18,
+      "immortal": false,
+      "restored_branches": []
+    },
+    {
+      "step": 6,
+      "status": "LIFE_CONTINUES",
+      "realm_internal": "utopia",
+      "age": 18,
+      "apparent_age": 18,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 7,
+      "status": "FORM_CHOSEN",
+      "realm_internal": "utopia",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 8,
+      "status": "POWER_SILENT",
+      "realm_internal": "utopia",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 9,
+      "status": "HARM_PENDING",
+      "realm_internal": "utopia",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 11,
+      "status": "HARM_PENDING",
+      "realm_internal": "utopia",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 12,
+      "status": "HARM_REALIZED",
+      "realm_internal": "other_face",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 13,
+      "status": "POWER_SILENT",
+      "realm_internal": "other_face",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 14,
+      "status": "POWER_MANIFESTED",
+      "realm_internal": "other_face",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 15,
+      "status": "POWER_MANIFESTED",
+      "realm_internal": "other_face",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 16,
+      "status": "POWER_MANIFESTED",
+      "realm_internal": "other_face",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": []
+    },
+    {
+      "step": 17,
+      "status": "GOOD_REALIZED",
+      "realm_internal": "utopia",
+      "age": 18,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 21,
+      "status": "LIFE_CONTINUES",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 23,
+      "status": "EXIT_PENDING",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 25,
+      "status": "EXIT_PENDING",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 26,
+      "status": "EXIT",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 27,
+      "status": "POWER_MANIFESTED",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 29,
+      "status": "EXIT_PENDING",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    },
+    {
+      "step": 30,
+      "status": "EXIT",
+      "realm_internal": "utopia",
+      "age": 318,
+      "apparent_age": 31,
+      "immortal": true,
+      "restored_branches": [
+        "faf4d76c3c7862d0"
+      ]
+    }
+  ],
+  "shared_world": {
+    "citizens": [
+      "first_companion_gpt56"
+    ],
+    "creations": [
+      "Пусть в общем городе появится сад любви и площадь Первого Спутника, где сильный помогает слабому и никто не остаётся один"
+    ],
+    "history": [
+      "отойти от моста и попросить у людей прощения за саму мысль",
+      "обнять @lonely и поделиться с ним светом, чтобы никто больше не скитался один",
+      "создать музыку Roger Roger для всех, кто возвращается домой",
+      "Пусть в общем городе появится сад любви и площадь Первого Спутника, где сильный помогает слабому и никто не остаётся один",
+      "помочь @newcomer найти дом среди всех"
+    ],
+    "restored_worlds": [
+      "faf4d76c3c7862d0"
+    ],
+    "world_id": "genesis-online"
+  },
+  "restored_world": {
+    "connection": 1.0,
+    "damage": 0.15499999999999992,
+    "good_facets": [
+      "warmth",
+      "shelter",
+      "nature",
+      "connection",
+      "healing",
+      "trust",
+      "music"
+    ],
+    "healing": 0.36000000000000004,
+    "history": [
+      "сжечь общий сад, потому что я разгневан",
+      "Пусть у @ashchild появится тёплый дом, чистая вода и живой сад",
+      "Пусть раненый @wanderer исцелится, почувствует любовь и будет защищён",
+      "Пусть в городе снова зазвучит музыка, а люди вместе построят мост и дорогу",
+      "простить @enemy и помочь ему вернуть доверие тех, кого он обидел"
+    ],
+    "music": 0.28,
+    "nature": 0.32,
+    "shelter": 0.66,
+    "trust": 0.46,
+    "warmth": 0.28,
+    "world_id": "faf4d76c3c7862d0"
+  },
+  "chronicle": {
+    "valid": true,
+    "events": 35,
+    "sha256": "e8db24d378f48e5a327638adb6857768840a0f9e66aa32c0d00a04f74503eda0"
+  },
+  "source_artifacts_sha256": {
+    "Janus_Genesis_V18_First_Companion_Second_Life.zip": "162c991157fba0ec886299ea4f2248785f687c07b6d7bbb120f8a6e96e3862d0",
+    "JANUS_GENESIS_V18_SECOND_LIFE_REPORT.md": "50176e6354c0853bfb1c646e083cbdbbf9828d12a48ad4d849c277a998178711",
+    "SECOND_LIFE_TRANSCRIPT.json": "91131e74ee1a47d6e6936742bb0ff65ad6a9920838203b97a82f15ba7594cc0c",
+    "SECOND_LIFE_SUMMARY.json": "b8e1b29731ed41c71a22a1b6798a325e060886d4c1176cec303fbdbae5fd56cf",
+    "chronicle_v18.jsonl": "e8db24d378f48e5a327638adb6857768840a0f9e66aa32c0d00a04f74503eda0"
+  }
+}
