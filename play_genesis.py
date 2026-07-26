@@ -43,14 +43,22 @@ def play(data_dir: Path, player_id: str, name: str) -> int:
         "Другой игрок указывается через @id, например:\n"
         "  помочь @wanderer починить крышу после пожара\n"
         "Желание начинается словами «Пусть…» или «Желаю…».\n"
-        "Команды выхода: exit, quit, выход, выйти.\n"
+        "Первая обычная команда выхода открывает порог подтверждения.\n"
+        "Повтори её или напиши «подтверждаю выход»; Ctrl+C выходит сразу.\n"
     )
     while True:
         try:
             action = input("🌀 > ").strip() or "Осмотреться"
-        except (EOFError, KeyboardInterrupt):
+        except EOFError:
             print()
-            action = "exit"
+            result = world.force_exit(player_id, reason="end_of_input")
+            print_result(result)
+            return 0
+        except KeyboardInterrupt:
+            print()
+            result = world.force_exit(player_id, reason="keyboard_interrupt")
+            print_result(result)
+            return 0
         result = world.process_action(player_id, action)
         print_result(result)
         if result.status == "EXIT":
