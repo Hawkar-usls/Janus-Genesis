@@ -1,0 +1,34 @@
+name: Genesis Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile runtimes
+        run: |
+          python -m py_compile \
+            janus_genesis.py \
+            genesis_v17.py \
+            genesis_v17_playable.py \
+            genesis_v18_models.py \
+            genesis_v18_memory.py \
+            genesis_v18.py \
+            genesis_v18_playable.py \
+            play_genesis.py
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
