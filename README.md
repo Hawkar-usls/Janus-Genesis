@@ -121,6 +121,6 @@ v18 читает существующие файлы игроков из `data_v
 python -m unittest discover -s tests -v
 ```
 
-Локальная новая v18-серия: **12/12 PASS**. Это не утверждение о GitHub Actions: отдельный CI workflow в репозитории пока не настроен.
+Локальная новая v18-серия: **12/12 PASS**. GitHub Actions workflow добавлен и запускает компиляцию всех runtime-файлов вместе с полным `unittest`-набором на pull request и после merge в `main`.
 
 MIT © Hawkar-usls
