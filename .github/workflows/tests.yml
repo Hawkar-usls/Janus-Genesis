@@ -29,6 +29,8 @@ jobs:
             genesis_v18_memory.py \
             genesis_v18.py \
             genesis_v18_playable.py \
+            genesis_v18_1.py \
+            genesis_v18_1_playable.py \
             play_genesis.py
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
