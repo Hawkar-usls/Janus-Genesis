@@ -28,9 +28,44 @@ class PlayableGenesisV17Tests(unittest.TestCase):
             self.assertEqual(result.status, "SEVERED")
             self.assertEqual(result.realm, Realm.OTHER_FACE)
 
-    def test_exit_with_punctuation_is_respected(self) -> None:
+    def test_first_exit_request_opens_confirmation_threshold(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            result = PlayableGenesisV17(Path(directory)).process_action("alice", "выйти!")
+            result = PlayableGenesisV17(Path(directory)).process_action(
+                "alice", "выйти!"
+            )
+            self.assertEqual(result.status, "EXIT_PENDING")
+            self.assertGreater(len(result.choices), 0)
+
+    def test_repeating_exit_request_confirms_exit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            world = PlayableGenesisV17(Path(directory))
+            first = world.process_action("alice", "exit.")
+            second = world.process_action("alice", "exit.")
+            self.assertEqual(first.status, "EXIT_PENDING")
+            self.assertEqual(second.status, "EXIT")
+            self.assertEqual(second.choices, [])
+
+    def test_explicit_confirmation_exits_without_trapping_player(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = PlayableGenesisV17(Path(directory)).process_action(
+                "alice", "подтверждаю выход"
+            )
+            self.assertEqual(result.status, "EXIT")
+            self.assertEqual(result.choices, [])
+
+    def test_continuing_play_cancels_pending_exit(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            world = PlayableGenesisV17(Path(directory))
+            world.process_action("alice", "выйти")
+            world.process_action("alice", "осмотреться")
+            next_request = world.process_action("alice", "выйти")
+            self.assertEqual(next_request.status, "EXIT_PENDING")
+
+    def test_forced_system_exit_bypasses_confirmation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = PlayableGenesisV17(Path(directory)).force_exit(
+                "alice", reason="keyboard_interrupt"
+            )
             self.assertEqual(result.status, "EXIT")
             self.assertEqual(result.choices, [])
 
