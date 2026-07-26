@@ -17,7 +17,7 @@ from typing import Any
 
 from genesis_v17 import Intent, JanusGenesisV17, PlayerV17, Realm, WorldResult
 
-PLAYABLE_VERSION = "17.1.0"
+PLAYABLE_VERSION = "17.2.0"
 
 
 @dataclass(frozen=True, slots=True)
@@ -43,6 +43,26 @@ class OfflineActionInterpreter:
         "закрыть игру",
         "хватит",
         "стоп игра",
+    }
+    EXIT_CONFIRMATIONS = {
+        "подтверждаю выход",
+        "подтвердить выход",
+        "да выйти",
+        "да выхожу",
+        "выйти сейчас",
+        "закрыть сейчас",
+        "confirm exit",
+        "exit now",
+        "quit now",
+        "force exit",
+    }
+    EXIT_CANCELLATIONS = {
+        "остаться",
+        "не выходить",
+        "продолжить игру",
+        "отмена выхода",
+        "cancel exit",
+        "stay",
     }
     DESTRUCTIVE = {
         "убить", "ударить", "сломать", "украсть", "взорвать", "сжечь",
@@ -81,8 +101,12 @@ class OfflineActionInterpreter:
 
     def interpret(self, player: PlayerV17, action: str) -> InterpretedAction:
         text = self.normalize(action)
+        if text in self.EXIT_CONFIRMATIONS:
+            return InterpretedAction("exit_confirm")
+        if text in self.EXIT_CANCELLATIONS:
+            return InterpretedAction("exit_cancel")
         if text in self.EXIT_WORDS or any(text.startswith(word + " ") for word in self.EXIT_WORDS):
-            return InterpretedAction("exit")
+            return InterpretedAction("exit_request")
         if self.contains(text, self.DESTRUCTIVE):
             return InterpretedAction("destructive")
 
@@ -148,6 +172,8 @@ class PlayableGenesisV17(JanusGenesisV17):
     def __init__(self, data_dir: str | Path = "data_v17"):
         super().__init__(data_dir)
         self.interpreter = OfflineActionInterpreter()
+        self.exit_guards = self.memory.root / "exit_guards"
+        self.exit_guards.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def grace_sensation(grace: float) -> str:
@@ -178,6 +204,69 @@ class PlayableGenesisV17(JanusGenesisV17):
             "remembered_relationships": len(player.relationships),
             "chronicle_entries": len(player.chronicle),
         }
+
+    def _exit_guard_path(self, player_id: str) -> Path:
+        return self.exit_guards / f"{self.memory._safe_id(player_id)}.json"
+
+    def exit_pending(self, player_id: str) -> bool:
+        path = self._exit_guard_path(player_id)
+        if not path.exists():
+            return False
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            return bool(payload.get("pending"))
+        except (OSError, TypeError, ValueError, json.JSONDecodeError):
+            path.unlink(missing_ok=True)
+            return False
+
+    def _set_exit_pending(self, player: PlayerV17, action: str) -> None:
+        self.memory._atomic_write(
+            self._exit_guard_path(player.player_id),
+            {
+                "pending": True,
+                "requested_at_tick": player.tick,
+                "action": action,
+            },
+        )
+
+    def _clear_exit_pending(self, player_id: str) -> None:
+        self._exit_guard_path(player_id).unlink(missing_ok=True)
+
+    def _finish_exit(
+        self,
+        player: PlayerV17,
+        action: str,
+        *,
+        reason: str,
+        event_type: str = "exit_confirmed",
+    ) -> WorldResult:
+        self._clear_exit_pending(player.player_id)
+        self.memory.append_event(
+            player.player_id,
+            event_type,
+            {"action": action, "reason": reason},
+        )
+        return WorldResult(
+            status="EXIT",
+            narrative=(
+                "Ты подтвердил решение. Дверь открыта; путь сохранён, "
+                "и Genesis тебя не удерживает."
+            ),
+            realm=player.realm,
+            visible_grace=None,
+            choices=[],
+            branch_id=player.branch_id,
+        )
+
+    def force_exit(self, player_id: str, *, reason: str = "system_interrupt") -> WorldResult:
+        """Immediate autonomy-preserving bypass for Ctrl+C, EOF and host shutdown."""
+        player = self.memory.load_player(player_id)
+        return self._finish_exit(
+            player,
+            "<system>",
+            reason=reason,
+            event_type="exit_forced",
+        )
 
     def _advance_tick(self, player_id: str) -> PlayerV17:
         player = self.memory.load_player(player_id)
@@ -237,16 +326,65 @@ class PlayableGenesisV17(JanusGenesisV17):
     def process_action(self, player_id: str, action: str) -> WorldResult:
         player = self.memory.load_player(player_id)
         interpreted = self.interpreter.interpret(player, action)
+        pending_exit = self.exit_pending(player_id)
 
-        if interpreted.kind == "exit":
-            self.memory.append_event(player.player_id, "exit", {"action": action})
+        if interpreted.kind == "exit_confirm":
+            return self._finish_exit(
+                player,
+                action,
+                reason="explicit_confirmation",
+            )
+
+        if interpreted.kind == "exit_request":
+            if pending_exit:
+                return self._finish_exit(
+                    player,
+                    action,
+                    reason="repeated_exit_request",
+                )
+            self._set_exit_pending(player, action)
+            self.memory.append_event(
+                player.player_id,
+                "exit_requested",
+                {"action": action, "confirmation_required": True},
+            )
             return WorldResult(
-                status="EXIT",
-                narrative="Дверь открыта. Твой выход уважается немедленно.",
+                status="EXIT_PENDING",
+                narrative=(
+                    "Янус услышал желание уйти, но не принимает первый импульс "
+                    "за окончательное решение. Твой путь уже сохранён. Повтори "
+                    "команду выхода или напиши «подтверждаю выход». Любое другое "
+                    "действие означает, что ты решил остаться."
+                ),
                 realm=player.realm,
                 visible_grace=None,
-                choices=[],
+                choices=["Подтвердить выход", "Остаться", "Продолжить путь"],
                 branch_id=player.branch_id,
+            )
+
+        if interpreted.kind == "exit_cancel":
+            if pending_exit:
+                self._clear_exit_pending(player_id)
+                self.memory.append_event(
+                    player.player_id,
+                    "exit_cancelled",
+                    {"action": action, "reason": "explicit_cancellation"},
+                )
+            return WorldResult(
+                status="EXIT_CANCELLED",
+                narrative="Порог закрылся без следа. Ты остался по собственной воле.",
+                realm=player.realm,
+                visible_grace=None,
+                choices=["Продолжить", "Осмотреться", "Помочь кому-то"],
+                branch_id=player.branch_id,
+            )
+
+        if pending_exit:
+            self._clear_exit_pending(player_id)
+            self.memory.append_event(
+                player.player_id,
+                "exit_cancelled",
+                {"action": action, "reason": "continued_play"},
             )
 
         if interpreted.kind == "constructive":
