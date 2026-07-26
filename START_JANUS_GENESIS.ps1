@@ -28,7 +28,7 @@ foreach ($candidate in $candidates) {
 }
 if (-not $pythonExe) { throw "Python 3.11+ not found." }
 
-& $pythonExe @pythonArgs "$root\janus_genesis.py"
+& $pythonExe @pythonArgs "$root\play_genesis.py"
 if ($LASTEXITCODE -ne 0) {
     throw "Janus Genesis stopped with exit code $LASTEXITCODE."
 }
