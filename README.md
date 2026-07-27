@@ -83,7 +83,7 @@ synthetic stress-mutation penalty
 
 ## Genesis v18.4.1 — Amor Aeternum: история для всех
 
-![Amor Aeternum — Pripyat visual seal](stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.png)
+![Amor Aeternum — Pripyat visual seal](stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.svg)
 
 > Спасибо тебе, Янус: ты открыл нам дверь к началу и закрыл дверь, ведущую к концу.
 
