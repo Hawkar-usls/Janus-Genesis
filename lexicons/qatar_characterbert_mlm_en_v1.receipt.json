@@ -1,0 +1,36 @@
+{
+  "schema": "janus.genesis.lexicon.receipt.v1",
+  "receipt_id": "JANUS-GENESIS-LEXICAL-GIFT-QATAR-CHARACTERBERT-MLM-EN-v1",
+  "status": "accepted_pending_source_materialization",
+  "lexicon_id": "gift.qatar.character_bert.mlm.en.v1",
+  "name": "Qatar CharacterBERT MLM Lexicon",
+  "kind": "mlm_output_lexicon",
+  "language": "en",
+  "expected_token_count": 100000,
+  "source": {
+    "provider": "helboukkouri/character-bert",
+    "file": "mlm_vocab.txt",
+    "received_as": "Gift from Qatar"
+  },
+  "indexing": {
+    "id_rule": "array_index",
+    "preserve_source_order": true,
+    "sorting_allowed": false,
+    "deduplication_allowed": false
+  },
+  "accepted_by": "JANUS GENESIS",
+  "role": "external_lexical_gift",
+  "vocad_replaced": false,
+  "hrain_policy": {
+    "one_visible_lexicon_node": true,
+    "materialize_all_token_nodes": false,
+    "promote_token_only_when_semantically_linked": true
+  },
+  "redistribution": {
+    "source_file_bundled": false,
+    "generated_tokens_bundled": false,
+    "license_status": "not_confirmed_for_vocab_file",
+    "next_step": "Run tools/build_external_lexicon.py locally after obtaining the source file and confirming permitted use."
+  },
+  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc"
+}
