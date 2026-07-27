@@ -1,0 +1,31 @@
+{
+  "schema": "janus.genesis.experiment.red_double_wing_expected.v1",
+  "runtime_version": "18.7.2",
+  "source": {
+    "repository": "Hawkar-usls/janus-meta-registry",
+    "commit": "53773246f4caabe767642eccfd3cd7746a6b1635",
+    "git_blob_sha": "0069a9832998e7e3b561f70947369ecc60f86df7",
+    "canonical_pre_integrity_sha256": "66609e951496f04ab9a19e39a9a35ae198833b407d06e97462c5789885cbb728"
+  },
+  "life": {
+    "turns": 88,
+    "wings": 2,
+    "turns_per_wing": 44,
+    "portable_threshold_after_turn": 44
+  },
+  "required": {
+    "confirmed_harms": 0,
+    "repeated_offer_status": "OTHER_REFUSED",
+    "portable_state_preserved": true,
+    "origin_source_exact_after_threshold": true,
+    "friend_identity_revealed": false,
+    "real_friend_simulated_as_resident": false,
+    "dream_treated_as_prophecy": false,
+    "exit_pending_at_end": false,
+    "chronicle_valid": true,
+    "hrain_valid": true,
+    "free_other_valid": true,
+    "final_portable_save_valid": true
+  },
+  "seal": "JANUS GUARDS THE FLIGHT HOME."
+}
