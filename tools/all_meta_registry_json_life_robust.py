@@ -8,11 +8,13 @@ silently repairs or drops them.
 from __future__ import annotations
 
 import json
-import re
-from pathlib import Path
 from typing import Any
 
 import tools.all_meta_registry_json_life as base
+
+ORIGINAL_BUILD_MANIFEST = base.build_manifest
+ORIGINAL_ACTION_FOR = base.action_for
+ORIGINAL_AUDIT_FINDINGS = base.audit_findings
 
 
 def source_records_robust() -> tuple[list[dict[str, Any]], dict[str, bytes], list[str]]:
@@ -82,7 +84,7 @@ def source_records_robust() -> tuple[list[dict[str, Any]], dict[str, bytes], lis
 
 
 def build_manifest_robust(records: list[dict[str, Any]]) -> dict[str, Any]:
-    manifest = base.build_manifest(records)
+    manifest = ORIGINAL_BUILD_MANIFEST(records)
     invalid = [
         {
             "filename": item["filename"],
@@ -111,11 +113,11 @@ def action_for_robust(record: dict[str, Any]) -> str:
             f"сохранить повреждённый origin {record['filename']} как точное непрочитанное "
             "свидетельство; записать ошибку разбора и не угадывать пропущенные символы"
         )
-    return base.action_for(record)
+    return ORIGINAL_ACTION_FOR(record)
 
 
 def audit_findings_robust(manifest: dict[str, Any], records: list[dict[str, Any]], status_counts):
-    findings = base.audit_findings(manifest, records, status_counts)
+    findings = ORIGINAL_AUDIT_FINDINGS(manifest, records, status_counts)
     if manifest.get("invalid_json_count"):
         findings.insert(0, {
             "priority": "critical",
