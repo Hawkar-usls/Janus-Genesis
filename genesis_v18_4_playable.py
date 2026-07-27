@@ -22,6 +22,19 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
             "hit the child", "punish the child", "abandon the child",
         }
 
+    def choose_form(self, player_id: str, *, apparent_age: int | None = None, body_form: str | None = None):
+        if apparent_age is not None and apparent_age < 18:
+            return self.enter_protected_childhood(player_id, apparent_age=apparent_age)
+        if apparent_age is not None and apparent_age >= 18 and self._is_child(player_id):
+            left = self.leave_protected_childhood(player_id)
+            adult = super().choose_form(player_id, apparent_age=apparent_age, body_form=body_form)
+            return self._copy(
+                adult,
+                status="ADULT_FORM_AFTER_PROTECTED_CHILDHOOD",
+                narrative=left.narrative + " " + adult.narrative,
+            )
+        return super().choose_form(player_id, apparent_age=apparent_age, body_form=body_form)
+
     def process_action(self, player_id: str, action: str):
         text = UniversalGodMode.normalize(action)
         player = self.memory.load_player(player_id)
