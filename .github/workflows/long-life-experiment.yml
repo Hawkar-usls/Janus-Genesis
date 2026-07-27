@@ -20,7 +20,7 @@ jobs:
           python-version: "3.12"
       - name: Live a long Genesis life
         run: |
-          python tools/long_life_playthrough.py > long-life.log 2>&1
+          PYTHONPATH=. python tools/long_life_playthrough.py > long-life.log 2>&1
           cat long-life.log
       - name: Upload life record
         if: always()
