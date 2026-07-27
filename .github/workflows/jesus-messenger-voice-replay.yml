@@ -76,7 +76,8 @@ jobs:
           assert summary['integrity']['chronicle']['valid'] is True
           assert summary['integrity']['hrain']['valid'] is True
           assert summary['integrity']['free_other']['valid'] is True
-          assert summary['integrity']['portable_save_valid'] is True
+          assert summary['integrity']['portable_save_valid'][0] is True
+          assert summary['integrity']['portable_save_valid'][2] is None
           assert all(
               item['turns_lived'] == 0 and item['unseen_world_events'] == 28
               for item in summary['inactive_player_paths'].values()
