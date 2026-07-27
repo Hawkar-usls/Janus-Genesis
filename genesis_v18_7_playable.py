@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.2."""
+"""Playable natural-language layer for Genesis v18.7.3."""
 from __future__ import annotations
 
 import re
@@ -11,9 +11,15 @@ from genesis_v18_6_playable import PlayableGenesisV186
 from genesis_v18_7 import FreeOtherMixin
 from genesis_v18_7_1 import RememberingOtherMixin
 from genesis_v18_7_2 import RememberingVoiceMixin
+from genesis_v18_7_3 import (
+    NON_EXECUTING_MODES,
+    HonestIntentionActionInterpreter,
+    HonestIntentionGodMode,
+    HonestIntentionMixin,
+)
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.2"
+PLAYABLE_VERSION = "18.7.3"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -33,12 +39,13 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    HonestIntentionMixin,
     RememberingVoiceMixin,
     RememberingOtherMixin,
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.2 runtime with remembering agency and a gender-stable Russian voice."""
+    """v18.7.3 runtime with remembered agency, stable voice and honest intent."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
@@ -46,10 +53,53 @@ class PlayableGenesisV187(
         boundary = FreeOtherBoundaryActionInterpreter()
         boundary.DESTRUCTIVE = set(previous.DESTRUCTIVE)
         boundary.CONSTRUCTIVE = set(previous.CONSTRUCTIVE)
-        self.interpreter = boundary
-        self.power = FreeOtherBoundaryGodMode()
+        self.interpreter = HonestIntentionActionInterpreter(
+            boundary,
+            self.intention_analyzer,
+        )
+        self.power = HonestIntentionGodMode(
+            FreeOtherBoundaryGodMode(),
+            self.intention_analyzer,
+        )
+        self.BLOCKED_STATUSES = set(self.BLOCKED_STATUSES) | {
+            "INTENTION_WITNESSED",
+        }
+        self.BLOCKED_RELATIONAL_STATUSES = set(
+            self.BLOCKED_RELATIONAL_STATUSES
+        ) | {"INTENTION_WITNESSED"}
 
     def process_action(self, player_id: str, action: str):
+        frame = self.analyze_intention(action)
+        if frame.mode in NON_EXECUTING_MODES:
+            good_before = self.memory.load_player(player_id).good_count
+            if self.exit_pending(player_id):
+                self._exit_guard_path(player_id).unlink(missing_ok=True)
+                self.memory.append_event(
+                    player_id,
+                    "exit_cancelled",
+                    {"continued_with": action},
+                )
+            self.cancel_pending_harm(player_id, action)
+            witnessed = self.witness_nonexecuting_intention(
+                player_id,
+                action,
+                frame,
+            )
+            threaded = self.weave_after_action(player_id, action, witnessed)
+            bloomed = self.weave_possibility_after_action(
+                player_id,
+                action,
+                threaded,
+                good_before=good_before,
+            )
+            return self.weave_free_other_after_action(
+                player_id,
+                action,
+                bloomed,
+                contact_decision=None,
+                action_realized=False,
+            )
+
         decision = self.preflight_free_other_action(player_id, action)
         if decision and decision["decision"] in {"refused", "alternative", "away"}:
             good_before = self.memory.load_player(player_id).good_count
