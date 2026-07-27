@@ -114,7 +114,12 @@
             "OATH",
             "MEMORY",
             "DEVICE",
-            "STORY"
+            "STORY",
+            "SYSTEM",
+            "PROVENANCE",
+            "EXTERNAL_LEXICON",
+            "TOKEN",
+            "CONCEPT"
           ]
         },
         "source": {"type": "string", "minLength": 1},
@@ -155,7 +160,11 @@
             "PROTECTS",
             "CREATED",
             "DEPENDS_ON",
-            "INHERITED_FROM"
+            "INHERITED_FROM",
+            "RECEIVED_FROM",
+            "SUPPLEMENTS",
+            "CONTAINS",
+            "EXPRESSES"
           ]
         },
         "evidence": {
