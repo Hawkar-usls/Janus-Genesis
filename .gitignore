@@ -4,4 +4,7 @@ __pycache__/
 .env
 janus_keys.json
 data/
+data_v17/
+genesis_network_hub_data/
+*.genesis-save.json
 *.log
