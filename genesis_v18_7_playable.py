@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.3."""
+"""Playable natural-language layer for Genesis v18.7.4."""
 from __future__ import annotations
 
 import re
@@ -14,25 +14,18 @@ from genesis_v18_7_2 import RememberingVoiceMixin
 from genesis_v18_7_3 import (
     NON_EXECUTING_MODES,
     HonestIntentionActionInterpreter,
-    HonestIntentionAnalyzer,
     HonestIntentionGodMode,
     HonestIntentionMixin,
 )
+from genesis_v18_7_4 import PluralWitnessIntentionAnalyzer, PluralWitnessMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.3"
+PLAYABLE_VERSION = "18.7.4"
 
 
 def _free_other_safe_text(text: str) -> str:
     """Protect хранить/сохранить words without masking the actual verb ранить."""
     return re.sub(r"\b(?:сохран|хран)\w*\b", "защитить", text, flags=re.IGNORECASE)
-
-
-class FreeOtherHonestIntentionAnalyzer(HonestIntentionAnalyzer):
-    """Apply the preservation boundary before contextual intent analysis."""
-
-    def analyze(self, action: str):
-        return super().analyze(_free_other_safe_text(action))
 
 
 class FreeOtherBoundaryActionInterpreter(BoundaryAwareActionInterpreter):
@@ -47,17 +40,18 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    PluralWitnessMixin,
     HonestIntentionMixin,
     RememberingVoiceMixin,
     RememberingOtherMixin,
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.3 runtime with remembered agency, stable voice and honest intent."""
+    """v18.7.4 runtime with plural witnesses and honest source boundaries."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
-        self.intention_analyzer = FreeOtherHonestIntentionAnalyzer(
+        self.intention_analyzer = PluralWitnessIntentionAnalyzer(
             self.intention_analyzer.harmful_fragments
         )
         previous = self.interpreter
