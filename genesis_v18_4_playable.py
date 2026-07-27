@@ -35,6 +35,9 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
             if fallback not in household["guardian_ids"]:
                 household["guardian_ids"].append(fallback)
         household["protective_reassignment_active"] = True
+        household["suspended_guardian_provenance"] = list(
+            dict.fromkeys(household.get("suspended_guardian_provenance", []) + [guardian_id])
+        )
         self._save_childhood(store)
 
     def enter_protected_childhood(self, player_id: str, apparent_age: int | None = None):
@@ -67,6 +70,19 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
         result = super().commit_destructive_action(player_id, action)
         self._install_fallback_guardians(player_id)
         return result
+
+    def protected_childhood_state(self, player_id: str | None = None):
+        state = super().protected_childhood_state(player_id)
+        if player_id is None:
+            return state
+        covenant = state.get("guardian_covenant")
+        if covenant:
+            household_id = covenant.get("household_id")
+            store = self._childhood_store()
+            household = store.get("households", {}).get(household_id)
+            if household and all(item.get("household_id") != household_id for item in state.get("households", [])):
+                state.setdefault("households", []).append(household)
+        return state
 
     def choose_form(self, player_id: str, *, apparent_age: int | None = None, body_form: str | None = None):
         if apparent_age is not None and apparent_age < 18:
