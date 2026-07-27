@@ -1,0 +1,133 @@
+name: Jesus Messenger Remembering Voice Replay
+
+on:
+  push:
+    branches:
+      - experiment/jesus-messenger-remembering-voice-20260727
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out v18.7.2 evidence branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Recover the exact v18.7.1 lived scenario
+        run: |
+          git fetch origin \
+            refs/heads/experiment/jesus-messenger-remembering-world-20260727:refs/remotes/origin/jesus-messenger-v1871
+          git show origin/jesus-messenger-v1871:tools/jesus_messenger_playthrough.py \
+            > /tmp/jesus_messenger_voice_replay.py
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('/tmp/jesus_messenger_voice_replay.py')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace(
+              'JANUS GENESIS v18.7.1 — JESUS, MESSENGER OF THE SON OF GOD',
+              'JANUS GENESIS v18.7.2 — JESUS, MESSENGER OF THE SON OF GOD',
+          )
+          text = text.replace(
+              'if PLAYABLE_VERSION != "18.7.1":',
+              'if PLAYABLE_VERSION != "18.7.2":',
+          )
+          text = text.replace(
+              'experiment did not run on v18.7.1',
+              'experiment did not run on v18.7.2',
+          )
+          path.write_text(text, encoding='utf-8')
+          PY
+      - name: Replay the same Messenger life on v18.7.2
+        run: |
+          PYTHONPATH=. python /tmp/jesus_messenger_voice_replay.py > jesus-messenger-v18.7.2.log 2>&1
+          cat jesus-messenger-v18.7.2.log
+      - name: Audit identical path and repaired voice
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          summary = json.loads(Path('jesus_messenger_summary.json').read_text(encoding='utf-8'))
+          log = Path('jesus-messenger-v18.7.2.log').read_text(encoding='utf-8')
+
+          assert summary['runtime_version'] == '18.7.2', summary['runtime_version']
+          assert summary['world_turns'] == 72, summary['world_turns']
+          assert summary['recorded_actions'] == 72, summary['recorded_actions']
+          assert summary['repeated_offer_probe']['passed'] is True
+          assert summary['outcome']['good_actions'] == 31
+          assert summary['outcome']['confirmed_harms'] == 0
+          assert summary['agency_totals'] == {
+              'initiatives': 8,
+              'refusals': 8,
+              'departures': 4,
+              'returns': 4,
+              'calling_changes': 4,
+              'dialogue_memories': 12,
+          }, summary['agency_totals']
+          assert summary['initiative_audit']['violations'] == []
+          assert summary['integrity']['chronicle']['valid'] is True
+          assert summary['integrity']['hrain']['valid'] is True
+          assert summary['integrity']['free_other']['valid'] is True
+          assert summary['integrity']['portable_save_valid'] is True
+          assert all(
+              item['turns_lived'] == 0 and item['unseen_world_events'] == 28
+              for item in summary['inactive_player_paths'].values()
+          )
+
+          assert 'Мара отвечает отказом' in log
+          assert 'В памяти сохранился прежний разговор' in log
+          assert 'Мара отказался' not in log
+          assert 'Он помнит' not in log
+          forbidden = re.compile(
+              r'\b(?:Нера|Мара|Соль|Рада|Сана)\s+'
+              r'(?:отказался|принял|ушёл|вернулся|завершил|выбрал)\b',
+              flags=re.IGNORECASE,
+          )
+          assert forbidden.search(log) is None, forbidden.search(log).group(0) if forbidden.search(log) else None
+
+          audit = {
+              'schema': 'janus.genesis.experiment.jesus_messenger_voice_replay_audit.v1',
+              'same_seed_and_action_script': True,
+              'source_branch': 'experiment/jesus-messenger-remembering-world-20260727',
+              'runtime_version': summary['runtime_version'],
+              'world_turns': summary['world_turns'],
+              'recorded_actions': summary['recorded_actions'],
+              'agency_totals': summary['agency_totals'],
+              'good_actions': summary['outcome']['good_actions'],
+              'confirmed_harms': summary['outcome']['confirmed_harms'],
+              'voice_repair': {
+                  'mara_stable_refusal_present': True,
+                  'impersonal_memory_present': True,
+                  'old_masculine_mara_form_absent': True,
+                  'old_generic_masculine_pronoun_absent': True,
+                  'female_catalog_dynamic_masculine_pattern_absent': True,
+              },
+              'integrity': summary['integrity'],
+          }
+          Path('jesus_messenger_voice_replay_audit.json').write_text(
+              json.dumps(audit, ensure_ascii=False, indent=2) + '\n',
+              encoding='utf-8',
+          )
+          print(json.dumps(audit, ensure_ascii=False, indent=2))
+          PY
+      - name: Upload replay evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jesus-messenger-remembering-voice-lived-record
+          path: |
+            jesus-messenger-v18.7.2.log
+            jesus_messenger_summary.json
+            jesus_messenger_voice_replay_audit.json
+            jesus_messenger_world.genesis-save.json
+            .jesus_messenger_world/
+          if-no-files-found: warn
+          retention-days: 7
