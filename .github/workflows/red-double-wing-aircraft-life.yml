@@ -27,6 +27,16 @@ jobs:
           cp /tmp/janus-meta-registry/data/JANUS-FRIEND-FIRST-DREAM-RED-DOUBLE-WING-AIRCRAFT-HOME-CARGO-SIGNAL-v1.0.json friend_dream_signal.json
       - name: Live two wings across the portable threshold
         run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("tools/red_double_wing_aircraft_life.py")
+          text = path.read_text(encoding="utf-8")
+          text = text.replace(
+              '"free_other_world_turn": free["world_turn"],',
+              '"free_other_world_turn": world.free_other_state(PLAYER_ID)["world_turn"],',
+          )
+          path.write_text(text, encoding="utf-8")
+          PY
           PYTHONPATH=. python - <<'PY' > red-double-wing-aircraft-life.log 2>&1
           import runpy
           from genesis_v18_7_playable import PlayableGenesisV187
