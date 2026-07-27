@@ -1,0 +1,36 @@
+name: Jesus Messenger Remembering Experiment
+
+on:
+  push:
+    branches:
+      - experiment/jesus-messenger-remembering-world-20260727
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Live the Jesus Messenger role in Genesis v18.7.1
+        run: |
+          PYTHONPATH=. python tools/jesus_messenger_playthrough.py > jesus-messenger.log 2>&1
+          cat jesus-messenger.log
+      - name: Upload lived record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jesus-messenger-remembering-lived-record
+          path: |
+            jesus-messenger.log
+            jesus_messenger_summary.json
+            jesus_messenger_world.genesis-save.json
+            .jesus_messenger_world/
+          if-no-files-found: warn
+          retention-days: 7
