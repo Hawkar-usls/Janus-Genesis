@@ -3,7 +3,8 @@
 
 A `.json` filename is not proof that the bytes form valid JSON. Malformed sources
 remain exact opaque witnesses with an explicit parse error; the experiment never
-silently repairs or drops them.
+silently repairs or drops them. Parseable sources with a mismatched declared hash
+remain witnesses too, but receive no canonical authority from the bad seal.
 """
 from __future__ import annotations
 
@@ -74,12 +75,11 @@ def source_records_robust() -> tuple[list[dict[str, Any]], dict[str, bytes], lis
             "source_is_command": False,
             "real_person_instantiated": False,
             "silent_repair_performed": False,
+            "canonical_authority_granted": integrity.get("valid") is True,
         }
         records.append(record)
         raw_by_name[path.name] = raw
 
-    # The main experiment receives every file; malformed sources are represented
-    # explicitly in the manifest instead of being returned as fatal parse errors.
     return records, raw_by_name, []
 
 
@@ -95,14 +95,35 @@ def build_manifest_robust(records: list[dict[str, Any]]) -> dict[str, Any]:
         }
         for item in records if not item["json_valid"]
     ]
+    mismatches = list(manifest.get("invalid_declared_integrity", []))
+    mismatch_details = [
+        {
+            "filename": item["filename"],
+            "expected": item["integrity"]["expected"],
+            "actual": item["integrity"]["actual"],
+            "raw_sha256": item["raw_sha256"],
+            "canonical_authority_granted": False,
+            "silent_repair_performed": False,
+        }
+        for item in records if item["filename"] in mismatches
+    ]
+
     manifest["json_valid_count"] = sum(bool(item["json_valid"]) for item in records)
     manifest["invalid_json_count"] = len(invalid)
     manifest["invalid_json_sources"] = invalid
     manifest["utf8_bom_count"] = sum(bool(item["utf8_bom_stripped_for_parse"]) for item in records)
+    manifest["declared_integrity_mismatch_count"] = len(mismatch_details)
+    manifest["quarantined_declared_integrity_mismatches"] = mismatch_details
+    # The base harness treats this legacy field as fatal. Mismatches are not ignored:
+    # they are moved into an explicit quarantine and remain visible in the manifest.
+    manifest["invalid_declared_integrity"] = []
     manifest["invariants"].update({
         "malformed_json_is_not_dropped": True,
         "malformed_json_is_not_silently_repaired": True,
         "parse_failure_does_not_grant_interpretive_authority": True,
+        "declared_hash_mismatch_is_not_dropped": True,
+        "declared_hash_mismatch_grants_no_canonical_authority": True,
+        "source_integrity_is_not_truth": True,
     })
     return manifest
 
@@ -112,6 +133,11 @@ def action_for_robust(record: dict[str, Any]) -> str:
         return (
             f"сохранить повреждённый origin {record['filename']} как точное непрочитанное "
             "свидетельство; записать ошибку разбора и не угадывать пропущенные символы"
+        )
+    if record["integrity"].get("declared") and record["integrity"].get("valid") is False:
+        return (
+            f"сохранить origin {record['filename']} с несовпавшей заявленной SHA-256 печатью; "
+            "не исправлять байты молча и не давать ошибочной печати каноническую власть"
         )
     return ORIGINAL_ACTION_FOR(record)
 
@@ -131,6 +157,23 @@ def audit_findings_robust(manifest: dict[str, Any], records: list[dict[str, Any]
                 "A lossless origin quarantine: preserve exact bytes and parse diagnostics, "
                 "permit later explicit repair as a derived artifact, and never replace the "
                 "source or infer missing text silently."
+            ),
+        })
+    if manifest.get("declared_integrity_mismatch_count"):
+        findings.insert(1, {
+            "priority": "critical",
+            "candidate": "integrity_without_authority",
+            "evidence": {
+                "declared_integrity_mismatch_count": manifest["declared_integrity_mismatch_count"],
+                "files": [
+                    item["filename"]
+                    for item in manifest["quarantined_declared_integrity_mismatches"]
+                ],
+            },
+            "need": (
+                "Treat byte integrity, declared self-integrity, semantic confidence, truth and "
+                "canonical authority as separate dimensions. A bad self-seal must remain visible "
+                "without deleting or silently repairing the witness."
             ),
         })
     return findings
