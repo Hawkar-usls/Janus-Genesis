@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7."""
+"""Playable natural-language layer for Genesis v18.7.1."""
 from __future__ import annotations
 
 import re
@@ -8,9 +8,10 @@ from pathlib import Path
 from genesis_v18_6 import BoundaryAwareActionInterpreter, BoundaryAwareUniversalGodMode
 from genesis_v18_6_playable import PlayableGenesisV186
 from genesis_v18_7 import FreeOtherMixin
+from genesis_v18_7_1 import RememberingOtherMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.0"
+PLAYABLE_VERSION = "18.7.1"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -30,10 +31,11 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    RememberingOtherMixin,
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7 runtime with independent player paths and Free Others."""
+    """v18.7.1 runtime with independent paths and remembering Free Others."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
