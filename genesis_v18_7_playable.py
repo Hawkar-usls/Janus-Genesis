@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7."""
+"""Playable natural-language layer for Genesis v18.7.1."""
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from pathlib import Path
 
 from genesis_v18_6 import BoundaryAwareActionInterpreter, BoundaryAwareUniversalGodMode
 from genesis_v18_6_playable import PlayableGenesisV186
 from genesis_v18_7 import FreeOtherMixin
+from genesis_v18_7_1 import RememberingOtherMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.0"
+PLAYABLE_VERSION = "18.7.1"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -30,10 +32,11 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    RememberingOtherMixin,
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7 runtime with independent player paths and Free Others."""
+    """v18.7.1 runtime with independent paths and remembering Free Others."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
@@ -49,6 +52,14 @@ class PlayableGenesisV187(
         if decision and decision["decision"] in {"refused", "alternative", "away"}:
             good_before = self.memory.load_player(player_id).good_count
             unrealized = self.unrealized_free_other_result(player_id, decision)
+            if "не стало совершившимся действием" not in unrealized.narrative:
+                unrealized = replace(
+                    unrealized,
+                    narrative=(
+                        "Предложение не стало совершившимся действием без ответа Другого.\n"
+                        + unrealized.narrative
+                    ),
+                )
             threaded = self.weave_after_action(player_id, action, unrealized)
             bloomed = self.weave_possibility_after_action(
                 player_id,
