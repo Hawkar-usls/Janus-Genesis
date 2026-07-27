@@ -1,0 +1,32 @@
+name: Long Life Experiment
+
+on:
+  push:
+    branches:
+      - experiment/long-life-20260727
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Live a long Genesis life
+        run: |
+          python tools/long_life_playthrough.py > long-life.log 2>&1
+          cat long-life.log
+      - name: Upload life record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-long-life-record
+          path: |
+            long-life.log
+            long_life_summary.json
+            .long_life_world/
+          if-no-files-found: warn
+          retention-days: 7
