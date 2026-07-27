@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Primary playable CLI for Janus Genesis v18.4."""
+"""Primary playable CLI for Janus Genesis v18.4.1."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,7 @@ def banner() -> None:
     print(
         "\n╔══════════════════════════════════════════════════╗\n"
         f"║       JANUS GENESIS v{PLAYABLE_VERSION:<22}║\n"
-        "║ CHILDHOOD · GUARDIANS · ABSURDITY · GIFT       ║\n"
+        "║ CHILDHOOD · STORIES · ABSURDITY · GIFT         ║\n"
         "╚══════════════════════════════════════════════════╝\n"
     )
 
@@ -42,6 +42,8 @@ def play(data_dir: Path, player_id: str, name: str | None) -> int:
         "Призма Абсурда лишает зло величия, не высмеивая пострадавшего.\n"
         "Детский облик всегда получает защищённый дом; тёмная детская фраза становится лепетом, а не раной.\n"
         "Родительство открывается только в общем мире как действующий обет защиты, а не право собственности.\n"
+        "Общедоступные истории можно услышать в любом Лике без рейтинга, оплаты или обязательной веры.\n"
+        "Попробуй: «расскажи историю о любви в Припяти».\n"
         "Разрушительный поступок и выход требуют повторного подтверждения.\n"
     )
     while True:
@@ -69,6 +71,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--debug-narrator", action="store_true", help="Developer-only MoralEcho/CareBond state.")
     parser.add_argument("--debug-absurdity", action="store_true", help="Developer-only Absurdity Lens state.")
     parser.add_argument("--debug-childhood", action="store_true", help="Developer-only child/guardian/gift safety state.")
+    parser.add_argument("--debug-stories", action="store_true", help="Developer-only public story metadata.")
     parser.add_argument("--verify-chronicle", action="store_true", help="Validate the linked v18 Chronicle.")
     return parser
 
@@ -96,6 +99,8 @@ def main(argv: list[str] | None = None) -> int:
         payload = world.protected_childhood_state(args.player)
         payload["gifts"] = world._read_json(world.gifts_path, {"gifts": []})
         print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0
+    if args.debug_stories:
+        print(json.dumps(world.public_story_state(), ensure_ascii=False, indent=2)); return 0
     if args.action is not None:
         print(json.dumps(world.process_action(args.player, args.action).to_dict(), ensure_ascii=False, indent=2)); return 0
     return play(args.data_dir, args.player, args.name)
