@@ -70,6 +70,10 @@ PROTECTS
 CREATED
 DEPENDS_ON
 INHERITED_FROM
+RECEIVED_FROM
+SUPPLEMENTS
+CONTAINS
+EXPRESSES
 ```
 
 JSON Schema: [`schemas/hrain_genesis_graph_v1.schema.json`](../schemas/hrain_genesis_graph_v1.schema.json)
@@ -157,6 +161,36 @@ v18.6 также устраняет найденную в долгой жизн�
 ```
 
 теперь остаётся действием заботы, а не запросом на подтверждение вреда.
+
+## Внешние лексические дары
+
+HRaiN также становится хранителем внешних языковых атласов, не подменяя ими VOCAD.
+
+```text
+VOCAD              собственные понятия и отношения JANUS
+EXTERNAL LEXICON   индексированные внешние формы
+HRaiN              происхождение и смысловые связи
+```
+
+Принят первый receipt: **Qatar CharacterBERT MLM Lexicon**. Пока исходный `mlm_vocab.txt` отсутствует в репозитории и лицензия именно vocabulary file отдельно не подтверждена, Genesis хранит конвертер, schema и receipt, но не публикует 100 000 токенов.
+
+После локальной материализации HRaiN получает один узел словаря:
+
+```text
+EXTERNAL_LEXICON ──RECEIVED_FROM──> PROVENANCE:QATAR
+EXTERNAL_LEXICON ──SUPPLEMENTS────> VOCAD
+```
+
+Сто тысяч токенов не превращаются в сто тысяч видимых узлов. Конкретный токен поднимается в граф только после реальной смысловой связи:
+
+```text
+EXTERNAL_LEXICON ──CONTAINS──> TOKEN:mercy
+TOKEN:mercy ──EXPRESSES──> CONCEPT:JANUS.MERCY
+```
+
+Порядок исходных строк и дубликаты являются частью идентичности словаря. Сортировка и дедупликация запрещены; ID токена равен индексу массива.
+
+Полный протокол: [`GENESIS_EXTERNAL_LEXICAL_GIFTS.md`](GENESIS_EXTERNAL_LEXICAL_GIFTS.md).
 
 ## Seal
 
