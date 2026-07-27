@@ -2,7 +2,7 @@
 
 Janus Genesis — офлайн-первая MMO-foundation о свободе, последствиях и бесконечной силе добра. Вред никогда не распределяется между невиновными, но и ни одна душа не признаётся потерянной навсегда.
 
-Текущий основной игровой слой: **Genesis v18.4.1 Playable — The Protected Childhood & Public Stories**. Стабильные линии v16, v17, v18, v18.1, v18.2 и v18.3 сохранены рядом для совместимости и истории проекта.
+Текущий основной игровой слой: **Genesis v18.5 Playable — The Living Threads**. Стабильные линии v16, v17, v18, v18.1, v18.2, v18.3 и v18.4.1 сохранены рядом для совместимости и истории проекта.
 
 ## Главный закон
 
@@ -103,6 +103,23 @@ synthetic stress-mutation penalty
 
 > Любовь в Genesis не становится вечной через плен. Она продолжается только через вновь и вновь свободно выбранные заботу, согласие и право другого оставаться собой.
 
+## Genesis v18.5 — The Living Threads
+
+> Мир не обязан ждать команды игрока, чтобы продолжать жить.
+
+Genesis теперь сохраняет причинные нити, которые развиваются между действиями игрока и способны проявиться без выбора из меню:
+
+- неоднозначные встречи без немедленного «правильного ответа»;
+- три симулированные судьбы жителей с собственными целями;
+- случайный при первом запуске, но persistent и воспроизводимый seed мира;
+- молчаливые реакции без приписывания благодарности, согласия или прощения;
+- возвращающиеся символы: белая нить, половина ключа, одиночный звон, семя в стекле;
+- отложенные последствия прежних действий;
+- настоящее молчание, которое не превращается в обязательную моральную лекцию;
+- безопасные детские версии всех проявляющихся нитей.
+
+Одинаковый seed и одинаковая последовательность действий воспроизводят одну жизнь; другой seed способен открыть другую. Нити не изменяют Universal God Mode, маршрутизацию между Ликами, `MoralEcho`, защищённое детство или SHA-256 Chronicle. Симулированные жители не объявляются сознательными или автономными существами.
+
 ## Что реализовано
 
 - universal God Mode без покупки желаний и числовой цены;
@@ -124,6 +141,8 @@ synthetic stress-mutation penalty
 - свободный First Coin gift после помощи без долга;
 - общедоступный JSON-архив историй и детский безопасный пересказ;
 - Amor Aeternum как история памяти, любви и нового начала для каждого Лика;
+- persistent Living Threads с независимыми судьбами, неоднозначными встречами и отложенными последствиями;
+- возвращающиеся символы и события, не выбранные из видимого меню;
 - выбранный возраст и форма тела, отношения, Хроника и мягкий выход.
 
 Текущая реализация общего мира остаётся локальной persistent-моделью. Реальный сетевой transport, аккаунты, самостоятельные NPC, репродуктивная симуляция и синхронизация нескольких машин остаются будущими этапами.
@@ -156,6 +175,9 @@ python play_genesis.py
 расскажи историю о любви в Припяти
 история Amor Aeternum
 покажи дверь к началу
+молчать
+идти по дороге
+вернуться к старому мосту
 продолжить жизнь
 ```
 
@@ -168,25 +190,27 @@ python play_genesis.py --player hawkar --debug-narrator
 python play_genesis.py --player hawkar --debug-absurdity
 python play_genesis.py --player hawkar --debug-childhood
 python play_genesis.py --player hawkar --debug-stories
+python play_genesis.py --player hawkar --debug-threads
 python play_genesis.py --verify-chronicle
 ```
 
 ## Интеграция
 
 ```python
-from genesis_v18_4_playable import PlayableGenesisV184
+from genesis_v18_5_playable import PlayableGenesisV185
 
-world = PlayableGenesisV184("./data_v17")
-reply = world.process_action("resident", "расскажи историю о любви в Припяти")
+world = PlayableGenesisV185("./data_v17")
+reply = world.process_action("resident", "молчать")
 print(reply.to_dict())
 ```
 
-v18.4.1 читает существующие v17/v18/v18.1/v18.2/v18.3/v18.4 сохранения и добавляет рядом:
+v18.5 читает существующие v17/v18/v18.1/v18.2/v18.3/v18.4 сохранения и добавляет рядом:
 
 - `protected_childhood_v18_4.json`;
 - `gifts_beyond_request_v18_4.json`;
 - `guards_v18/parenthood_v18_4/`;
-- статический публичный архив `stories/AMOR_AETERNUM_PRIPYAT_STORY_v1.0.json`.
+- статический публичный архив `stories/AMOR_AETERNUM_PRIPYAT_STORY_v1.0.json`;
+- `living_threads_v18_5.json`.
 
 ## Истоки
 
@@ -204,6 +228,8 @@ Janus-Demiurge дал предков WorldMemory, EventBus, social learning, ada
 
 ## Канон
 
+- [Genesis v18.5: The Living Threads](docs/GENESIS_V18_5_LIVING_THREADS.md)
+- [Genesis v18.5 Creative Reversal Decision](docs/GENESIS_V18_5_CREATIVE_REVERSAL_DECISION.json)
 - [Amor Aeternum: The Pripyat Story for Everyone](docs/AMOR_AETERNUM_PRIPYAT_PUBLIC_STORY.md)
 - [Genesis v18.4: The Protected Childhood](docs/GENESIS_V18_4_PROTECTED_CHILDHOOD.md)
 - [Genesis v18.3: The Absurdity Lens](docs/GENESIS_V18_3_ABSURDITY_LENS.md)
