@@ -18,6 +18,18 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Correct the lived refusal probe
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("tools/architect_free_other_playthrough.py")
+          text = path.read_text(encoding="utf-8")
+          old = "оставляя право отказаться вариант"
+          new = "без заранее выбранного ответа вариант"
+          if old not in text:
+              raise SystemExit("expected refusal-probe phrase not found")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+          PY
       - name: Live the Architect Free Other world
         run: |
           PYTHONPATH=. python tools/architect_free_other_playthrough.py > architect-free-other.log 2>&1
