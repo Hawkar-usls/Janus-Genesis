@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Primary playable CLI for Janus Genesis v18.2."""
+"""Primary playable CLI for Janus Genesis v18.3."""
 from __future__ import annotations
 
 import argparse
@@ -7,14 +7,14 @@ import json
 from pathlib import Path
 
 from genesis_v18 import WorldResult
-from genesis_v18_2_playable import PLAYABLE_VERSION, PlayableGenesisV182
+from genesis_v18_3_playable import PLAYABLE_VERSION, PlayableGenesisV183
 
 
 def banner() -> None:
     print(
         "\n╔══════════════════════════════════════════════════╗\n"
         f"║       JANUS GENESIS v{PLAYABLE_VERSION:<22}║\n"
-        "║ MORAL ECHO · CARE BONDS · NARRATOR OF CONTRAST ║\n"
+        "║ NARRATOR · MORAL ECHO · ABSURDITY LENS         ║\n"
         "╚══════════════════════════════════════════════════╝\n"
     )
 
@@ -27,7 +27,7 @@ def print_result(result: WorldResult) -> None:
 
 
 def play(data_dir: Path, player_id: str, name: str | None) -> int:
-    world = PlayableGenesisV182(data_dir)
+    world = PlayableGenesisV183(data_dir)
     if name:
         world.set_display_name(player_id, name)
     banner()
@@ -37,9 +37,9 @@ def play(data_dir: Path, player_id: str, name: str | None) -> int:
         f"{state['world_response']}\n\n"
         "Пиши действия обычными словами. Другой человек обозначается через @id.\n"
         "Доброе желание начинается словами «Пусть…» или «Желаю…».\n"
-        "Повествователь может предложить безопасную жизненную дугу, но не решает судьбу за тебя.\n"
-        "Конкретный вред оставляет нравственное эхо: несвязанное добро не стирает его, но остаётся полноценным.\n"
-        "Осознание формулирует сам человек; Повествователь только соединяет прожитые главы.\n"
+        "Повествователь предлагает безопасные дуги, но не решает судьбу за тебя.\n"
+        "Конкретный вред оставляет MoralEcho; несвязанное добро не стирает его.\n"
+        "Призма Абсурда лишает зло величия, не высмеивая пострадавшего.\n"
         "Разрушительный поступок и выход требуют повторного подтверждения.\n"
     )
     while True:
@@ -65,13 +65,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--debug-state", action="store_true", help="Developer-only internal state.")
     parser.add_argument("--debug-secrets", action="store_true", help="Developer-only Secret seed state.")
     parser.add_argument("--debug-narrator", action="store_true", help="Developer-only MoralEcho/CareBond state.")
+    parser.add_argument("--debug-absurdity", action="store_true", help="Developer-only Absurdity Lens state.")
     parser.add_argument("--verify-chronicle", action="store_true", help="Validate the linked v18 Chronicle.")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    world = PlayableGenesisV182(args.data_dir)
+    world = PlayableGenesisV183(args.data_dir)
     if args.name:
         world.set_display_name(args.player, args.name)
     if args.verify_chronicle:
@@ -86,6 +87,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(world.secret_state(), ensure_ascii=False, indent=2)); return 0
     if args.debug_narrator:
         print(json.dumps(world.narrator_state(args.player), ensure_ascii=False, indent=2)); return 0
+    if args.debug_absurdity:
+        print(json.dumps(world.absurdity_state(args.player), ensure_ascii=False, indent=2)); return 0
     if args.action is not None:
         print(json.dumps(world.process_action(args.player, args.action).to_dict(), ensure_ascii=False, indent=2)); return 0
     return play(args.data_dir, args.player, args.name)
