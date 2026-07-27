@@ -2,19 +2,47 @@
 """Playable natural-language layer for Genesis v18.7."""
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
+from genesis_v18_6 import BoundaryAwareActionInterpreter, BoundaryAwareUniversalGodMode
 from genesis_v18_6_playable import PlayableGenesisV186
 from genesis_v18_7 import FreeOtherMixin
+from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
 PLAYABLE_VERSION = "18.7.0"
 
 
-class PlayableGenesisV187(FreeOtherMixin, PlayableGenesisV186):
+def _free_other_safe_text(text: str) -> str:
+    """Protect хранить/сохранить words without masking the actual verb ранить."""
+    return re.sub(r"\b(?:сохран|хран)\w*\b", "защитить", text, flags=re.IGNORECASE)
+
+
+class FreeOtherBoundaryActionInterpreter(BoundaryAwareActionInterpreter):
+    def interpret(self, player, action: str):
+        return super().interpret(player, _free_other_safe_text(action))
+
+
+class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
+    def classify(self, request: str):
+        return super().classify(_free_other_safe_text(request))
+
+
+class PlayableGenesisV187(
+    GenesisV187CompatibilityMixin,
+    FreeOtherMixin,
+    PlayableGenesisV186,
+):
     """v18.7 runtime with independent player paths and Free Others."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
+        previous = self.interpreter
+        boundary = FreeOtherBoundaryActionInterpreter()
+        boundary.DESTRUCTIVE = set(previous.DESTRUCTIVE)
+        boundary.CONSTRUCTIVE = set(previous.CONSTRUCTIVE)
+        self.interpreter = boundary
+        self.power = FreeOtherBoundaryGodMode()
 
     def process_action(self, player_id: str, action: str):
         decision = self.preflight_free_other_action(player_id, action)
