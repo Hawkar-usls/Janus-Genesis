@@ -82,13 +82,14 @@ class GenesisV186ExternalLexiconTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 world.register_external_lexicon(manifest)
 
-    def test_qatar_receipt_does_not_pretend_source_hash_is_known(self) -> None:
+    def test_qatar_receipt_records_verified_source_without_public_payload(self) -> None:
         root = Path(__file__).resolve().parents[1]
         receipt = json.loads((root / "lexicons" / "qatar_characterbert_mlm_en_v1.receipt.json").read_text(encoding="utf-8"))
-        self.assertEqual(receipt["status"], "accepted_pending_source_materialization")
+        self.assertEqual(receipt["status"], "source_materialized_and_verified_redistribution_pending")
+        self.assertEqual(receipt["verified_token_count"], 100000)
+        self.assertEqual(receipt["source_sha256"], "7af5d55214b16be542f82c7f57cba838a1790c16284edbcb2f5bee9f8d98bec3")
         self.assertFalse(receipt["redistribution"]["source_file_bundled"])
         self.assertFalse(receipt["redistribution"]["generated_tokens_bundled"])
-        self.assertNotIn("source_sha256", receipt)
 
 
 if __name__ == "__main__":

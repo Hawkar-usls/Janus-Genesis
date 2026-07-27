@@ -1,13 +1,10 @@
 {
-  "schema": "janus.genesis.lexicon.receipt.v1",
-  "receipt_id": "JANUS-GENESIS-LEXICAL-GIFT-QATAR-CHARACTERBERT-MLM-EN-v1",
-  "status": "source_materialized_and_verified_redistribution_pending",
+  "schema": "janus.genesis.lexicon.manifest.v1",
   "lexicon_id": "gift.qatar.character_bert.mlm.en.v1",
   "name": "Qatar CharacterBERT MLM Lexicon",
   "kind": "mlm_output_lexicon",
   "language": "en",
-  "expected_token_count": 100000,
-  "verified_token_count": 100000,
+  "token_count": 100000,
   "source": {
     "provider": "helboukkouri/character-bert",
     "file": "mlm_vocab.txt",
@@ -28,19 +25,42 @@
   "empty_token_count": 0,
   "unique_token_count": 100000,
   "duplicate_occurrences": 0,
+  "order_preserved": true,
+  "duplicates_preserved": true,
+  "first_tokens": [
+    "the",
+    ",",
+    ".",
+    "of",
+    "and",
+    "in",
+    "to",
+    "a",
+    "\"",
+    "-"
+  ],
+  "last_tokens": [
+    "tirso",
+    "tumkur",
+    "pirna",
+    "shepherdess",
+    "woll",
+    "tlb",
+    "tomoya",
+    "jut",
+    "kurth",
+    "atocha"
+  ],
   "accepted_by": "JANUS GENESIS",
   "role": "external_lexical_gift",
-  "vocad_replaced": false,
-  "hrain_policy": {
-    "one_visible_lexicon_node": true,
-    "materialize_all_token_nodes": false,
-    "promote_token_only_when_semantically_linked": true
+  "materialization": {
+    "status": "materialized_and_verified_locally",
+    "materialized_on": "2026-07-27",
+    "generated_tokens_embedded_in_repository": false
   },
   "redistribution": {
-    "source_file_bundled": false,
-    "generated_tokens_bundled": false,
+    "tokens_embedded_in_repository": false,
     "license_status": "not_confirmed_for_vocab_file",
-    "next_step": "Confirm vocabulary redistribution rights before committing source or generated token payload."
-  },
-  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc"
+    "reason": "Source received and verified; keep generated token payload out of the public repository until vocabulary redistribution rights are confirmed."
+  }
 }
