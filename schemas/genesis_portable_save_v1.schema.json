@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/genesis_portable_save_v1.schema.json",
+  "title": "JANUS Genesis Portable Save v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "runtime_version",
+    "created_at",
+    "label",
+    "scope",
+    "contains_api_keys",
+    "contains_environment_files",
+    "network_authority",
+    "file_count",
+    "manifest_sha256",
+    "files"
+  ],
+  "properties": {
+    "schema": {"const": "janus.genesis.portable_save.v1"},
+    "runtime_version": {"type": "string"},
+    "created_at": {"type": "string", "format": "date-time"},
+    "label": {"type": "string", "maxLength": 160},
+    "scope": {"const": "local_device_state"},
+    "contains_api_keys": {"const": false},
+    "contains_environment_files": {"const": false},
+    "network_authority": {"const": false},
+    "file_count": {"type": "integer", "minimum": 0},
+    "manifest_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "kind", "size_bytes", "sha256", "content"],
+        "properties": {
+          "path": {"type": "string", "minLength": 1},
+          "kind": {"enum": ["json", "jsonl"]},
+          "size_bytes": {"type": "integer", "minimum": 0},
+          "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "content": {"type": "string"}
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
