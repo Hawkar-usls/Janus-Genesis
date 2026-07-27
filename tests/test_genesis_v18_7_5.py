@@ -13,7 +13,7 @@ from genesis_v18_7_portable import PortableSaveManager
 
 class GenesisV1875GroundedWitnessTests(unittest.TestCase):
     def test_primary_runtime_reports_grounded_witness_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.5")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.6")
 
     def test_retrieval_abstains_when_no_positive_evidence_exists(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -173,7 +173,7 @@ class GenesisV1875GroundedWitnessTests(unittest.TestCase):
             self.assertEqual(claim["grounding_status"], "reader_only_unverified")
             self.assertFalse(claim["grounded"])
 
-    def test_disputes_require_two_grounded_claims(self) -> None:
+    def test_pairwise_disputes_are_rejected_even_when_one_claim_is_ungrounded(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             world = PlayableGenesisV187(Path(directory))
             left = world.import_origin_bytes(
@@ -289,7 +289,7 @@ class GenesisV1875GroundedWitnessTests(unittest.TestCase):
                 manager = PortableSaveManager(source_path)
                 manager.export_to(output, label="Grounded witness threshold")
                 bundle = json.loads(output.read_text(encoding="utf-8"))
-                self.assertEqual(bundle["runtime_version"], "18.7.5")
+                self.assertEqual(bundle["runtime_version"], "18.7.6")
                 self.assertTrue(manager.verify_bundle(bundle)[0])
 
                 PortableSaveManager(target_path).import_bundle(bundle)
