@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.5."""
+"""Playable natural-language layer for Genesis v18.7.6."""
 from __future__ import annotations
 
 import re
@@ -20,9 +20,10 @@ from genesis_v18_7_3 import (
 from genesis_v18_7_4 import PluralWitnessIntentionAnalyzer
 from genesis_v18_7_5 import GroundedWitnessMixin
 from genesis_v18_7_5_repair import DerivedRepairMixin
+from genesis_v18_7_6 import TriumvirateWitnessMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.5"
+PLAYABLE_VERSION = "18.7.6"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -42,6 +43,7 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    TriumvirateWitnessMixin,
     DerivedRepairMixin,
     GroundedWitnessMixin,
     HonestIntentionMixin,
@@ -50,7 +52,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.5 runtime with evidence-grounded source speech and honest abstention."""
+    """v18.7.6 runtime with grounded three-voice disputes and no automatic judge."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
