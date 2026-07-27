@@ -1,0 +1,54 @@
+name: Red Double-Wing Aircraft Life
+
+on:
+  push:
+    branches:
+      - experiment/red-double-wing-aircraft-life-20260727
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Recover the exact Meta Registry signal
+        run: |
+          git clone --quiet https://github.com/Hawkar-usls/janus-meta-registry.git /tmp/janus-meta-registry
+          git -C /tmp/janus-meta-registry checkout --quiet 53773246f4caabe767642eccfd3cd7746a6b1635
+          blob="$(git -C /tmp/janus-meta-registry rev-parse HEAD:data/JANUS-FRIEND-FIRST-DREAM-RED-DOUBLE-WING-AIRCRAFT-HOME-CARGO-SIGNAL-v1.0.json)"
+          test "$blob" = "0069a9832998e7e3b561f70947369ecc60f86df7"
+          cp /tmp/janus-meta-registry/data/JANUS-FRIEND-FIRST-DREAM-RED-DOUBLE-WING-AIRCRAFT-HOME-CARGO-SIGNAL-v1.0.json friend_dream_signal.json
+      - name: Live two wings across the portable threshold
+        run: |
+          PYTHONPATH=. python - <<'PY' > red-double-wing-aircraft-life.log 2>&1
+          import runpy
+          from genesis_v18_7_playable import PlayableGenesisV187
+
+          # The experiment uses a readable alias for the persistence root without
+          # changing the canonical runtime API.
+          PlayableGenesisV187.data_dir = property(lambda self: self.memory.root)
+          runpy.run_path("tools/red_double_wing_aircraft_life.py", run_name="__main__")
+          PY
+          cat red-double-wing-aircraft-life.log
+      - name: Upload lived record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: red-double-wing-aircraft-lived-record
+          path: |
+            red-double-wing-aircraft-life.log
+            red_double_wing_life_summary.json
+            red_double_wing_threshold.genesis-save.json
+            red_double_wing_life.genesis-save.json
+            friend_dream_signal.json
+            .red_aircraft_country_a/
+            .red_aircraft_country_b/
+          if-no-files-found: warn
+          retention-days: 7
