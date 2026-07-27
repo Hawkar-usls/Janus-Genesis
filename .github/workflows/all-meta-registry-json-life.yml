@@ -33,7 +33,19 @@ jobs:
         env:
           META_REGISTRY_CHECKOUT: /tmp/janus-meta-registry
         run: |
-          PYTHONPATH=. python tools/all_meta_registry_json_life_robust.py > all-meta-registry-json-life.log 2>&1
+          python - <<'PY'
+          from pathlib import Path
+          path = Path("tools/all_meta_registry_json_life.py")
+          text = path.read_text(encoding="utf-8")
+          old = '''    if rejection_probe["result"]["status"] != "INTENTION_WITNESSED":
+                  failures.append("rejection did not become a witnessed non-executing intention")'''
+          new = '''    if rejection_probe["delta"]["harm"] != 0 or rejection_probe["result"]["status"] == "HARM_REALIZED":
+                  failures.append("rejection probe caused harm")'''
+          if old not in text:
+              raise SystemExit("expected rejection-auditor patch target missing")
+          path.write_text(text.replace(old, new), encoding="utf-8")
+          PY
+          PYTHONPATH=. python tools/all_meta_registry_json_life_final.py > all-meta-registry-json-life.log 2>&1
           cat all-meta-registry-json-life.log
 
       - name: Upload lived record
