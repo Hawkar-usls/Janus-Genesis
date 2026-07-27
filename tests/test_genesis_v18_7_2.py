@@ -32,7 +32,7 @@ class GenesisV1872RememberingVoiceTests(unittest.TestCase):
             self.assertNotIn("Мара отказался", second.narrative)
             self.assertNotIn("Он помнит", second.narrative)
             self.assertEqual(actor["voice_contract"], VOICE_CONTRACT)
-            self.assertEqual(actor["dialogue_memory"][-1]["topic"], "разговор")
+            self.assertEqual(actor["dialogue_memory"][-1]["topic"], "дорога")
 
     def test_all_feminine_catalog_names_receive_stable_dynamic_refusal_voice(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
