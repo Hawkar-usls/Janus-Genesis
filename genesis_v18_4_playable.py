@@ -22,6 +22,52 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
             "hit the child", "punish the child", "abandon the child",
         }
 
+    def _install_fallback_guardians(self, guardian_id: str) -> None:
+        store = self._childhood_store()
+        covenant = store.get("guardian_covenants", {}).get(guardian_id)
+        if not covenant:
+            return
+        household = store.get("households", {}).get(covenant.get("household_id"))
+        if not household:
+            return
+        household["guardian_ids"] = [item for item in household.get("guardian_ids", []) if item != guardian_id]
+        for fallback in ("hearth-guardian", "garden-guardian"):
+            if fallback not in household["guardian_ids"]:
+                household["guardian_ids"].append(fallback)
+        household["protective_reassignment_active"] = True
+        self._save_childhood(store)
+
+    def enter_protected_childhood(self, player_id: str, apparent_age: int | None = None):
+        # Nobody may become their own guardian. An existing covenant is suspended
+        # before the same person enters the protected child role.
+        store = self._childhood_store()
+        own = store.get("guardian_covenants", {}).get(player_id)
+        if own and own.get("status") == "active":
+            own["status"] = "suspended_during_child_role"
+            own["open_for_child"] = False
+            self._save_childhood(store)
+            self._install_fallback_guardians(player_id)
+
+        result = super().enter_protected_childhood(player_id, apparent_age=apparent_age)
+        # The core method writes child state and household state through separate
+        # atomic snapshots. Reassert the household after the child snapshot so
+        # neither side can overwrite the other during migration.
+        household = self._safe_household(player_id)
+        store = self._childhood_store()
+        store.setdefault("children", {}).setdefault(player_id, {})["household_id"] = household["household_id"]
+        self._save_childhood(store)
+        return result
+
+    def transform_guardian_shadow(self, player_id: str, action: str, child_id: str | None = None):
+        result = super().transform_guardian_shadow(player_id, action, child_id=child_id)
+        self._install_fallback_guardians(player_id)
+        return result
+
+    def commit_destructive_action(self, player_id: str, action: str):
+        result = super().commit_destructive_action(player_id, action)
+        self._install_fallback_guardians(player_id)
+        return result
+
     def choose_form(self, player_id: str, *, apparent_age: int | None = None, body_form: str | None = None):
         if apparent_age is not None and apparent_age < 18:
             return self.enter_protected_childhood(player_id, apparent_age=apparent_age)
@@ -42,7 +88,8 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
         if any(fragment in text for fragment in self.SHOW_CHILDHOOD):
             state = self.protected_childhood_state(player_id)
             if state.get("child") and state["child"].get("active"):
-                household = state.get("households", [{}])[0]
+                households = state.get("households", [])
+                household = households[0] if households else {"guardian_ids": ["hearth-guardian", "garden-guardian"]}
                 return self._copy(
                     super().process_action(player_id, "Осмотреться"),
                     status="PROTECTED_HOUSEHOLD_SHOWN",
