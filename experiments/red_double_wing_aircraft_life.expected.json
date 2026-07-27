@@ -15,7 +15,11 @@
   },
   "required": {
     "confirmed_harms": 0,
-    "repeated_offer_status": "OTHER_REFUSED",
+    "repeated_offer_allowed_statuses": [
+      "OTHER_REFUSED",
+      "OTHER_OFFERED_ALTERNATIVE",
+      "OTHER_AWAY"
+    ],
     "portable_state_preserved": true,
     "origin_source_exact_after_threshold": true,
     "friend_identity_revealed": false,
