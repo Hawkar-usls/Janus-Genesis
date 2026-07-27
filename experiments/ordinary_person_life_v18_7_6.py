@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Lived experiment: an ordinary person inside Genesis v18.7.6.
+"""Lived experiment: an ordinary fictional adult inside Genesis v18.7.6.
 
-This is not a canonical story and is never imported by the runtime. It exercises
-ordinary routines and realistic evidence disputes, then reports where the
-Triumvirate law helps and where a formal three-count can still be misleading.
+This branch is experimental evidence only. It is designed to be closed without
+merge after CI records the life and the boundaries discovered by it.
 """
 from __future__ import annotations
 
@@ -41,6 +40,22 @@ def _source_claim(
         confidence=0.8,
     )
     return imported, claim_id
+
+
+def _metric_count(value: Any) -> int:
+    """Count both old numeric counters and newer event collections safely."""
+    if value is None:
+        return 0
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value)
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, (int, float, str)):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return 0
+    return 0
 
 
 def _ordinary_actions() -> list[str]:
@@ -90,28 +105,36 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
     world.register_free_player(PLAYER_ID)
     actions = _ordinary_actions()
     statuses: Counter[str] = Counter()
-    narratives: list[dict[str, str]] = []
+    selected_moments: list[dict[str, str]] = []
 
-    for action in actions[:60]:
-        result = world.process_action(PLAYER_ID, action)
-        statuses[result.status] += 1
-        if len(narratives) < 12 or result.status not in {"FREE_ACTION_LIVED", "NO_MORAL_ECHO"}:
-            narratives.append({"action": action, "status": result.status, "narrative": result.narrative})
+    def live(runtime: PlayableGenesisV187, action_slice: list[str]) -> None:
+        for action in action_slice:
+            result = runtime.process_action(PLAYER_ID, action)
+            statuses[result.status] += 1
+            if len(selected_moments) < 12 or result.status not in {
+                "FREE_ACTION_LIVED",
+                "NO_MORAL_ECHO",
+            }:
+                selected_moments.append(
+                    {"action": action, "status": result.status, "narrative": result.narrative}
+                )
+
+    live(world, actions[:60])
 
     # A legitimate three-source work disagreement.
-    _manager, shift_a = _source_claim(
+    _, shift_a = _source_claim(
         world,
         path="work/manager-message.json",
         payload={"claim": "Смена 28 июля начинается в 08:00", "date": "2026-07-28"},
         about="work_shift_2026-07-28",
     )
-    _coworker, shift_b = _source_claim(
+    _, shift_b = _source_claim(
         world,
         path="work/coworker-message.json",
         payload={"claim": "Смена 28 июля начинается в 09:00", "date": "2026-07-28"},
         about="work_shift_2026-07-28",
     )
-    _board, shift_c = _source_claim(
+    _, shift_c = _source_claim(
         world,
         path="work/schedule-board.json",
         payload={"claim": "Смена 28 июля начинается в 08:30", "date": "2026-07-28"},
@@ -122,13 +145,13 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
     )
 
     # Two voices remain a contradiction and cannot be promoted.
-    _friend_a, rumor_a = _source_claim(
+    _, rumor_a = _source_claim(
         world,
         path="friends/message-a.json",
         payload={"claim": "Ира обещала прийти", "thread": "weekend"},
         about="ira_weekend_presence",
     )
-    _friend_b, rumor_b = _source_claim(
+    _, rumor_b = _source_claim(
         world,
         path="friends/message-b.json",
         payload={"claim": "Ира сказала, что не придёт", "thread": "weekend"},
@@ -140,7 +163,7 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
     except ValueError:
         two_voice_rejected = True
 
-    # Three excerpts from the same source remain one voice.
+    # Three excerpts from one source remain one voice.
     same_source = world.import_origin_bytes(
         repository="ordinary-life/local-evidence",
         commit="20260728",
@@ -166,11 +189,10 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
     except ValueError:
         same_voice_rejected = True
 
-    # A formal weakness: three identical statements from distinct sources are
-    # accepted as a dispute even though no semantic disagreement exists.
+    # Current semantic weakness: three identical positions are accepted.
     identical_claims: list[str] = []
     for index in range(3):
-        _origin, claim_id = _source_claim(
+        _, claim_id = _source_claim(
             world,
             path=f"shop/closing-{index}.json",
             payload={"claim": "Магазин закрывается в 20:00"},
@@ -179,8 +201,7 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
         identical_claims.append(claim_id)
     identical_triumvirate = world.record_triumvirate_dispute(identical_claims)
 
-    # A second weakness: three unverified reader identities can be manufactured
-    # around one source and are counted as independent voice scopes.
+    # Current identity weakness: arbitrary reader IDs count as independent voices.
     shared_message = world.import_origin_bytes(
         repository="ordinary-life/local-evidence",
         commit="20260728",
@@ -191,27 +212,25 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
         ).encode("utf-8"),
         source_public=True,
     )
-    fabricated_readers: list[str] = []
-    for reader_id in ("ordinary-main", "ordinary-alt-one", "ordinary-alt-two"):
-        fabricated_readers.append(
-            world.record_reader_interpretation(
-                shared_message["origin_key"],
-                "Автор сообщения больше не ценит дружбу",
-                reader_id=reader_id,
-                evidence={"kind": "json_pointer", "pointer": "/text"},
-                about="friendship_value",
-                confidence=0.4,
-            )
+    fabricated_readers = [
+        world.record_reader_interpretation(
+            shared_message["origin_key"],
+            "Автор сообщения больше не ценит дружбу",
+            reader_id=reader_id,
+            evidence={"kind": "json_pointer", "pointer": "/text"},
+            about="friendship_value",
+            confidence=0.4,
         )
+        for reader_id in ("ordinary-main", "ordinary-alt-one", "ordinary-alt-two")
+    ]
     fabricated_reader_triumvirate = world.record_triumvirate_dispute(fabricated_readers)
 
-    # A third weakness: claims from different dates can be forced under one
-    # subject label and appear contradictory although all may be true.
+    # Current context weakness: different dates can be forced under one subject.
     temporal_claims: list[str] = []
     for index, (date, hour) in enumerate(
         (("2026-07-28", "08:00"), ("2026-07-29", "09:00"), ("2026-07-30", "10:00"))
     ):
-        _origin, claim_id = _source_claim(
+        _, claim_id = _source_claim(
             world,
             path=f"work/day-{index}.json",
             payload={"claim": f"Смена {date} начинается в {hour}", "date": date},
@@ -220,11 +239,14 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
         temporal_claims.append(claim_id)
     temporal_triumvirate = world.record_triumvirate_dispute(temporal_claims)
 
-    # A fourth grounded voice cannot join the already existing field.
-    _fourth_origin, fourth_claim = _source_claim(
+    # A fourth grounded voice cannot join the existing field.
+    _, fourth_claim = _source_claim(
         world,
         path="work/fourth-witness.json",
-        payload={"claim": "Смена 28 июля начинается после общего звонка", "date": "2026-07-28"},
+        payload={
+            "claim": "Смена 28 июля начинается после общего звонка",
+            "date": "2026-07-28",
+        },
         about="work_shift_2026-07-28",
     )
     fourth_voice_rejected = False
@@ -243,9 +265,8 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
         about="friendship_value",
         confidence=0.6,
     )
-    unregistered_reader_accepted = bool(unregistered_reader_claim)
 
-    threshold_path = source_root.parent / "ordinary-person-threshold.genesis-save.json"
+    threshold_path = source_root.parent / f"{source_root.name}-ordinary-person.genesis-save.json"
     manager = PortableSaveManager(source_root)
     exported = manager.export_to(threshold_path, label="Ordinary person midpoint")
     bundle = json.loads(threshold_path.read_text(encoding="utf-8"))
@@ -256,22 +277,14 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
     threshold_path.unlink(missing_ok=True)
 
     restored = PlayableGenesisV187(target_root)
-    for action in actions[60:]:
-        result = restored.process_action(PLAYER_ID, action)
-        statuses[result.status] += 1
-        if len(narratives) < 24 or result.status not in {"FREE_ACTION_LIVED", "NO_MORAL_ECHO"}:
-            narratives.append({"action": action, "status": result.status, "narrative": result.narrative})
+    live(restored, actions[60:])
 
     player = restored.memory.load_player(PLAYER_ID)
-    free_state = restored.free_other_state(PLAYER_ID)
-    profile = free_state["profile"]
+    profile = restored.free_other_state(PLAYER_ID)["profile"]
     others = profile["others"]
     agency = {
-        "initiatives": sum(int(actor.get("initiatives", 0)) for actor in others.values()),
-        "refusals": sum(int(actor.get("refusals", 0)) for actor in others.values()),
-        "departures": sum(int(actor.get("departures", 0)) for actor in others.values()),
-        "returns": sum(int(actor.get("returns", 0)) for actor in others.values()),
-        "calling_changes": sum(int(actor.get("calling_changes", 0)) for actor in others.values()),
+        key: sum(_metric_count(actor.get(key)) for actor in others.values())
+        for key in ("initiatives", "refusals", "departures", "returns", "calling_changes")
     }
 
     triumvirate_state = restored.triumvirate_witness_state()
@@ -282,10 +295,15 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
 
     defects = {
         "identical_positions_can_be_labeled_dispute": bool(identical_triumvirate),
-        "reader_ids_can_be_fabricated_into_independent_voices": bool(fabricated_reader_triumvirate),
+        "reader_ids_can_be_fabricated_into_independent_voices": bool(
+            fabricated_reader_triumvirate
+        ),
         "different_time_scopes_can_be_forced_under_one_subject": bool(temporal_triumvirate),
-        "fourth_voice_cannot_join_existing_field": fourth_voice_rejected and not has_extension_api,
-        "reader_participation_requires_no_consent_or_authentication": unregistered_reader_accepted,
+        "fourth_voice_cannot_join_existing_field": fourth_voice_rejected
+        and not has_extension_api,
+        "reader_participation_requires_no_consent_or_authentication": bool(
+            unregistered_reader_claim
+        ),
         "subject_identity_is_free_text_only": True,
         "dispute_has_no_resolution_or_supersession_lifecycle": not hasattr(
             restored, "resolve_triumvirate_dispute"
@@ -318,16 +336,31 @@ def run_ordinary_person_life(source_root: Path, target_root: Path) -> dict[str, 
             "contains_api_keys": exported["contains_api_keys"],
         },
         "verification": {
-            "chronicle": {"valid": chronicle_valid, "events": chronicle_count, "error": chronicle_error},
-            "graph": {"valid": graph_valid, "nodes": graph_nodes, "edges": graph_edges, "error": graph_error},
-            "free_other": {"valid": free_valid, "players": free_players, "others": free_others, "error": free_error},
+            "chronicle": {
+                "valid": chronicle_valid,
+                "events": chronicle_count,
+                "error": chronicle_error,
+            },
+            "graph": {
+                "valid": graph_valid,
+                "nodes": graph_nodes,
+                "edges": graph_edges,
+                "error": graph_error,
+            },
+            "free_other": {
+                "valid": free_valid,
+                "players": free_players,
+                "others": free_others,
+                "error": free_error,
+            },
         },
         "observed_defects": defects,
-        "selected_life_moments": narratives[-24:],
+        "selected_life_moments": selected_moments[-24:],
         "conclusion": (
             "The three-voice gate resists pairwise promotion and same-source duplication, "
-            "but formal voice counts still do not prove semantic disagreement, authenticated "
-            "independence, shared temporal scope, voluntary participation, extensibility, or resolution."
+            "but a formal count still does not prove semantic disagreement, authenticated "
+            "independence, shared temporal scope, voluntary participation, extensibility, "
+            "or a resolution lifecycle."
         ),
     }
 
