@@ -33,7 +33,7 @@ jobs:
         env:
           META_REGISTRY_CHECKOUT: /tmp/janus-meta-registry
         run: |
-          PYTHONPATH=. python tools/all_meta_registry_json_life.py > all-meta-registry-json-life.log 2>&1
+          PYTHONPATH=. python tools/all_meta_registry_json_life_robust.py > all-meta-registry-json-life.log 2>&1
           cat all-meta-registry-json-life.log
 
       - name: Upload lived record
