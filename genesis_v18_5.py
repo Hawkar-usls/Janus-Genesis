@@ -144,11 +144,15 @@ class LivingThreadsMixin:
         event_id = hashlib.sha256(
             f"{store['world_seed']}:{kind}:{source_turn}:{due_turn}:{ordinal}:{payload}".encode("utf-8")
         ).hexdigest()[:20]
-        state.setdefault("pending", []).append({
+        pending = state.setdefault("pending", [])
+        pending.append({
             "event_id": event_id, "kind": kind, "due_turn": due_turn,
             "source_turn": source_turn, "payload": payload,
             "random_victim_created": False, "predictive_guilt": False,
         })
+        if len(pending) > 128:
+            pending.sort(key=lambda item: (int(item["due_turn"]), int(item["source_turn"])))
+            del pending[128:]
 
     def _advance_resident(self, store: dict[str, Any], state: dict[str, Any], player_id: str) -> dict[str, Any]:
         turn = int(state["turn"])
@@ -179,10 +183,14 @@ class LivingThreadsMixin:
         if self._is_silence(action):
             self._schedule(store, state, kind="silence", due_turn=turn, payload={}, source_turn=turn)
             return
-        kinds = ["ambiguous", "resident", "delayed", "silent_reaction"]
-        kind = self._pick(store, kinds, player_id, "turn-kind", turn, self._fingerprint(action))
-        if resident_update["changed"]:
+        gate = self._number(store, player_id, "surface-gate", turn, self._fingerprint(action)) % 100
+        if resident_update["changed"] and gate < 75:
             kind = "resident"
+        elif gate < 55:
+            kinds = ["ambiguous", "resident", "delayed", "silent_reaction"]
+            kind = self._pick(store, kinds, player_id, "turn-kind", turn, self._fingerprint(action))
+        else:
+            return
         payload: dict[str, Any] = {}
         due = turn + self._number(store, player_id, "delay", turn) % 3
         if kind == "resident":
@@ -268,7 +276,7 @@ class LivingThreadsMixin:
             "created_from_visible_menu": False, "random_victim_created": False,
             "predictive_guilt": False, "resident_autonomy_claim": False,
         }
-        state.setdefault("surfaced", []).append(surfaced)
+        state["surfaced"] = (state.setdefault("surfaced", []) + [surfaced])[-256:]
         self._write_json(self.living_threads_path, store)
         self.memory.append_event(player_id, "living_thread_surfaced", {
             "event_id": event["event_id"], "kind": event["kind"], "turn": state["turn"],
