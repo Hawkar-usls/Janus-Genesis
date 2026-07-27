@@ -1,0 +1,154 @@
+{
+  "schema": "janus.genesis.origins.legacy_source_archive.v1",
+  "title": "Legacy Genesis and Hypnos Source Archive",
+  "created_on": "2026-07-27",
+  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
+  "policy": {
+    "raw_sources_publicly_bundled": false,
+    "sanitized_snapshots_publicly_bundled": false,
+    "embedded_secrets_publicly_bundled": false,
+    "runtime_auto_import": false,
+    "reason": "Origins preserve lineage, not authority. Destructive installers and embedded credentials must never enter the playable runtime.",
+    "private_source_vault": "ChatGPT Library /JANUS Genesis/Private Source Vault/2026-07-27 Legacy Genesis and Hypnos"
+  },
+  "sources": [
+    {
+      "original_filename": "genesis_safe.py",
+      "role": "safe_isolated_mobile_installer",
+      "declared_or_internal_version": "v115.6-SAFE",
+      "original_size_bytes": 9194,
+      "original_sha256": "5caaf661bbc956b9c346f51de38afb3c41472aa09e855fd56326ad8f90ff8bc5",
+      "sanitized_sha256": "686538d159ee08730eeb95e667719980015a202c28499bbbcbb1af2763f8094c",
+      "unique_embedded_google_api_keys_redacted": 8,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "genesis_safe.py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "genesis.py",
+      "role": "universal_mobile_installer_destructive",
+      "declared_or_internal_version": "v115.5",
+      "original_size_bytes": 23288,
+      "original_sha256": "114f714c1a005081b66f5e3aaa8a6c1bc90214c5c27466e1218a135fc7962c39",
+      "sanitized_sha256": "f5cb937dfd77acc445ac8f5a06e1ad55e21e5dbcd85b844467c03c343730a0de",
+      "unique_embedded_google_api_keys_redacted": 8,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "genesis.py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "hypnos_v4.py",
+      "role": "hypnos_dream_generator",
+      "declared_or_internal_version": "v4.0",
+      "original_size_bytes": 21124,
+      "original_sha256": "c4e5246d14bc94fb204dc37d6ecfcd0a634af96016357dba3fa2192794815db6",
+      "sanitized_sha256": "bd533e5be50082279e05e6d6ae69b6acdeb80daafb34dd5b27c203468027cb26",
+      "unique_embedded_google_api_keys_redacted": 2,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "hypnos_v4.py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "hypnos_v2(2).py",
+      "role": "hypnos_cradle_anti_crisis",
+      "declared_or_internal_version": "v2.9",
+      "original_size_bytes": 19553,
+      "original_sha256": "d2f6fdfb6c365b88eefbac498aca1c8705c0d4ba7a88866ed8a1976ccf15ece0",
+      "sanitized_sha256": "f5da64a3f3bf9a71835be1674546a10aedd95dcc2deaecfead37bba7e8a23650",
+      "unique_embedded_google_api_keys_redacted": 4,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "hypnos_v2(2).py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "hypnos_v2 2(1).py",
+      "role": "hypnos_cradle_anti_crisis_variant",
+      "declared_or_internal_version": "v2.9",
+      "original_size_bytes": 19669,
+      "original_sha256": "bc34bb734c8e6397e3d942a7135d248b0a42a8f1c1cbbd15b5abfe65233d0cda",
+      "sanitized_sha256": "078c14a1acc144ff144a840acc32766480353f14744a0c55631d8da3c9e3d2f8",
+      "unique_embedded_google_api_keys_redacted": 4,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "hypnos_v2 2(1).py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "janus_genesisv2(1).py",
+      "role": "cognitive_sandbox",
+      "declared_or_internal_version": "internal v4.0",
+      "original_size_bytes": 22102,
+      "original_sha256": "454a5a5a5f07b2692b3dabbd946be75761c0e56b5f48bcb7922dd811f04fb46a",
+      "sanitized_sha256": "544291c7654160979ec455039b4eb9520017c21d344a8ecf4953f601535dcdc6",
+      "unique_embedded_google_api_keys_redacted": 4,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "janus_genesisv2(1).py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "janus_genesisv0.8 2.py",
+      "role": "cognitive_sandbox_variant",
+      "declared_or_internal_version": "internal v4.0",
+      "original_size_bytes": 21823,
+      "original_sha256": "d86f3313f733d5cb68323ae7dac313ecc44c5c0db6638d273cd8bce9c3aba51c",
+      "sanitized_sha256": "af284fd1f287050dc3f7fed911dcce3de5a77e58a798c501fbb0d2703c2112f4",
+      "unique_embedded_google_api_keys_redacted": 4,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "janus_genesisv0.8 2.py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "mod_genesis 2(1).py",
+      "role": "director_rejected_anti_example",
+      "declared_or_internal_version": "v4.0",
+      "original_size_bytes": 19408,
+      "original_sha256": "ab5ffa2a36daf49e0a5813ff99fbeb982c09a336509da070d48e34916df06611",
+      "sanitized_sha256": "6696e8d7a8f411de3554214989e7afda4824132652e408ff457fcfed4f70c3fd",
+      "unique_embedded_google_api_keys_redacted": 0,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "mod_genesis 2(1).py",
+      "public_source_code_bundled": false
+    },
+    {
+      "original_filename": "mod_genesis 3.py",
+      "role": "voice_control_narrative_layer",
+      "declared_or_internal_version": "v5.1",
+      "original_size_bytes": 17712,
+      "original_sha256": "9f64ddb99324da95ae1bd61102be83219dab0471e09c3cc3c80ec2ac0afd8855",
+      "sanitized_sha256": "c5d8368384c1c6b8a489e00dab55e2bdfb3af69d19f5b6307c242d4b574a68f6",
+      "unique_embedded_google_api_keys_redacted": 0,
+      "archive_only": true,
+      "runtime_imported": false,
+      "private_vault_filename": "mod_genesis 3.py",
+      "public_source_code_bundled": false
+    }
+  ],
+  "lineage_relations": [
+    {
+      "a": "hypnos_v2(2).py",
+      "b": "hypnos_v2 2(1).py",
+      "structural_similarity": 1.0,
+      "classification": "structurally_identical_after_projection_comment_normalization"
+    },
+    {
+      "a": "janus_genesisv2(1).py",
+      "b": "janus_genesisv0.8 2.py",
+      "structural_similarity": 0.979887,
+      "classification": "near_duplicate_cognitive_sandbox_variants"
+    }
+  ],
+  "interpretation": {
+    "cognitive_sandbox": "ancestor of adaptive world, persistent state, artifacts, lore, and free-text JSON narration",
+    "hypnos_cradle": "ancestor of dream memory, anti-crisis containment, recurring motifs, and autonomous background generation",
+    "director": "preserved as rejected anti-example of domination and predictive coercion",
+    "voice_layer": "ancestor of optional narration and user-controlled voice state",
+    "mobile_installers": "historical deployment lineage only; never executed by Genesis runtime"
+  }
+}
