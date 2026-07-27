@@ -10,8 +10,8 @@ from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
 
 
 class GenesisV1871RememberingOtherTests(unittest.TestCase):
-    def test_primary_runtime_reports_minor_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.1")
+    def test_primary_runtime_includes_remembering_other_or_later(self) -> None:
+        self.assertEqual(PLAYABLE_VERSION, "18.7.2")
 
     def test_repeated_offer_is_contextually_refused_and_remembered(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -65,7 +65,7 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
                 total += len(initiatives)
                 turns = [int(item["world_turn"]) for item in initiatives]
                 self.assertTrue(all(b - a >= 6 for a, b in zip(turns, turns[1:])))
-                base_texts = [item["text"].split(" Инициатива возникла", 1)[0] for item in initiatives]
+                base_texts = [item["text"].split(" Инициатива", 1)[0] for item in initiatives]
                 self.assertEqual(len(base_texts), len(set(base_texts)))
             self.assertGreater(total, 0)
 
@@ -111,15 +111,18 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
                 "memory_contract_version",
                 "departure_context",
                 "return_context",
+                "voice_contract",
             ):
                 actor.pop(key, None)
             store["players"]["legacy"].pop("dialogue_contract_version", None)
+            store["players"]["legacy"].pop("voice_contract_version", None)
             store_path.write_text(json.dumps(store, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
             restored = PlayableGenesisV187(root)
             upgraded = restored.free_other_state("legacy")["profile"]["others"][handle]
             self.assertEqual(upgraded["history"], old_history)
             self.assertEqual(upgraded["memory_contract_version"], "18.7.1")
+            self.assertEqual(upgraded["voice_contract"], "gender_neutral_ru_v1")
             self.assertIn("dialogue_memory", upgraded)
             self.assertTrue(restored.verify_free_other_state()[0])
 
