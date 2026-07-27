@@ -10,8 +10,8 @@ from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
 
 
 class GenesisV1872RememberingVoiceTests(unittest.TestCase):
-    def test_primary_runtime_reports_remembering_voice_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.2")
+    def test_primary_runtime_includes_remembering_voice(self) -> None:
+        self.assertEqual(PLAYABLE_VERSION, "18.7.3")
 
     def test_mara_repeated_offer_uses_stable_voice_and_remembered_reason(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
