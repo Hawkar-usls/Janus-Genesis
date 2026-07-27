@@ -14,6 +14,7 @@ from genesis_v18_7_2 import RememberingVoiceMixin
 from genesis_v18_7_3 import (
     NON_EXECUTING_MODES,
     HonestIntentionActionInterpreter,
+    HonestIntentionAnalyzer,
     HonestIntentionGodMode,
     HonestIntentionMixin,
 )
@@ -25,6 +26,13 @@ PLAYABLE_VERSION = "18.7.3"
 def _free_other_safe_text(text: str) -> str:
     """Protect хранить/сохранить words without masking the actual verb ранить."""
     return re.sub(r"\b(?:сохран|хран)\w*\b", "защитить", text, flags=re.IGNORECASE)
+
+
+class FreeOtherHonestIntentionAnalyzer(HonestIntentionAnalyzer):
+    """Apply the preservation boundary before contextual intent analysis."""
+
+    def analyze(self, action: str):
+        return super().analyze(_free_other_safe_text(action))
 
 
 class FreeOtherBoundaryActionInterpreter(BoundaryAwareActionInterpreter):
@@ -49,14 +57,20 @@ class PlayableGenesisV187(
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
+        self.intention_analyzer = FreeOtherHonestIntentionAnalyzer(
+            self.intention_analyzer.harmful_fragments
+        )
         previous = self.interpreter
         boundary = FreeOtherBoundaryActionInterpreter()
         boundary.DESTRUCTIVE = set(previous.DESTRUCTIVE)
         boundary.CONSTRUCTIVE = set(previous.CONSTRUCTIVE)
-        self.interpreter = HonestIntentionActionInterpreter(
+        interpreter = HonestIntentionActionInterpreter(
             boundary,
             self.intention_analyzer,
         )
+        interpreter.DESTRUCTIVE = boundary.DESTRUCTIVE
+        interpreter.CONSTRUCTIVE = boundary.CONSTRUCTIVE
+        self.interpreter = interpreter
         self.power = HonestIntentionGodMode(
             FreeOtherBoundaryGodMode(),
             self.intention_analyzer,
