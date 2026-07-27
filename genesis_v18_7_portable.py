@@ -4,6 +4,10 @@
 A portable save is one JSON document containing the local Genesis JSON/JSONL
 state. API keys, environment files, credentials and network bearer tokens are
 never included. Import verifies every embedded SHA-256 before writing anything.
+
+Genesis v18.7.4 carries imperfect source bytes through valid lossless origin
+_envelope JSON documents rather than treating a filename suffix as proof that
+arbitrary source bytes are valid JSON.
 """
 from __future__ import annotations
 
@@ -16,7 +20,7 @@ from pathlib import Path
 from typing import Any
 
 PORTABLE_SAVE_SCHEMA = "janus.genesis.portable_save.v1"
-RUNTIME_VERSION = "18.7.0"
+RUNTIME_VERSION = "18.7.4"
 EXCLUDED_NAMES = {
     ".env",
     "janus_keys.json",

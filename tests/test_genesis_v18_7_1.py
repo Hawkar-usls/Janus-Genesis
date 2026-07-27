@@ -11,7 +11,7 @@ from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
 
 class GenesisV1871RememberingOtherTests(unittest.TestCase):
     def test_primary_runtime_includes_remembering_other_or_later(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.3")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.4")
 
     def test_repeated_offer_is_contextually_refused_and_remembered(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
