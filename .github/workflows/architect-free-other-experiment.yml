@@ -1,0 +1,40 @@
+name: Architect Free Other Experiment
+
+on:
+  push:
+    branches:
+      - experiment/architect-free-other-life-20260727
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Live the Architect Free Other world
+        run: |
+          PYTHONPATH=. python tools/architect_free_other_playthrough.py > architect-free-other.log 2>&1
+          cat architect-free-other.log
+      - name: Upload lived record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: architect-free-other-lived-record
+          path: |
+            architect-free-other.log
+            architect_free_other_summary.json
+            architect_free_other_world.genesis-save.json
+            .architect_free_other_world/
+            .architect_free_other_restored/
+            .architect_network_a/
+            .architect_network_b/
+            .architect_network_hub/
+          if-no-files-found: warn
+          retention-days: 7
