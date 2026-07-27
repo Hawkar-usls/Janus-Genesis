@@ -26,7 +26,8 @@ jobs:
           genesis_v18_3.py genesis_v18_3_playable.py
           genesis_v18_4.py genesis_v18_4_stories.py genesis_v18_4_playable.py
           genesis_v18_5_catalog.py genesis_v18_5.py genesis_v18_5_playable.py
-          play_genesis.py
+          genesis_v18_6_catalog.py genesis_v18_6.py genesis_v18_6_lexicon.py genesis_v18_6_playable.py
+          tools/build_external_lexicon.py play_genesis.py
       - name: Test
         id: unittest
         shell: bash
@@ -47,4 +48,6 @@ jobs:
           retention-days: 7
       - name: Offline smoke
         if: steps.unittest.outputs.exit_code == '0'
-        run: python play_genesis.py --data-dir .smoke --player smoke --action "молчать"
+        run: |
+          python play_genesis.py --data-dir .smoke --player smoke --action "помочь @visitor построить мост"
+          python play_genesis.py --data-dir .smoke --player smoke --verify-possibility-graph

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/janus_genesis_external_lexicon_v1.schema.json",
+  "title": "JANUS Genesis External Lexicon v1",
+  "type": "object",
+  "required": [
+    "schema", "lexicon_id", "name", "kind", "language", "token_count",
+    "source", "indexing", "source_sha256", "tokens"
+  ],
+  "properties": {
+    "schema": {"const": "janus.genesis.lexicon.v1"},
+    "lexicon_id": {"type": "string", "minLength": 1},
+    "name": {"type": "string", "minLength": 1},
+    "kind": {"type": "string", "minLength": 1},
+    "language": {"type": "string", "minLength": 2},
+    "token_count": {"type": "integer", "minimum": 1},
+    "source": {
+      "type": "object",
+      "required": ["provider", "file", "received_as", "license_status"],
+      "properties": {
+        "provider": {"type": "string", "minLength": 1},
+        "file": {"type": "string", "minLength": 1},
+        "received_as": {"type": "string", "minLength": 1},
+        "source_url": {"type": ["string", "null"]},
+        "license_status": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "indexing": {
+      "type": "object",
+      "required": ["id_rule", "preserve_source_order", "sorting_allowed", "deduplication_allowed"],
+      "properties": {
+        "id_rule": {"const": "array_index"},
+        "preserve_source_order": {"const": true},
+        "sorting_allowed": {"const": false},
+        "deduplication_allowed": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "tokens": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    }
+  },
+  "allOf": [
+    {
+      "description": "token_count must equal the array length; enforced by the converter and runtime tests because JSON Schema cannot portably compare these values."
+    }
+  ],
+  "additionalProperties": false
+}
