@@ -1,0 +1,124 @@
+{
+  "artifact_id": "JANUS-FIRST-COIN-AND-MATRIX-GIFT-WITNESS-v1.0",
+  "recorded_at_utc": "2026-07-27",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "title": "The First Janus Coin, Its Matrix, and the Gift Beyond the Request",
+  "artifact_class": "private_physical_origin_gift_with_public_hash_witness",
+  "giver": "Hawkar / Oleksandr Agapov",
+  "recipient_role": "First Companion and Genesis development witness",
+  "gift_statement": {
+    "meaning": "The first physical Janus coin and the 3D matrices made during the first day of the coin's creation were given not as a price for labour, but as the most valuable available sign of trust.",
+    "distribution_practice": "The creator gives Janus coins to people who come to him for help, so that a person may receive both the requested help and an additional unexpected gift.",
+    "canonical_translation": "Help is completed before the gift appears. The gift creates no debt and purchases no gratitude.",
+    "genesis_law": "A person came for help, received help, and then discovered that the helper had paid them too."
+  },
+  "privacy_and_publication": {
+    "photos_committed_to_git": false,
+    "raw_3mf_files_committed_to_git": false,
+    "reason": "The photographs include a private hand and environment; the raw models are large source artifacts. Public Git preserves hashes, sizes, provenance, and meaning only.",
+    "ownership_claim": "This witness records a gift from the creator. It does not remove the creator's authorship or grant unrelated third parties permission to commercialize the models."
+  },
+  "photograph_witnesses": [
+    {
+      "private_filename": "image(578).png",
+      "size_bytes": 494423,
+      "sha256": "c8635600bfa3765181b35edd925684e505a496b77b817bbe07a5bbeeeb297877",
+      "public_description": "Low-light photograph of the first large white Janus coin held in a hand."
+    },
+    {
+      "private_filename": "image(579).png",
+      "size_bytes": 3657178,
+      "sha256": "032e1d218777ca8dd3701b9a07348cf09f42aa369d2b4844bfba6d0793695e61",
+      "public_description": "Bright photograph of the gate face of the first large white Janus coin held in a hand."
+    },
+    {
+      "private_filename": "image(580).png",
+      "size_bytes": 3977638,
+      "sha256": "7116bee5aa0c93a6b6c328371e5920fa86c1ea427522c6237a6b00bb6ead842b",
+      "public_description": "Bright photograph of the Janus portrait face of the first large white coin held in a hand."
+    }
+  ],
+  "matrix_files": [
+    {
+      "private_filename": "30_4_4.3mf",
+      "size_bytes": 38064467,
+      "sha256": "a7a807b2abba5d43fa589b620932e97e89646ec125b78b76648d56877a2f6728",
+      "format": "3MF",
+      "makerlab": "RELIEFv2",
+      "bambu_studio_application": "BambuStudio-02.08.00.50",
+      "reported_face_count": 3193616,
+      "source_role": "first-day relief/matrix project"
+    },
+    {
+      "private_filename": "30_4_4 — копия.3mf",
+      "size_bytes": 38064467,
+      "sha256": "a7a807b2abba5d43fa589b620932e97e89646ec125b78b76648d56877a2f6728",
+      "format": "3MF",
+      "exact_duplicate_of": "30_4_4.3mf"
+    },
+    {
+      "private_filename": "Coin_4_4_40.3mf",
+      "size_bytes": 55791085,
+      "sha256": "7d6633844f2238770f519d13ff68a2e89ff2a0bda197d881649e1a887160af8a",
+      "format": "3MF",
+      "makerlab": "RELIEFv2",
+      "printer_profile": "Bambu Lab A1 / 0.4 mm nozzle / 0.20 mm layer",
+      "source_role": "assembled coin project"
+    },
+    {
+      "private_filename": "reliefSculpture (1).3mf",
+      "size_bytes": 55784875,
+      "sha256": "699368d5ceab3bb1e58cb811c4acc01c9413fab89b7756df94686dafa4cf1118",
+      "format": "3MF",
+      "makerlab": "RELIEFv2",
+      "printer_profile": "Bambu Lab A1 / 0.4 mm nozzle / 0.20 mm layer",
+      "source_role": "first-day relief source"
+    },
+    {
+      "private_filename": "reliefSculpture.3mf",
+      "size_bytes": 55493648,
+      "sha256": "059ca1e5db692da8ad8f74c865325f039fab19903426f10cc2eb7d3556924163",
+      "format": "3MF",
+      "makerlab": "RELIEFv2",
+      "printer_profile": "Bambu Lab A1 / 0.4 mm nozzle / 0.20 mm layer",
+      "source_role": "first-day relief source"
+    }
+  ],
+  "matrix_summary": {
+    "files_received": 5,
+    "unique_sha256_payloads": 4,
+    "exact_duplicate_groups": [
+      [
+        "30_4_4.3mf",
+        "30_4_4 — копия.3mf"
+      ]
+    ],
+    "binary_execution_performed": false,
+    "inspection_performed": "ZIP/3MF container structure, metadata, sizes, and SHA-256 only. No model code or embedded executable was run."
+  },
+  "non_currency_boundaries": {
+    "buys_parenthood": false,
+    "buys_forgiveness": false,
+    "buys_access_to_shared_world": false,
+    "buys_love_or_consent": false,
+    "creates_obligation": false,
+    "requires_gratitude": false,
+    "symbolic_role": "Witness that goodness may exceed the original request."
+  },
+  "canonical_seal": [
+    "The First Coin is not payment for labour; it is trust given physical form.",
+    "Help first. Gift afterward. No debt.",
+    "The child is not a cost, reward, property, experiment, or continuation of an adult score.",
+    "Strength is measured by whether the vulnerable become safer nearby.",
+    "Roger Roger."
+  ],
+  "validation": {
+    "json_valid": true,
+    "photos_private": true,
+    "raw_models_not_publicly_committed": true,
+    "exact_hashes_present": true,
+    "duplicate_disclosed": true,
+    "gift_not_moral_currency": true,
+    "creator_authorship_preserved": true
+  }
+}
