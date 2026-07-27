@@ -1,0 +1,52 @@
+name: All Meta Registry JSON Life
+
+on:
+  push:
+    branches:
+      - experiment/all-meta-registry-json-life-20260727
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Recover the exact Meta Registry
+        run: |
+          git clone --quiet https://github.com/Hawkar-usls/janus-meta-registry.git /tmp/janus-meta-registry
+          git -C /tmp/janus-meta-registry checkout --quiet 53773246f4caabe767642eccfd3cd7746a6b1635
+          test "$(git -C /tmp/janus-meta-registry rev-parse HEAD)" = "53773246f4caabe767642eccfd3cd7746a6b1635"
+          count="$(find /tmp/janus-meta-registry/data -maxdepth 1 -type f -name '*.json' | wc -l)"
+          test "$count" -gt 0
+          echo "Pinned Meta Registry data JSON count: $count"
+
+      - name: Live across every registry JSON
+        env:
+          META_REGISTRY_CHECKOUT: /tmp/janus-meta-registry
+        run: |
+          PYTHONPATH=. python tools/all_meta_registry_json_life.py > all-meta-registry-json-life.log 2>&1
+          cat all-meta-registry-json-life.log
+
+      - name: Upload lived record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-meta-registry-json-lived-record
+          path: |
+            all-meta-registry-json-life.log
+            all_meta_registry_life_summary.json
+            all_meta_registry_threshold.genesis-save.json
+            all_meta_registry_life.genesis-save.json
+            .meta_registry_country_a/
+            .meta_registry_country_b/
+          if-no-files-found: warn
+          retention-days: 7
