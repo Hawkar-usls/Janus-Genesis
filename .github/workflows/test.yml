@@ -24,7 +24,8 @@ jobs:
           genesis_v18_1.py genesis_v18_1_playable.py
           genesis_v18_2.py genesis_v18_2_playable.py
           genesis_v18_3.py genesis_v18_3_playable.py
-          genesis_v18_4.py genesis_v18_4_playable.py
+          genesis_v18_4.py genesis_v18_4_stories.py genesis_v18_4_playable.py
+          genesis_v18_5_catalog.py genesis_v18_5.py genesis_v18_5_playable.py
           play_genesis.py
       - name: Test
         id: unittest
@@ -46,4 +47,4 @@ jobs:
           retention-days: 7
       - name: Offline smoke
         if: steps.unittest.outputs.exit_code == '0'
-        run: python janus_genesis.py --data-dir .smoke --action "Помочь построить мост"
+        run: python play_genesis.py --data-dir .smoke --player smoke --action "молчать"
