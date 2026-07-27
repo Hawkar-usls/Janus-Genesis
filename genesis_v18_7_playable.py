@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from pathlib import Path
 
 from genesis_v18_6 import BoundaryAwareActionInterpreter, BoundaryAwareUniversalGodMode
@@ -51,6 +52,14 @@ class PlayableGenesisV187(
         if decision and decision["decision"] in {"refused", "alternative", "away"}:
             good_before = self.memory.load_player(player_id).good_count
             unrealized = self.unrealized_free_other_result(player_id, decision)
+            if "не стало совершившимся действием" not in unrealized.narrative:
+                unrealized = replace(
+                    unrealized,
+                    narrative=(
+                        "Предложение не стало совершившимся действием без ответа Другого.\n"
+                        + unrealized.narrative
+                    ),
+                )
             threaded = self.weave_after_action(player_id, action, unrealized)
             bloomed = self.weave_possibility_after_action(
                 player_id,
