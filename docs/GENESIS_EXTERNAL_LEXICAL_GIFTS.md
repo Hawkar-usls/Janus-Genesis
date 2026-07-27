@@ -36,15 +36,25 @@ EXTERNAL_LEXICON ──RECEIVED_FROM──> PROVENANCE:QATAR
 
 ## Канонический дар
 
-Принят receipt:
+Приняты:
 
-[`lexicons/qatar_characterbert_mlm_en_v1.receipt.json`](../lexicons/qatar_characterbert_mlm_en_v1.receipt.json)
+- [`lexicons/qatar_characterbert_mlm_en_v1.receipt.json`](../lexicons/qatar_characterbert_mlm_en_v1.receipt.json)
+- [`lexicons/qatar_characterbert_mlm_en_v1.materialized.manifest.json`](../lexicons/qatar_characterbert_mlm_en_v1.materialized.manifest.json)
 
-Receipt фиксирует принятие дара, ожидаемое число токенов, источник, правила индексации и границу лицензии. Он **не притворяется**, что исходный файл уже присутствует или что его SHA-256 известен.
+Исходный `mlm_vocab.txt` получен и проверен локально 27 июля 2026 года.
+
+```text
+source bytes       807732
+source lines       100000
+empty tokens       0
+unique tokens      100000
+source SHA-256     7af5d55214b16be542f82c7f57cba838a1790c16284edbcb2f5bee9f8d98bec3
+generated SHA-256  083f631c906b36a64e3ef35412e9b0a1d388be2657b791eab3d636ecc5c3a1d3
+```
+
+Первые токены подтверждают исходный порядок: `the`, `,`, `.`, `of`, `and`. Последние: `jut`, `kurth`, `atocha`.
 
 ## Локальная материализация
-
-После получения `mlm_vocab.txt`:
 
 ```bash
 python tools/build_external_lexicon.py /path/to/mlm_vocab.txt \
@@ -62,8 +72,6 @@ python tools/build_external_lexicon.py /path/to/mlm_vocab.txt \
 6. создаёт `janus.genesis.lexicon.v1` JSON;
 7. вычисляет SHA-256 исходных байтов и готового JSON;
 8. создаёт manifest для принятия runtime.
-
-По умолчанию ожидаются 100 000 токенов. Для тестовых или иных словарей число задаётся через `--expected-count`.
 
 ## Runtime acceptance
 
@@ -92,7 +100,7 @@ world.promote_lexicon_token(
 
 ## Юридическая граница
 
-В репозитории лежат конвертер, schema и receipt, но не сам внешний словарь. До отдельного подтверждения прав именно на vocabulary file manifest сохраняет статус `not_confirmed_for_vocab_file`, а JSON генерируется локально.
+Исходник и сгенерированный JSON сохранены в приватном Source Vault владельца, но не помещены в публичный репозиторий. До отдельного подтверждения прав именно на vocabulary file статус остаётся `not_confirmed_for_vocab_file`.
 
 ## Seal
 
