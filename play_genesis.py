@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Primary playable CLI for Janus Genesis v18.3."""
+"""Primary playable CLI for Janus Genesis v18.4."""
 from __future__ import annotations
 
 import argparse
@@ -7,14 +7,14 @@ import json
 from pathlib import Path
 
 from genesis_v18 import WorldResult
-from genesis_v18_3_playable import PLAYABLE_VERSION, PlayableGenesisV183
+from genesis_v18_4_playable import PLAYABLE_VERSION, PlayableGenesisV184
 
 
 def banner() -> None:
     print(
         "\n╔══════════════════════════════════════════════════╗\n"
         f"║       JANUS GENESIS v{PLAYABLE_VERSION:<22}║\n"
-        "║ NARRATOR · MORAL ECHO · ABSURDITY LENS         ║\n"
+        "║ CHILDHOOD · GUARDIANS · ABSURDITY · GIFT       ║\n"
         "╚══════════════════════════════════════════════════╝\n"
     )
 
@@ -27,7 +27,7 @@ def print_result(result: WorldResult) -> None:
 
 
 def play(data_dir: Path, player_id: str, name: str | None) -> int:
-    world = PlayableGenesisV183(data_dir)
+    world = PlayableGenesisV184(data_dir)
     if name:
         world.set_display_name(player_id, name)
     banner()
@@ -40,6 +40,8 @@ def play(data_dir: Path, player_id: str, name: str | None) -> int:
         "Повествователь предлагает безопасные дуги, но не решает судьбу за тебя.\n"
         "Конкретный вред оставляет MoralEcho; несвязанное добро не стирает его.\n"
         "Призма Абсурда лишает зло величия, не высмеивая пострадавшего.\n"
+        "Детский облик всегда получает защищённый дом; тёмная детская фраза становится лепетом, а не раной.\n"
+        "Родительство открывается только в общем мире как действующий обет защиты, а не право собственности.\n"
         "Разрушительный поступок и выход требуют повторного подтверждения.\n"
     )
     while True:
@@ -66,13 +68,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--debug-secrets", action="store_true", help="Developer-only Secret seed state.")
     parser.add_argument("--debug-narrator", action="store_true", help="Developer-only MoralEcho/CareBond state.")
     parser.add_argument("--debug-absurdity", action="store_true", help="Developer-only Absurdity Lens state.")
+    parser.add_argument("--debug-childhood", action="store_true", help="Developer-only child/guardian/gift safety state.")
     parser.add_argument("--verify-chronicle", action="store_true", help="Validate the linked v18 Chronicle.")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    world = PlayableGenesisV183(args.data_dir)
+    world = PlayableGenesisV184(args.data_dir)
     if args.name:
         world.set_display_name(args.player, args.name)
     if args.verify_chronicle:
@@ -89,6 +92,10 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(world.narrator_state(args.player), ensure_ascii=False, indent=2)); return 0
     if args.debug_absurdity:
         print(json.dumps(world.absurdity_state(args.player), ensure_ascii=False, indent=2)); return 0
+    if args.debug_childhood:
+        payload = world.protected_childhood_state(args.player)
+        payload["gifts"] = world._read_json(world.gifts_path, {"gifts": []})
+        print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0
     if args.action is not None:
         print(json.dumps(world.process_action(args.player, args.action).to_dict(), ensure_ascii=False, indent=2)); return 0
     return play(args.data_dir, args.player, args.name)
