@@ -6,12 +6,13 @@ from pathlib import Path
 
 from genesis_v18_5_playable import PlayableGenesisV185
 from genesis_v18_6 import PossibilityBloomMixin
+from genesis_v18_6_lexicon import ExternalLexiconGiftMixin
 
 PLAYABLE_VERSION = "18.6.0"
 
 
-class PlayableGenesisV186(PossibilityBloomMixin, PlayableGenesisV185):
-    """v18.6 runtime where semantic evidence blooms into real affordances."""
+class PlayableGenesisV186(ExternalLexiconGiftMixin, PossibilityBloomMixin, PlayableGenesisV185):
+    """v18.6 runtime with semantic possibility bloom and lexical gifts."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
