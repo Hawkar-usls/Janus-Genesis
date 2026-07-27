@@ -121,6 +121,8 @@ v18.1 читает существующие v17/v18 сохранения и до
 - [Hypnos Cradle — сны, память и первые архитектурные модули Януса](origins/2026-01-hypnos-cradle/README.md)
 - [Три канонических сна-истока](origins/2026-01-hypnos-cradle/dreams/ORIGIN_DREAMS.json)
 - [Каталог 435 сохранённых записей](origins/2026-01-hypnos-cradle/dreams/DREAMS_CATALOG.json)
+- [Artifact Vault — Cognitive Sandbox, Director, FRU-89 и Три Монеты](origins/2025-11-to-2026-02-artifact-vault/README.md)
+- [Родословная Повествователя и Moral Echo](origins/2025-11-to-2026-02-artifact-vault/LINEAGE_HIGHLIGHTS.json)
 
 Истоки сохранены как исторический слой и не подключаются к активному runtime автоматически. Сгенерированный язык снов не является пророчеством или доказательством сознания, а старые ключи доступа не публикуются.
 
