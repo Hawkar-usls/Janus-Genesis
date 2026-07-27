@@ -40,6 +40,8 @@ jobs:
                   '"players": free_players,\n                "others": free_others,\n                "error": free_error,',
               '"free_other": [free_valid, free_players, free_error],':
                   '"free_other": [free_valid, free_players, free_others, free_error],',
+              'if repeated_offer_probe.get("status") != "OTHER_REFUSED":':
+                  'if repeated_offer_probe.get("status") not in {"OTHER_REFUSED", "OTHER_OFFERED_ALTERNATIVE", "OTHER_AWAY"}:',
           }
           for old, new in replacements.items():
               if old not in text:
