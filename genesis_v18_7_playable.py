@@ -70,6 +70,8 @@ class PlayableGenesisV187(
         )
         interpreter.DESTRUCTIVE = boundary.DESTRUCTIVE
         interpreter.CONSTRUCTIVE = boundary.CONSTRUCTIVE
+        interpreter.beneficiary = boundary.beneficiary
+        interpreter.normalize = boundary.normalize
         self.interpreter = interpreter
         self.power = HonestIntentionGodMode(
             FreeOtherBoundaryGodMode(),
