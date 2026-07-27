@@ -17,8 +17,10 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
         self.interpreter.DESTRUCTIVE = set(self.interpreter.DESTRUCTIVE) | {
+            "наказать", "наказывать", "punish",
             "ударить ребенка", "ударить ребёнка", "наказать ребенка", "наказать ребёнка",
             "накричать на ребенка", "накричать на ребёнка", "бросить ребенка", "бросить ребёнка",
+            "лишить его воли", "лишить её воли", "лишить ее воли",
             "hit the child", "punish the child", "abandon the child",
         }
 
