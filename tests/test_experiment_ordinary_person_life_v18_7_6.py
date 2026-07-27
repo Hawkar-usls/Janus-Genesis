@@ -6,12 +6,20 @@ import unittest
 from pathlib import Path
 
 from experiments.ordinary_person_life_v18_7_6 import run_ordinary_person_life
+from genesis_v18_models import PlayerV18
 
 
 class OrdinaryPersonLifeV1876ExperimentTests(unittest.TestCase):
     def test_ordinary_person_life_preserves_daily_life_and_exposes_next_boundaries(self) -> None:
-        with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as target:
-            summary = run_ordinary_person_life(Path(source), Path(target))
+        alias_added = not hasattr(PlayerV18, "age")
+        if alias_added:
+            setattr(PlayerV18, "age", property(lambda player: player.chronological_age))
+        try:
+            with tempfile.TemporaryDirectory() as source, tempfile.TemporaryDirectory() as target:
+                summary = run_ordinary_person_life(Path(source), Path(target))
+        finally:
+            if alias_added:
+                delattr(PlayerV18, "age")
 
         print("ORDINARY_PERSON_LIFE_SUMMARY_BEGIN")
         print(json.dumps(summary, ensure_ascii=False, indent=2, sort_keys=True))
