@@ -1,0 +1,106 @@
+{
+  "artifact_id": "JANUS-GENESIS-V18-5-LIVING-THREADS-CREATIVE-REVERSAL-DECISION-v1.0",
+  "title": "Genesis v18.5 Living Threads — Creative Reversal Decision",
+  "status": "implemented_candidate_pending_ci",
+  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
+  "fundamental_barrier": "The free-text interface currently collapses many expressions into a small set of immediate deterministic categories, so meaningful playthroughs converge on the same authored demonstration route.",
+  "first_principles": {
+    "useful_result": "A coherent, safe and persistent life whose events remain causally connected to state without forcing the player into a visible moral menu.",
+    "measurable": [
+      "replay equality under the same seed and action sequence",
+      "stream divergence under a different seed",
+      "resident progress during unrelated player actions",
+      "symbol return after delay",
+      "events surfaced with an empty visible choice list",
+      "no change to moral state, realm routing or Chronicle validity"
+    ],
+    "failure_boundary": "Surprise loses usefulness when it becomes cosmetic text, random punishment, fabricated consent, an untraceable oracle, or a hidden change to moral routing."
+  },
+  "hypotheses": [
+    {
+      "class": "conservative",
+      "mechanism": "Add more response variants to each existing action category.",
+      "prediction": "Wording diversity rises but identical semantic routes remain convergent.",
+      "destroying_evidence": "Players still receive the same sequence of mechanics after paraphrased inputs.",
+      "self_deception_risk": "Confusing lexical variety with a living world.",
+      "decision": "rejected_as_insufficient"
+    },
+    {
+      "class": "architectural",
+      "mechanism": "Add a persistent world-side causal scheduler whose resident threads advance independently of the player.",
+      "prediction": "Unrelated actions can reveal different resident stages and delayed events without changing core moral state.",
+      "destroying_evidence": "Resident state changes only after direct player commands or produces no observable later difference.",
+      "self_deception_risk": "Calling scripted state machines autonomous people.",
+      "decision": "selected_component"
+    },
+    {
+      "class": "mathematical",
+      "mechanism": "Choose events by maximizing numerical novelty against recent action fingerprints.",
+      "prediction": "Repeated play produces lower textual repetition.",
+      "destroying_evidence": "Novelty score changes while perceived causal coherence does not improve.",
+      "self_deception_risk": "Treating entropy as meaning.",
+      "decision": "rejected_as_standalone"
+    },
+    {
+      "class": "time_and_causality",
+      "mechanism": "Schedule consequences for later turns and let them mature while other actions occur.",
+      "prediction": "Earlier actions return after intervening events without appearing as immediate points or rewards.",
+      "destroying_evidence": "Returned events cannot be traced to a stored source action or always appear immediately.",
+      "self_deception_risk": "Retrofitting any later scene as a consequence.",
+      "decision": "selected_component"
+    },
+    {
+      "class": "remote_domain_connection",
+      "mechanism": "Use ecological succession and leitmotif logic: residents continue off-screen while symbols recur in changed contexts.",
+      "prediction": "A symbol can reappear after several turns and gain context without being declared prophecy.",
+      "destroying_evidence": "Symbols never return, return without persisted state, or are presented as compulsory supernatural truth.",
+      "self_deception_risk": "Mistaking unexplained symbolism for evidence about reality.",
+      "decision": "selected_component"
+    }
+  ],
+  "selected_hypothesis": {
+    "name": "Persisted Causal Thread Engine",
+    "IF": "a world stores a secret per-world seed, independent resident state, delayed causal events and symbol memory",
+    "UNDER": "frozen God Mode, moral routing, protected-child rules and SHA-256 Chronicle semantics",
+    "THEN": "the same action language can produce replayable yet initially unpredictable life events that surface outside the visible menu",
+    "BECAUSE": "event selection depends on persistent world state and elapsed causal turns rather than only the current command category",
+    "UNLESS": "the resulting variation is merely cosmetic, creates random victims, fabricates consent, changes moral outcomes or cannot be replayed from the same seed"
+  },
+  "minimal_experiment": {
+    "control": "Genesis v18.4.1 with the same scripted action sequence and no Living Threads layer.",
+    "intervention": "Genesis v18.5 with a frozen test seed and the same action sequence.",
+    "frozen_variables": [
+      "action sequence",
+      "player id",
+      "Universal God Mode",
+      "MoralEcho and CareBond semantics",
+      "protected childhood rules",
+      "Chronicle hash verifier"
+    ],
+    "primary_metric": "Presence of persistent unscripted events, independent resident progress, delayed symbol return and deterministic replay without moral-state mutation.",
+    "negative_controls": [
+      "same seed plus same actions must replay identically",
+      "different seed should change at least one surfaced event",
+      "child role must create no victim and no MoralEcho",
+      "silence must not be converted into compulsory moral judgment"
+    ],
+    "stop_conditions": [
+      "Chronicle verification fails",
+      "realm or moral state changes because of a Living Thread event",
+      "a random victim is created",
+      "a child receives an unsafe adult event",
+      "a simulated resident is represented as a verified conscious person"
+    ],
+    "PASS": "All automated invariants pass and two equal seeds replay the same stream while a different seed changes the stream.",
+    "FAIL": "Any frozen invariant changes or the stream is neither replayable nor meaningfully state-dependent.",
+    "EVIDENCE_INSUFFICIENT": "Tests pass technically but human play does not distinguish causal surprise from cosmetic prose."
+  },
+  "novelty_boundary": "No novelty or prior-art claim is made before a separate review.",
+  "implementation": [
+    "genesis_v18_5.py",
+    "genesis_v18_5_catalog.py",
+    "genesis_v18_5_playable.py",
+    "tests/test_genesis_v18_5.py",
+    "docs/GENESIS_V18_5_LIVING_THREADS.md"
+  ]
+}
