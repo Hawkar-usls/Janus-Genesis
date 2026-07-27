@@ -11,8 +11,8 @@ from genesis_v18_7_portable import PortableSaveManager
 
 
 class GenesisV1874PluralWitnessTests(unittest.TestCase):
-    def test_primary_runtime_reports_plural_witness_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.4")
+    def test_primary_runtime_reports_plural_witness_or_later(self) -> None:
+        self.assertEqual(PLAYABLE_VERSION, "18.7.5")
 
     def test_malformed_origin_is_preserved_without_silent_repair(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -62,7 +62,7 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
                 self.assertTrue(valid, error)
                 self.assertGreater(count, 0)
                 self.assertFalse(exported["contains_api_keys"])
-                self.assertEqual(bundle["runtime_version"], "18.7.4")
+                self.assertEqual(bundle["runtime_version"], "18.7.5")
                 self.assertTrue(
                     any(
                         item["path"].endswith(".origin-envelope.json")
@@ -166,7 +166,7 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
             self.assertTrue(all(len(item["excerpt"]) <= 120 for item in result["results"]))
             self.assertTrue(all(item["document_executable"] is False for item in result["results"]))
 
-    def test_contradictory_claims_coexist_without_selecting_winner(self) -> None:
+    def test_contradictory_grounded_claims_coexist_without_selecting_winner(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             world = PlayableGenesisV187(Path(directory))
             left = world.import_origin_bytes(
@@ -183,11 +183,17 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
                 raw=b'{"claim":"the door is closed"}',
                 source_public=True,
             )
-            left_claim = world.record_origin_claim(
-                left["origin_key"], "Дверь открыта", about="door", confidence=0.7
+            left_claim = world.record_source_assertion(
+                left["origin_key"],
+                evidence={"kind": "json_pointer", "pointer": "/claim"},
+                about="door",
+                confidence=0.7,
             )
-            right_claim = world.record_origin_claim(
-                right["origin_key"], "Дверь закрыта", about="door", confidence=0.7
+            right_claim = world.record_source_assertion(
+                right["origin_key"],
+                evidence={"kind": "json_pointer", "pointer": "/claim"},
+                about="door",
+                confidence=0.7,
             )
             world.relate_origin_claims(left_claim, right_claim, "DISPUTES", confidence=0.9)
 
@@ -198,6 +204,7 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
             self.assertFalse(disputes[0]["payload"]["winner_selected"])
             self.assertTrue(world.verify_possibility_graph()[0])
             self.assertTrue(world.verify_plural_witness_state()[0])
+            self.assertTrue(world.verify_grounded_witness_state()[0])
 
     def test_mixed_rejection_and_preservation_is_reject_without_good_score(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
