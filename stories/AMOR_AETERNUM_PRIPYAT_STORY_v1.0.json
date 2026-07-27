@@ -59,15 +59,24 @@
     "available_without_payment": true,
     "available_without_moral_score": true
   },
-  "visual_seal": {
-    "repository_path": "stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.png",
+  "source_visual_witness": {
     "sha256": "acc29790b021c5aa1110623ad844fd50b8099856720409c86b609ea07473bf0f",
     "size_bytes": 4120227,
     "width_px": 1122,
     "height_px": 1402,
     "format": "PNG",
     "public_by_creator_request": true,
-    "role": "A stylized visual seal of love, Pripyat, the Janus threshold, and continuation; not identity evidence or historical documentation."
+    "role": "The creator-supplied stylized artwork that originated this public story entry; recorded by exact hash as the source visual witness."
+  },
+  "visual_seal": {
+    "repository_path": "stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.svg",
+    "git_blob_sha": "ff53283c76321fc8a047429ca09c2d5a38fe143d",
+    "width_px": 768,
+    "height_px": 960,
+    "format": "SVG",
+    "public_by_creator_request": true,
+    "derived_public_card": true,
+    "role": "A repository-native symbolic card derived from the source artwork's motifs; not identity evidence or historical documentation."
   },
   "runtime_commands": [
     "расскажи историю о любви в Припяти",
