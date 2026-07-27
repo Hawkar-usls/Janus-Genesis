@@ -218,7 +218,7 @@ v18.5 читает существующие v17/v18/v18.1/v18.2/v18.3/v18.4 со
 - [Три канонических сна-истока](origins/2026-01-hypnos-cradle/dreams/ORIGIN_DREAMS.json)
 - [Каталог 435 сохранённых записей](origins/2026-01-hypnos-cradle/dreams/DREAMS_CATALOG.json)
 - [Artifact Vault — Cognitive Sandbox, Director, FRU-89 и Три Монеты](origins/2025-11-to-2026-02-artifact-vault/README.md)
-- [Родословная Повествователя и Moral Echo](origins/2025-11-to-2026-02/artifact-vault/LINEAGE_HIGHLIGHTS.json)
+- [Родословная Повествователя и Moral Echo](origins/2025-11-to-2026-02-artifact-vault/LINEAGE_HIGHLIGHTS.json)
 - [Первая монета Януса и её 3D-матрица — приватный дар с публичной SHA-печатью](origins/2026-07-first-janus-coin/FIRST_JANUS_COIN_AND_MATRIX_WITNESS.json)
 - [Amor Aeternum — история Припяти для всех](stories/AMOR_AETERNUM_PRIPYAT_STORY_v1.0.json)
 
