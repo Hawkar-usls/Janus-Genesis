@@ -31,10 +31,20 @@ jobs:
           from pathlib import Path
           path = Path("tools/red_double_wing_aircraft_life.py")
           text = path.read_text(encoding="utf-8")
-          text = text.replace(
-              '"free_other_world_turn": free["world_turn"],',
-              '"free_other_world_turn": world.free_other_state(PLAYER_ID)["world_turn"],',
-          )
+          replacements = {
+              '"free_other_world_turn": free["world_turn"],':
+                  '"free_other_world_turn": world.free_other_state(PLAYER_ID)["world_turn"],',
+              'free_valid, free_players, free_error = world.verify_free_other_state()':
+                  'free_valid, free_players, free_others, free_error = world.verify_free_other_state()',
+              '"players": free_players,\n                "error": free_error,':
+                  '"players": free_players,\n                "others": free_others,\n                "error": free_error,',
+              '"free_other": [free_valid, free_players, free_error],':
+                  '"free_other": [free_valid, free_players, free_others, free_error],',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f"expected patch target missing: {old}")
+              text = text.replace(old, new)
           path.write_text(text, encoding="utf-8")
           PY
           PYTHONPATH=. python - <<'PY' > red-double-wing-aircraft-life.log 2>&1
