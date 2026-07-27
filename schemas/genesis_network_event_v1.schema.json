@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/genesis_network_event_v1.schema.json",
+  "title": "JANUS Genesis Public Network Event v1",
+  "type": "object",
+  "required": [
+    "schema",
+    "node_id",
+    "public_player_id",
+    "local_sequence",
+    "kind",
+    "occurred_at",
+    "previous_local_hash",
+    "payload",
+    "event_hash"
+  ],
+  "properties": {
+    "schema": {"const": "janus.genesis.network.event.v1"},
+    "node_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "public_player_id": {"type": "string", "pattern": "^[a-f0-9]{24}$"},
+    "local_sequence": {"type": "integer", "minimum": 1},
+    "kind": {
+      "enum": [
+        "presence",
+        "public_creation",
+        "path_signal",
+        "public_message",
+        "request_to_meet",
+        "shared_place"
+      ]
+    },
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "previous_local_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "payload": {
+      "type": "object",
+      "description": "Explicitly public payload. API keys, credentials, branch routing and private Chronicle content are forbidden by runtime validation."
+    },
+    "event_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}
