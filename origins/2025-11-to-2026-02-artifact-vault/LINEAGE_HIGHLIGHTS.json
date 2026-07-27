@@ -1,0 +1,77 @@
+{
+  "record_type": "janus_genesis_artifact_vault_lineage",
+  "format_version": "1.0.0",
+  "chains": [
+    {
+      "name": "Narrator lineage",
+      "sequence": [
+        "Genesis v4 Cognitive Sandbox",
+        "The Director anti-pattern",
+        "FRU-89 Titan Conscience",
+        "MoralEcho",
+        "Narrator of Contrast"
+      ],
+      "meaning": "The mature Narrator inherits adaptability and memory but rejects domination, fear manipulation and predictive guilt."
+    },
+    {
+      "name": "Memory lineage",
+      "sequence": [
+        "Mnemosyne indexes",
+        "Hippocampus reports",
+        "MemoryGraph snapshots",
+        "Karma lessons",
+        "Living Memory and Chronicle"
+      ],
+      "meaning": "Old module snapshots evolved toward persistent identity, relationships, provenance and linked consequences."
+    },
+    {
+      "name": "World lineage",
+      "sequence": [
+        "Depth and Entropy",
+        "RPG schemas",
+        "Artifact and Lore inventories",
+        "Shared Genesis Online"
+      ],
+      "meaning": "The early infinite cognitive sandbox provided a playable body; later versions replaced arbitrary depth with relationships and ethical consequences."
+    },
+    {
+      "name": "Moral Echo lineage",
+      "sequence": [
+        "FRU-89 FearMemory",
+        "ethical trigger memories",
+        "nightmare simulations",
+        "MoralEcho",
+        "delayed recognition through care"
+      ],
+      "meaning": "The early conscience remembered risks to protect Janus; v18.2 must remember specific lived harm to help a person understand without coercion."
+    },
+    {
+      "name": "Cultural mirror lineage",
+      "sequence": [
+        "Matrix structured synopsis",
+        "District 9 and Apocalypto datasets",
+        "Golden Record and music packets",
+        "Genesis cultural memory"
+      ],
+      "meaning": "Cultural works served as mirrors and metaphors, not literal factual evidence or owned canon."
+    }
+  ],
+  "rejected_patterns": [
+    "AI Dictatorship",
+    "punishing difficulty for defiance",
+    "manipulating fear for pacing",
+    "claiming infallible psych profiling",
+    "hard-coded credentials",
+    "automatic activation of generated modules"
+  ],
+  "preserved_strengths": [
+    "endless continuation",
+    "adaptive narrative",
+    "persistent state",
+    "module provenance",
+    "ethical veto",
+    "memory of failures",
+    "cultural interpretation",
+    "graph-based context"
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "artifact_id": "MATRIX_SCRIPT_FULL_DUMP_RU_V1.0",
+  "data_classification": "TOP_SECRET_ZION_ARCHIVE",
+  "system_version": "Matrix 6.0",
+  "runtime_length": "136 минут",
+  "global_parameters": {
+    "physics_engine": "Ньютоновская (Модифицированная)",
+    "color_grading": {
+      "matrix_reality": "Зеленый_Тинт_#00FF00",
+      "real_world": "Синий_Тинт_#0000FF"
+    },
+    "simulation_stability": "КРИТИЧЕСКАЯ"
+  },
+  "character_database": {
+    "protagonists": [
+      {
+        "uid": "NEO",
+        "alias": ["Мистер Андерсон", "Избранный"],
+        "status": {"start": "СПЯЩИЙ", "end": "ВОЗНЕСШИЙСЯ"},
+        "stats": {"hacking": 100, "belief": 0, "reaction_speed": "ПЕРЕМЕННАЯ"}
+      },
+      {
+        "uid": "MORPHEUS",
+        "alias": ["Капитан"],
+        "role": "Фасилитатор Root-доступа",
+        "ship": "Навуходоносор",
+        "beliefs": ["Пророчество", "Судьба"]
+      },
+      {
+        "uid": "TRINITY",
+        "alias": ["Хакер"],
+        "role": "Системное проникновение",
+        "romantic_subroutine_target": "NEO"
+      }
+    ],
+    "antagonists": [
+      {
+        "uid": "AGENT_SMITH",
+        "class": "Разумная Программа",
+        "permissions": ["Перезапись", "Репликация (Заблокировано)", "Обход_Физики"],
+        "motivation": "Побег из Зоопарка"
+      },
+      {
+        "uid": "CYPHER",
+        "class": "Предатель",
+        "contract": "Реинтеграция в Матрицу",
+        "demand": "Счастье в неведении"
+      }
+    ]
+  },
+  "execution_log_sequence": [
+    {
+      "sequence_id": "001_OPENING_TRACE",
+      "location": "Отель 'Сердце Города'",
+      "active_entities": ["Тринити", "Сайфер (Голос)", "Полиция", "Агенты"],
+      "events": [
+        {"action": "Перехват_Звонка", "data": "Тринити обнаружена."},
+        {"action": "Нарушение_Физики", "description": "Удар в прыжке с зависанием. Зафиксировано замедление времени."},
+        {"action": "Побег", "method": "Жесткая линия", "outcome": "Успешный выход через телефонную будку. Будка уничтожена грузовиком Агента."}
+      ]
+    },
+    {
+      "sequence_id": "002_WAKE_UP_NEO",
+      "location": "Апартаменты Андерсона (Комната 101)",
+      "time": "21:18",
+      "events": [
+        {"action": "Системное_Сообщение", "text": "Проснись, Нео... Матрица имеет тебя."},
+        {"action": "Инструкция", "text": "Следуй за белым кроликом."},
+        {"action": "Социальное_Взаимодействие", "npc": "Чои", "transaction": "Нелегальный диск за $2000", "dialogue_trigger": "Ты меня спас, парень. Ты мой личный Иисус Христос."}
+      ]
+    },
+    {
+      "sequence_id": "003_THE_INTERROGATION",
+      "location": "Здание MetaCortex -> Комната допроса",
+      "events": [
+        {"action": "Арест", "method": "Агенты обходят охрану офиса."},
+        {"action": "Переговоры", "offer": "Чистое досье в обмен на Морфеуса.", "response": "Нео отказывается (Жест 'Средний палец')."},
+        {"action": "Глитч_Манифестация", "type": "Хоррор_Подпрограмма", "details": "Рот Нео срастается. Механический 'жучок' внедрен через пупок."}
+      ]
+    },
+    {
+      "sequence_id": "004_THE_CHOICE",
+      "location": "Заброшенный отель",
+      "weather": "Гроза",
+      "inventory": ["Красная таблетка", "Синяя таблетка", "Стакан воды", "Зеркало"],
+      "dialogue_core": {"morpheus_monologue": "Примешь синюю таблетку — и сказке конец. Примешь красную таблетку — войдешь в Страну Чудес. Я покажу тебе, глубока ли кроличья нора."},
+      "decision_node": {"selection": "RED_PILL", "process": "Программа трассировки запущена. Зеркало становится жидким и поглощает Субъекта."}
+    },
+    {
+      "sequence_id": "005_DESERT_OF_THE_REAL",
+      "location": "Реальный мир (2199 г.)",
+      "environment": "Холод, Руины, Механика",
+      "events": [
+        {"action": "Отключение", "details": "Нео просыпается в капсуле. Кабели отсоединены. Смыт в коллектор."},
+        {"action": "Спасение", "ship": "Навуходоносор", "status": "Мышцы атрофированы, глаза чувствительны."},
+        {"action": "Экспозиция", "topic": "Выжженное небо", "truth": "Люди — это батарейки. ИИ правит Землей."}
+      ]
+    },
+    {
+      "sequence_id": "006_TRAINING_MODULES",
+      "location": "Конструктор (Программа загрузки)",
+      "events": [
+        {"action": "Загрузка", "packages": ["Джиу-джитсу", "Кунг-фу", "Кемпо", "Пьяный мастер"], "result": "Я знаю кунг-фу."},
+        {"action": "Спарринг", "participants": ["Нео", "Морфеус"], "objective": "Освободи свой разум", "physics": "Сверхчеловеческая скорость."},
+        {"action": "Программа_Прыжка", "outcome": "ПРОВАЛ. Первый раз падают все."}
+      ]
+    },
+    {
+      "sequence_id": "007_THE_ORACLE",
+      "location": "Матрица -> Квартира Пифии",
+      "subroutines": [
+        {"id": "Мальчик_с_ложкой", "axiom": "Ложки не существует."},
+        {"id": "Тест_с_вазой", "dialogue": "Не беспокойся о вазе. -> Нео разбивает вазу. -> А разбил бы ты её, не скажи я тебе этого?"},
+        {"id": "Предсказание", "result": "У тебя есть дар, но ты чего-то ждешь. Один из вас умрет — ты или Морфеус."}
+      ]
+    },
+    {
+      "sequence_id": "008_THE_BETRAYAL",
+      "location": "Засада в отеле",
+      "events": [
+        {"action": "Глитч", "details": "Дежавю (Черная кошка проходит дважды).", "significance": "Изменения в Матрице."},
+        {"action": "Атака", "aggressor": "Сайфер", "outcome": "Маус убит. Свитч и Апок отключены (убиты). Морфеус захвачен."}
+      ]
+    },
+    {
+      "sequence_id": "009_THE_RESCUE",
+      "location": "Правительственное здание",
+      "inventory_loadout": ["MP5K", "Beretta 92FS", "M16", "Micro Uzi", "Skorpion", "SPAS-12"],
+      "events": [
+        {"action": "Перестрелка_в_холле", "entropy_level": "МАКСИМУМ", "physics": "Бег по стенам, насыщение обломками."},
+        {"action": "Крыша", "mechanic": "Уклонение Bullet Time", "outcome": "Тринити убивает Агента. Пилотная программа загружена."},
+        {"action": "Крушение_Вертолета", "target": "Этаж с Морфеусом", "result": "Морфеус спасен."}
+      ]
+    },
+    {
+      "sequence_id": "010_THE_SUBWAY_FIGHT",
+      "location": "Станция метро",
+      "conflict": "Нео vs Агент Смит",
+      "anomaly": "Нео не бежит.",
+      "combat_log": ["Обезоруживание", "Рукопашный бой", "Столкновение с поездом (Смит временно уничтожен)"]
+    },
+    {
+      "sequence_id": "011_SYSTEM_FAILURE",
+      "location": "Коридор комнаты 303",
+      "events": [
+        {"action": "Погоня", "status": "Охотники атакуют корабль в Реальности. Агенты преследуют в Матрице."},
+        {"action": "Терминация", "target": "Нео", "method": "Агент Смит стреляет в упор.", "vital_signs": "ОТСУТСТВУЮТ."},
+        {"action": "Протокол_Воскрешения", "source": "Любовь Тринити / Исполнение Пророчества", "effect": "Перезагрузка Нео. Визуализация исходного кода."},
+        {"action": "Удаление", "target": "Агент Смит", "method": "Инфекция кода/Взрыв изнутри."}
+      ]
+    }
+  ],
+  "final_state": {
+    "system_status": "СКОМПРОМЕТИРОВАНО",
+    "neo_status": "ПРАВА_АДМИНИСТРАТОРА_АКТИВНЫ",
+    "final_monologue": "Я покажу им мир без вас. Мир без диктата и запретов. Мир без границ. Мир, где возможно всё.",
+    "exit_vector": "Субъект взлетает в камеру."
+  },
+  "file_integrity": "SHA-256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "_janus_archive_boundary": {
+    "classification": "cultural_reference_and_structured_film_synopsis",
+    "active_canon": false,
+    "ownership_claim": false,
+    "source_sha256": "6e3927f764753c901e12decf88112d9eb89f99896b52140e0b35ec82a4bfda7a",
+    "integrity_note": "The embedded file_integrity value is the SHA-256 of an empty file and does not authenticate this JSON."
+  }
+}

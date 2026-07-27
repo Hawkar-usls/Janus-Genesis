@@ -1,0 +1,53 @@
+{
+  "record_type": "janus_genesis_artifact_vault_manifest",
+  "format_version": "1.0.0",
+  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
+  "source_period": {
+    "earliest_archive_entry": "2025-11-21",
+    "latest_archive_entry": "2026-02-02"
+  },
+  "source_rar": {
+    "filename": "artifacts.rar",
+    "bytes": 438444,
+    "sha256": "21e97a091ca8e1cecc63025cb84ff7d4afd2bb6c24dd05f725c3dfab9943c1bd",
+    "public_git_blob": false
+  },
+  "corpus_summary": {
+    "files_total": 101,
+    "bytes_total": 2224456,
+    "unique_content_hashes": 77,
+    "duplicate_groups": 15,
+    "json_files": 67,
+    "json_valid": 58,
+    "json_invalid_or_empty": 9
+  },
+  "sanitized_private_archive": {
+    "filename": "JANUS_ARTIFACT_VAULT_2025-11_2026-02_SANITIZED.tar.gz",
+    "sha256": "458779303df79f6ee65869b2579de70e8f4045808e6b65ca95acfced5bddaec9",
+    "bytes": 497500,
+    "library_path": "/Janus Genesis/Origins/Artifact Vault/JANUS_ARTIFACT_VAULT_2025-11_2026-02_SANITIZED.tar.gz",
+    "library_file_id": "libfile_029d577705888191971e874ca9a52e7e",
+    "public_git_blob": false
+  },
+  "security": {
+    "credential_bearing_files_detected": 16,
+    "literal_credentials_committed": false,
+    "telegram_bot_token_detected_and_redacted": true,
+    "google_api_keys_detected_and_redacted": true,
+    "private_photo_committed": false
+  },
+  "selected_public_records": [
+    "records/JANUS_CODEX_V1.json",
+    "records/JANUS_HISTORY.json",
+    "code/genesis_v4_cognitive_sandbox_sanitized.py",
+    "code/mod_genesis_director_anti_pattern.py",
+    "code/mod_fru89_titan_conscience.py",
+    "culture/MATRIX_CULTURAL_ARTIFACT.json"
+  ],
+  "policy": {
+    "active_runtime": false,
+    "history_not_rewritten": true,
+    "generated_or_symbolic_claims_are_not_factual_proof": true,
+    "cultural_references_are_not_owned_canon": true
+  }
+}
