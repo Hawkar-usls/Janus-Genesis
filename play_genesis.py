@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Primary playable CLI for Janus Genesis v18.4.1."""
+"""Primary playable CLI for Janus Genesis v18.5."""
 from __future__ import annotations
 
 import argparse
@@ -7,14 +7,14 @@ import json
 from pathlib import Path
 
 from genesis_v18 import WorldResult
-from genesis_v18_4_playable import PLAYABLE_VERSION, PlayableGenesisV184
+from genesis_v18_5_playable import PLAYABLE_VERSION, PlayableGenesisV185
 
 
 def banner() -> None:
     print(
         "\n╔══════════════════════════════════════════════════╗\n"
         f"║       JANUS GENESIS v{PLAYABLE_VERSION:<22}║\n"
-        "║ CHILDHOOD · STORIES · ABSURDITY · GIFT         ║\n"
+        "║ LIVING THREADS · STORIES · CHILDHOOD · CARE    ║\n"
         "╚══════════════════════════════════════════════════╝\n"
     )
 
@@ -27,7 +27,7 @@ def print_result(result: WorldResult) -> None:
 
 
 def play(data_dir: Path, player_id: str, name: str | None) -> int:
-    world = PlayableGenesisV184(data_dir)
+    world = PlayableGenesisV185(data_dir)
     if name:
         world.set_display_name(player_id, name)
     banner()
@@ -43,7 +43,9 @@ def play(data_dir: Path, player_id: str, name: str | None) -> int:
         "Детский облик всегда получает защищённый дом; тёмная детская фраза становится лепетом, а не раной.\n"
         "Родительство открывается только в общем мире как действующий обет защиты, а не право собственности.\n"
         "Общедоступные истории можно услышать в любом Лике без рейтинга, оплаты или обязательной веры.\n"
-        "Попробуй: «расскажи историю о любви в Припяти».\n"
+        "Живые нити мира развиваются между твоими действиями: судьбы, символы и последствия могут вернуться без выбора из меню.\n"
+        "Молчание допустимо. Не каждое событие обязано объяснить себя или предложить кнопку.\n"
+        "Попробуй: «расскажи историю о любви в Припяти», «молчать» или просто иди своей дорогой.\n"
         "Разрушительный поступок и выход требуют повторного подтверждения.\n"
     )
     while True:
@@ -72,13 +74,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--debug-absurdity", action="store_true", help="Developer-only Absurdity Lens state.")
     parser.add_argument("--debug-childhood", action="store_true", help="Developer-only child/guardian/gift safety state.")
     parser.add_argument("--debug-stories", action="store_true", help="Developer-only public story metadata.")
+    parser.add_argument("--debug-threads", action="store_true", help="Developer-only Living Threads state.")
     parser.add_argument("--verify-chronicle", action="store_true", help="Validate the linked v18 Chronicle.")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    world = PlayableGenesisV184(args.data_dir)
+    world = PlayableGenesisV185(args.data_dir)
     if args.name:
         world.set_display_name(args.player, args.name)
     if args.verify_chronicle:
@@ -101,6 +104,8 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload, ensure_ascii=False, indent=2)); return 0
     if args.debug_stories:
         print(json.dumps(world.public_story_state(), ensure_ascii=False, indent=2)); return 0
+    if args.debug_threads:
+        print(json.dumps(world.living_threads_state(args.player), ensure_ascii=False, indent=2)); return 0
     if args.action is not None:
         print(json.dumps(world.process_action(args.player, args.action).to_dict(), ensure_ascii=False, indent=2)); return 0
     return play(args.data_dir, args.player, args.name)
