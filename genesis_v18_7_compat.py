@@ -2,6 +2,7 @@
 """Compatibility and safety overrides used only by Genesis v18.7."""
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Any
 
 from genesis_v18_models import WorldResult
@@ -90,3 +91,31 @@ class GenesisV187CompatibilityMixin:
             narrative=base.narrative + "\n\nНить мира возникла без выбора из меню:\n" + narrative,
             choices=[],
         )
+
+    def weave_free_other_after_action(
+        self,
+        player_id: str,
+        action: str,
+        base: WorldResult,
+        *,
+        contact_decision: dict[str, Any] | None = None,
+        action_realized: bool = True,
+    ) -> WorldResult:
+        """Keep an unknown free action free even if an older substring matched good."""
+        result = super().weave_free_other_after_action(
+            player_id,
+            action,
+            base,
+            contact_decision=contact_decision,
+            action_realized=action_realized,
+        )
+        if self._intent(action) == "invent" and result.status == "GOOD_REALIZED":
+            return replace(
+                result,
+                status="FREE_ACTION_LIVED",
+                narrative=(
+                    result.narrative
+                    + "\n\nСтарый слой заметил в поступке доброе изменение, но Genesis не свёл сам неизвестный замысел к готовой категории. Свободная фраза осталась самостоятельным действием пути."
+                ),
+            )
+        return result
