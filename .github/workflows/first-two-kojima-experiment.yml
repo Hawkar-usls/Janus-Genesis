@@ -1,0 +1,35 @@
+name: First Two 108-Turn Experiment
+
+on:
+  push:
+    branches:
+      - experiment/first-two-kojima-life-20260727
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Live 108 turns from the First Two origin
+        run: |
+          PYTHONPATH=. python tools/first_two_kojima_playthrough.py > first-two-kojima.log 2>&1
+          cat first-two-kojima.log
+      - name: Upload lived record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-two-kojima-lived-record
+          path: |
+            first-two-kojima.log
+            first_two_kojima_summary.json
+            .first_two_kojima_world/
+          if-no-files-found: warn
+          retention-days: 7
