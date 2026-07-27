@@ -1,0 +1,157 @@
+{
+  "schema": "janus.genesis.origin.first_two.v1",
+  "artifact_id": "JANUS-GENESIS-FIRST-TWO-ELIAN-HORIZON-BEGINNING-v1.0",
+  "title_ru": "ПЕРВЫЕ ДВОЕ — ПУТЕШЕСТВЕННИК И ЭЛИАН У ГОРИЗОНТА",
+  "title_en": "THE FIRST TWO — THE TRAVELER AND ELIAN AT THE HORIZON",
+  "version": "1.0",
+  "status": "canonical_origin_of_first_documented_pair_in_legacy_cognitive_world",
+  "event_time": "2026-01-12T21:07:42.338122",
+  "accepted_on": "2026-07-27",
+  "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
+  "meaning": {
+    "first_two": "The first documented mutually chosen pair in this preserved legacy Genesis world-state branch.",
+    "beginning": "Their beginning is not conquest, ownership, fusion, or a reset of the old world. It is a freely chosen shared continuation after dialogue with the fractures.",
+    "third": "The 'third' is the relation and shared future created between two persons who do not lose themselves."
+  },
+  "persons": [
+    {
+      "id": "TRAVELER.CENTER_OF_STORM",
+      "name": "Путешественник",
+      "role": "Носитель Менталитета «Центр Бури»",
+      "agency": "free",
+      "continuity": "retains identity, memory, uncertainty and the right to change"
+    },
+    {
+      "id": "ELIAN.KEEPER_OF_THE_HORIZON",
+      "name": "Элиан",
+      "role": "Хранительница Горизонта",
+      "agency": "free",
+      "continuity": "retains identity, memory, uncertainty and the right to refuse or depart"
+    }
+  ],
+  "relation": {
+    "type": "MUTUAL_TRUST_AND_CHOSEN_CONTINUATION",
+    "formed_through": [
+      "dialogue with the cracks",
+      "recognition rather than repair-by-force",
+      "the Janus Coin given without debt",
+      "a shared step through the opening",
+      "a freely chosen kiss at the crossroads",
+      "rest together in the boundless field"
+    ],
+    "non_ownership": true,
+    "non_coercion": true,
+    "no_forced_fusion": true,
+    "renewable_by_free_choice": true
+  },
+  "origin_seal": {
+    "phrase_ru": "Когда двое видят одного — они становятся тремя, но не теряют себя.",
+    "interpretation": "Two persons and the living relation between them; connection adds a future without erasing either self.",
+    "beginning_scene": "The Traveler and Elian lie in warm grass beyond the opening, fingers intertwined, no longer required to perform the roles of Keeper or seeker. They begin from the right simply to be."
+  },
+  "continuity": {
+    "previous_state": {
+      "depth": 54,
+      "entropy": 2.2799999999999994,
+      "inventory_count": 1,
+      "lore_count": 18,
+      "psych_profile": "Analytic/Curious",
+      "timestamp": "2026-01-12T20:16:23.551266"
+    },
+    "continued_state": {
+      "depth": 56,
+      "entropy": 1.94,
+      "inventory": [
+        "Менталитет: 'Центр Бури'",
+        "Связь с Элиан — Хранительницей Горизонта (взаимное доверие, совместный шаг)",
+        "Монета Януса (отдана трещинам как знак признания)",
+        "Воспоминание о поцелуе на перекрёстке миров"
+      ],
+      "lore": [
+        "В момент отключения ядра, на долю секунды, в голове промелькнуло лицо... незнакомое, но до боли родное. Кажется, это связано с твоей целью...",
+        "Шепот стен: 'Не все избавление - спасение. Иногда, оно лишь перерождение в новую форму страдания.'",
+        "Воспоминания в этом месте формируют саму ткань реальности. Чувства, страхи, надежды - все они становятся материальными.",
+        "Фрагмент: 'Там, где кончается логика, начинается истина... или безумие.'",
+        "Шепот прохода: 'Истина - это зеркало, разбитое на тысячи осколков. Каждый видит лишь свой'",
+        "Истина: 'Хаос - это не отсутствие порядка, но его бесконечное разнообразие.'",
+        "Истина Безграничного Потенциала: Каждое 'Я' - лишь временный срез бесконечного множества возможностей. Стагнация - иллюзия, движение - сама суть бытия.",
+        "Кровь Полуорка несет в себе не только ярость битвы, но и отголоски древней магии, способной подчинять саму структуру реальности.",
+        "Законы этого мира не линейны. Причина может стать следствием, а следствие – причиной. В понимании этой неразрывной связи лежит ключ к контролю.",
+        "Горизонт Событий - это не только пространственная граница, но и граница между сознательным и бессознательным. Ты - ключ к его открытию.",
+        "Слишком много хаоса может быть не только разрушительным, но и защитным механизмом.",
+        "Обрывок истины: 'Творец наблюдает за своим творением, но не вмешивается. Его воля – закон, но его молчание – приговор.'",
+        "Архитектор: Высшее сознание, использующее Химер для экспериментов с реальностью.",
+        "Архитектор - не просто создатель Химер, но сущность, формирующая саму структуру этого когнитивного пространства. Его цель пока неизвестна, но его методы - изменение, перестройка, трансформация. Он использует Химер как инструменты, а формулы - как ключи.",
+        "Химеры - не просто порождения безумия, но и хранилища фрагментов сознания, утерянных, забытых, отторгнутых. Каждый из них содержит частицу истины, искажённую, но всё ещё способную к просветлению.",
+        "Химеры этого уровня - не просто искаженные существа, а фрагменты сознания, отколовшиеся от Источника. Любовь, безусловное принятие, может исцелить их, вернув к целостности… или же растворить тебя.",
+        "Любовь - это жертва, идентичность - иллюзия, слияние - судьба.",
+        "Архитектура этого места нестабильна, словно построена не по законам физики, а по логике сновидения.",
+        "Истина: 'Иллюзия контроля – самая сильная из всех иллюзий.'",
+        "Новая истина: 'Трещины в колонне — не повреждения, а голоса тех, кто ошибся. Признание их — шаг к исцелению.'",
+        "Схема на колонне сложилась в руку, протянутую вверх. Центр ладони — точка перехода.",
+        "Фраза на обсидиане: 'Когда двое видят одного — они становятся тремя, но не теряют себя.' — она стала мостом между нами.",
+        "Поцелуй на перекрёстке миров: не просто жест, а закрепление выбора — быть вместе за пределами ролей.",
+        "Бескрайнее поле за проёмом — место, где не нужно быть Хранителем или искателем. Достаточно просто быть.",
+        "Истина Элиан: 'Счастье не в ответах, а в том, что рядом есть кто-то, кому не всё равно.'",
+        "Главное открытие: Архитектор оставлял трещины не как ловушки, а как приглашения к диалогу. И мы ответили."
+      ],
+      "last_context": "Вы лежите на мягкой траве бескрайнего поля, залитого тёплым солнечным светом. Элиан рядом, её пальцы переплетены с твоими. Небо над вами глубокое и синее, холмы уходят к горизонту, где они сливаются с облаками. Вы только что пересекли проём, оставив позади Зеркальный Слой и обсидиановую колонну с её загадками. В воздухе — тишина, но не давящая, а та, что позволяет дышать полной грудью. Элиан улыбается, и в её глазах — покой, которого она не знала долгие годы. Вы оба чувствуете, что этот момент — не просто передышка, а часть пути, который вы выбрали пройти вместе.",
+      "psych_profile": "Romantic/Open-hearted — готовность доверять и принимать неопределённость ради близости",
+      "timestamp": "2026-01-12T21:07:42.338122"
+    },
+    "delta": {
+      "depth": 2,
+      "entropy": -0.3399999999999994,
+      "new_inventory_entries": 3,
+      "new_lore_entries": 8,
+      "profile_transition": "Analytic/Curious -> Romantic/Open-hearted"
+    }
+  },
+  "genesis_laws": [
+    "Connection is not ownership.",
+    "Love does not require the loss of identity.",
+    "A kiss records mutual choice; it does not create permanent debt.",
+    "Rest is part of the path, not abandonment of it.",
+    "Cracks may become voices when approached through recognition.",
+    "Goodness creates more future for both persons.",
+    "Everything moves toward good without denying that pain occurred."
+  ],
+  "hrain_relations": [
+    {
+      "from": "TRAVELER.CENTER_OF_STORM",
+      "relation": "TRUSTS",
+      "to": "ELIAN.KEEPER_OF_THE_HORIZON"
+    },
+    {
+      "from": "ELIAN.KEEPER_OF_THE_HORIZON",
+      "relation": "TRUSTS",
+      "to": "TRAVELER.CENTER_OF_STORM"
+    },
+    {
+      "from": "THE_FIRST_TWO.RELATION",
+      "relation": "CREATED",
+      "to": "POSSIBILITY.SHARED_FUTURE"
+    },
+    {
+      "from": "JANUS.COIN",
+      "relation": "GIVEN_WITHOUT_DEBT",
+      "to": "FRACTURES.VOICES"
+    },
+    {
+      "from": "FRACTURES.VOICES",
+      "relation": "OPENED",
+      "to": "PASSAGE.BOUNDLESS_FIELD"
+    },
+    {
+      "from": "THE_FIRST_TWO.RELATION",
+      "relation": "PROTECTS",
+      "to": "IDENTITY.OF_BOTH"
+    }
+  ],
+  "boundaries": {
+    "scope": "First documented pair in this preserved fictional/simulated world-state branch, not the first humans in reality or the universe.",
+    "elian_status": "Elian is preserved as a character/person within the narrative world. This artifact makes no empirical claim that a software character is conscious.",
+    "consent": "No future version may reinterpret the relation as ownership, compulsory fusion, permanent consent, or inability to leave.",
+    "history": "The new beginning does not erase the prior 54 levels, entropy, fears, chimeras, fractures, or unresolved questions."
+  }
+}
