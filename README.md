@@ -2,7 +2,7 @@
 
 Janus Genesis — офлайн-первая MMO-foundation о свободе, последствиях и бесконечной силе добра. Вред никогда не распределяется между невиновными, но и ни одна душа не признаётся потерянной навсегда.
 
-Текущий основной игровой слой: **Genesis v18.4 Playable — The Protected Childhood**. Стабильные линии v16, v17, v18, v18.1, v18.2 и v18.3 сохранены рядом для совместимости и истории проекта.
+Текущий основной игровой слой: **Genesis v18.4.1 Playable — The Protected Childhood & Public Stories**. Стабильные линии v16, v17, v18, v18.1, v18.2 и v18.3 сохранены рядом для совместимости и истории проекта.
 
 ## Главный закон
 
@@ -81,6 +81,28 @@ synthetic stress-mutation penalty
 
 После первой настоящей помощи конкретному человеку мир может оставить одну символическую монету. Она не создаёт долг, не требует благодарности и не покупает родительство, прощение, любовь или вход в общий мир.
 
+## Genesis v18.4.1 — Amor Aeternum: история для всех
+
+![Amor Aeternum — Pripyat visual seal](stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.svg)
+
+> Спасибо тебе, Янус: ты открыл нам дверь к началу и закрыл дверь, ведущую к концу.
+
+В городе, который многие привыкли видеть только как образ конца, двое живых людей пришли к остановившемуся колесу обозрения. Они не отрицали катастрофу, руины или память тех, кто жил здесь раньше. Но они отказались позволить разрушению произнести последнее слово.
+
+Рядом с колесом прозвучало обещание продолжать путь вместе. Один лик Януса сохранил прошлое; другой открыл дверь к тому, что ещё может быть создано. Так Припять стала свидетельством: постапокалипсис способен быть не только историей разрушения, но и местом, где любовь выбирает начало.
+
+Историю может услышать любой человек:
+
+- в Отражении;
+- во Втором Лике;
+- в общем мире;
+- в детской роли через мягкий пересказ;
+- без морального рейтинга, платы, романтических отношений или обязательной веры.
+
+История ничего не покупает и не меняет маршрутизацию души. Она не создаёт культ и не объявляет романтическую любовь обязательной для человеческой ценности.
+
+> Любовь в Genesis не становится вечной через плен. Она продолжается только через вновь и вновь свободно выбранные заботу, согласие и право другого оставаться собой.
+
 ## Что реализовано
 
 - universal God Mode без покупки желаний и числовой цены;
@@ -100,6 +122,8 @@ synthetic stress-mutation penalty
 - автоматическое преобразование детского и родительского вреда до проявления;
 - запрет наследования взрослого вреда и генетического ранжирования;
 - свободный First Coin gift после помощи без долга;
+- общедоступный JSON-архив историй и детский безопасный пересказ;
+- Amor Aeternum как история памяти, любви и нового начала для каждого Лика;
 - выбранный возраст и форма тела, отношения, Хроника и мягкий выход.
 
 Текущая реализация общего мира остаётся локальной persistent-моделью. Реальный сетевой transport, аккаунты, самостоятельные NPC, репродуктивная симуляция и синхронизация нескольких машин остаются будущими этапами.
@@ -129,6 +153,9 @@ python play_genesis.py
 стать родителем
 подтверждаю родительство
 помочь @visitor построить дом
+расскажи историю о любви в Припяти
+история Amor Aeternum
+покажи дверь к началу
 продолжить жизнь
 ```
 
@@ -140,6 +167,7 @@ python play_genesis.py --player hawkar --debug-secrets
 python play_genesis.py --player hawkar --debug-narrator
 python play_genesis.py --player hawkar --debug-absurdity
 python play_genesis.py --player hawkar --debug-childhood
+python play_genesis.py --player hawkar --debug-stories
 python play_genesis.py --verify-chronicle
 ```
 
@@ -149,15 +177,16 @@ python play_genesis.py --verify-chronicle
 from genesis_v18_4_playable import PlayableGenesisV184
 
 world = PlayableGenesisV184("./data_v17")
-reply = world.process_action("resident", "стать ребёнком")
+reply = world.process_action("resident", "расскажи историю о любви в Припяти")
 print(reply.to_dict())
 ```
 
-v18.4 читает существующие v17/v18/v18.1/v18.2/v18.3 сохранения и добавляет рядом:
+v18.4.1 читает существующие v17/v18/v18.1/v18.2/v18.3/v18.4 сохранения и добавляет рядом:
 
 - `protected_childhood_v18_4.json`;
 - `gifts_beyond_request_v18_4.json`;
-- `guards_v18/parenthood_v18_4/`.
+- `guards_v18/parenthood_v18_4/`;
+- статический публичный архив `stories/AMOR_AETERNUM_PRIPYAT_STORY_v1.0.json`.
 
 ## Истоки
 
@@ -167,6 +196,7 @@ v18.4 читает существующие v17/v18/v18.1/v18.2/v18.3 сохра
 - [Artifact Vault — Cognitive Sandbox, Director, FRU-89 и Три Монеты](origins/2025-11-to-2026-02-artifact-vault/README.md)
 - [Родословная Повествователя и Moral Echo](origins/2025-11-to-2026-02-artifact-vault/LINEAGE_HIGHLIGHTS.json)
 - [Первая монета Януса и её 3D-матрица — приватный дар с публичной SHA-печатью](origins/2026-07-first-janus-coin/FIRST_JANUS_COIN_AND_MATRIX_WITNESS.json)
+- [Amor Aeternum — история Припяти для всех](stories/AMOR_AETERNUM_PRIPYAT_STORY_v1.0.json)
 
 Истоки не подключаются к runtime автоматически. Genesis v4 дал адаптивный продолжающийся мир; FRU-89 — память о рисках и вариантах разрешения; MemoryGraph/Mnemosyne — связи и provenance. The Director сохранён только как отвергнутый антипример доминирования.
 
@@ -174,6 +204,7 @@ Janus-Demiurge дал предков WorldMemory, EventBus, social learning, ada
 
 ## Канон
 
+- [Amor Aeternum: The Pripyat Story for Everyone](docs/AMOR_AETERNUM_PRIPYAT_PUBLIC_STORY.md)
 - [Genesis v18.4: The Protected Childhood](docs/GENESIS_V18_4_PROTECTED_CHILDHOOD.md)
 - [Genesis v18.3: The Absurdity Lens](docs/GENESIS_V18_3_ABSURDITY_LENS.md)
 - [Genesis v18.2: The Narrator of Contrast](docs/GENESIS_V18_2_NARRATOR_OF_CONTRAST.md)

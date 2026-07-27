@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.4."""
+"""Playable natural-language layer for Genesis v18.4.1."""
 from __future__ import annotations
 
 from pathlib import Path
 
 from genesis_v18_3_playable import PlayableGenesisV183
 from genesis_v18_4 import ProtectedChildhoodMixin
+from genesis_v18_4_stories import PublicStoryArchiveMixin
 from genesis_v18_models import PowerNature, UniversalGodMode
 
-PLAYABLE_VERSION = "18.4.0"
+PLAYABLE_VERSION = "18.4.1"
 
 
-class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
-    """v18.4 runtime with protected childhood and present-tense parenthood gates."""
+class PlayableGenesisV184(PublicStoryArchiveMixin, ProtectedChildhoodMixin, PlayableGenesisV183):
+    """v18.4.1 runtime with protected childhood and a public story archive."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
@@ -101,6 +102,10 @@ class PlayableGenesisV184(ProtectedChildhoodMixin, PlayableGenesisV183):
 
     def process_action(self, player_id: str, action: str):
         text = UniversalGodMode.normalize(action)
+
+        if self.is_amor_aeternum_request(action):
+            return self.tell_amor_aeternum_story(player_id)
+
         player = self.memory.load_player(player_id)
 
         if any(fragment in text for fragment in self.SHOW_CHILDHOOD):
