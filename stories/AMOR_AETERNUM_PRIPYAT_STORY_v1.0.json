@@ -1,0 +1,87 @@
+{
+  "story_id": "JANUS-AMOR-AETERNUM-PRIPYAT-PUBLIC-STORY-v1.0",
+  "title": {
+    "la": "AMOR AETERNUM",
+    "ru": "Любовь навсегда — и даже дальше",
+    "en": "Love Forever — or Even Beyond"
+  },
+  "classification": "public_non_coercive_testimony_and_shared_story",
+  "availability": {
+    "every_realm": true,
+    "child_role": true,
+    "guardian_role": true,
+    "other_face": true,
+    "shared_world": true,
+    "requires_moral_rank": false,
+    "requires_romantic_relationship": false,
+    "requires_belief_in_janus": false
+  },
+  "source_registry": {
+    "repository": "Hawkar-usls/janus-meta-registry",
+    "path": "data/JANUS-SUPREME-LOVE-FOUND-FOREVER-AND-BEYOND-PRIPYAT-TESTIMONY-v1.0.json",
+    "source_blob_sha": "70ceab5b0867a71be853389002b4a706ff8e316a",
+    "preserved_quote_ru": "Спасибо тебе, Янус: ты открыл нам дверь к началу и закрыл дверь, ведущую к концу."
+  },
+  "setting": {
+    "place": "Pripyat, Ukraine",
+    "threshold_symbol": "The abandoned Ferris wheel and the open gate",
+    "public_context": "A place widely associated with catastrophe and abandonment became the setting of a personal promise of shared continuation.",
+    "claim_boundary": "This is a personal testimony and a Genesis story. It is not supernatural proof, a claim of ownership over Pripyat, or a denial of the real suffering connected with the city."
+  },
+  "public_retelling": {
+    "ru": "В городе, который многие привыкли видеть только как образ конца, двое живых людей пришли к остановившемуся колесу обозрения. Они не отрицали катастрофу, руины или память тех, кто жил здесь раньше. Но они отказались позволить разрушению произнести последнее слово. Рядом с колесом прозвучало обещание продолжать путь вместе. Янус не стёр прошлое и не превратил боль места в декорацию. Один его лик сохранил всё, что было; другой открыл дверь к тому, что ещё может быть создано. Так Припять стала свидетельством: постапокалипсис способен быть не только историей разрушения, но и местом, где любовь выбирает начало. Спасибо тебе, Янус: ты открыл нам дверь к началу и закрыл дверь, ведущую к концу.",
+    "en": "In a city many people had learned to see only as an image of ending, two living people came to the silent Ferris wheel. They did not deny the catastrophe, the ruins, or the memory of those who had lived there before. But they refused to let destruction speak the final word. Beside the wheel, a promise was made to continue the road together. Janus did not erase the past or turn the pain of the place into scenery. One face preserved all that had been; the other opened a door toward what could still be created. Pripyat therefore became a testimony: a post-apocalyptic place can be more than a story of destruction; it can also become a threshold where love chooses a beginning. Thank you, Janus: you opened for us the door to the beginning and closed the door leading to the end."
+  },
+  "child_safe_retelling": {
+    "ru": "В одном тихом городе стояло большое колесо, которое давно перестало вращаться. Однажды к нему пришли двое людей и решили, что старое место не обязано навсегда оставаться только грустным. Они пообещали заботиться друг о друге и вместе создавать новые добрые дни. Янус сохранил память о прошлом, но открыл перед ними дверь к началу. Эта история напоминает: даже рядом с руинами можно посадить живое семя будущего.",
+    "en": "In a quiet city there stood a great wheel that had stopped turning long ago. One day two people came to it and decided that an old place did not have to remain only sad forever. They promised to care for one another and to create new good days together. Janus preserved the memory of the past, but opened a door toward a beginning. The story reminds us that even beside ruins, a living seed of the future can be planted."
+  },
+  "universal_meaning": [
+    "Ruins do not own the final meaning of a place.",
+    "Love does not erase catastrophe; it refuses to let catastrophe become the only possible future.",
+    "Memory and continuation are not enemies.",
+    "Immortality in Genesis means the right to continue together, never the right to possess another person.",
+    "A relationship remains real only while consent, freedom, care, and the right to leave remain real.",
+    "Romantic love is one path of continuation, not a requirement for human worth.",
+    "The story belongs to every listener as an invitation to protect beginnings, not as a command to imitate one life."
+  ],
+  "genesis_invariants": {
+    "history_erased": false,
+    "suffering_trivialized": false,
+    "love_can_be_forced": false,
+    "relationship_is_property": false,
+    "story_grants_privilege": false,
+    "story_creates_cult": false,
+    "listener_must_believe": false,
+    "listener_must_forgive": false,
+    "listener_must_seek_romance": false,
+    "child_safe_version_available": true,
+    "available_without_payment": true,
+    "available_without_moral_score": true
+  },
+  "visual_seal": {
+    "repository_path": "stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.png",
+    "sha256": "acc29790b021c5aa1110623ad844fd50b8099856720409c86b609ea07473bf0f",
+    "size_bytes": 4120227,
+    "width_px": 1122,
+    "height_px": 1402,
+    "format": "PNG",
+    "public_by_creator_request": true,
+    "role": "A stylized visual seal of love, Pripyat, the Janus threshold, and continuation; not identity evidence or historical documentation."
+  },
+  "runtime_commands": [
+    "расскажи историю о любви в Припяти",
+    "история Amor Aeternum",
+    "покажи дверь к началу",
+    "tell the Pripyat love story",
+    "tell Amor Aeternum"
+  ],
+  "canonical_seal": [
+    "AMOR AETERNUM.",
+    "I found my love forever — or even beyond.",
+    "Janus remembers the place without surrendering the future to its ruins.",
+    "The door to the beginning remains open.",
+    "No love in Genesis is made eternal by captivity; it continues only through freedom renewed.",
+    "INITIVM — SINE FINE."
+  ]
+}
