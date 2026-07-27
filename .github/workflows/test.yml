@@ -8,6 +8,7 @@ jobs:
   unittest:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
@@ -16,8 +17,33 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Compile
-        run: python -m py_compile janus_genesis.py
+        run: >-
+          python -m py_compile
+          janus_genesis.py
+          genesis_v18_models.py genesis_v18_memory.py genesis_v18.py genesis_v18_playable.py
+          genesis_v18_1.py genesis_v18_1_playable.py
+          genesis_v18_2.py genesis_v18_2_playable.py
+          genesis_v18_3.py genesis_v18_3_playable.py
+          genesis_v18_4.py genesis_v18_4_playable.py
+          play_genesis.py
       - name: Test
-        run: python -m unittest discover -s tests -v
+        id: unittest
+        shell: bash
+        run: |
+          set +e
+          python -m unittest discover -s tests -v > "unittest-${{ matrix.python-version }}.log" 2>&1
+          code=$?
+          cat "unittest-${{ matrix.python-version }}.log"
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          exit "$code"
+      - name: Upload unittest log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unittest-log-python-${{ matrix.python-version }}
+          path: unittest-${{ matrix.python-version }}.log
+          if-no-files-found: error
+          retention-days: 7
       - name: Offline smoke
+        if: steps.unittest.outputs.exit_code == '0'
         run: python janus_genesis.py --data-dir .smoke --action "Помочь построить мост"
