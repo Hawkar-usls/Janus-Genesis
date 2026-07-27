@@ -78,17 +78,26 @@ PUBLIC_STORY_TOLD
 
 The event is written to the linked Chronicle as `public_story_heard`, without identity claims, rankings, or private relationship data.
 
-## Visual seal
+## Visual witness and public seal
 
-The public visual seal is stored at:
+The creator-supplied source artwork is preserved by exact witness metadata:
 
-`stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.png`
+```text
+SHA-256: acc29790b021c5aa1110623ad844fd50b8099856720409c86b609ea07473bf0f
+Size: 4,120,227 bytes
+Dimensions: 1122 × 1402
+Format: PNG
+```
 
-SHA-256:
+The full source artwork remains the originating visual testimony. The repository also contains a lightweight, repository-native public vector card derived from its motifs:
 
-`acc29790b021c5aa1110623ad844fd50b8099856720409c86b609ea07473bf0f`
+`stories/assets/AMOR_AETERNUM_PRIPYAT_VISUAL_SEAL.svg`
 
-It is stylized art, not identity evidence or historical documentation.
+Git blob SHA:
+
+`ff53283c76321fc8a047429ca09c2d5a38fe143d`
+
+Both are stylized art, not identity evidence or historical documentation.
 
 ## Seal
 
