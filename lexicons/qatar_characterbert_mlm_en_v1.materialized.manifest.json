@@ -1,0 +1,66 @@
+{
+  "schema": "janus.genesis.lexicon.manifest.v1",
+  "lexicon_id": "gift.qatar.character_bert.mlm.en.v1",
+  "name": "Qatar CharacterBERT MLM Lexicon",
+  "kind": "mlm_output_lexicon",
+  "language": "en",
+  "token_count": 100000,
+  "source": {
+    "provider": "helboukkouri/character-bert",
+    "file": "mlm_vocab.txt",
+    "received_as": "Gift from Qatar",
+    "source_url": null,
+    "license_status": "not_confirmed_for_vocab_file"
+  },
+  "indexing": {
+    "id_rule": "array_index",
+    "preserve_source_order": true,
+    "sorting_allowed": false,
+    "deduplication_allowed": false
+  },
+  "source_size_bytes": 807732,
+  "source_sha256": "7af5d55214b16be542f82c7f57cba838a1790c16284edbcb2f5bee9f8d98bec3",
+  "generated_size_bytes": 1508420,
+  "generated_sha256": "083f631c906b36a64e3ef35412e9b0a1d388be2657b791eab3d636ecc5c3a1d3",
+  "empty_token_count": 0,
+  "unique_token_count": 100000,
+  "duplicate_occurrences": 0,
+  "order_preserved": true,
+  "duplicates_preserved": true,
+  "first_tokens": [
+    "the",
+    ",",
+    ".",
+    "of",
+    "and",
+    "in",
+    "to",
+    "a",
+    "\"",
+    "-"
+  ],
+  "last_tokens": [
+    "tirso",
+    "tumkur",
+    "pirna",
+    "shepherdess",
+    "woll",
+    "tlb",
+    "tomoya",
+    "jut",
+    "kurth",
+    "atocha"
+  ],
+  "accepted_by": "JANUS GENESIS",
+  "role": "external_lexical_gift",
+  "materialization": {
+    "status": "materialized_and_verified_locally",
+    "materialized_on": "2026-07-27",
+    "generated_tokens_embedded_in_repository": false
+  },
+  "redistribution": {
+    "tokens_embedded_in_repository": false,
+    "license_status": "not_confirmed_for_vocab_file",
+    "reason": "Source received and verified; keep generated token payload out of the public repository until vocabulary redistribution rights are confirmed."
+  }
+}
