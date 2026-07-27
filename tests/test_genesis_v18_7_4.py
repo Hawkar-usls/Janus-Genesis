@@ -12,7 +12,7 @@ from genesis_v18_7_portable import PortableSaveManager
 
 class GenesisV1874PluralWitnessTests(unittest.TestCase):
     def test_primary_runtime_reports_plural_witness_or_later(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.5")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.6")
 
     def test_malformed_origin_is_preserved_without_silent_repair(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -62,7 +62,7 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
                 self.assertTrue(valid, error)
                 self.assertGreater(count, 0)
                 self.assertFalse(exported["contains_api_keys"])
-                self.assertEqual(bundle["runtime_version"], "18.7.5")
+                self.assertEqual(bundle["runtime_version"], "18.7.6")
                 self.assertTrue(
                     any(
                         item["path"].endswith(".origin-envelope.json")
@@ -166,45 +166,46 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
             self.assertTrue(all(len(item["excerpt"]) <= 120 for item in result["results"]))
             self.assertTrue(all(item["document_executable"] is False for item in result["results"]))
 
-    def test_contradictory_grounded_claims_coexist_without_selecting_winner(self) -> None:
+    def test_three_contradictory_grounded_claims_form_no_winner_triumvirate(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             world = PlayableGenesisV187(Path(directory))
-            left = world.import_origin_bytes(
-                repository="example/registry",
-                commit="one",
-                path="data/left.json",
-                raw=b'{"claim":"the door is open"}',
-                source_public=True,
-            )
-            right = world.import_origin_bytes(
-                repository="example/registry",
-                commit="one",
-                path="data/right.json",
-                raw=b'{"claim":"the door is closed"}',
-                source_public=True,
-            )
-            left_claim = world.record_source_assertion(
-                left["origin_key"],
-                evidence={"kind": "json_pointer", "pointer": "/claim"},
-                about="door",
-                confidence=0.7,
-            )
-            right_claim = world.record_source_assertion(
-                right["origin_key"],
-                evidence={"kind": "json_pointer", "pointer": "/claim"},
-                about="door",
-                confidence=0.7,
-            )
-            world.relate_origin_claims(left_claim, right_claim, "DISPUTES", confidence=0.9)
+            origins = [
+                world.import_origin_bytes(
+                    repository="example/registry",
+                    commit="one",
+                    path=f"data/voice-{index}.json",
+                    raw=json.dumps({"claim": text}).encode("utf-8"),
+                    source_public=True,
+                )
+                for index, text in enumerate(
+                    ("the door is open", "the door is closed", "the door is changing"),
+                    1,
+                )
+            ]
+            claims = [
+                world.record_source_assertion(
+                    origin["origin_key"],
+                    evidence={"kind": "json_pointer", "pointer": "/claim"},
+                    about="door",
+                    confidence=0.7,
+                )
+                for origin in origins
+            ]
+            dispute_id = world.record_triumvirate_dispute(claims, confidence=0.9)
 
             graph = world._graph()
-            disputes = [edge for edge in graph["edges"] if edge["relation"] == "DISPUTES"]
-            self.assertEqual(len(disputes), 1)
-            self.assertFalse(disputes[0]["payload"]["silent_reconciliation"])
-            self.assertFalse(disputes[0]["payload"]["winner_selected"])
+            disputes = [
+                edge for edge in graph["edges"]
+                if edge["relation"] == "DISPUTES" and edge["to"] == dispute_id
+            ]
+            self.assertEqual(len(disputes), 3)
+            self.assertTrue(all(edge["payload"]["member_role"] == "equal_voice" for edge in disputes))
+            self.assertTrue(all(edge["payload"]["winner_selected"] is False for edge in disputes))
+            self.assertTrue(all(edge["payload"]["third_voice_is_judge"] is False for edge in disputes))
             self.assertTrue(world.verify_possibility_graph()[0])
             self.assertTrue(world.verify_plural_witness_state()[0])
             self.assertTrue(world.verify_grounded_witness_state()[0])
+            self.assertTrue(world.verify_triumvirate_witness_state()[0])
 
     def test_mixed_rejection_and_preservation_is_reject_without_good_score(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
