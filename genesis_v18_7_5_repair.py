@@ -5,7 +5,7 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from genesis_v18_7_5 import SOURCE, _sha256
+from genesis_v18_7_5 import GroundedWitnessMixin, SOURCE, _sha256
 
 
 class DerivedRepairMixin:
@@ -13,7 +13,7 @@ class DerivedRepairMixin:
 
     @staticmethod
     def _default_plural_store() -> dict[str, Any]:
-        store = super(DerivedRepairMixin, DerivedRepairMixin)._default_plural_store()
+        store = GroundedWitnessMixin._default_plural_store()
         store["invariants"]["opaque_requires_separate_derived_repair"] = True
         return store
 
