@@ -1,7 +1,7 @@
 {
   "artifact_id": "JANUS-GENESIS-V18-5-LIVING-THREADS-CREATIVE-REVERSAL-DECISION-v1.0",
   "title": "Genesis v18.5 Living Threads — Creative Reversal Decision",
-  "status": "implemented_candidate_pending_ci",
+  "status": "implemented_and_ci_verified",
   "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
   "fundamental_barrier": "The free-text interface currently collapses many expressions into a small set of immediate deterministic categories, so meaningful playthroughs converge on the same authored demonstration route.",
   "first_principles": {
@@ -94,6 +94,14 @@
     "PASS": "All automated invariants pass and two equal seeds replay the same stream while a different seed changes the stream.",
     "FAIL": "Any frozen invariant changes or the stream is neither replayable nor meaningfully state-dependent.",
     "EVIDENCE_INSUFFICIENT": "Tests pass technically but human play does not distinguish causal surprise from cosmetic prose."
+  },
+  "ci_evidence": {
+    "pull_request": 19,
+    "workflows": ["Genesis Tests", "test"],
+    "python_versions": ["3.11", "3.12", "3.13"],
+    "compile": "PASS",
+    "unit_tests": "PASS",
+    "offline_smoke": "PASS"
   },
   "novelty_boundary": "No novelty or prior-art claim is made before a separate review.",
   "implementation": [
