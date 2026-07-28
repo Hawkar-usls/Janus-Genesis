@@ -7,6 +7,7 @@ on:
       - experiment/century-of-absurd-professions-v18-7-10-20260728
     paths:
       - "experiments/century_of_absurd_professions_v18_7_10.py"
+      - "experiments/century_of_absurd_professions_v18_7_10_final.py"
       - "tests/test_experiment_century_contract_v18_7_10.py"
       - ".github/workflows/century-absurd-professions-lived-audit.yml"
       - "genesis_v18_7*.py"
@@ -28,7 +29,9 @@ jobs:
       - name: Install runtime dependencies
         run: python -m pip install --upgrade cryptography
       - name: Compile lived audit
-        run: python -m py_compile experiments/century_of_absurd_professions_v18_7_10.py
+        run: |
+          python -m py_compile experiments/century_of_absurd_professions_v18_7_10.py
+          python -m py_compile experiments/century_of_absurd_professions_v18_7_10_final.py
       - name: Check lived-audit contract
         run: python -m unittest -v tests.test_experiment_century_contract_v18_7_10
       - name: Live 120 years
@@ -37,7 +40,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p lived-artifacts
-          python experiments/century_of_absurd_professions_v18_7_10.py \
+          python experiments/century_of_absurd_professions_v18_7_10_final.py \
             --output lived-artifacts \
             2>&1 | tee lived-artifacts/century-workflow.log
       - name: Seal artifact manifest
@@ -96,8 +99,9 @@ jobs:
           - artifact digest: \`${ARTIFACT_DIGEST}\`
           - internal manifest SHA-256: \`${MANIFEST_SHA256}\`
           - artifact: ${ARTIFACT_URL}
+          - failed predecessor preserved: \`30387905035\`
 
-          The receipt is emitted only after the 120-year script, all internal assertions, manifest sealing, and artifact upload succeed.
+          The receipt is emitted only after the corrected 120-year script, all internal assertions, manifest sealing, and artifact upload succeed.
           EOF
           )
           gh api repos/${{ github.repository }}/issues/47/comments -f body="$body"
