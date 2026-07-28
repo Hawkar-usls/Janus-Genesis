@@ -5,10 +5,10 @@ A portable save is one JSON document containing the local Genesis JSON/JSONL
 state. API keys, environment files, credentials and network bearer tokens are
 never included. Import verifies every embedded SHA-256 before writing anything.
 
-Genesis v18.7.7 carries imperfect source bytes, grounded evidence, NPC
+Genesis v18.7.8 carries imperfect source bytes, grounded evidence, NPC
 relationship state, voluntary witness identity metadata, structured subject
-scopes, sovereign cases and JANUS.SOVEREIGN decisions through the same verified
-portable threshold.
+scopes, sovereign cases, influence attestations, manipulation audits and
+JANUS.SOVEREIGN decisions through the same verified portable threshold.
 """
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any
 
 PORTABLE_SAVE_SCHEMA = "janus.genesis.portable_save.v1"
-RUNTIME_VERSION = "18.7.7"
+RUNTIME_VERSION = "18.7.8"
 EXCLUDED_NAMES = {
     ".env",
     "janus_keys.json",
@@ -104,7 +104,10 @@ class PortableSaveManager:
                     }
                 )
         manifest_material = json.dumps(
-            [{key: item[key] for key in ("path", "kind", "size_bytes", "sha256")} for item in files],
+            [
+                {key: item[key] for key in ("path", "kind", "size_bytes", "sha256")}
+                for item in files
+            ],
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
@@ -123,7 +126,9 @@ class PortableSaveManager:
             "files": files,
         }
 
-    def export_to(self, output_path: str | Path, *, label: str | None = None) -> dict[str, Any]:
+    def export_to(
+        self, output_path: str | Path, *, label: str | None = None
+    ) -> dict[str, Any]:
         bundle = self.build_bundle(label=label)
         output = Path(output_path)
         _atomic_write_text(
@@ -159,7 +164,9 @@ class PortableSaveManager:
                 return False, len(seen), f"duplicate path: {relative}"
             seen.add(relative)
             lowered = Path(relative).name.lower()
-            if lowered in EXCLUDED_NAMES or any(fragment in lowered for fragment in EXCLUDED_FRAGMENTS):
+            if lowered in EXCLUDED_NAMES or any(
+                fragment in lowered for fragment in EXCLUDED_FRAGMENTS
+            ):
                 return False, len(seen), f"credential-like path rejected: {relative}"
             if item.get("kind") not in {"json", "jsonl"}:
                 return False, len(seen), f"unsupported kind: {relative}"
@@ -224,6 +231,8 @@ class PortableSaveManager:
             "contains_api_keys": False,
         }
 
-    def import_file(self, input_path: str | Path, *, conflict: str = "replace") -> dict[str, Any]:
+    def import_file(
+        self, input_path: str | Path, *, conflict: str = "replace"
+    ) -> dict[str, Any]:
         bundle = json.loads(Path(input_path).read_text(encoding="utf-8"))
         return self.import_bundle(bundle, conflict=conflict)
