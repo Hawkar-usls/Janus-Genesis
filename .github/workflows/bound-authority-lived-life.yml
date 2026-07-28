@@ -1,0 +1,42 @@
+name: Bound Authority Lived Life
+
+on:
+  pull_request:
+    paths:
+      - "experiments/bound_authority_lived_life_v18_7_9.py"
+      - ".github/workflows/bound-authority-lived-life.yml"
+      - "genesis_v18_7_9.py"
+      - "genesis_v18_7_9_persistence.py"
+      - "genesis_v18_7_playable.py"
+      - "genesis_v18_7_portable.py"
+
+permissions:
+  contents: read
+
+jobs:
+  lived-life:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+      - name: Compile lived audit
+        run: python -m py_compile experiments/bound_authority_lived_life_v18_7_9.py
+      - name: Enter Genesis and live under Bound Authority
+        run: |
+          set -o pipefail
+          PYTHONPATH=. python experiments/bound_authority_lived_life_v18_7_9.py | tee bound-authority-lived-life-console.log
+      - name: Upload lived evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bound-authority-lived-life-record
+          path: |
+            bound-authority-lived-life-console.log
+            artifacts/bound_authority_lived_life/
+          if-no-files-found: error
+          retention-days: 7
