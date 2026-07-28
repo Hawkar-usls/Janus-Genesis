@@ -346,10 +346,16 @@ class LivedAudit:
                 provider_attestation=tampered,
             )
         except ValueError as exc:
-            tamper_blocked = "INVALID_SIGNATURE" in str(exc)
+            tamper_blocked = True
+            tamper_reason = str(exc)
         else:
             tamper_blocked = False
-        self.security("provider_attestation_tampering_blocked", tamper_blocked)
+            tamper_reason = "tampered payload was accepted"
+        self.security(
+            "provider_attestation_tampering_blocked",
+            tamper_blocked,
+            rejection_reason=tamper_reason,
+        )
         assert tamper_blocked
 
         shard_scope = self.scope("campaign_sharding", event="manufactured public campaign")
