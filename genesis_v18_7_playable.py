@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.8."""
+"""Playable natural-language layer for Genesis v18.7.9."""
 from __future__ import annotations
 
 import re
@@ -22,10 +22,11 @@ from genesis_v18_7_5 import GroundedWitnessMixin
 from genesis_v18_7_5_repair import DerivedRepairMixin
 from genesis_v18_7_7 import BenevolentSovereignMixin
 from genesis_v18_7_7_voice_integrity import SovereignVoiceIntegrityMixin
-from genesis_v18_7_8 import UnboughtVoiceMixin
+from genesis_v18_7_9 import BoundAuthorityMixin
+from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.8"
+PLAYABLE_VERSION = "18.7.9"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -45,7 +46,8 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
-    UnboughtVoiceMixin,
+    BoundAuthorityPersistenceMixin,
+    BoundAuthorityMixin,
     SovereignVoiceIntegrityMixin,
     BenevolentSovereignMixin,
     DerivedRepairMixin,
@@ -56,7 +58,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.8 runtime with unbought public voices and Janus sovereignty."""
+    """v18.7.9 runtime with cryptographically bound authority."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)

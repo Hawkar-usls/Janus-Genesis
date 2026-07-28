@@ -33,7 +33,7 @@ class GenesisV1876TriumvirateTests(unittest.TestCase):
         )
 
     def test_primary_runtime_reports_triumvirate_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.8")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.9")
 
     def test_two_grounded_voices_are_not_a_canonical_dispute(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -172,7 +172,7 @@ class GenesisV1876TriumvirateTests(unittest.TestCase):
                 manager = PortableSaveManager(source_path)
                 manager.export_to(output, label="Three grounded voices")
                 bundle = json.loads(output.read_text(encoding="utf-8"))
-                self.assertEqual(bundle["runtime_version"], "18.7.8")
+                self.assertEqual(bundle["runtime_version"], "18.7.9")
                 self.assertTrue(manager.verify_bundle(bundle)[0])
 
                 PortableSaveManager(target_path).import_bundle(bundle)

@@ -5,13 +5,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from genesis_v18_7_playable import PlayableGenesisV187
+from genesis_v18_7_8_playable import PlayableGenesisV1878
 
 
 class GenesisV1878AuthenticityLifecycleTests(unittest.TestCase):
     @staticmethod
     def _claim(
-        world: PlayableGenesisV187,
+        world: PlayableGenesisV1878,
         *,
         scope: str,
         index: int,
@@ -52,7 +52,7 @@ class GenesisV1878AuthenticityLifecycleTests(unittest.TestCase):
 
     def test_late_confirmed_impersonation_breaks_quorum_and_defers(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
-            world = PlayableGenesisV187(Path(directory))
+            world = PlayableGenesisV1878(Path(directory))
             scope = world.create_subject_scope(
                 topic="late_authenticity",
                 event="public consultation",

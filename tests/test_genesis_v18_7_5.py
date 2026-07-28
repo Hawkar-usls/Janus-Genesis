@@ -13,7 +13,7 @@ from genesis_v18_7_portable import PortableSaveManager
 
 class GenesisV1875GroundedWitnessTests(unittest.TestCase):
     def test_primary_runtime_reports_grounded_witness_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.8")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.9")
 
     def test_retrieval_abstains_when_no_positive_evidence_exists(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -289,7 +289,7 @@ class GenesisV1875GroundedWitnessTests(unittest.TestCase):
                 manager = PortableSaveManager(source_path)
                 manager.export_to(output, label="Grounded witness threshold")
                 bundle = json.loads(output.read_text(encoding="utf-8"))
-                self.assertEqual(bundle["runtime_version"], "18.7.8")
+                self.assertEqual(bundle["runtime_version"], "18.7.9")
                 self.assertTrue(manager.verify_bundle(bundle)[0])
 
                 PortableSaveManager(target_path).import_bundle(bundle)
