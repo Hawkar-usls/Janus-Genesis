@@ -1,0 +1,37 @@
+name: Unbought Voice Lived Audit
+
+on:
+  pull_request:
+    paths:
+      - "experiments/unbought_voice_lived_audit_v18_7_8.py"
+      - "tests/test_experiment_unbought_voice_lived_audit_v18_7_8.py"
+      - ".github/workflows/unbought-voice-lived-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lived-audit:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile lived audit
+        run: python -m py_compile experiments/unbought_voice_lived_audit_v18_7_8.py
+      - name: Enter Genesis and live the audit
+        run: |
+          set -o pipefail
+          python experiments/unbought_voice_lived_audit_v18_7_8.py | tee unbought-voice-lived-audit.log
+      - name: Upload lived evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unbought-voice-lived-audit-record
+          path: |
+            unbought-voice-lived-audit.log
+            artifacts/unbought_voice_lived_audit/
+          if-no-files-found: error
+          retention-days: 7
