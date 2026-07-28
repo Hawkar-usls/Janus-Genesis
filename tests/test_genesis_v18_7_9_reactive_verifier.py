@@ -152,6 +152,28 @@ class ReactiveVerifierTests(unittest.TestCase):
         self.assertFalse(valid)
         self.assertIn("provenance lacks audit or reason", error or "")
 
+    def test_three_submitted_ids_do_not_fake_historical_eligible_quorum(self) -> None:
+        case_id, _claims = self._case()
+        self.world.withdraw_witness_voice("reader-0")
+        store = self.world._plural_store()
+        case = store["sovereign_cases"][case_id]
+        opening_entry = next(
+            item
+            for item in case["history"]
+            if item.get("reason") == "unbought voice audit applied before quorum"
+        )
+        opening_audit = store["influence_audits"][opening_entry["audit_id"]]
+        opening_audit["eligible_claim_ids"] = opening_audit["eligible_claim_ids"][:2]
+        opening_audit["quarantined_claim_ids"] = sorted(
+            set(opening_audit["submitted_claim_ids"])
+            - set(opening_audit["eligible_claim_ids"])
+        )
+        opening_audit["independent_voice_count"] = 2
+        self.world._write_json(self.world.plural_witness_path, store)
+        valid, _count, error = self.world.verify_bound_authority_state()
+        self.assertFalse(valid)
+        self.assertIn("never had three historically eligible voices", error or "")
+
 
 if __name__ == "__main__":
     unittest.main()
