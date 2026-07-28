@@ -8,6 +8,7 @@ on:
     paths:
       - "experiments/century_of_absurd_professions_v18_7_10.py"
       - "experiments/century_of_absurd_professions_v18_7_10_final.py"
+      - "experiments/century_of_absurd_professions_v18_7_10_replay.py"
       - "tests/test_experiment_century_contract_v18_7_10.py"
       - ".github/workflows/century-absurd-professions-lived-audit.yml"
       - "genesis_v18_7*.py"
@@ -32,15 +33,16 @@ jobs:
         run: |
           python -m py_compile experiments/century_of_absurd_professions_v18_7_10.py
           python -m py_compile experiments/century_of_absurd_professions_v18_7_10_final.py
+          python -m py_compile experiments/century_of_absurd_professions_v18_7_10_replay.py
       - name: Check lived-audit contract
         run: python -m unittest -v tests.test_experiment_century_contract_v18_7_10
-      - name: Live 120 years
+      - name: Replay 120 years on repaired canonical runtime
         env:
           PYTHONPATH: .
         run: |
           set -o pipefail
           mkdir -p lived-artifacts
-          python experiments/century_of_absurd_professions_v18_7_10_final.py \
+          python experiments/century_of_absurd_professions_v18_7_10_replay.py \
             --output lived-artifacts \
             2>&1 | tee lived-artifacts/century-workflow.log
       - name: Seal artifact manifest
@@ -60,7 +62,8 @@ jobs:
               })
           material = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
           manifest = {
-              "schema": "janus.genesis.century_lived_artifact_manifest.v1",
+              "schema": "janus.genesis.century_repaired_replay_manifest.v1",
+              "repair_merge": "61fcd5a2c162d36a535c7cb0a7b1c7f962f3ea0a",
               "files": rows,
               "manifest_sha256": hashlib.sha256(material).hexdigest(),
           }
@@ -72,15 +75,15 @@ jobs:
               output.write(f"manifest_sha256={manifest['manifest_sha256']}\n")
           print(manifest["manifest_sha256"])
           PY
-      - name: Upload lived evidence
+      - name: Upload repaired lived evidence
         id: upload
         uses: actions/upload-artifact@v4
         with:
-          name: century-absurd-professions-v18.7.10-lived-record
+          name: century-absurd-professions-v18.7.10-repaired-replay
           path: lived-artifacts/
           if-no-files-found: error
           retention-days: 7
-      - name: Publish evidence receipt to PR
+      - name: Publish repaired replay receipt to PR
         env:
           GH_TOKEN: ${{ github.token }}
           RUN_ID: ${{ github.run_id }}
@@ -91,21 +94,23 @@ jobs:
           MANIFEST_SHA256: ${{ steps.seal.outputs.manifest_sha256 }}
         run: |
           body=$(cat <<EOF
-          ## Century lived-audit evidence receipt
+          ## Century repaired replay evidence receipt
 
+          - canonical repair merge: \`61fcd5a2c162d36a535c7cb0a7b1c7f962f3ea0a\`
           - workflow run: \`${RUN_ID}\`
           - run attempt: \`${RUN_ATTEMPT}\`
           - artifact ID: \`${ARTIFACT_ID}\`
           - artifact digest: \`${ARTIFACT_DIGEST}\`
           - internal manifest SHA-256: \`${MANIFEST_SHA256}\`
           - artifact: ${ARTIFACT_URL}
-          - failed predecessor preserved: \`30387905035\`
+          - original failed harness run preserved: \`30387905035\`
+          - first pre-repair sealed life preserved: \`30388424828\`
 
-          The receipt is emitted only after the corrected 120-year script, all internal assertions, manifest sealing, and artifact upload succeed.
+          This receipt is emitted only after the identical 120-year life passes the repaired stable-voice contract, verifies a COMPLETE proofpack, and exports a final portable save containing the completed audit state.
           EOF
           )
           gh api repos/${{ github.repository }}/issues/47/comments -f body="$body"
-      - name: Publish failed-run receipt to PR
+      - name: Publish failed repaired-replay receipt to PR
         if: failure()
         env:
           GH_TOKEN: ${{ github.token }}
@@ -113,12 +118,13 @@ jobs:
           RUN_ATTEMPT: ${{ github.run_attempt }}
         run: |
           body=$(cat <<EOF
-          ## Century lived-audit stopped before sealing
+          ## Century repaired replay stopped before sealing
 
           - workflow run: \`${RUN_ID}\`
           - run attempt: \`${RUN_ATTEMPT}\`
+          - canonical repair merge: \`61fcd5a2c162d36a535c7cb0a7b1c7f962f3ea0a\`
 
-          The life did not receive a success seal. The failed run is preserved for diagnosis; no century result should be claimed from it.
+          The repaired replay did not receive a success seal. No final century result should be claimed from this run.
           EOF
           )
           gh api repos/${{ github.repository }}/issues/47/comments -f body="$body"
