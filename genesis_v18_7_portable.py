@@ -1,14 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Portable on-device JSON saves for Genesis v18.7.
+"""Portable verified JSON saves for Genesis v18.7.9.
 
-A portable save is one JSON document containing the local Genesis JSON/JSONL
-state. API keys, environment files, credentials and network bearer tokens are
-never included. Import verifies every embedded SHA-256 before writing anything.
-
-Genesis v18.7.8 carries imperfect source bytes, grounded evidence, NPC
-relationship state, voluntary witness identity metadata, structured subject
-scopes, sovereign cases, influence attestations, manipulation audits and
-JANUS.SOVEREIGN decisions through the same verified portable threshold.
+The bundle carries local JSON/JSONL state, including public trust roots,
+signed attestations, consumed nonces, evidence assessments and append-only
+authority events. Private keys, API keys, bearer tokens and environment files
+are excluded.
 """
 from __future__ import annotations
 
@@ -21,15 +17,23 @@ from pathlib import Path
 from typing import Any
 
 PORTABLE_SAVE_SCHEMA = "janus.genesis.portable_save.v1"
-RUNTIME_VERSION = "18.7.8"
+RUNTIME_VERSION = "18.7.9"
 EXCLUDED_NAMES = {
     ".env",
     "janus_keys.json",
     "network_credentials.json",
     "api_keys.json",
     "credentials.json",
+    "private_keys.json",
 }
-EXCLUDED_FRAGMENTS = ("secret", "credential", "api_key", "apikey", "bearer", "token")
+EXCLUDED_FRAGMENTS = (
+    "secret",
+    "credential",
+    "api_key",
+    "apikey",
+    "bearer",
+    "private_key",
+)
 
 
 def _sha256(data: bytes) -> str:
@@ -119,6 +123,7 @@ class PortableSaveManager:
             "label": (label or "Genesis device save")[:160],
             "scope": "local_device_state",
             "contains_api_keys": False,
+            "contains_private_keys": False,
             "contains_environment_files": False,
             "network_authority": False,
             "file_count": len(files),
@@ -127,7 +132,10 @@ class PortableSaveManager:
         }
 
     def export_to(
-        self, output_path: str | Path, *, label: str | None = None
+        self,
+        output_path: str | Path,
+        *,
+        label: str | None = None,
     ) -> dict[str, Any]:
         bundle = self.build_bundle(label=label)
         output = Path(output_path)
@@ -140,6 +148,7 @@ class PortableSaveManager:
             "file_count": bundle["file_count"],
             "sha256": _sha256(output.read_bytes()),
             "contains_api_keys": False,
+            "contains_private_keys": False,
         }
 
     @staticmethod
@@ -148,6 +157,8 @@ class PortableSaveManager:
             return False, 0, "unsupported portable-save schema"
         if bundle.get("contains_api_keys") is not False:
             return False, 0, "portable save claims to contain API keys"
+        if bundle.get("contains_private_keys", False) is not False:
+            return False, 0, "portable save claims to contain private keys"
         files = bundle.get("files")
         if not isinstance(files, list):
             return False, 0, "files must be a list"
@@ -229,10 +240,14 @@ class PortableSaveManager:
             "written_files": len(staged),
             "skipped_files": skipped,
             "contains_api_keys": False,
+            "contains_private_keys": False,
         }
 
     def import_file(
-        self, input_path: str | Path, *, conflict: str = "replace"
+        self,
+        input_path: str | Path,
+        *,
+        conflict: str = "replace",
     ) -> dict[str, Any]:
         bundle = json.loads(Path(input_path).read_text(encoding="utf-8"))
         return self.import_bundle(bundle, conflict=conflict)
