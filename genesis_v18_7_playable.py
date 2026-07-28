@@ -24,6 +24,7 @@ from genesis_v18_7_7 import BenevolentSovereignMixin
 from genesis_v18_7_7_voice_integrity import SovereignVoiceIntegrityMixin
 from genesis_v18_7_9 import BoundAuthorityMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
+from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
 PLAYABLE_VERSION = "18.7.9"
@@ -46,6 +47,7 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    ReactiveBoundAuthorityVerifierMixin,
     BoundAuthorityPersistenceMixin,
     BoundAuthorityMixin,
     SovereignVoiceIntegrityMixin,
