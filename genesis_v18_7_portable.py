@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Portable verified JSON saves for Genesis v18.7.9.
+"""Portable verified JSON saves for Genesis v18.7.10.
 
 The bundle carries local JSON/JSONL state, including public trust roots,
-signed attestations, consumed nonces, evidence assessments and append-only
+signed provider/assessor attestations, frozen policy hashes, I0 audit receipts,
+counterfactual archive summaries, consumed nonces, sandbox state and append-only
 authority events. Private keys, API keys, bearer tokens and environment files
 are excluded.
 """
@@ -17,7 +18,7 @@ from pathlib import Path
 from typing import Any
 
 PORTABLE_SAVE_SCHEMA = "janus.genesis.portable_save.v1"
-RUNTIME_VERSION = "18.7.9"
+RUNTIME_VERSION = "18.7.10"
 EXCLUDED_NAMES = {
     ".env",
     "janus_keys.json",

@@ -10,7 +10,7 @@ from genesis_v18_7_9 import (
     build_sovereign_capability,
     generate_ed25519_keypair,
 )
-from genesis_v18_7_playable import PlayableGenesisV187
+from genesis_v18_7_9_playable import PlayableGenesisV187
 
 ISSUED = "2026-01-01T00:00:00Z"
 EXPIRES = "2099-01-01T00:00:00Z"

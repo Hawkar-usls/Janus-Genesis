@@ -11,7 +11,7 @@ from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
 
 class GenesisV1871RememberingOtherTests(unittest.TestCase):
     def test_primary_runtime_includes_remembering_other_or_later(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.9")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.10")
 
     def test_repeated_offer_is_contextually_refused_and_remembered(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -19,11 +19,9 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
             world.set_free_other_seed_for_testing("remember-the-instrument")
             handle = world.public_state("messenger")["free_other_handles"][0]
             action = f"предложить @{handle} вместе изменить незавершённый инструмент"
-
             world.process_action("messenger", action)
             second = world.process_action("messenger", action)
             actor = world.free_other_state("messenger")["profile"]["others"][handle]
-
             self.assertEqual(second.status, "OTHER_REFUSED")
             self.assertIn("повторилось раньше", second.narrative)
             self.assertIn("инструмент", second.narrative)
@@ -37,13 +35,8 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
             world = PlayableGenesisV187(Path(directory))
             world.set_free_other_seed_for_testing("bounded-long-memory")
             handle = world.public_state("pilgrim")["free_other_handles"][0]
-
             for index in range(MEMORY_LIMIT + 19):
-                world.process_action(
-                    "pilgrim",
-                    f"предложить @{handle} обсудить инструмент и дорогу, вариант {index}",
-                )
-
+                world.process_action("pilgrim", f"предложить @{handle} обсудить инструмент и дорогу, вариант {index}")
             actor = world.free_other_state("pilgrim")["profile"]["others"][handle]
             self.assertEqual(len(actor["dialogue_memory"]), MEMORY_LIMIT)
             self.assertGreater(actor["conversation_topics"]["инструмент"]["count"], MEMORY_LIMIT)
@@ -54,10 +47,8 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
             world = PlayableGenesisV187(Path(directory))
             world.set_free_other_seed_for_testing("cooldown-and-variety")
             world.register_free_player("listener")
-
             for index in range(240):
                 world.process_action("listener", f"наблюдать небо без толкования, ход {index}")
-
             actors = world.free_other_state("listener")["profile"]["others"].values()
             total = 0
             for actor in actors:
@@ -74,7 +65,6 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
             world = PlayableGenesisV187(Path(directory))
             world.set_free_other_seed_for_testing("departure-has-memory")
             world.register_free_player("witness")
-
             found = None
             for index in range(600):
                 world.process_action("witness", f"продолжить наблюдение собственной дороги {index}")
@@ -82,7 +72,6 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
                 found = next((actor for actor in actors if actor["returns"] > 0), None)
                 if found:
                     break
-
             self.assertIsNotNone(found)
             assert found is not None
             self.assertTrue(found["departure_context"])
@@ -98,26 +87,19 @@ class GenesisV1871RememberingOtherTests(unittest.TestCase):
             world.set_free_other_seed_for_testing("migration-preserves-life")
             handle = world.public_state("legacy")["free_other_handles"][0]
             world.process_action("legacy", f"предложить @{handle} поговорить о дороге")
-
             store_path = root / "free_other_v18_7.json"
             store = json.loads(store_path.read_text(encoding="utf-8"))
             actor = store["players"]["legacy"]["others"][handle]
             old_history = list(actor["history"])
             for key in (
-                "dialogue_memory",
-                "conversation_topics",
-                "initiative_cooldown_until",
-                "recent_initiative_fingerprints",
-                "memory_contract_version",
-                "departure_context",
-                "return_context",
-                "voice_contract",
+                "dialogue_memory", "conversation_topics", "initiative_cooldown_until",
+                "recent_initiative_fingerprints", "memory_contract_version",
+                "departure_context", "return_context", "voice_contract",
             ):
                 actor.pop(key, None)
             store["players"]["legacy"].pop("dialogue_contract_version", None)
             store["players"]["legacy"].pop("voice_contract_version", None)
             store_path.write_text(json.dumps(store, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
             restored = PlayableGenesisV187(root)
             upgraded = restored.free_other_state("legacy")["profile"]["others"][handle]
             self.assertEqual(upgraded["history"], old_history)
