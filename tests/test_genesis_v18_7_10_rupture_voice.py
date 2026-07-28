@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import re
 import tempfile
 import unittest
@@ -39,12 +40,17 @@ class GenesisV18710CenturyRepairTests(unittest.TestCase):
                 re.compile(r"\bМара\s+(?:сохранил|завершил|ушёл|выбрал)\b", re.I),
             )
             events = [
+                json.loads(line)
+                for line in world.memory.chronicle.read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            ]
+            ruptures = [
                 event
-                for event in world.memory.read_events("century-witness")
+                for event in events
                 if event["event_type"] == "free_other_relationship_terminated"
             ]
-            self.assertEqual(len(events), 1)
-            self.assertEqual(events[0]["payload"]["reason_text"], reason)
+            self.assertEqual(len(ruptures), 1)
+            self.assertEqual(ruptures[0]["payload"]["reason_text"], reason)
             self.assertTrue(world.verify_free_other_state()[0])
             self.assertTrue(world.memory.verify_chronicle()[0])
             self.assertTrue(world.verify_possibility_graph()[0])
