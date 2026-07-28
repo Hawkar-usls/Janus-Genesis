@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "experiments/bound_authority_lived_life_v18_7_9.py"
+      - "experiments/bound_authority_lived_life_v18_7_9_diagnostic.py"
       - ".github/workflows/bound-authority-lived-life.yml"
       - "genesis_v18_7_9.py"
       - "genesis_v18_7_9_persistence.py"
@@ -25,11 +26,11 @@ jobs:
       - name: Install runtime dependencies
         run: python -m pip install --disable-pip-version-check -r requirements.txt
       - name: Compile lived audit
-        run: python -m py_compile experiments/bound_authority_lived_life_v18_7_9.py
+        run: python -m py_compile experiments/bound_authority_lived_life_v18_7_9.py experiments/bound_authority_lived_life_v18_7_9_diagnostic.py
       - name: Enter Genesis and live under Bound Authority
         run: |
           set -o pipefail
-          PYTHONPATH=. python experiments/bound_authority_lived_life_v18_7_9.py 2>&1 | tee bound-authority-lived-life-console.log
+          PYTHONPATH=. python experiments/bound_authority_lived_life_v18_7_9_diagnostic.py 2>&1 | tee bound-authority-lived-life-console.log
       - name: Upload lived evidence
         if: always()
         uses: actions/upload-artifact@v4
