@@ -34,7 +34,7 @@ class GenesisV1877BenevolentSovereignTests(unittest.TestCase):
         )
 
     def test_primary_version(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.8")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.9")
 
     def test_good_player_starts_positive_and_gets_higher_ordinary_yes_threshold(self) -> None:
         with tempfile.TemporaryDirectory() as good_dir, tempfile.TemporaryDirectory() as neutral_dir:
@@ -193,7 +193,7 @@ class GenesisV1877BenevolentSovereignTests(unittest.TestCase):
                 manager = PortableSaveManager(source_path)
                 manager.export_to(output, label="Benevolent Sovereign")
                 bundle = json.loads(output.read_text(encoding="utf-8"))
-                self.assertEqual(bundle["runtime_version"], "18.7.8")
+                self.assertEqual(bundle["runtime_version"], "18.7.9")
                 self.assertTrue(manager.verify_bundle(bundle)[0])
                 PortableSaveManager(Path(target)).import_bundle(bundle)
                 restored = PlayableGenesisV187(Path(target))

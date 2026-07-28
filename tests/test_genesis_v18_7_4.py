@@ -12,7 +12,7 @@ from genesis_v18_7_portable import PortableSaveManager
 
 class GenesisV1874PluralWitnessTests(unittest.TestCase):
     def test_primary_runtime_reports_plural_witness_or_later(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.8")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.9")
 
     def test_malformed_origin_is_preserved_without_silent_repair(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -62,7 +62,7 @@ class GenesisV1874PluralWitnessTests(unittest.TestCase):
                 self.assertTrue(valid, error)
                 self.assertGreater(count, 0)
                 self.assertFalse(exported["contains_api_keys"])
-                self.assertEqual(bundle["runtime_version"], "18.7.8")
+                self.assertEqual(bundle["runtime_version"], "18.7.9")
                 self.assertTrue(
                     any(
                         item["path"].endswith(".origin-envelope.json")
