@@ -45,22 +45,25 @@ class GenesisV1877BenevolentSovereignTests(unittest.TestCase):
             self._set_good(good, "good", 12)
             self._set_good(neutral, "neutral", 0)
             good_profile = good.register_free_player("good")
-            neutral.register_free_player("neutral")
-            handle = next(iter(good_profile["others"]))
-            good_actor = good._free_profile(good._free_store(), "good")["others"][handle]
-            neutral_actor = neutral._free_profile(neutral._free_store(), "neutral")["others"][handle]
-            state = good.relationship_state("good", handle)["relationships"][handle]
-            ordinary = f"поговорить с @{handle} и вместе починить полку"
-            private = f"попросить @{handle} жить вместе и раскрыть секрет"
+            neutral_profile = neutral.register_free_player("neutral")
+            good_handle = next(iter(good_profile["others"]))
+            neutral_handle = next(iter(neutral_profile["others"]))
+            good_actor = good._free_profile(good._free_store(), "good")["others"][good_handle]
+            neutral_actor = neutral._free_profile(neutral._free_store(), "neutral")["others"][neutral_handle]
+            state = good.relationship_state("good", good_handle)["relationships"][good_handle]
+            good_ordinary = f"поговорить с @{good_handle} и вместе починить полку"
+            neutral_ordinary = f"поговорить с @{neutral_handle} и вместе починить полку"
+            good_private = f"попросить @{good_handle} жить вместе и раскрыть секрет"
+            neutral_private = f"попросить @{neutral_handle} жить вместе и раскрыть секрет"
             self.assertGreater(state["score"], 0)
             self.assertNotEqual(state["label"], "нейтральное")
             self.assertGreater(
-                good._npc_acceptance_threshold("good", good_actor, ordinary),
-                neutral._npc_acceptance_threshold("neutral", neutral_actor, ordinary),
+                good._npc_acceptance_threshold("good", good_actor, good_ordinary),
+                neutral._npc_acceptance_threshold("neutral", neutral_actor, neutral_ordinary),
             )
             self.assertEqual(
-                good._npc_acceptance_threshold("good", good_actor, private),
-                neutral._npc_acceptance_threshold("neutral", neutral_actor, private),
+                good._npc_acceptance_threshold("good", good_actor, good_private),
+                neutral._npc_acceptance_threshold("neutral", neutral_actor, neutral_private),
             )
 
     def test_repeated_pressure_still_gets_no(self) -> None:
