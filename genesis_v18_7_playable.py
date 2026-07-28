@@ -21,6 +21,7 @@ from genesis_v18_7_4 import PluralWitnessIntentionAnalyzer
 from genesis_v18_7_5 import GroundedWitnessMixin
 from genesis_v18_7_5_repair import DerivedRepairMixin
 from genesis_v18_7_7 import BenevolentSovereignMixin
+from genesis_v18_7_7_voice_integrity import SovereignVoiceIntegrityMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
 PLAYABLE_VERSION = "18.7.7"
@@ -43,6 +44,7 @@ class FreeOtherBoundaryGodMode(BoundaryAwareUniversalGodMode):
 
 class PlayableGenesisV187(
     GenesisV187CompatibilityMixin,
+    SovereignVoiceIntegrityMixin,
     BenevolentSovereignMixin,
     DerivedRepairMixin,
     GroundedWitnessMixin,
