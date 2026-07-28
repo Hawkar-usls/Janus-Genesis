@@ -65,13 +65,15 @@ JANUS.SOVEREIGN
 
 Читательский голос допускается к суверенному делу только когда он:
 
-- привязан к проверочному proof, от которого хранится только SHA-256;
+- привязан к proof, от которого хранится только SHA-256;
 - явно согласился участвовать;
 - остаётся активным;
 - опирается на точное evidence;
 - может отказаться от будущего участия.
 
-Нельзя создать три произвольных `reader_id` и представить одного человека как трёх независимых свидетелей.
+В локальном reference-runtime один и тот же proof не может быть зарегистрирован под несколькими `reader_id`. Это закрывает повторное использование одного связанного доказательства как нескольких голосов.
+
+При этом произвольная локальная строка proof **не объявляется доказательством реальной личности** и не обеспечивает полную Sybil-защиту. В общей сети identity-provider обязан аутентифицировать одного субъекта и выдать проверяемую привязку, прежде чем его голос получит суверенный статус.
 
 Исторические слова уже участвовавшего свидетеля не стираются после выхода, но новые решения не могут использовать его как активного участника без нового согласия.
 
@@ -148,6 +150,9 @@ intimacy_uses_personal_bond_not_moral_score = true
 three_voices_open_field_not_close_it = true
 identical_positions_are_consensus_not_dispute = true
 reader_voice_requires_proof_and_consent = true
+one_bound_proof_maps_to_one_reader_voice = true
+local_proof_is_not_real_world_identity_claim = true
+production_voice_requires_authenticated_provider = true
 subject_scope_is_structured = true
 additional_grounded_voices_may_join = true
 triumvirate_recommends_janus_decides = true
