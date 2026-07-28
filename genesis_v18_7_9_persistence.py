@@ -6,6 +6,10 @@ local verification metadata is excluded from signature material. Provider nonce
 consumption is persisted across the historical v18.7.8 account-registration
 compatibility call. The same signed domain is used before and after portable
 roundtrip verification.
+
+Reactive authority may legitimately preserve a case after its opening quorum has
+collapsed. Such a case is valid only while reopened, undecided, tied to a current
+influence audit and carrying append-only reopening provenance.
 """
 from __future__ import annotations
 
@@ -13,6 +17,7 @@ import copy
 from datetime import datetime
 from typing import Any
 
+from genesis_v18_7_7 import JANUS_SOVEREIGN, OPENING_QUORUM
 from genesis_v18_7_9 import (
     PROVIDER_ATTESTATION_SCHEMA,
     BoundAuthorityMixin,
@@ -27,6 +32,7 @@ LOCAL_ATTESTATION_METADATA = {
     "signature_verified",
     "private_key_persisted",
 }
+REACTIVE_REOPENED_STATUS = "CASE_REOPENED_DUE_TO_ELIGIBILITY_CHANGE"
 
 
 def signed_provider_payload(attestation: dict[str, Any]) -> dict[str, Any]:
@@ -38,7 +44,7 @@ def signed_provider_payload(attestation: dict[str, Any]) -> dict[str, Any]:
 
 
 class BoundAuthorityPersistenceMixin:
-    """Keep signature material immutable and nonce state durable."""
+    """Keep signature material immutable, nonce state durable and reopenings honest."""
 
     @staticmethod
     def _verify_provider_attestation(
@@ -115,6 +121,81 @@ class BoundAuthorityPersistenceMixin:
         )
         self._write_json(self.plural_witness_path, store)
         return result
+
+    @staticmethod
+    def _verify_reactive_reopening(
+        store: dict[str, Any],
+        case_id: str,
+        case: dict[str, Any],
+    ) -> str | None:
+        claim_ids = list(case.get("claim_ids", []))
+        if case.get("status") != REACTIVE_REOPENED_STATUS:
+            return f"case lacks opening quorum: {case_id}"
+        if case.get("janus_decision_id") is not None:
+            return f"reopened case retains active sovereign decision: {case_id}"
+        if case.get("influence_sensitive") is not True:
+            return f"reopened low-quorum case is not influence-sensitive: {case_id}"
+        if int(case.get("witness_count", -1)) != len(claim_ids):
+            return f"reopened case witness count mismatch: {case_id}"
+        if len(claim_ids) != len(set(claim_ids)):
+            return f"reopened case repeats eligible claims: {case_id}"
+        if any(claim_id not in store.get("claims", {}) for claim_id in claim_ids):
+            return f"reopened case references missing claim: {case_id}"
+        submitted = list(case.get("submitted_claim_ids", []))
+        if len(set(submitted)) < OPENING_QUORUM:
+            return f"reopened case lacks historical opening quorum: {case_id}"
+        audit_id = case.get("influence_audit_id")
+        audit = store.get("influence_audits", {}).get(audit_id)
+        if not isinstance(audit, dict):
+            return f"reopened case lacks current influence audit: {case_id}"
+        if set(audit.get("eligible_claim_ids", [])) != set(claim_ids):
+            return f"reopened case does not match current eligible audit: {case_id}"
+        if set(audit.get("submitted_claim_ids", [])) != set(submitted):
+            return f"reopened case audit changed submitted field: {case_id}"
+        reopening_history = [
+            item
+            for item in case.get("history", [])
+            if isinstance(item, dict)
+            and item.get("status") == REACTIVE_REOPENED_STATUS
+        ]
+        if not reopening_history:
+            return f"reopened case lacks append-only reopening provenance: {case_id}"
+        latest = reopening_history[-1]
+        if latest.get("audit_id") != audit_id or not latest.get("reason"):
+            return f"reopened case provenance lacks audit or reason: {case_id}"
+        return None
+
+    def verify_benevolent_sovereign_state(self) -> tuple[bool, int, str | None]:
+        """Verify normal cases and legitimate reactive low-quorum reopenings."""
+        tri_valid, _tri_count, tri_error = self.verify_triumvirate_witness_state()
+        if not tri_valid:
+            return False, 0, tri_error
+        store = self._plural_store()
+        required = self._default_plural_store()["invariants"]
+        for key, expected in required.items():
+            if store.get("invariants", {}).get(key) is not expected:
+                return False, 0, f"benevolent sovereign invariant mismatch: {key}"
+        verified = 0
+        for case_id, case in store["sovereign_cases"].items():
+            claim_ids = list(case.get("claim_ids", []))
+            if len(claim_ids) < OPENING_QUORUM:
+                reopening_error = self._verify_reactive_reopening(store, case_id, case)
+                if reopening_error:
+                    return False, verified, reopening_error
+            else:
+                if len(set(case.get("voice_scopes", []))) < OPENING_QUORUM:
+                    return False, verified, f"case lacks independent voices: {case_id}"
+            if case.get("subject_scope_id") not in store["subject_scopes"]:
+                return False, verified, f"case subject scope missing: {case_id}"
+            decision_id = case.get("janus_decision_id")
+            if decision_id:
+                decision = store["sovereign_decisions"].get(decision_id)
+                if not decision or decision.get("actor") != JANUS_SOVEREIGN:
+                    return False, verified, f"sovereign decision invalid: {case_id}"
+                if decision.get("overrides_personal_consent") is not False:
+                    return False, verified, f"sovereign decision overrides consent: {case_id}"
+            verified += 1
+        return True, verified, None
 
     def verify_bound_authority_state(self) -> tuple[bool, int, str | None]:
         base_valid, _count, error = self.verify_unbought_voice_state()

@@ -32,7 +32,8 @@ jobs:
           genesis_v18_7_catalog.py genesis_v18_7_compat.py genesis_v18_7.py
           genesis_v18_7_1.py genesis_v18_7_2.py genesis_v18_7_3.py genesis_v18_7_4.py
           genesis_v18_7_5.py genesis_v18_7_5_repair.py genesis_v18_7_6.py
-          genesis_v18_7_7.py genesis_v18_7_7_voice_integrity.py genesis_v18_7_8.py genesis_v18_7_9.py
+          genesis_v18_7_7.py genesis_v18_7_7_voice_integrity.py genesis_v18_7_8.py
+          genesis_v18_7_9.py genesis_v18_7_9_persistence.py genesis_v18_7_9_reactive_verifier.py
           genesis_v18_7_playable.py genesis_v18_7_1_playable.py genesis_v18_7_2_playable.py
           genesis_v18_7_auth.py genesis_v18_7_ai.py genesis_v18_7_network.py genesis_v18_7_portable.py
           tools/build_external_lexicon.py tools/genesis_api_server.py tools/genesis_network_hub.py
