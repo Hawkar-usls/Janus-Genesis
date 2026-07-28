@@ -12,7 +12,7 @@ from genesis_v18_7_portable import PortableSaveManager
 
 class GenesisV1873HonestIntentionTests(unittest.TestCase):
     def test_primary_runtime_reports_honest_intention_or_later(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.9")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.10")
 
     def test_red_aircraft_reflection_is_witnessed_not_armed(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
