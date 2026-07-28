@@ -29,7 +29,7 @@ jobs:
       - name: Enter Genesis and live under Bound Authority
         run: |
           set -o pipefail
-          PYTHONPATH=. python experiments/bound_authority_lived_life_v18_7_9.py | tee bound-authority-lived-life-console.log
+          PYTHONPATH=. python experiments/bound_authority_lived_life_v18_7_9.py 2>&1 | tee bound-authority-lived-life-console.log
       - name: Upload lived evidence
         if: always()
         uses: actions/upload-artifact@v4
