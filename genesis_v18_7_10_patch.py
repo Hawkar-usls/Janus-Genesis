@@ -5,7 +5,11 @@ from __future__ import annotations
 import copy
 from typing import Any
 
-from genesis_v18_7_10 import PLAYABLE_SENTINEL, SOURCE
+from genesis_v18_7_10 import (
+    PLAYABLE_SENTINEL,
+    SIGNED_OBSERVATION_COMPONENTS,
+    SOURCE,
+)
 from genesis_v18_7_9 import sha256_canonical
 
 
@@ -54,6 +58,18 @@ class BoundAssessorI0IntegrationPatchMixin:
         if changed:
             self._write_json(self.plural_witness_path, store)
 
+    @staticmethod
+    def _assessment_semantic_key(assessment: dict[str, Any]) -> str:
+        return sha256_canonical(
+            {
+                "assessor_id": str(assessment.get("assessor_id")),
+                "claim_id": str(assessment.get("claim_id")),
+                "method_id": str(assessment.get("method_id")),
+                "evidence_set_sha256": assessment.get("evidence_set_sha256"),
+                "policy_sha256": str(assessment.get("policy_sha256")),
+            }
+        )
+
     def record_evidence_assessment(
         self,
         claim_id: str,
@@ -63,12 +79,129 @@ class BoundAssessorI0IntegrationPatchMixin:
         **legacy: Any,
     ) -> str:
         self._normalize_controller_clusters_v1810()
+        if assessment is not None:
+            store = self._plural_store()
+            semantic_key = self._assessment_semantic_key(assessment)
+            prior_id = store.get("assessment_semantic_index", {}).get(semantic_key)
+            supersedes = assessment.get("supersedes_assessment_id")
+            if supersedes is not None and str(supersedes) != str(prior_id or ""):
+                raise ValueError("SUPERSEDES_MUST_MATCH_SEMANTIC_PREDECESSOR")
         return super().record_evidence_assessment(
             claim_id,
             assessment=assessment,
             at_time=at_time,
             **legacy,
         )
+
+    def verify_bound_assessor_state(self) -> tuple[bool, int, str | None]:
+        """Verify signatures, event commitments and all projected confidence fields."""
+        valid, count, error = super().verify_bound_assessor_state()
+        if not valid:
+            return valid, count, error
+        store = self._plural_store()
+        accepted_events: dict[str, dict[str, Any]] = {}
+        revoked_ids: set[str] = set()
+        for event in store.get("assessment_events", []):
+            assessment_id = str(event.get("assessment_id", ""))
+            if event.get("event_type") == "SIGNED_ASSESSMENT_ACCEPTED":
+                accepted_events[assessment_id] = event
+            elif event.get("event_type") == "ASSESSMENT_AUTHORITY_REVOKED":
+                revoked_ids.add(assessment_id)
+
+        for assessment_id, record in store.get("signed_assessments_v1810", {}).items():
+            event = accepted_events.get(str(assessment_id))
+            if not isinstance(event, dict):
+                return False, count, f"missing accepted assessment event: {assessment_id}"
+            claim_id = str(record.get("claim_id"))
+            claim = store.get("claims", {}).get(claim_id)
+            if not isinstance(claim, dict):
+                return False, count, f"missing assessed claim: {assessment_id}"
+            policy_sha = str(record.get("policy_sha256"))
+            policy = store.get("confidence_policies", {}).get(policy_sha)
+            if not isinstance(policy, dict) or sha256_canonical(policy) != policy_sha:
+                return False, count, f"assessment policy invalid: {assessment_id}"
+            credential = store.get("assessor_credentials", {}).get(record.get("credential_id"))
+            if not isinstance(credential, dict):
+                return False, count, f"assessment credential missing: {assessment_id}"
+            if credential.get("assessor_id") != record.get("assessor_id"):
+                return False, count, f"assessment credential actor mismatch: {assessment_id}"
+
+            raw_components = dict(record.get("components", {}))
+            if set(raw_components) != set(SIGNED_OBSERVATION_COMPONENTS):
+                return False, count, f"assessment component set changed: {assessment_id}"
+            observations = {
+                name: round(max(0.0, min(1.0, float(raw_components[name]))), 6)
+                for name in SIGNED_OBSERVATION_COMPONENTS
+            }
+            scope_key = str(record.get("subject_scope_id")) if record.get("subject_scope_id") is not None else "*"
+            competence_map = dict(credential.get("competence_by_scope", {}))
+            competence = round(
+                max(0.0, min(1.0, float(competence_map.get(scope_key, competence_map.get("*", 0.0))))),
+                6,
+            )
+            stored_competence = round(float(record.get("assessor_competence", -1.0)), 6)
+            if stored_competence != competence:
+                return False, count, f"assessment competence projection changed: {assessment_id}"
+            corroboration = round(float(record.get("independent_corroboration", -1.0)), 6)
+            if not 0.0 <= corroboration <= 1.0:
+                return False, count, f"assessment corroboration invalid: {assessment_id}"
+            expected_effective = self._policy_confidence(
+                policy=policy,
+                observations=observations,
+                competence=competence,
+                corroboration=corroboration,
+            )
+            expected_input = sha256_canonical(
+                {
+                    "claim_id": claim_id,
+                    "evidence_set_sha256": record.get("evidence_set_sha256"),
+                    "observations": observations,
+                    "competence": competence,
+                    "corroboration": corroboration,
+                    "policy_sha256": policy_sha,
+                }
+            )
+            event_payload = dict(event.get("payload", {}))
+            if record.get("assessment_input_sha256") != expected_input:
+                return False, count, f"assessment input projection changed: {assessment_id}"
+            if event_payload.get("assessment_input_sha256") != expected_input:
+                return False, count, f"assessment input event mismatch: {assessment_id}"
+            if round(float(record.get("effective_confidence", -1.0)), 6) != expected_effective:
+                return False, count, f"effective confidence changed: {assessment_id}"
+            if round(float(event_payload.get("effective_confidence", -1.0)), 6) != expected_effective:
+                return False, count, f"effective confidence event mismatch: {assessment_id}"
+            if event_payload.get("policy_sha256") != policy_sha:
+                return False, count, f"assessment policy event mismatch: {assessment_id}"
+
+            superseded = bool(record.get("superseded_by"))
+            revoked = str(assessment_id) in revoked_ids
+            expected_authority = not superseded and not revoked
+            if bool(record.get("current_authority")) != expected_authority:
+                return False, count, f"assessment authority projection changed: {assessment_id}"
+            semantic_key = self._assessment_semantic_key(record)
+            indexed = store.get("assessment_semantic_index", {}).get(semantic_key)
+            if superseded:
+                if indexed == assessment_id:
+                    return False, count, f"superseded assessment remains semantic head: {assessment_id}"
+            elif indexed != assessment_id:
+                return False, count, f"active assessment is not semantic head: {assessment_id}"
+
+            if expected_authority:
+                if claim.get("assessment_id") != assessment_id:
+                    return False, count, f"claim assessment projection mismatch: {assessment_id}"
+                if round(float(claim.get("assessment_confidence", -1.0)), 6) != expected_effective:
+                    return False, count, f"claim confidence projection changed: {assessment_id}"
+                if claim.get("assessment_policy_sha256") != policy_sha:
+                    return False, count, f"claim policy projection changed: {assessment_id}"
+                if claim.get("confidence_authority") != "signed_bound_assessor_policy":
+                    return False, count, f"claim confidence authority changed: {assessment_id}"
+            elif claim.get("assessment_id") == assessment_id:
+                if claim.get("assessment_confidence") is not None:
+                    return False, count, f"revoked assessment still projects confidence: {assessment_id}"
+                if claim.get("confidence_authority") != "assessment_authority_revoked":
+                    return False, count, f"revoked claim authority projection changed: {assessment_id}"
+
+        return True, count, None
 
     @staticmethod
     def _immutable_item_provenance(item: dict[str, Any]) -> dict[str, Any]:
@@ -102,7 +235,7 @@ class BoundAssessorI0IntegrationPatchMixin:
         item = store["items"][created["item_id"]]
         item["origin_owner_id"] = str(player_id)
         item["current_owner_id"] = str(player_id)
-        item["owner_id"] = str(player_id)  # compatibility alias for v18.7.10 market calls
+        item["owner_id"] = str(player_id)
         item["provenance_hash"] = sha256_canonical(self._immutable_item_provenance(item))
         self._write_json(self.sandbox_path, store)
         return copy.deepcopy(item)
