@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-"""Security and relationship integration patch for Genesis v18.7.10."""
+"""Security, provenance and relationship integration patch for Genesis v18.7.10."""
 from __future__ import annotations
 
 import copy
 from typing import Any
 
-from genesis_v18_7_10 import SOURCE
+from genesis_v18_7_10 import PLAYABLE_SENTINEL, SOURCE
+from genesis_v18_7_9 import sha256_canonical
 
 
 class BoundAssessorI0IntegrationPatchMixin:
@@ -27,17 +28,13 @@ class BoundAssessorI0IntegrationPatchMixin:
         *,
         display_name: str | None = None,
     ) -> dict[str, Any]:
-        """Create the ordinary player, Free Other profile and long-life profile together.
-
-        Older Genesis layers create players lazily.  The explicit helper is useful for
-        deterministic lived audits without changing those historical semantics.
-        """
+        """Create ordinary, Free Other and sandbox state for deterministic audits."""
         player = self.memory.load_player(str(player_id))
         if display_name is not None and str(display_name).strip():
             player.display_name = str(display_name).strip()[:160]
         self.memory.save_player(player)
         self.register_free_player(str(player_id))
-        profile = self.long_life_state(str(player_id))["profile"]
+        profile = self.sandbox_state(str(player_id))["actor"]
         return {
             "player_id": str(player_id),
             "display_name": player.display_name,
@@ -72,6 +69,92 @@ class BoundAssessorI0IntegrationPatchMixin:
             at_time=at_time,
             **legacy,
         )
+
+    @staticmethod
+    def _immutable_item_provenance(item: dict[str, Any]) -> dict[str, Any]:
+        """Seal origin facts while allowing voluntary ownership transfer."""
+        return {
+            "item_id": item["item_id"],
+            "name": item["name"],
+            "description": item["description"],
+            "origin_owner_id": item["origin_owner_id"],
+            "origin": item["origin"],
+            "origin_event": item["origin_event"],
+            "rarity": item["rarity"],
+            "assessed_value": item["assessed_value"],
+        }
+
+    def cast_item(
+        self,
+        player_id: str,
+        *,
+        name: str,
+        description: str,
+        rarity: int = 1,
+    ) -> dict[str, Any]:
+        created = super().cast_item(
+            player_id,
+            name=name,
+            description=description,
+            rarity=rarity,
+        )
+        store = self._sandbox_store()
+        item = store["items"][created["item_id"]]
+        item["origin_owner_id"] = str(player_id)
+        item["current_owner_id"] = str(player_id)
+        item["owner_id"] = str(player_id)  # compatibility alias for v18.7.10 market calls
+        item["provenance_hash"] = sha256_canonical(self._immutable_item_provenance(item))
+        self._write_json(self.sandbox_path, store)
+        return copy.deepcopy(item)
+
+    def buy_market_listing(self, buyer_id: str, listing_id: str) -> dict[str, Any]:
+        trade = super().buy_market_listing(buyer_id, listing_id)
+        store = self._sandbox_store()
+        item = store["items"][trade["item_id"]]
+        item.setdefault("origin_owner_id", str(trade["seller_id"]))
+        item["current_owner_id"] = str(buyer_id)
+        item["owner_id"] = str(buyer_id)
+        item["provenance_hash"] = sha256_canonical(self._immutable_item_provenance(item))
+        self._write_json(self.sandbox_path, store)
+        return copy.deepcopy(trade)
+
+    def verify_v1810_state(self) -> tuple[bool, dict[str, Any], str | None]:
+        assessor_valid, assessor_count, assessor_error = self.verify_bound_assessor_state()
+        constitution = self.frozen_constitution_state()
+        free_valid, players, others, free_error = self.verify_free_other_state()
+        sandbox = self._sandbox_store()
+        if not assessor_valid:
+            return False, {}, assessor_error
+        if not constitution["valid"]:
+            return False, {}, "frozen constitution invalid"
+        if not free_valid:
+            return False, {}, free_error
+        inventory_owners: dict[str, str] = {}
+        for actor_id, actor in sandbox.get("actors", {}).items():
+            for item_id in actor.get("inventory", []):
+                if item_id in inventory_owners:
+                    return False, {}, f"item appears in multiple inventories: {item_id}"
+                inventory_owners[item_id] = str(actor_id)
+        for item_id, item in sandbox["items"].items():
+            item.setdefault("origin_owner_id", item.get("owner_id"))
+            item.setdefault("current_owner_id", item.get("owner_id"))
+            expected = item.get("provenance_hash")
+            if expected != sha256_canonical(self._immutable_item_provenance(item)):
+                return False, {}, f"item provenance invalid: {item_id}"
+            current = str(item.get("current_owner_id"))
+            if str(item.get("owner_id")) != current:
+                return False, {}, f"item ownership alias mismatch: {item_id}"
+            if inventory_owners.get(item_id) != current:
+                return False, {}, f"item inventory ownership mismatch: {item_id}"
+        self._write_json(self.sandbox_path, sandbox)
+        return True, {
+            "assessments": assessor_count,
+            "players": players,
+            "free_others": others,
+            "sandbox_events": len(sandbox["events"]),
+            "sandbox_items": len(sandbox["items"]),
+            "sentinel": PLAYABLE_SENTINEL,
+        }, None
 
     def _apply_root_operation(self, store: dict[str, Any], operation: dict[str, Any]) -> None:
         if not isinstance(operation, dict):
