@@ -20,11 +20,11 @@ jobs:
         with:
           python-version: "3.11"
       - name: Compile lived audit
-        run: python -m py_compile experiments/unbought_voice_lived_audit_v18_7_8.py
+        run: PYTHONPATH=. python -m py_compile experiments/unbought_voice_lived_audit_v18_7_8.py
       - name: Enter Genesis and live the audit
         run: |
           set -o pipefail
-          python experiments/unbought_voice_lived_audit_v18_7_8.py | tee unbought-voice-lived-audit.log
+          PYTHONPATH=. python experiments/unbought_voice_lived_audit_v18_7_8.py | tee unbought-voice-lived-audit.log
       - name: Upload lived evidence
         if: always()
         uses: actions/upload-artifact@v4
