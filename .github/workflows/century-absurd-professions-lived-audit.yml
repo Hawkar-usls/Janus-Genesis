@@ -13,6 +13,8 @@ on:
 
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
 
 jobs:
   lived-audit:
@@ -39,9 +41,10 @@ jobs:
             --output lived-artifacts \
             2>&1 | tee lived-artifacts/century-workflow.log
       - name: Seal artifact manifest
+        id: seal
         run: |
           python - <<'PY'
-          import hashlib, json
+          import hashlib, json, os
           from pathlib import Path
           root = Path("lived-artifacts")
           rows = []
@@ -62,12 +65,39 @@ jobs:
               json.dumps(manifest, indent=2, sort_keys=True) + "\n",
               encoding="utf-8",
           )
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write(f"manifest_sha256={manifest['manifest_sha256']}\n")
           print(manifest["manifest_sha256"])
           PY
       - name: Upload lived evidence
+        id: upload
         uses: actions/upload-artifact@v4
         with:
           name: century-absurd-professions-v18.7.10-lived-record
           path: lived-artifacts/
           if-no-files-found: error
           retention-days: 7
+      - name: Publish evidence receipt to PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+          MANIFEST_SHA256: ${{ steps.seal.outputs.manifest_sha256 }}
+        run: |
+          body=$(cat <<EOF
+          ## Century lived-audit evidence receipt
+
+          - workflow run: \`${RUN_ID}\`
+          - run attempt: \`${RUN_ATTEMPT}\`
+          - artifact ID: \`${ARTIFACT_ID}\`
+          - artifact digest: \`${ARTIFACT_DIGEST}\`
+          - internal manifest SHA-256: \`${MANIFEST_SHA256}\`
+          - artifact: ${ARTIFACT_URL}
+
+          The receipt is emitted only after the 120-year script, all internal assertions, manifest sealing, and artifact upload succeed.
+          EOF
+          )
+          gh api repos/${{ github.repository }}/issues/47/comments -f body="$body"
