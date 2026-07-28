@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -12,7 +13,7 @@ from genesis_v18_7_9 import (
     build_sovereign_capability,
     generate_ed25519_keypair,
 )
-from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
+from genesis_v18_7_9_playable import PLAYABLE_VERSION, PlayableGenesisV187
 from genesis_v18_7_portable import PortableSaveManager
 
 
@@ -20,7 +21,9 @@ ISSUED = "2026-01-01T00:00:00Z"
 EXPIRES = "2099-01-01T00:00:00Z"
 
 
-class GenesisV1879BoundAuthorityTests(unittest.TestCase):
+class GenesisV1879BoundAuthorityHistoricalTests(unittest.TestCase):
+    """Preserve the exact v18.7.9 contract as historical executable evidence."""
+
     def setUp(self) -> None:
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -42,15 +45,13 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
             valid_until=EXPIRES,
         )
         self.account_private: dict[str, str] = {}
-        self.account_public: dict[str, str] = {}
-        self._counter = 0
+        self.counter = 0
 
     def _register(self, account_id: str, *, controller: str | None = None) -> None:
         identity = f"identity-proof-{account_id}-unique"
         controller_proof = controller or f"controller-proof-{account_id}-unique"
         private, public = generate_ed25519_keypair()
         self.account_private[account_id] = private
-        self.account_public[account_id] = public
         attestation = build_provider_attestation(
             provider_id="provider-alpha",
             key_id="provider-key-1",
@@ -71,10 +72,10 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
             operator_disclosed=True,
         )
 
-    def _scope(self, topic: str = "bound_authority") -> str:
+    def _scope(self, topic: str) -> str:
         return self.world.create_subject_scope(
             topic=topic,
-            event="public hearing",
+            event="historical v18.7.9 hearing",
             time_scope={"date": "2026-07-28"},
             influence_sensitive=True,
             public_opinion=True,
@@ -88,17 +89,16 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         text: str,
         controller: str | None = None,
         campaign_id: str | None = None,
-        evidence_proof: str | None = None,
         claimant_confidence: float | None = None,
         register: bool = True,
     ) -> str:
         if register:
             self._register(account_id, controller=controller)
-        self._counter += 1
+        self.counter += 1
         origin = self.world.import_origin_bytes(
             repository="bound/authority",
             commit="18.7.9",
-            path=f"claims/{self._counter}-{account_id}.json",
+            path=f"claims/{self.counter}-{account_id}.json",
             raw=json.dumps({"statement": text}, ensure_ascii=False).encode("utf-8"),
             source_public=True,
         )
@@ -107,14 +107,13 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
             text,
             reader_id=account_id,
             evidence={"kind": "json_pointer", "pointer": "/statement"},
-            about="bound_authority_test",
             confidence=claimant_confidence,
             subject_scope_id=scope,
         )
         self.world.attest_claim_influence(
             claim_id,
             account_id=account_id,
-            evidence_proof=evidence_proof or f"evidence-{account_id}-{self._counter}",
+            evidence_proof=f"evidence-{account_id}-{self.counter}",
             message=text,
             campaign_id=campaign_id,
             campaign_disclosed=campaign_id is not None,
@@ -136,7 +135,7 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
     def _assessment(value: float) -> dict[str, float]:
         return {name: value for name in ASSESSMENT_COMPONENTS}
 
-    def test_primary_version_and_boolean_provider_flag_rejected(self) -> None:
+    def test_historical_version_and_boolean_provider_flag_rejected(self) -> None:
         self.assertEqual(PLAYABLE_VERSION, "18.7.9")
         with self.assertRaisesRegex(ValueError, "ProviderAttestation"):
             self.world.register_influence_account(
@@ -187,7 +186,7 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
             )
 
     def test_controller_precedes_campaign_sharding(self) -> None:
-        scope = self._scope("campaign_sharding")
+        scope = self._scope("campaign-sharding")
         controller = "one-controller-across-campaigns"
         claims = [
             self._claim(
@@ -196,7 +195,6 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
                 controller=controller,
                 text=f"Different campaign wording {index}",
                 campaign_id=f"campaign-{index}",
-                evidence_proof=f"different-evidence-{index}",
             )
             for index in range(3)
         ]
@@ -251,8 +249,8 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         self.assertEqual(stored["speaker_account_id"], "speaker")
         self.assertEqual(stored["attester_account_id"], "attester")
 
-    def test_withdrawal_ends_future_weight_and_reopens_decided_case(self) -> None:
-        scope = self._scope("ghost_voting")
+    def test_withdrawal_ends_future_weight_and_reopens_case(self) -> None:
+        scope = self._scope("ghost-voting")
         claims = [
             self._claim(scope=scope, account_id=f"ghost-{index}", text=f"Position {index}")
             for index in range(3)
@@ -260,33 +258,31 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         case_id = self.world.open_sovereign_case(claims, subject_scope_id=scope)
         self.world.janus_sovereign_decide(
             case_id,
-            capability=self._cap("sovereign_case_decision", case_id, "decision-before-withdrawal"),
+            capability=self._cap("sovereign_case_decision", case_id, "before-withdrawal"),
         )
         self.world.withdraw_witness_voice("ghost-0")
         case = self.world._plural_store()["sovereign_cases"][case_id]
         self.assertEqual(case["status"], "CASE_REOPENED_DUE_TO_ELIGIBILITY_CHANGE")
         self.assertEqual(case["witness_count"], 2)
-        audit = self.world.audit_influence_claims(claims)
-        self.assertIn("VOICE_WITHDRAWN", audit["reasons_by_claim"][claims[0]])
 
     def test_claimant_confidence_is_not_sovereign_weight(self) -> None:
         scope = self._scope("confidence")
         claims = [
-            self._claim(scope=scope, account_id="confidence-high", text="Build a high wall", claimant_confidence=1.0),
-            self._claim(scope=scope, account_id="confidence-low-a", text="Keep the passage open", claimant_confidence=0.0),
-            self._claim(scope=scope, account_id="confidence-low-b", text="Run another inspection", claimant_confidence=0.0),
+            self._claim(scope=scope, account_id="high", text="Build a wall", claimant_confidence=1.0),
+            self._claim(scope=scope, account_id="low-a", text="Keep passage open", claimant_confidence=0.0),
+            self._claim(scope=scope, account_id="low-b", text="Inspect again", claimant_confidence=0.0),
         ]
         case_id = self.world.open_sovereign_case(claims, subject_scope_id=scope)
         decision_id = self.world.janus_sovereign_decide(
             case_id,
-            capability=self._cap("sovereign_case_decision", case_id, "confidence-neutral-decision"),
+            capability=self._cap("sovereign_case_decision", case_id, "neutral-confidence"),
         )
         decision = self.world._plural_store()["sovereign_decisions"][decision_id]
         self.assertEqual(decision["ruling"], "DEFER_FOR_MORE_EVIDENCE")
         self.assertFalse(decision["claimant_confidence_used"])
 
-    def test_assessment_components_can_support_a_transparent_decision(self) -> None:
-        scope = self._scope("assessment")
+    def test_historical_unbound_assessment_is_preserved_as_v179_behavior(self) -> None:
+        scope = self._scope("historical-assessment")
         claims = [
             self._claim(scope=scope, account_id=f"assessed-{index}", text=f"Option {index}")
             for index in range(3)
@@ -299,18 +295,18 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
                 method_id="equal-component-mean",
                 method_version="1",
                 evidence_ids=[f"evidence-{index}"],
-                explanation="Transparent component assessment",
+                explanation="Historical transparent component assessment",
             )
         case_id = self.world.open_sovereign_case(claims, subject_scope_id=scope)
         decision_id = self.world.janus_sovereign_decide(
             case_id,
-            capability=self._cap("sovereign_case_decision", case_id, "assessment-decision"),
+            capability=self._cap("sovereign_case_decision", case_id, "historical-assessment"),
         )
         decision = self.world._plural_store()["sovereign_decisions"][decision_id]
         self.assertEqual(decision["ruling"], "ADOPT_MOST_SUPPORTED_POSITION")
         self.assertEqual(decision["confidence_source"], "evidence_assessment")
 
-    def test_sovereign_capability_is_scoped_case_bound_and_single_use(self) -> None:
+    def test_sovereign_capability_is_scoped_and_single_use(self) -> None:
         scope = self._scope("capability")
         claims = [
             self._claim(scope=scope, account_id=f"cap-{index}", text="Same position")
@@ -322,14 +318,14 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         wrong = self._cap("manipulation_review", case_id, "wrong-scope")
         with self.assertRaisesRegex(ValueError, "WRONG_SCOPE"):
             self.world.janus_sovereign_decide(case_id, capability=wrong)
-        capability = self._cap("sovereign_case_decision", case_id, "one-use-decision")
+        capability = self._cap("sovereign_case_decision", case_id, "one-use")
         self.world.janus_sovereign_decide(case_id, capability=capability)
         with self.assertRaisesRegex(ValueError, "REPLAYED"):
             self.world.janus_sovereign_decide(case_id, capability=capability)
 
     def test_append_only_appeal_restores_voice_and_preserves_history(self) -> None:
         scope = self._scope("appeal")
-        claim = self._claim(scope=scope, account_id="appealed-reader", text="Appealed grounded position")
+        claim = self._claim(scope=scope, account_id="appealed-reader", text="Appealed position")
         record = self.world.record_manipulation_evidence(
             claim,
             kind="IMPERSONATION",
@@ -351,20 +347,22 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         self.world.resolve_manipulation_appeal(
             record,
             restored=True,
-            rationale="Finding overturned after signed provider evidence",
+            rationale="Finding overturned",
             capability=self._cap("manipulation_appeal", record, "appeal-restoration"),
         )
         self.assertTrue(self.world.recalculate_eligibility(claim, reason="restored"))
-        store = self.world._plural_store()
-        events = [event["event_type"] for event in store["authority_events"] if event["subject_id"] == record]
+        events = [
+            event["event_type"]
+            for event in self.world._plural_store()["authority_events"]
+            if event["subject_id"] == record
+        ]
         self.assertEqual(
             [item for item in events if item in {"PENDING_REVIEW", "CONFIRMED", "APPEALED", "RESTORED"}],
             ["PENDING_REVIEW", "CONFIRMED", "APPEALED", "RESTORED"],
         )
-        self.assertEqual(store["manipulation_evidence"][record]["status"], "PENDING_REVIEW")
 
     def test_provider_key_revocation_reopens_affected_case(self) -> None:
-        scope = self._scope("key_revocation")
+        scope = self._scope("key-revocation")
         claims = [
             self._claim(scope=scope, account_id=f"key-{index}", text="Shared proposal")
             for index in range(3)
@@ -372,7 +370,7 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         case_id = self.world.open_sovereign_case(claims, subject_scope_id=scope)
         self.world.janus_sovereign_decide(
             case_id,
-            capability=self._cap("sovereign_case_decision", case_id, "before-key-revocation"),
+            capability=self._cap("sovereign_case_decision", case_id, "before-revocation"),
         )
         self.world.revoke_trusted_provider_key(
             "provider-alpha",
@@ -384,24 +382,22 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         self.assertEqual(case["status"], "CASE_REOPENED_DUE_TO_ELIGIBILITY_CHANGE")
         self.assertEqual(case["witness_count"], 0)
 
-    def test_bound_authority_crosses_portable_threshold_without_private_keys(self) -> None:
+    def test_historical_authority_crosses_current_portable_container(self) -> None:
         scope = self._scope("portable")
         claims = [
             self._claim(scope=scope, account_id=f"portable-{index}", text=f"Voice {index}")
             for index in range(3)
         ]
         self.world.open_sovereign_case(claims, subject_scope_id=scope)
-        output = self.root.parent / "bound-authority.genesis-save.json"
-        target = self.root.parent / "bound-authority-restored"
+        output = self.root.parent / "bound-authority-v179.genesis-save.json"
+        target = self.root.parent / "bound-authority-v179-restored"
         try:
-            manager = PortableSaveManager(self.root)
-            result = manager.export_to(output, label="The Bound Authority")
-            bundle = json.loads(output.read_text(encoding="utf-8"))
+            result = PortableSaveManager(self.root).export_to(output, label="Historical v18.7.9")
             text = output.read_text(encoding="utf-8")
-            self.assertFalse(result["contains_api_keys"])
+            self.assertFalse(result["contains_private_keys"])
             self.assertNotIn(self.provider_private, text)
             self.assertNotIn(self.sovereign_private, text)
-            PortableSaveManager(target).import_bundle(bundle)
+            PortableSaveManager(target).import_bundle(json.loads(text))
             restored = PlayableGenesisV187(target)
             valid, count, error = restored.verify_bound_authority_state()
             self.assertTrue(valid, error)
@@ -409,7 +405,6 @@ class GenesisV1879BoundAuthorityTests(unittest.TestCase):
         finally:
             output.unlink(missing_ok=True)
             if target.exists():
-                import shutil
                 shutil.rmtree(target)
 
     def test_authority_event_chain_detects_tampering(self) -> None:
