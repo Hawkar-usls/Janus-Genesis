@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Security, relationship and provenance integration patch for v18.7.10."""
+"""Security and relationship integration patch for Genesis v18.7.10."""
 from __future__ import annotations
 
 import copy
 from typing import Any
 
-from genesis_v18_7_10 import SOURCE, sha256_canonical
+from genesis_v18_7_10 import SOURCE
 
 
 class BoundAssessorI0IntegrationPatchMixin:
@@ -19,6 +19,58 @@ class BoundAssessorI0IntegrationPatchMixin:
     def register_sovereign_key(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         raise PermissionError(
             "ROOT_GOVERNANCE_MANIFEST_REQUIRED: ordinary runtime cannot trust sovereign roots"
+        )
+
+    def register_player(
+        self,
+        player_id: str,
+        *,
+        display_name: str | None = None,
+    ) -> dict[str, Any]:
+        """Create the ordinary player, Free Other profile and long-life profile together.
+
+        Older Genesis layers create players lazily.  The explicit helper is useful for
+        deterministic lived audits without changing those historical semantics.
+        """
+        player = self.memory.load_player(str(player_id))
+        if display_name is not None and str(display_name).strip():
+            player.display_name = str(display_name).strip()[:160]
+        self.memory.save_player(player)
+        self.register_free_player(str(player_id))
+        profile = self.long_life_state(str(player_id))["profile"]
+        return {
+            "player_id": str(player_id),
+            "display_name": player.display_name,
+            "long_life_profile": copy.deepcopy(profile),
+        }
+
+    def _normalize_controller_clusters_v1810(self) -> None:
+        """Migrate v18.7.8/9 account records to one controller comparison field."""
+        store = self._plural_store()
+        changed = False
+        for account in store.get("influence_accounts", {}).values():
+            if not isinstance(account, dict):
+                continue
+            if not account.get("controller_cluster") and account.get("controller_proof_sha256"):
+                account["controller_cluster"] = account["controller_proof_sha256"]
+                changed = True
+        if changed:
+            self._write_json(self.plural_witness_path, store)
+
+    def record_evidence_assessment(
+        self,
+        claim_id: str,
+        *,
+        assessment: dict[str, Any] | None = None,
+        at_time: Any = None,
+        **legacy: Any,
+    ) -> str:
+        self._normalize_controller_clusters_v1810()
+        return super().record_evidence_assessment(
+            claim_id,
+            assessment=assessment,
+            at_time=at_time,
+            **legacy,
         )
 
     def _apply_root_operation(self, store: dict[str, Any], operation: dict[str, Any]) -> None:
@@ -100,82 +152,3 @@ class BoundAssessorI0IntegrationPatchMixin:
             "relationship_mutated": False,
             "source": SOURCE,
         }
-
-    # ------------------------------------------------------------------
-    # Immutable item origin, mutable ownership
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _item_origin_material(item: dict[str, Any]) -> dict[str, Any]:
-        return {
-            "item_id": item["item_id"],
-            "name": item["name"],
-            "description": item["description"],
-            "origin": item["origin"],
-            "origin_event": item["origin_event"],
-            "rarity": item["rarity"],
-            "assessed_value": item["assessed_value"],
-            "origin_owner_id": item["origin_owner_id"],
-        }
-
-    def cast_item(
-        self,
-        player_id: str,
-        *,
-        name: str,
-        description: str,
-        rarity: int = 1,
-    ) -> dict[str, Any]:
-        created = super().cast_item(
-            player_id,
-            name=name,
-            description=description,
-            rarity=rarity,
-        )
-        store = self._sandbox_store()
-        item = store["items"][created["item_id"]]
-        item["origin_owner_id"] = player_id
-        item["current_owner_id"] = item["owner_id"]
-        item["provenance_hash"] = sha256_canonical(self._item_origin_material(item))
-        self._write_json(self.sandbox_path, store)
-        return copy.deepcopy(item)
-
-    def buy_market_listing(self, buyer_id: str, listing_id: str) -> dict[str, Any]:
-        trade = super().buy_market_listing(buyer_id, listing_id)
-        store = self._sandbox_store()
-        item = store["items"][trade["item_id"]]
-        item["current_owner_id"] = buyer_id
-        self._write_json(self.sandbox_path, store)
-        return copy.deepcopy(trade)
-
-    def verify_v1810_state(self) -> tuple[bool, dict[str, Any], str | None]:
-        assessor_valid, assessor_count, assessor_error = self.verify_bound_assessor_state()
-        constitution = self.frozen_constitution_state()
-        free_valid, players, others, free_error = self.verify_free_other_state()
-        sandbox = self._sandbox_store()
-        if not assessor_valid:
-            return False, {}, assessor_error
-        if not constitution["valid"]:
-            return False, {}, "frozen constitution invalid"
-        if not free_valid:
-            return False, {}, free_error
-        for item_id, item in sandbox["items"].items():
-            expected = item.get("provenance_hash")
-            if "origin_owner_id" in item:
-                calculated = sha256_canonical(self._item_origin_material(item))
-            else:
-                legacy = copy.deepcopy(item)
-                legacy.pop("provenance_hash", None)
-                calculated = sha256_canonical(legacy)
-            if expected != calculated:
-                return False, {}, f"item provenance invalid: {item_id}"
-            current_owner = item.get("current_owner_id", item.get("owner_id"))
-            if current_owner != item.get("owner_id"):
-                return False, {}, f"item ownership projection mismatch: {item_id}"
-        return True, {
-            "assessments": assessor_count,
-            "players": players,
-            "free_others": others,
-            "sandbox_events": len(sandbox["events"]),
-            "sandbox_items": len(sandbox["items"]),
-        }, None
