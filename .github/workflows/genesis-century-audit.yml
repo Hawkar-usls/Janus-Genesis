@@ -1,0 +1,46 @@
+name: Genesis century lived audit
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-live-century:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+
+      - name: Run complete test suite
+        run: python -m unittest discover -s tests -p "test_*.py"
+
+      - name: Run deterministic century lived audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_century_lived_audit.py \
+            --output-dir artifacts/century-lived-audit \
+            --git-commit "$COMMIT"
+
+      - name: Upload proofpack and report
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-century-lived-audit
+          path: artifacts/century-lived-audit
+          if-no-files-found: error
+          retention-days: 30
