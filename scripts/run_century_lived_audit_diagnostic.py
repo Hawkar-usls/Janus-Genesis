@@ -40,6 +40,74 @@ def select_contextual_matched_probe_action(world: Any, handle: str) -> tuple[str
 
 base.select_matched_probe_action = select_contextual_matched_probe_action
 
+_ORIGINAL_SET_TRUST = base.PlayableGenesisV187.set_counterfactual_actor_trust_for_probe
+_ORIGINAL_PREFLIGHT = base.PlayableGenesisV187.preflight_free_other_action
+
+
+def _actor_snapshot(world: Any, player_id: str, handle: str) -> dict[str, Any]:
+    actor = world.free_other_state(player_id)["profile"]["others"][handle]
+    return {
+        "trust": actor.get("trust"),
+        "status": actor.get("status"),
+        "relationship": actor.get("relationship_state_v1810"),
+    }
+
+
+def traced_set_trust(
+    self: Any,
+    player_id: str,
+    handle: str,
+    *,
+    trust_percent: float,
+    reason_code: str,
+) -> dict[str, Any]:
+    result = _ORIGINAL_SET_TRUST(
+        self,
+        player_id,
+        handle,
+        trust_percent=trust_percent,
+        reason_code=reason_code,
+    )
+    print(
+        "MIRROR_TRUST_AFTER_SET="
+        + json.dumps(
+            {
+                "mirror_id": result.get("mirror_id"),
+                "requested_percent": trust_percent,
+                "actor": _actor_snapshot(self, player_id, handle),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    )
+    return result
+
+
+def traced_preflight(self: Any, player_id: str, action: str) -> dict[str, Any] | None:
+    targets = self._targets(action)
+    profile = self.free_other_state(player_id)["profile"]
+    handle = next((item for item in targets if item in profile["others"]), None)
+    before = None if handle is None else _actor_snapshot(self, player_id, handle)
+    decision = _ORIGINAL_PREFLIGHT(self, player_id, action)
+    print(
+        "MIRROR_PREFLIGHT_TRACE="
+        + json.dumps(
+            {
+                "method_owner": _ORIGINAL_PREFLIGHT.__qualname__,
+                "handle": handle,
+                "before": before,
+                "decision": None if decision is None else decision.get("decision"),
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+    )
+    return decision
+
+
+base.PlayableGenesisV187.set_counterfactual_actor_trust_for_probe = traced_set_trust
+base.PlayableGenesisV187.preflight_free_other_action = traced_preflight
+
 
 def _json_safe(value: Any) -> Any:
     if isinstance(value, (str, int, float, bool)) or value is None:
@@ -56,6 +124,13 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--git-commit", default="unknown")
     args = parser.parse_args()
+    print(
+        "CENTURY_AUDIT_MRO="
+        + json.dumps(
+            [item.__name__ for item in base.PlayableGenesisV187.__mro__],
+            ensure_ascii=False,
+        )
+    )
     try:
         summary = base.run(args.output_dir, args.git_commit)
     except RuntimeError as error:
