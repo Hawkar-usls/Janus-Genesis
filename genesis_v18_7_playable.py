@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.10 plus v18.7.11 extensions."""
+"""Playable Genesis v18.7.10 with separately versioned extensions through v18.7.12."""
 from __future__ import annotations
 
 import re
@@ -31,12 +31,15 @@ from genesis_v18_7_10_rupture_voice import RuptureVoiceIntegrityMixin
 from genesis_v18_7_11_joy_covenant import JoyCovenantMixin
 from genesis_v18_7_11_relationship_integrity import RelationshipEpistemicIntegrityMixin
 from genesis_v18_7_11_storage_hardening import SealedMirrorStorageMixin
+from genesis_v18_7_12_family_life import WildLightFamilyMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
 PLAYABLE_VERSION = "18.7.10"
 EXTENSION_VERSION = "18.7.11"
+FAMILY_EXTENSION_VERSION = "18.7.12"
+ACTIVE_EXTENSION_VERSIONS = (EXTENSION_VERSION, FAMILY_EXTENSION_VERSION)
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -59,6 +62,7 @@ class PlayableGenesisV187(
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
     RelationshipEpistemicIntegrityMixin,
+    WildLightFamilyMixin,
     JoyCovenantMixin,
     SealedMirrorStorageMixin,
     CounterfactualRelationshipProbeMixin,
@@ -76,7 +80,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.10 runtime with v18.7.11 sealed-mirror and joy extensions."""
+    """v18.7.10 runtime with sealed joy and family-life extensions."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
