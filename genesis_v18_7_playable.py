@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.10."""
+"""Playable natural-language layer for Genesis v18.7.10 plus v18.7.11 extensions."""
 from __future__ import annotations
 
 import re
@@ -28,11 +28,15 @@ from genesis_v18_7_10_patch import BoundAssessorI0IntegrationPatchMixin
 from genesis_v18_7_10_proofpack_completion import LivedAuditCompletionIntegrityMixin
 from genesis_v18_7_10_relationship_probe import CounterfactualRelationshipProbeMixin
 from genesis_v18_7_10_rupture_voice import RuptureVoiceIntegrityMixin
+from genesis_v18_7_11_joy_covenant import JoyCovenantMixin
+from genesis_v18_7_11_relationship_integrity import RelationshipEpistemicIntegrityMixin
+from genesis_v18_7_11_storage_hardening import SealedMirrorStorageMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
 PLAYABLE_VERSION = "18.7.10"
+EXTENSION_VERSION = "18.7.11"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -54,6 +58,9 @@ class PlayableGenesisV187(
     ReactiveBoundAuthorityVerifierMixin,
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
+    RelationshipEpistemicIntegrityMixin,
+    JoyCovenantMixin,
+    SealedMirrorStorageMixin,
     CounterfactualRelationshipProbeMixin,
     MirrorIsolationIntegrityMixin,
     RuptureVoiceIntegrityMixin,
@@ -69,7 +76,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.10 runtime with bound assessment and I0 audit discipline."""
+    """v18.7.10 runtime with v18.7.11 sealed-mirror and joy extensions."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
@@ -99,8 +106,13 @@ class PlayableGenesisV187(
         self.BLOCKED_RELATIONAL_STATUSES = set(
             self.BLOCKED_RELATIONAL_STATUSES
         ) | {"INTENTION_WITNESSED"}
+        self.recover_incomplete_mirror_archives()
 
     def process_action(self, player_id: str, action: str):
+        joy_result = self.try_blessed_joy_action(player_id, action)
+        if joy_result is not None:
+            return joy_result
+
         frame = self.analyze_intention(action)
         if frame.mode in NON_EXECUTING_MODES:
             good_before = self.memory.load_player(player_id).good_count
@@ -133,7 +145,12 @@ class PlayableGenesisV187(
             )
 
         decision = self.preflight_free_other_action(player_id, action)
-        if decision and decision["decision"] in {"refused", "alternative", "away", "terminated"}:
+        if decision and decision["decision"] in {
+            "refused",
+            "alternative",
+            "away",
+            "terminated",
+        }:
             good_before = self.memory.load_player(player_id).good_count
             unrealized = self.unrealized_free_other_result(player_id, decision)
             if "не стало совершившимся действием" not in unrealized.narrative:
