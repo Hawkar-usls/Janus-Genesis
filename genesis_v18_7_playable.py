@@ -23,6 +23,7 @@ from genesis_v18_7_5_repair import DerivedRepairMixin
 from genesis_v18_7_7 import BenevolentSovereignMixin
 from genesis_v18_7_7_voice_integrity import SovereignVoiceIntegrityMixin
 from genesis_v18_7_10 import BoundAssessorI0Mixin
+from genesis_v18_7_10_mirror_integrity import MirrorIsolationIntegrityMixin
 from genesis_v18_7_10_patch import BoundAssessorI0IntegrationPatchMixin
 from genesis_v18_7_10_proofpack_completion import LivedAuditCompletionIntegrityMixin
 from genesis_v18_7_10_rupture_voice import RuptureVoiceIntegrityMixin
@@ -52,6 +53,7 @@ class PlayableGenesisV187(
     ReactiveBoundAuthorityVerifierMixin,
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
+    MirrorIsolationIntegrityMixin,
     RuptureVoiceIntegrityMixin,
     BoundAssessorI0IntegrationPatchMixin,
     BoundAssessorI0Mixin,
