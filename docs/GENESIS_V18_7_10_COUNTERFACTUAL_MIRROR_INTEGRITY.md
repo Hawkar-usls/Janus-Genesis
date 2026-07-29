@@ -41,18 +41,19 @@ The separate runtime/data-root boundary is slower but auditable. Files can be ha
 
 ## Strengthened invariants
 
-The integrity mixin adds these gates:
+The integrity layer adds these gates:
 
 1. **Disjoint roots.** A mirror root may not equal, contain or be contained by the canonical data root.
 2. **Empty destination.** A supplied mirror directory must be empty.
 3. **No symlinks.** Audit state may not escape either root through a symbolic link.
 4. **Byte-verified fork.** Canonical protected files are hashed before the fork and compared with the copied snapshot before the mirror runtime opens.
 5. **Running-audit lease.** A mirror can be created only for a `RUNNING` lived audit and is registered as active.
-6. **Counterfactual-only interventions.** Controlled variables such as `trust=0` or `trust=95` can be set only in a branch carrying a valid `UNREALIZED_MIRROR` manifest.
-7. **Numeric metric gate.** Canon receives only flat, finite numeric metrics. Raw dialogue, nested objects and arbitrary text are rejected.
-8. **Canon freeze check.** At archive time the protected canonical snapshot must still match its fork hash. Any change produces `FAIL_CLOSED_CANONICAL_CONTAMINATION` and the branch is not promoted.
-9. **Destructive cleanup.** A successful archive destroys the working mirror directory by default and records whether removal succeeded.
-10. **No automatic canon mutation.** Butterfly Witness may emit evidence status but never applies a change.
+6. **Counterfactual-only interventions.** Controlled variables such as relationship trust `0` or `95` can be set only in a branch carrying a valid `UNREALIZED_MIRROR` manifest.
+7. **Relationship life only.** The trust probe changes the authoritative `relationship_bond` / `relationship_score` projection and its legacy trust view, but does not mutate `actor_life_v1810`.
+8. **Numeric metric gate.** Canon receives only flat, finite numeric metrics. Raw dialogue, nested objects and arbitrary text are rejected.
+9. **Canon freeze check.** At archive time the protected canonical snapshot must still match its fork hash. Any change produces `FAIL_CLOSED_CANONICAL_CONTAMINATION` and the branch is not promoted.
+10. **Destructive cleanup.** A successful archive destroys the working mirror directory by default and records whether removal succeeded.
+11. **No automatic canon mutation.** Butterfly Witness may emit evidence status but never applies a change.
 
 The I0 audit bookkeeping file is excluded from the protected-world hash because opening, archiving and reporting a mirror must update that ledger. Chronicle, HRaiN, Free Other, player and sandbox state remain protected.
 
@@ -90,20 +91,21 @@ repeated stable metric            -> PROMOTE_TO_REGRESSION
 
 `CANON_CHANGE_CANDIDATE` is still not canon. It must pass a separate Canon Birth Gate.
 
-## Same-seed trust A/B probe
+## Same-seed relationship-trust A/B probe
 
 The century audit forks six branches from one canonical snapshot:
 
 ```text
-3 windows × trust=0
-3 windows × trust=95
+3 windows × relationship trust=0
+3 windows × relationship trust=95
 same world seed
 same world turn
 same Free Other
 same action fingerprint
+same Benevolent Sovereign consent law
 ```
 
-The trust value is an explicit controlled intervention recorded only inside each mirror. The action is white-box selected so the deterministic consent gate falls between the two trust thresholds. This is useful for testing implementation sensitivity, but it is not presented as a naturalistic law of relationships.
+The intervention is recorded only inside each mirror. Genesis selects one action whose deterministic `benevolent-consent` gate lies between the actual low and high acceptance thresholds. The final audit then requires three low-trust non-acceptances, three high-trust acceptances and a `PROMOTE_TO_REGRESSION` Butterfly verdict. This demonstrates implementation sensitivity; it is not presented as a naturalistic or universal law of relationships.
 
 ## Future SQLite adapter
 
