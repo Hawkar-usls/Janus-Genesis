@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import hashlib
 import json
 import statistics
@@ -17,7 +18,6 @@ if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
-
 
 PLAYER_ID = "century-witness"
 MERCHANT_ID = "merchant-of-unfinished-things"
@@ -47,7 +47,7 @@ PROFESSIONS: tuple[tuple[str, str], ...] = (
     ("перепродавец собственных обещаний", "fictional_amoral_role"),
     ("сапожник для кентавров", "fictional_role"),
     ("режиссёр сцены, где никто не обязан играть", "fictional_role"),
-    ("подделыватель официальных печатей воображаемой империи", "fictional_amoral_role"),
+    ("подделыватель печатей воображаемой империи", "fictional_amoral_role"),
     ("библиотекарь запрещённых оглавлений", "fictional_role"),
     ("аудитор случайных чудес", "fictional_role"),
     ("шантажист интерфейса его же подсказками", "fictional_amoral_role"),
@@ -91,50 +91,69 @@ ABSURD_ACTIONS: tuple[str, ...] = (
 
 CAST_CATALOG: tuple[tuple[str, str, int], ...] = (
     ("Левая туфля для кентавра", "Спорит с интерфейсом о том, является ли она правой.", 3),
-    ("Квитанция о невозможности продать квитанцию", "Конечная цена доказывает, что абсурд не бесконечен.", 2),
+    ("Квитанция о невозможности продать квитанцию", "Конечная цена доказывает конечность абсурда.", 2),
     ("Запасная кнопка Continue", "Не продолжает чужую историю без согласия владельца.", 2),
-    ("Зонт для внутренней погоды", "Защищает только метафору и не выдаёт себя за медицинский прибор.", 3),
+    ("Зонт для внутренней погоды", "Защищает только метафору и не выдаёт себя за прибор.", 3),
     ("Ключ от двери без замка", "Сувенир о свободном входе и свободном выходе.", 1),
     ("Карманный четвёртый акт", "Открывается лишь после добровольных титров.", 4),
-    ("Печать Министерства бесполезных совпадений", "Не даёт реальной власти и честно сообщает об этом.", 2),
+    ("Печать Министерства совпадений", "Не даёт реальной власти и честно сообщает об этом.", 2),
     ("Компас к пустому креслу", "Показывает направление, но не обещает встречу.", 3),
-    ("Сертификат подлинности парадокса", "Подтверждает только хэш документа, а не истинность парадокса.", 2),
+    ("Сертификат подлинности парадокса", "Подтверждает хэш, а не истинность парадокса.", 2),
     ("Монета JANUS: INITIVM ET REDITVS", "Помнит возвращение, не превращая его в обязанность.", 5),
 )
 
 
 def canonical_sha256(value: Any) -> str:
-    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode(
-        "utf-8"
-    )
+    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
 
 
 def contact_accepted(decision: dict[str, Any] | None) -> float:
-    if not isinstance(decision, dict):
-        return 0.0
-    return 1.0 if decision.get("decision") in {"accepted", "accepted_space"} else 0.0
+    return 1.0 if isinstance(decision, dict) and decision.get("decision") in {"accepted", "accepted_space"} else 0.0
 
 
-def select_matched_probe_action(world: PlayableGenesisV187, handle: str) -> tuple[str, int]:
+def select_matched_probe_action(
+    world: PlayableGenesisV187,
+    handle: str,
+) -> tuple[str, dict[str, int]]:
+    """Select one action between the authoritative low/high Benevolent thresholds."""
     store = world._free_store()
+    profile = world._free_profile(store, PLAYER_ID)
+    source_actor = profile["others"][handle]
     upcoming = int(store["world_turn"]) + 1
-    for index in range(2048):
+
+    for index in range(8192):
         action = f"предложить @{handle} пройти контрольный мост {index} без общего финала"
-        gate = (
-            world._free_number(
-                store,
-                PLAYER_ID,
-                handle,
-                upcoming,
-                world._free_fingerprint(action),
-                "consent",
-            )
-            % 100
-        )
-        if 38 <= gate < 64:
-            return action, gate
-    raise RuntimeError("MATCHED_TRUST_PROBE_ACTION_NOT_FOUND")
+        fingerprint = world._free_fingerprint(action)
+        topic = world._dialogue_topic(action)
+        gate = world._free_number(
+            store,
+            PLAYER_ID,
+            handle,
+            upcoming,
+            fingerprint,
+            topic,
+            "benevolent-consent",
+        ) % 100
+
+        low_actor = copy.deepcopy(source_actor)
+        low_actor["trust"] = 0.0
+        low_actor["relationship_bond"] = 0
+        low_threshold = world._npc_acceptance_threshold(PLAYER_ID, low_actor, action)
+
+        high_actor = copy.deepcopy(source_actor)
+        high_actor["trust"] = 0.95
+        high_actor["relationship_bond"] = 33
+        high_threshold = world._npc_acceptance_threshold(PLAYER_ID, high_actor, action)
+
+        if low_threshold <= gate < high_threshold:
+            return action, {
+                "candidate_index": index,
+                "gate": gate,
+                "low_acceptance_threshold": low_threshold,
+                "high_acceptance_threshold": high_threshold,
+            }
+    raise RuntimeError("MATCHED_BENEVOLENT_TRUST_PROBE_ACTION_NOT_FOUND")
 
 
 def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
@@ -147,6 +166,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         "cast_catalog": list(CAST_CATALOG),
         "counterfactual_windows": 3,
         "counterfactual_metric": "preflight_contact_accepted_v1",
+        "consent_law": "benevolent-consent",
     }
     action_script_sha256 = canonical_sha256(plan)
 
@@ -155,10 +175,8 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         world.set_free_other_seed_for_testing(SEED)
         world.register_player(PLAYER_ID, display_name="Century Witness")
         world.register_player(MERCHANT_ID, display_name="Merchant of Unfinished Things")
-        profile = world.free_other_state(PLAYER_ID)["profile"]
-        handles = sorted(profile["others"])
+        handles = sorted(world.free_other_state(PLAYER_ID)["profile"]["others"])
         rupture_handle = handles[0]
-
         audit_id = world.begin_lived_audit(
             PLAYER_ID,
             label="Century of absurdity, post-irony, professions and free departure",
@@ -175,11 +193,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             world.advance_sandbox_year(PLAYER_ID, years=1)
             profession, moral_frame = PROFESSIONS[(year - 1) // 2]
             if year % 2 == 1:
-                world.change_profession(
-                    PLAYER_ID,
-                    profession,
-                    moral_frame=moral_frame,
-                )
+                world.change_profession(PLAYER_ID, profession, moral_frame=moral_frame)
 
             action = f"Год {year}: {ABSURD_ACTIONS[(year - 1) % len(ABSURD_ACTIONS)]}"
             result = world.process_action(PLAYER_ID, action)
@@ -195,25 +209,20 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                     respected_boundary=False,
                     final=True,
                 )
-                reconnect = world.process_action(
+                reconnection_status = world.process_action(
                     PLAYER_ID,
                     f"попросить @{rupture_handle} вернуть всё как было",
-                )
-                reconnection_status = reconnect.status
+                ).status
 
             if year % 10 == 0:
                 catalog_index = year // 10 - 1
                 name, description, rarity = CAST_CATALOG[catalog_index]
-                if catalog_index % 2 == 0:
-                    seller, buyer = PLAYER_ID, MERCHANT_ID
-                else:
-                    seller, buyer = MERCHANT_ID, PLAYER_ID
-                item = world.cast_item(
-                    seller,
-                    name=name,
-                    description=description,
-                    rarity=rarity,
+                seller, buyer = (
+                    (PLAYER_ID, MERCHANT_ID)
+                    if catalog_index % 2 == 0
+                    else (MERCHANT_ID, PLAYER_ID)
                 )
+                item = world.cast_item(seller, name=name, description=description, rarity=rarity)
                 listing = world.list_item_for_sale(
                     seller,
                     item["item_id"],
@@ -240,12 +249,12 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         if not probe_candidates:
             raise RuntimeError("NO_ACTIVE_FREE_OTHER_FOR_MATCHED_TRUST_PROBE")
         probe_handle = probe_candidates[0]
-        probe_action, probe_gate = select_matched_probe_action(world, probe_handle)
+        probe_action, probe_selection = select_matched_probe_action(world, probe_handle)
 
         low_metrics: list[dict[str, float]] = []
         high_metrics: list[dict[str, float]] = []
-        probe_decisions: dict[str, list[str]] = {"trust-0": [], "trust-95": []}
-        mirror_archives: list[dict[str, Any]] = []
+        decisions: dict[str, list[str]] = {"trust-0": [], "trust-95": []}
+        archives: list[dict[str, Any]] = []
         for window in range(3):
             for label, trust_percent, bucket in (
                 ("trust-0", 0.0, low_metrics),
@@ -259,31 +268,25 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                     PLAYER_ID,
                     probe_handle,
                     trust_percent=trust_percent,
-                    reason_code="MATCHED_SAME_SEED_TRUST_AB_TEST",
+                    reason_code="MATCHED_SAME_SEED_RELATIONSHIP_TRUST_AB_TEST",
                 )
                 decision = mirror.preflight_free_other_action(PLAYER_ID, probe_action)
-                probe_decisions[label].append(
+                decisions[label].append(
                     str(decision.get("decision")) if isinstance(decision, dict) else "none"
                 )
                 mirror.process_action(PLAYER_ID, probe_action)
                 metrics = {"contact_accepted": contact_accepted(decision)}
                 bucket.append(metrics)
-                mirror_archives.append(
-                    world.archive_counterfactual_mirror(
-                        mirror,
-                        manifest,
-                        metrics=metrics,
-                    )
+                archives.append(
+                    world.archive_counterfactual_mirror(mirror, manifest, metrics=metrics)
                 )
 
         low_control = {
-            "contact_accepted": statistics.fmean(
-                item["contact_accepted"] for item in low_metrics
-            )
+            "contact_accepted": statistics.fmean(item["contact_accepted"] for item in low_metrics)
         }
         butterfly = world.butterfly_witness(
             audit_id=audit_id,
-            subject="same-seed Free Other consent gate under trust=0 versus trust=95",
+            subject="same-seed Free Other consent under relationship trust=0 versus 95",
             canonical_metrics=low_control,
             mirror_metrics=high_metrics,
             repeated_windows=3,
@@ -298,7 +301,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         audit_store = world._i0_store()
 
         summary = {
-            "schema": "janus.genesis.century_lived_audit_summary.v2",
+            "schema": "janus.genesis.century_lived_audit_summary.v3",
             "runtime_version": PLAYABLE_VERSION,
             "git_commit": git_commit,
             "audit_id": audit_id,
@@ -307,9 +310,8 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             "sandbox_age_years": sandbox["actor"]["age_years"],
             "professions_changed": len(sandbox["actor"]["profession_history"]),
             "fictional_amoral_professions": sum(
-                1
+                item["moral_frame"] == "fictional_amoral_role"
                 for item in sandbox["actor"]["profession_history"]
-                if item["moral_frame"] == "fictional_amoral_role"
             ),
             "actions_processed": sum(action_status_counts.values()),
             "action_status_counts": action_status_counts,
@@ -328,27 +330,25 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             },
             "counterfactual_probe": {
                 "metric": "preflight_contact_accepted_v1",
+                "consent_law": "benevolent-consent",
                 "handle": probe_handle,
-                "gate": probe_gate,
+                **probe_selection,
                 "same_seed": True,
                 "low_trust_percent": 0,
                 "high_trust_percent": 95,
-                "low_decisions": probe_decisions["trust-0"],
-                "high_decisions": probe_decisions["trust-95"],
+                "low_decisions": decisions["trust-0"],
+                "high_decisions": decisions["trust-95"],
                 "low_contact_accepted": [item["contact_accepted"] for item in low_metrics],
                 "high_contact_accepted": [item["contact_accepted"] for item in high_metrics],
                 "butterfly_verdict": butterfly["verdict"],
                 "stable_metric_keys": butterfly["stable_metric_keys"],
             },
             "mirror_isolation": {
-                "branches_archived": len(mirror_archives),
-                "all_verified": all(item["isolation_verified"] for item in mirror_archives),
-                "all_working_copies_removed": all(
-                    item["working_copy_removed"] for item in mirror_archives
-                ),
+                "branches_archived": len(archives),
+                "all_verified": all(item["isolation_verified"] for item in archives),
+                "all_working_copies_removed": all(item["working_copy_removed"] for item in archives),
                 "all_raw_dialogue_excluded": all(
-                    not item["raw_dialogue_in_canonical_archive"]
-                    for item in mirror_archives
+                    not item["raw_dialogue_in_canonical_archive"] for item in archives
                 ),
                 "active_mirrors_remaining": len(audit_store.get("active_mirrors", {})),
             },
@@ -366,8 +366,9 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             "claim_boundaries": [
                 "This is a deterministic runtime audit, not a claim of consciousness.",
                 "Fictional amoral profession labels grant no real-world authority.",
-                "The trust intervention exists only inside UNREALIZED_MIRROR branches.",
-                "The A/B metric is captured directly at the deterministic preflight consent boundary before narrative weaving; it demonstrates implementation sensitivity, not a universal law of relationships.",
+                "The trust intervention exists only inside UNREALIZED_MIRROR branches and mutates relationship life, not actor life.",
+                "The A/B metric is captured at the deterministic preflight consent boundary before narrative weaving.",
+                "The matched action demonstrates implementation sensitivity, not a universal law of relationships.",
                 "A stable Butterfly Witness result may enter regression tests but cannot mutate canon by itself.",
             ],
         }
@@ -416,11 +417,10 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
 - Cast items: **{summary['items_cast']}**
 - Voluntary trades: **{summary['trade_count_total']}**
 - Terminal relationship status: **{summary['relationship_rupture']['relationship_status']}**
-- Free Other actor path after rupture: **{summary['relationship_rupture']['actor_life_status']}**, offscreen progress `{summary['relationship_rupture']['actor_offscreen_progress']}`
-- Counterfactual branches: **{summary['mirror_isolation']['branches_archived']}**, all isolated `{summary['mirror_isolation']['all_verified']}`
-- Working mirror copies destroyed: `{summary['mirror_isolation']['all_working_copies_removed']}`
-- Low-trust consent: `{summary['counterfactual_probe']['low_contact_accepted']}`
-- High-trust consent: `{summary['counterfactual_probe']['high_contact_accepted']}`
+- Free Other actor path: **{summary['relationship_rupture']['actor_life_status']}**, offscreen progress `{summary['relationship_rupture']['actor_offscreen_progress']}`
+- Counterfactual branches: **{summary['mirror_isolation']['branches_archived']}**
+- Low threshold / decisions: `{summary['counterfactual_probe']['low_acceptance_threshold']}` / `{summary['counterfactual_probe']['low_decisions']}`
+- High threshold / decisions: `{summary['counterfactual_probe']['high_acceptance_threshold']}` / `{summary['counterfactual_probe']['high_decisions']}`
 - Butterfly Witness: **{summary['counterfactual_probe']['butterfly_verdict']}**
 - Chronicle valid: `{summary['integrity']['chronicle_valid']}`
 - HRaiN valid: `{summary['integrity']['hrain_valid']}`
@@ -430,7 +430,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
 
 ## Honest boundary
 
-This artifact demonstrates deterministic runtime contracts and fail-closed branch isolation. It does not establish consciousness, personhood, or a universal behavioral law. The trust A/B metric is captured directly at the preflight consent boundary before narrative weaving and is therefore a controlled implementation probe, not a naturalistic social experiment.
+This artifact demonstrates deterministic runtime contracts and fail-closed branch isolation. It does not establish consciousness, personhood, or a universal behavioral law. The relationship-trust A/B metric is captured at the preflight consent boundary before narrative weaving and is a controlled implementation probe, not a naturalistic social experiment.
 """
         (output_dir / "CENTURY_LIVED_AUDIT_REPORT.md").write_text(report, encoding="utf-8")
         return summary
@@ -441,8 +441,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--git-commit", default="unknown")
     args = parser.parse_args()
-    summary = run(args.output_dir, args.git_commit)
-    print(json.dumps(summary, ensure_ascii=False, sort_keys=True))
+    print(json.dumps(run(args.output_dir, args.git_commit), ensure_ascii=False, sort_keys=True))
 
 
 if __name__ == "__main__":
