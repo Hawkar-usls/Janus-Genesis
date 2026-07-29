@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import sys
 from pathlib import Path
@@ -16,11 +17,14 @@ if str(REPOSITORY_ROOT) not in sys.path:
 from scripts import run_century_lived_audit as base
 
 
-def select_contextual_matched_probe_action(world: Any, handle: str) -> tuple[str, int]:
-    """Select one action between v18.7.1 low/high contextual-consent thresholds."""
+def select_benevolent_matched_probe_action(world: Any, handle: str) -> tuple[str, int]:
+    """Select an action between authoritative low/high relationship thresholds."""
     store = world._free_store()
+    profile = world._free_profile(store, base.PLAYER_ID)
+    source_actor = profile["others"][handle]
     upcoming = int(store["world_turn"]) + 1
-    for index in range(4096):
+
+    for index in range(8192):
         action = f"предложить @{handle} пройти контрольный мост {index} без общего финала"
         fingerprint = world._free_fingerprint(action)
         topic = world._dialogue_topic(action)
@@ -31,14 +35,33 @@ def select_contextual_matched_probe_action(world: Any, handle: str) -> tuple[str
             upcoming,
             fingerprint,
             topic,
-            "contextual-consent",
+            "benevolent-consent",
         ) % 100
-        if 34 <= gate < 58:
+
+        low_actor = copy.deepcopy(source_actor)
+        low_actor["trust"] = 0.0
+        low_actor["relationship_bond"] = 0
+        low_threshold = world._npc_acceptance_threshold(
+            base.PLAYER_ID,
+            low_actor,
+            action,
+        )
+
+        high_actor = copy.deepcopy(source_actor)
+        high_actor["trust"] = 0.95
+        high_actor["relationship_bond"] = 33
+        high_threshold = world._npc_acceptance_threshold(
+            base.PLAYER_ID,
+            high_actor,
+            action,
+        )
+
+        if low_threshold <= gate < high_threshold:
             return action, gate
-    raise RuntimeError("MATCHED_CONTEXTUAL_TRUST_PROBE_ACTION_NOT_FOUND")
+    raise RuntimeError("MATCHED_BENEVOLENT_TRUST_PROBE_ACTION_NOT_FOUND")
 
 
-base.select_matched_probe_action = select_contextual_matched_probe_action
+base.select_matched_probe_action = select_benevolent_matched_probe_action
 
 _ORIGINAL_SET_TRUST = base.PlayableGenesisV187.set_counterfactual_actor_trust_for_probe
 _ORIGINAL_PREFLIGHT = base.PlayableGenesisV187.preflight_free_other_action
@@ -48,6 +71,8 @@ def _actor_snapshot(world: Any, player_id: str, handle: str) -> dict[str, Any]:
     actor = world.free_other_state(player_id)["profile"]["others"][handle]
     return {
         "trust": actor.get("trust"),
+        "relationship_bond": actor.get("relationship_bond"),
+        "relationship_score": actor.get("relationship_score"),
         "status": actor.get("status"),
         "relationship": actor.get("relationship_state_v1810"),
     }
@@ -97,6 +122,9 @@ def traced_preflight(self: Any, player_id: str, action: str) -> dict[str, Any] |
                 "handle": handle,
                 "before": before,
                 "decision": None if decision is None else decision.get("decision"),
+                "acceptance_threshold": (
+                    None if decision is None else decision.get("acceptance_threshold")
+                ),
             },
             ensure_ascii=False,
             sort_keys=True,
@@ -124,13 +152,6 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--git-commit", default="unknown")
     args = parser.parse_args()
-    print(
-        "CENTURY_AUDIT_MRO="
-        + json.dumps(
-            [item.__name__ for item in base.PlayableGenesisV187.__mro__],
-            ensure_ascii=False,
-        )
-    )
     try:
         summary = base.run(args.output_dir, args.git_commit)
     except RuntimeError as error:
