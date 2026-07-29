@@ -1,0 +1,32 @@
+{
+  "schema": "janus.genesis.promoted_regression.v1",
+  "regression_id": "relationship-bond-contact-accepted-v1",
+  "status": "PROMOTED_TO_PERMANENT_TEST_POOL",
+  "metric_id": "contact_accepted",
+  "law_candidate": "relationship_bond_changes_acceptance_threshold_without_mutating_actor_life",
+  "authoritative_inputs": [
+    "relationship_bond",
+    "relationship_score",
+    "relationship_state_v1810"
+  ],
+  "compatibility_inputs_not_authoritative": [
+    "actor.trust"
+  ],
+  "same_seed_required": true,
+  "same_actor_required": true,
+  "same_action_required": true,
+  "same_non_relationship_state_required": true,
+  "expected_direction": "higher_benevolent_relationship_prior_increases_acceptance_threshold",
+  "source_commit": "c2cefc7e014e1ceb3f16c968f3b5ca15cf2044b7",
+  "source_proofpack_sha256": "dded3c39e255d95e3a2c4b492028948154659c8a76f90c7d7b57883cce369d24",
+  "source_seed": "genesis-century-audit-v18.7.10-2026-07-29",
+  "source_windows": 3,
+  "source_observation": {
+    "gate": 70,
+    "low_threshold": 62,
+    "high_threshold": 75,
+    "low_decisions": [0, 0, 0],
+    "high_decisions": [1, 1, 1]
+  },
+  "claim_boundary": "Deterministic runtime regression only; not a universal social law or consciousness claim."
+}
