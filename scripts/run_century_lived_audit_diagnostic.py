@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Diagnostic wrapper that preserves fail-closed audit behavior and exposes final gate locals."""
+"""Fail-closed century runner with explicit diagnostic output on evidence-gate failure."""
 from __future__ import annotations
 
 import argparse
@@ -13,7 +13,32 @@ REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
-from scripts.run_century_lived_audit import run
+from scripts import run_century_lived_audit as base
+
+
+def select_contextual_matched_probe_action(world: Any, handle: str) -> tuple[str, int]:
+    """Select one action between v18.7.1 low/high contextual-consent thresholds."""
+    store = world._free_store()
+    upcoming = int(store["world_turn"]) + 1
+    for index in range(4096):
+        action = f"предложить @{handle} пройти контрольный мост {index} без общего финала"
+        fingerprint = world._free_fingerprint(action)
+        topic = world._dialogue_topic(action)
+        gate = world._free_number(
+            store,
+            base.PLAYER_ID,
+            handle,
+            upcoming,
+            fingerprint,
+            topic,
+            "contextual-consent",
+        ) % 100
+        if 34 <= gate < 58:
+            return action, gate
+    raise RuntimeError("MATCHED_CONTEXTUAL_TRUST_PROBE_ACTION_NOT_FOUND")
+
+
+base.select_matched_probe_action = select_contextual_matched_probe_action
 
 
 def _json_safe(value: Any) -> Any:
@@ -32,7 +57,7 @@ def main() -> None:
     parser.add_argument("--git-commit", default="unknown")
     args = parser.parse_args()
     try:
-        summary = run(args.output_dir, args.git_commit)
+        summary = base.run(args.output_dir, args.git_commit)
     except RuntimeError as error:
         traceback = error.__traceback__
         while traceback is not None and traceback.tb_next is not None:
