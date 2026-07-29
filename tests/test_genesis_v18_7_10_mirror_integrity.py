@@ -60,7 +60,10 @@ class GenesisV18710MirrorIsolationIntegrityTests(unittest.TestCase):
             trust_percent=95,
             reason_code="TEST_MATCHED_TRUST",
         )
-        self.assertEqual(intervention["after"], 0.95)
+        self.assertEqual(intervention["after"]["legacy_trust"], 0.95)
+        self.assertEqual(intervention["after"]["relationship_bond"], 33)
+        self.assertTrue(intervention["relationship_life_only"])
+        self.assertFalse(intervention["actor_life_mutation"])
         mirror.process_action(
             "witness",
             f"предложить @{self.handle} пройти один проверочный мост",
@@ -76,6 +79,85 @@ class GenesisV18710MirrorIsolationIntegrityTests(unittest.TestCase):
         self.assertEqual(archive["metric_contract"], "flat_finite_numeric_v1")
         self.assertEqual(archive["metrics"]["boundary_preserved"], 1.0)
         self.assertNotIn(manifest["mirror_id"], self.world._i0_store()["active_mirrors"])
+
+    def test_relationship_trust_probe_changes_authoritative_threshold_not_actor_life(self) -> None:
+        low, low_manifest = self.world.fork_counterfactual_world(
+            audit_id=self.audit_id,
+            label="low authoritative relationship prior",
+        )
+        high, high_manifest = self.world.fork_counterfactual_world(
+            audit_id=self.audit_id,
+            label="high authoritative relationship prior",
+        )
+        try:
+            canonical_life = self.world.free_other_state("witness")["profile"]["others"][self.handle][
+                "actor_life_v1810"
+            ]
+            low_intervention = low.set_counterfactual_actor_trust_for_probe(
+                "witness",
+                self.handle,
+                trust_percent=0,
+                reason_code="TEST_LOW_RELATIONSHIP_PRIOR",
+            )
+            high_intervention = high.set_counterfactual_actor_trust_for_probe(
+                "witness",
+                self.handle,
+                trust_percent=95,
+                reason_code="TEST_HIGH_RELATIONSHIP_PRIOR",
+            )
+            self.assertLess(
+                low_intervention["after"]["relationship_score"],
+                high_intervention["after"]["relationship_score"],
+            )
+            self.assertEqual(
+                low.free_other_state("witness")["profile"]["others"][self.handle][
+                    "actor_life_v1810"
+                ],
+                canonical_life,
+            )
+            self.assertEqual(
+                high.free_other_state("witness")["profile"]["others"][self.handle][
+                    "actor_life_v1810"
+                ],
+                canonical_life,
+            )
+
+            matched = None
+            for index in range(8192):
+                action = (
+                    f"предложить @{self.handle} пройти проверочный мост {index} "
+                    "без обязательства возвращаться"
+                )
+                low_decision = low.preflight_free_other_action("witness", action)
+                high_decision = high.preflight_free_other_action("witness", action)
+                if (
+                    low_decision
+                    and high_decision
+                    and low_decision["decision"] != "accepted"
+                    and high_decision["decision"] == "accepted"
+                ):
+                    matched = (low_decision, high_decision)
+                    break
+            self.assertIsNotNone(matched)
+            assert matched is not None
+            self.assertLess(
+                matched[0]["acceptance_threshold"],
+                matched[1]["acceptance_threshold"],
+            )
+
+            self.world.archive_counterfactual_mirror(
+                low,
+                low_manifest,
+                metrics={"contact_accepted": 0.0},
+            )
+            self.world.archive_counterfactual_mirror(
+                high,
+                high_manifest,
+                metrics={"contact_accepted": 1.0},
+            )
+        finally:
+            shutil.rmtree(Path(low_manifest["root"]), ignore_errors=True)
+            shutil.rmtree(Path(high_manifest["root"]), ignore_errors=True)
 
     def test_raw_text_cannot_enter_canonical_mirror_metrics(self) -> None:
         mirror, manifest = self.world.fork_counterfactual_world(
