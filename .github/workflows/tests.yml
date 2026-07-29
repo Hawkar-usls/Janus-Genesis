@@ -12,6 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -63,13 +64,34 @@ jobs:
             genesis_v18_7_9.py \
             genesis_v18_7_9_persistence.py \
             genesis_v18_7_9_reactive_verifier.py \
+            genesis_v18_7_10.py \
+            genesis_v18_7_10_patch.py \
+            genesis_v18_7_10_proofpack_completion.py \
+            genesis_v18_7_10_rupture_voice.py \
+            genesis_v18_7_10_mirror_integrity.py \
             genesis_v18_7_playable.py \
             genesis_v18_7_auth.py \
             genesis_v18_7_ai.py \
             genesis_v18_7_network.py \
             genesis_v18_7_portable.py \
+            scripts/run_century_lived_audit.py \
             tools/genesis_api_server.py \
             tools/genesis_network_hub.py \
             play_genesis.py
       - name: Run unit tests
         run: python -m unittest discover -s tests -v
+      - name: Run deterministic century lived audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_century_lived_audit.py \
+            --output-dir artifacts/century-lived-audit \
+            --git-commit "$COMMIT"
+      - name: Upload century proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-century-lived-audit
+          path: artifacts/century-lived-audit
+          if-no-files-found: error
+          retention-days: 30
