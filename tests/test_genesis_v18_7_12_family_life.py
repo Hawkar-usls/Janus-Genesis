@@ -41,6 +41,9 @@ class GenesisV18712FamilyLifeTests(unittest.TestCase):
         }
 
     def form_companionship(self) -> None:
+        existing = self.world.family_state("family").get("companion")
+        if isinstance(existing, dict) and existing.get("status") == "ACTIVE":
+            return
         with mock.patch.object(
             self.world,
             "preflight_free_other_action",
