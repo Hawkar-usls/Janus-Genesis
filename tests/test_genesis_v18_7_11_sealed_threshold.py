@@ -11,7 +11,11 @@ from pathlib import Path
 from unittest import mock
 
 from genesis_v18_7_11_joy_covenant import RIGHT_TO_JOY_COVENANT_SHA256
-from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
+from genesis_v18_7_playable import (
+    EXTENSION_VERSION,
+    PLAYABLE_VERSION,
+    PlayableGenesisV187,
+)
 
 
 def sha256_text(value: str) -> str:
@@ -33,10 +37,14 @@ class GenesisV18711JoyCovenantTests(unittest.TestCase):
         self.assertTrue(self.world.joy_capabilities("joy")["benevolent_evidence"])
 
     def test_version_and_covenant_are_separate_from_frozen_constitution(self) -> None:
-        self.assertEqual(PLAYABLE_VERSION, "18.7.11")
+        self.assertEqual(PLAYABLE_VERSION, "18.7.10")
+        self.assertEqual(EXTENSION_VERSION, "18.7.11")
         state = self.world.joy_state("joy")
         self.assertEqual(state["covenant_sha256"], RIGHT_TO_JOY_COVENANT_SHA256)
-        self.assertIn("dignified_rest_without_debt", state["capability_state"]["capabilities"])
+        self.assertIn(
+            "dignified_rest_without_debt",
+            state["capability_state"]["capabilities"],
+        )
 
     def test_dignified_rest_is_available_without_moral_payment(self) -> None:
         result = self.world.process_action("joy", "хочу достойно отдохнуть")
@@ -167,7 +175,9 @@ class GenesisV18711StorageAndRelationshipTests(unittest.TestCase):
             report = mirror.storage_contract_report()
             self.assertEqual(report["domain"]["role"], "UNREALIZED_MIRROR")
             self.assertFalse(report["domain"]["canonical_writes_allowed"])
-            self.assertTrue(report["sqlite_requirements"]["attach_database_forbidden"])
+            self.assertTrue(
+                report["sqlite_requirements"]["attach_database_forbidden"]
+            )
         finally:
             shutil.rmtree(root, ignore_errors=True)
 
@@ -221,7 +231,10 @@ class GenesisV18711StorageAndRelationshipTests(unittest.TestCase):
         self.assertEqual(len(recovered), 1)
         self.assertEqual(recovered[0]["status"], "ARCHIVED_RECOVERED")
         self.assertFalse(root.exists())
-        self.assertNotIn(manifest["mirror_id"], self.world._i0_store()["active_mirrors"])
+        self.assertNotIn(
+            manifest["mirror_id"],
+            self.world._i0_store()["active_mirrors"],
+        )
 
     def test_promoted_regression_manifest_is_bound_to_verified_evidence(self) -> None:
         path = Path(__file__).resolve().parents[1] / "regressions" / (
@@ -235,7 +248,10 @@ class GenesisV18711StorageAndRelationshipTests(unittest.TestCase):
             "dded3c39e255d95e3a2c4b492028948154659c8a76f90c7d7b57883cce369d24",
         )
         self.assertTrue(manifest["same_seed_required"])
-        self.assertIn("actor.trust", manifest["compatibility_inputs_not_authoritative"])
+        self.assertIn(
+            "actor.trust",
+            manifest["compatibility_inputs_not_authoritative"],
+        )
 
     def test_relationship_view_marks_legacy_trust_non_authoritative(self) -> None:
         view = self.world.authoritative_relationship_view("witness", self.handle)
