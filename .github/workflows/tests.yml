@@ -12,7 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -73,6 +73,7 @@ jobs:
             genesis_v18_7_11_joy_covenant.py \
             genesis_v18_7_11_relationship_integrity.py \
             genesis_v18_7_11_storage_hardening.py \
+            genesis_v18_7_12_family_life.py \
             genesis_v18_7_playable.py \
             genesis_v18_7_auth.py \
             genesis_v18_7_ai.py \
@@ -80,6 +81,7 @@ jobs:
             genesis_v18_7_portable.py \
             scripts/run_century_lived_audit.py \
             scripts/run_sealed_threshold_audit.py \
+            scripts/run_wild_light_family_audit.py \
             tools/genesis_api_server.py \
             tools/genesis_network_hub.py \
             play_genesis.py
@@ -103,6 +105,15 @@ jobs:
           python scripts/run_sealed_threshold_audit.py \
             --output-dir artifacts/sealed-threshold-audit \
             --git-commit "$COMMIT"
+      - name: Run wild light family life audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_wild_light_family_audit.py \
+            --output-dir artifacts/wild-light-family-audit \
+            --git-commit "$COMMIT"
       - name: Upload century proofpack
         uses: actions/upload-artifact@v4
         with:
@@ -115,5 +126,12 @@ jobs:
         with:
           name: genesis-sealed-threshold-audit
           path: artifacts/sealed-threshold-audit
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload wild light family proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-wild-light-family-audit
+          path: artifacts/wild-light-family-audit
           if-no-files-found: error
           retention-days: 30
