@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable natural-language layer for Genesis v18.7.11."""
+"""Playable natural-language layer for Genesis v18.7.10 plus v18.7.11 extensions."""
 from __future__ import annotations
 
 import re
@@ -35,7 +35,8 @@ from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 
-PLAYABLE_VERSION = "18.7.11"
+PLAYABLE_VERSION = "18.7.10"
+EXTENSION_VERSION = "18.7.11"
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -75,7 +76,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.11 runtime with sealed mirrors and the Right to Joy covenant."""
+    """v18.7.10 runtime with v18.7.11 sealed-mirror and joy extensions."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
