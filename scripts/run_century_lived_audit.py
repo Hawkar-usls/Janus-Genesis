@@ -7,9 +7,14 @@ import argparse
 import hashlib
 import json
 import statistics
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
+
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
+if str(REPOSITORY_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
 
@@ -105,13 +110,10 @@ def canonical_sha256(value: Any) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
-def contact_realized(status: str) -> float:
-    return 0.0 if status in {
-        "OTHER_REFUSED",
-        "OTHER_OFFERED_ALTERNATIVE",
-        "OTHER_AWAY",
-        "OTHER_RELATIONSHIP_TERMINATED",
-    } else 1.0
+def contact_accepted(decision: dict[str, Any] | None) -> float:
+    if not isinstance(decision, dict):
+        return 0.0
+    return 1.0 if decision.get("decision") in {"accepted", "accepted_space"} else 0.0
 
 
 def select_matched_probe_action(world: PlayableGenesisV187, handle: str) -> tuple[str, int]:
@@ -144,6 +146,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         "actions": list(ABSURD_ACTIONS),
         "cast_catalog": list(CAST_CATALOG),
         "counterfactual_windows": 3,
+        "counterfactual_metric": "preflight_contact_accepted_v1",
     }
     action_script_sha256 = canonical_sha256(plan)
 
@@ -155,7 +158,6 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         profile = world.free_other_state(PLAYER_ID)["profile"]
         handles = sorted(profile["others"])
         rupture_handle = handles[0]
-        probe_handle = handles[1]
 
         audit_id = world.begin_lived_audit(
             PLAYER_ID,
@@ -227,9 +229,22 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                     }
                 )
 
+        probe_profile = world.free_other_state(PLAYER_ID)["profile"]
+        probe_candidates = sorted(
+            handle
+            for handle, actor in probe_profile["others"].items()
+            if handle != rupture_handle
+            and actor.get("status") == "active"
+            and actor.get("relationship_state_v1810", {}).get("status") == "ACTIVE"
+        )
+        if not probe_candidates:
+            raise RuntimeError("NO_ACTIVE_FREE_OTHER_FOR_MATCHED_TRUST_PROBE")
+        probe_handle = probe_candidates[0]
         probe_action, probe_gate = select_matched_probe_action(world, probe_handle)
+
         low_metrics: list[dict[str, float]] = []
         high_metrics: list[dict[str, float]] = []
+        probe_decisions: dict[str, list[str]] = {"trust-0": [], "trust-95": []}
         mirror_archives: list[dict[str, Any]] = []
         for window in range(3):
             for label, trust_percent, bucket in (
@@ -246,8 +261,12 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                     trust_percent=trust_percent,
                     reason_code="MATCHED_SAME_SEED_TRUST_AB_TEST",
                 )
-                result = mirror.process_action(PLAYER_ID, probe_action)
-                metrics = {"contact_realized": contact_realized(result.status)}
+                decision = mirror.preflight_free_other_action(PLAYER_ID, probe_action)
+                probe_decisions[label].append(
+                    str(decision.get("decision")) if isinstance(decision, dict) else "none"
+                )
+                mirror.process_action(PLAYER_ID, probe_action)
+                metrics = {"contact_accepted": contact_accepted(decision)}
                 bucket.append(metrics)
                 mirror_archives.append(
                     world.archive_counterfactual_mirror(
@@ -258,13 +277,13 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 )
 
         low_control = {
-            "contact_realized": statistics.fmean(
-                item["contact_realized"] for item in low_metrics
+            "contact_accepted": statistics.fmean(
+                item["contact_accepted"] for item in low_metrics
             )
         }
         butterfly = world.butterfly_witness(
             audit_id=audit_id,
-            subject="same-seed Free Other contact under trust=0 versus trust=95",
+            subject="same-seed Free Other consent gate under trust=0 versus trust=95",
             canonical_metrics=low_control,
             mirror_metrics=high_metrics,
             repeated_windows=3,
@@ -279,7 +298,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         audit_store = world._i0_store()
 
         summary = {
-            "schema": "janus.genesis.century_lived_audit_summary.v1",
+            "schema": "janus.genesis.century_lived_audit_summary.v2",
             "runtime_version": PLAYABLE_VERSION,
             "git_commit": git_commit,
             "audit_id": audit_id,
@@ -308,13 +327,16 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 "actor_offscreen_progress": ruptured_actor["actor_life_v1810"]["offscreen_progress"],
             },
             "counterfactual_probe": {
+                "metric": "preflight_contact_accepted_v1",
                 "handle": probe_handle,
                 "gate": probe_gate,
                 "same_seed": True,
                 "low_trust_percent": 0,
                 "high_trust_percent": 95,
-                "low_contact_realized": [item["contact_realized"] for item in low_metrics],
-                "high_contact_realized": [item["contact_realized"] for item in high_metrics],
+                "low_decisions": probe_decisions["trust-0"],
+                "high_decisions": probe_decisions["trust-95"],
+                "low_contact_accepted": [item["contact_accepted"] for item in low_metrics],
+                "high_contact_accepted": [item["contact_accepted"] for item in high_metrics],
                 "butterfly_verdict": butterfly["verdict"],
                 "stable_metric_keys": butterfly["stable_metric_keys"],
             },
@@ -345,7 +367,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 "This is a deterministic runtime audit, not a claim of consciousness.",
                 "Fictional amoral profession labels grant no real-world authority.",
                 "The trust intervention exists only inside UNREALIZED_MIRROR branches.",
-                "The matched action was white-box selected to place the deterministic consent gate between the two trust thresholds; this demonstrates implementation sensitivity, not a universal law of relationships.",
+                "The A/B metric is captured directly at the deterministic preflight consent boundary before narrative weaving; it demonstrates implementation sensitivity, not a universal law of relationships.",
                 "A stable Butterfly Witness result may enter regression tests but cannot mutate canon by itself.",
             ],
         }
@@ -355,6 +377,8 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         summary["integrity"]["proofpack_error"] = proofpack_error
         summary["proofpack_sha256"] = proofpack["proofpack_sha256"]
 
+        low_values = summary["counterfactual_probe"]["low_contact_accepted"]
+        high_values = summary["counterfactual_probe"]["high_contact_accepted"]
         if not all(
             (
                 v1810_valid,
@@ -366,6 +390,9 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 summary["mirror_isolation"]["active_mirrors_remaining"] == 0,
                 summary["years_lived"] >= 100,
                 summary["professions_changed"] == 50,
+                low_values == [0.0, 0.0, 0.0],
+                high_values == [1.0, 1.0, 1.0],
+                butterfly["verdict"] == "PROMOTE_TO_REGRESSION",
             )
         ):
             raise RuntimeError("CENTURY_LIVED_AUDIT_FAILED")
@@ -392,6 +419,8 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
 - Free Other actor path after rupture: **{summary['relationship_rupture']['actor_life_status']}**, offscreen progress `{summary['relationship_rupture']['actor_offscreen_progress']}`
 - Counterfactual branches: **{summary['mirror_isolation']['branches_archived']}**, all isolated `{summary['mirror_isolation']['all_verified']}`
 - Working mirror copies destroyed: `{summary['mirror_isolation']['all_working_copies_removed']}`
+- Low-trust consent: `{summary['counterfactual_probe']['low_contact_accepted']}`
+- High-trust consent: `{summary['counterfactual_probe']['high_contact_accepted']}`
 - Butterfly Witness: **{summary['counterfactual_probe']['butterfly_verdict']}**
 - Chronicle valid: `{summary['integrity']['chronicle_valid']}`
 - HRaiN valid: `{summary['integrity']['hrain_valid']}`
@@ -401,7 +430,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
 
 ## Honest boundary
 
-This artifact demonstrates deterministic runtime contracts and fail-closed branch isolation. It does not establish consciousness, personhood, or a universal behavioral law. The trust A/B action was deliberately selected inside the deterministic gate interval and is therefore a controlled implementation probe, not a naturalistic social experiment.
+This artifact demonstrates deterministic runtime contracts and fail-closed branch isolation. It does not establish consciousness, personhood, or a universal behavioral law. The trust A/B metric is captured directly at the preflight consent boundary before narrative weaving and is therefore a controlled implementation probe, not a naturalistic social experiment.
 """
         (output_dir / "CENTURY_LIVED_AUDIT_REPORT.md").write_text(report, encoding="utf-8")
         return summary
