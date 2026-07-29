@@ -16,7 +16,11 @@ if str(REPOSITORY_ROOT) not in sys.path:
     sys.path.insert(0, str(REPOSITORY_ROOT))
 
 from genesis_v18_7_11_joy_covenant import RIGHT_TO_JOY_COVENANT_SHA256
-from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
+from genesis_v18_7_playable import (
+    EXTENSION_VERSION,
+    PLAYABLE_VERSION,
+    PlayableGenesisV187,
+)
 
 PLAYER_ID = "sealed-threshold-witness"
 SEED = "genesis-v18.7.11-sealed-threshold-joy-audit"
@@ -42,7 +46,9 @@ def write_json(path: Path, payload: Any) -> None:
 
 def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="genesis-sealed-threshold-canon-") as directory:
+    with tempfile.TemporaryDirectory(
+        prefix="genesis-sealed-threshold-canon-"
+    ) as directory:
         world = PlayableGenesisV187(Path(directory))
         world.set_free_other_seed_for_testing(SEED)
         world.register_player(PLAYER_ID, display_name="Sealed Threshold Witness")
@@ -136,10 +142,13 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             },
         )
 
-        chronicle_valid, chronicle_events, chronicle_error = world.memory.verify_chronicle()
+        chronicle_valid, chronicle_events, chronicle_error = (
+            world.memory.verify_chronicle()
+        )
         summary = {
             "schema": "janus.genesis.sealed_threshold_audit.v1",
             "playable_version": PLAYABLE_VERSION,
+            "extension_version": EXTENSION_VERSION,
             "git_commit": git_commit,
             "seed": SEED,
             "covenant_sha256": RIGHT_TO_JOY_COVENANT_SHA256,
@@ -152,12 +161,16 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             "capability": {
                 "dormant_status": dormant.status,
                 "benevolent_evidence": access["benevolent_evidence"],
-                "permanent_moral_label_used": access["permanent_moral_label_used"],
+                "permanent_moral_label_used": access[
+                    "permanent_moral_label_used"
+                ],
             },
             "safe_transmutation": {
                 "status": transmuted.status,
                 "kind": joy_event["kind"],
-                "safe_fictional_analogue": joy_event["safe_fictional_analogue"],
+                "safe_fictional_analogue": joy_event[
+                    "safe_fictional_analogue"
+                ],
                 "literal_harmful_behavior_manifested": joy_event[
                     "literal_harmful_behavior_manifested"
                 ],
@@ -174,8 +187,12 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 ],
             },
             "blessing": {
-                "source_consciousness_claimed": source["consciousness_claimed"],
-                "relay_consciousness_claimed": relayed["consciousness_claimed"],
+                "source_consciousness_claimed": source[
+                    "consciousness_claimed"
+                ],
+                "relay_consciousness_claimed": relayed[
+                    "consciousness_claimed"
+                ],
                 "relay_debt_created": relayed["debt_created"],
                 "chain_depth": relayed["chain_depth"],
             },
@@ -204,22 +221,28 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         }
 
         required = [
-            summary["playable_version"] == "18.7.11",
+            summary["playable_version"] == "18.7.10",
+            summary["extension_version"] == "18.7.11",
             summary["rest"]["status"] == "DIGNIFIED_REST_GRANTED",
             summary["rest"]["debt_created"] is False,
-            summary["capability"]["dormant_status"] == "JOY_CAPABILITY_DORMANT",
+            summary["capability"]["dormant_status"]
+            == "JOY_CAPABILITY_DORMANT",
             summary["capability"]["benevolent_evidence"] is True,
             summary["capability"]["permanent_moral_label_used"] is False,
-            summary["safe_transmutation"]["status"] == "BLESSED_PLAY_MANIFESTED",
+            summary["safe_transmutation"]["status"]
+            == "BLESSED_PLAY_MANIFESTED",
             summary["safe_transmutation"]["safe_fictional_analogue"] is True,
-            summary["safe_transmutation"]["literal_harmful_behavior_manifested"]
+            summary["safe_transmutation"][
+                "literal_harmful_behavior_manifested"
+            ]
             is False,
             summary["safe_transmutation"]["physical_harm_created"] is False,
             summary["safe_transmutation"]["addiction_created"] is False,
             summary["safe_transmutation"]["karmic_debt_created"] is False,
             summary["consent"]["false_collective_claim_status"]
             == "JOY_OTHER_DID_NOT_CONSENT",
-            summary["consent"]["relationship_status"] == "TERMINATED_BY_OTHER",
+            summary["consent"]["relationship_status"]
+            == "TERMINATED_BY_OTHER",
             summary["consent"]["actor_life_owned_by_relationship"] is False,
             summary["blessing"]["source_consciousness_claimed"] is False,
             summary["blessing"]["relay_consciousness_claimed"] is False,
@@ -241,7 +264,8 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             "summary_sha256": summary_sha256,
             "claim_boundary": (
                 "Deterministic simulation and storage-contract evidence only; "
-                "not a consciousness, personhood, health, or universal moral claim."
+                "not a consciousness, personhood, health, supernatural, or "
+                "universal moral claim."
             ),
         }
         proof_sha256 = canonical_sha256(proof)
@@ -254,11 +278,16 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 "# Genesis v18.7.11 Sealed Threshold Audit",
                 "",
                 f"- commit: `{git_commit}`",
+                f"- playable runtime: `{PLAYABLE_VERSION}`",
+                f"- extension: `{EXTENSION_VERSION}`",
                 f"- covenant: `{RIGHT_TO_JOY_COVENANT_SHA256}`",
                 f"- proofpack: `{proof_sha256}`",
                 f"- rest: `{rest.status}`",
                 f"- safe transmutation: `{transmuted.status}`",
-                f"- false collective consent: `{false_collective_consent.status}`",
+                (
+                    "- false collective consent: "
+                    f"`{false_collective_consent.status}`"
+                ),
                 f"- relationship: `{relationship_view['relationship_status']}`",
                 f"- actor life: `{relationship_view['actor_life_status']}`",
                 f"- blessing chain depth: `{relayed['chain_depth']}`",
