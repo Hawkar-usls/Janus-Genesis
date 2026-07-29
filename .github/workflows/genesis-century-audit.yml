@@ -34,7 +34,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
-          python scripts/run_century_lived_audit.py \
+          python scripts/run_century_lived_audit_diagnostic.py \
             --output-dir artifacts/century-lived-audit \
             --git-commit "$COMMIT"
 
