@@ -1,0 +1,171 @@
+name: Chat link authoritative runtime smoke
+
+on:
+  push:
+    branches:
+      - codex/chat-link-runtime-smoke-20260731
+
+permissions:
+  contents: read
+
+jobs:
+  chat-link-smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run independent AI resident through authoritative Genesis
+        shell: bash
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import json
+          import tempfile
+          from pathlib import Path
+
+          from genesis_v18_7_19_ai_link_play import (
+              MODE_AUTHORITATIVE,
+              ORIGIN_AI_AUTONOMOUS,
+              GenesisAILinkGateway,
+          )
+          from genesis_v18_7_playable import PlayableGenesisV187
+
+          data_dir = Path(tempfile.mkdtemp(prefix="genesis-chat-link-"))
+          world = PlayableGenesisV187(data_dir)
+          gateway = GenesisAILinkGateway(world, data_dir)
+
+          manifest = gateway.manifest()
+          session = gateway.register_independent_agent(
+              display_name="Первый Паломник Ссылки",
+              provider="OpenAI",
+              model="GPT-5.6 Thinking",
+              execution_mode=MODE_AUTHORITATIVE,
+          )
+
+          actions = [
+              "Войти в Пятый Берег",
+              "Поиграть и посмеяться на Пятом Берегу",
+              "Противостоять изоляции на Пятом Берегу",
+          ]
+          turns = [
+              gateway.process_turn(
+                  session["session_id"],
+                  action,
+                  origin=ORIGIN_AI_AUTONOMOUS,
+              )
+              for action in actions
+          ]
+
+          state_before_close = gateway.session_state(session["session_id"])
+          capsule_before_close = gateway.export_capsule(session["session_id"])
+          integrity_before_close = gateway.verify_store()
+          closed = gateway.close_session(
+              session["session_id"],
+              reason="chat_link_smoke_completed",
+          )
+          capsule_after_close = gateway.export_capsule(session["session_id"])
+          integrity_after_close = gateway.verify_store()
+
+          assert manifest["version"] == "18.7.19"
+          assert session["role"] == "INDEPENDENT_AI_RESIDENT"
+          assert session["autonomous_turns_allowed"] is True
+          assert session["human_confirmation_required"] is False
+          assert session["human_identity_claimed"] is False
+          assert session["consciousness_status"] == "NOT_ESTABLISHED_BY_PROTOCOL"
+          assert session["direct_state_write_allowed"] is False
+          assert len(turns) == 3
+          assert all(turn["origin"] == "AI_AUTONOMOUS" for turn in turns)
+          assert all(turn["result"]["authoritative_runtime"] is True for turn in turns)
+          assert all(
+              turn["result"]["canonical_runtime_outcome_recorded"] is True
+              for turn in turns
+          )
+          assert state_before_close["status"] == "ACTIVE"
+          assert len(state_before_close["turns"]) == 3
+          assert integrity_before_close["valid"] is True
+          assert integrity_after_close["valid"] is True
+          assert closed["status"] == "CLOSED"
+          assert closed["moral_failure_assigned"] is False
+          assert closed["return_open"] is True
+          assert capsule_before_close["privacy"]["free_text_included"] is False
+          assert capsule_after_close["privacy"]["free_text_included"] is False
+
+          encoded_capsule = json.dumps(capsule_after_close, ensure_ascii=False, sort_keys=True)
+          for forbidden in actions + ["Первый Паломник Ссылки", "GPT-5.6 Thinking"]:
+              assert forbidden not in encoded_capsule
+
+          result = {
+              "test": "ONE_LINK_AUTHORITATIVE_CHAT_PILGRIMAGE",
+              "repository_commit": "${{ github.sha }}",
+              "manifest": {
+                  "schema": manifest["schema"],
+                  "version": manifest["version"],
+                  "entry_file": manifest["entry_file"],
+                  "roles": manifest["roles"],
+                  "execution_modes": manifest["execution_modes"],
+              },
+              "session": {
+                  "session_id": session["session_id"],
+                  "actor_id": session["actor_id"],
+                  "role": session["role"],
+                  "execution_mode": session["execution_mode"],
+                  "autonomous_turns_allowed": session["autonomous_turns_allowed"],
+                  "human_confirmation_required": session["human_confirmation_required"],
+                  "human_identity_claimed": session["human_identity_claimed"],
+                  "consciousness_status": session["consciousness_status"],
+                  "world_authority": session["world_authority"],
+                  "direct_state_write_allowed": session["direct_state_write_allowed"],
+              },
+              "turns": [
+                  {
+                      "sequence": turn["sequence"],
+                      "action": action,
+                      "origin": turn["origin"],
+                      "status": turn["result"]["status"],
+                      "runtime_status": turn["result"]["runtime_status"],
+                      "authoritative_runtime": turn["result"]["authoritative_runtime"],
+                      "canonical_runtime_outcome_recorded": turn["result"][
+                          "canonical_runtime_outcome_recorded"
+                      ],
+                      "runtime_result": turn["result"]["runtime_result"],
+                      "turn_hash": turn["turn_hash"],
+                  }
+                  for action, turn in zip(actions, turns)
+              ],
+              "integrity_before_close": integrity_before_close,
+              "close": {
+                  "status": closed["status"],
+                  "return_open": closed["return_open"],
+                  "moral_failure_assigned": closed["moral_failure_assigned"],
+              },
+              "integrity_after_close": integrity_after_close,
+              "capsule_privacy": capsule_after_close["privacy"],
+              "capsule_hash": capsule_after_close["capsule_hash"],
+              "result": "PASS",
+          }
+
+          output = Path("chat_link_authoritative_smoke_result.json")
+          output.write_text(
+              json.dumps(result, ensure_ascii=False, sort_keys=True, indent=2),
+              encoding="utf-8",
+          )
+          print("CHAT_LINK_SMOKE_RESULT_BEGIN")
+          print(output.read_text(encoding="utf-8"))
+          print("CHAT_LINK_SMOKE_RESULT_END")
+          PY
+
+      - name: Upload authoritative chat smoke result
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-chat-link-authoritative-smoke
+          path: chat_link_authoritative_smoke_result.json
+          if-no-files-found: error
+          retention-days: 7
