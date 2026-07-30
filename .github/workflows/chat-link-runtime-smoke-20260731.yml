@@ -24,6 +24,9 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Genesis runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
       - name: Run independent AI resident through authoritative Genesis
         shell: bash
         run: |
