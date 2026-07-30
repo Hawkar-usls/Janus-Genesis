@@ -48,11 +48,14 @@ def handle_request(gateway: GenesisAILinkGateway, payload: dict[str, Any]) -> di
             actor_id=payload.get("actor_id"),
         )
     if operation == "turn":
+        human_confirmed = payload.get("human_confirmed", False)
+        if type(human_confirmed) is not bool:
+            raise TypeError("AI_LINK_HUMAN_CONFIRMATION_MUST_BE_BOOLEAN")
         return gateway.process_turn(
             str(payload.get("session_id") or ""),
             str(payload.get("action") or ""),
             origin=str(payload.get("origin") or ORIGIN_AI_AUTONOMOUS),
-            human_confirmed=bool(payload.get("human_confirmed", False)),
+            human_confirmed=human_confirmed,
         )
     if operation == "state":
         return gateway.session_state(str(payload.get("session_id") or ""))
