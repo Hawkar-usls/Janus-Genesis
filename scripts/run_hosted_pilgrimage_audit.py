@@ -5,10 +5,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 import tempfile
 import zipfile
 from pathlib import Path
 from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from genesis_v18_7_19_ai_link_play import (
     MODE_AUTHORITATIVE,
@@ -151,7 +156,7 @@ def main() -> int:
             },
             client_id="audit-client",
         )
-        capsule = bridge.export_capsule(token, client_id="audit-client")
+        bridge.export_capsule(token, client_id="audit-client")
         hosted_integrity = bridge.verify_store()
         ai_link_integrity = gateway.verify_store()
         closed = bridge.close_session(
@@ -214,7 +219,10 @@ def main() -> int:
             "same_turn_could_execute_after_runtime_returned": (
                 resumed["turn"]["result"]["authoritative_runtime"] is True
                 and resumed["idempotent_replay"] is False
-                and len(gateway.session_state(started["session"]["session_id"])["turns"]) == 4
+                and len(
+                    gateway.session_state(started["session"]["session_id"])["turns"]
+                )
+                == 4
             ),
             "ai_link_integrity_valid": ai_link_integrity["valid"] is True,
             "hosted_integrity_valid": hosted_integrity["valid"] is True,
@@ -223,7 +231,9 @@ def main() -> int:
             ),
             "capsule_contains_no_bearer_token": token not in encoded_capsule,
             "capsule_contains_no_host_secret": secret not in encoded_capsule,
-            "hosted_store_contains_no_raw_client_id": "audit-client" not in hosted_store_raw,
+            "hosted_store_contains_no_raw_client_id": (
+                "audit-client" not in hosted_store_raw
+            ),
             "voluntary_exit_is_blame_free": (
                 closed["status"] == "CLOSED"
                 and closed["moral_failure_assigned"] is False
