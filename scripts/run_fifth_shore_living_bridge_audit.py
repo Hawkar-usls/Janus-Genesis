@@ -27,6 +27,7 @@ from genesis_v18_7_17_fifth_shore_bridge import (
 from genesis_v18_7_playable import (
     ACTIVE_EXTENSION_VERSIONS,
     CULTURE_EXTENSION_VERSIONS,
+    LIVING_BRIDGE_EXTENSION_VERSIONS,
     OBSERVER_EXTENSION_VERSIONS,
     PLAYABLE_VERSION,
     VOCATION_EXTENSION_VERSIONS,
@@ -164,9 +165,9 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         )
 
         invariants = {
-            "fifth_shore_is_active_extension": (
+            "fifth_shore_is_direct_living_bridge": (
                 FIFTH_SHORE_LIVING_EXTENSION_VERSION
-                in ACTIVE_EXTENSION_VERSIONS
+                in LIVING_BRIDGE_EXTENSION_VERSIONS
             ),
             "culture_origin_remains_separate_provenance": (
                 INNER_GENESIS_EXTENSION_VERSION
@@ -257,6 +258,9 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             "seed": SEED,
             "playable_version": PLAYABLE_VERSION,
             "active_extensions": list(ACTIVE_EXTENSION_VERSIONS),
+            "living_bridge_extensions": list(
+                LIVING_BRIDGE_EXTENSION_VERSIONS
+            ),
             "observer_extensions": list(OBSERVER_EXTENSION_VERSIONS),
             "vocation_extensions": list(VOCATION_EXTENSION_VERSIONS),
             "culture_extensions": list(CULTURE_EXTENSION_VERSIONS),
