@@ -80,6 +80,7 @@ jobs:
             genesis_v18_7_13_router.py \
             genesis_v18_7_14_holy_cats.py \
             genesis_v18_7_14_holy_cat_integrity.py \
+            genesis_v18_7_14_mirror_binding.py \
             genesis_v18_7_playable.py \
             genesis_v18_7_auth.py \
             genesis_v18_7_ai.py \
