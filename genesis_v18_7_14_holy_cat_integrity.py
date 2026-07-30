@@ -18,6 +18,7 @@ class HolyCatEvidenceIntegrityMixin:
         canonical_witness: dict[str, Any],
         mirror_archive: dict[str, Any],
     ) -> dict[str, Any]:
+        subject_id = str(subject_id)
         payload = {
             key: value
             for key, value in canonical_witness.items()
@@ -28,9 +29,7 @@ class HolyCatEvidenceIntegrityMixin:
         canonical_metrics = self._validate_face_metrics(
             dict(payload.get("metrics", {}))
         )
-        authoritative_metrics = self.holy_cat_face_witness_metrics(
-            str(subject_id)
-        )
+        authoritative_metrics = self.holy_cat_face_witness_metrics(subject_id)
         if canonical_metrics != authoritative_metrics:
             raise RuntimeError("HOLY_CAT_CANONICAL_METRICS_NOT_AUTHORITATIVE")
         mirror_metrics = self._validate_face_metrics(
@@ -40,8 +39,11 @@ class HolyCatEvidenceIntegrityMixin:
             mirror_metrics
         ):
             raise RuntimeError("HOLY_CAT_MIRROR_METRICS_HASH_MISMATCH")
+        expected_label = f"holy-cat-face:{self._cat_hash(subject_id)[:24]}"
+        if mirror_archive.get("label") != expected_label:
+            raise RuntimeError("HOLY_CAT_MIRROR_SUBJECT_BINDING_MISMATCH")
         return super().holy_cat_witness_between_worlds(
-            str(subject_id),
+            subject_id,
             canonical_witness=canonical_witness,
             mirror_archive=mirror_archive,
         )
