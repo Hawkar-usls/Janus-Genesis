@@ -42,6 +42,7 @@ from genesis_v18_7_14_mirror_binding import HolyCatMirrorSubjectBindingMixin
 from genesis_v18_7_15_royal_mercy import RoyalMercyFaceIIMixin
 from genesis_v18_7_15_unbounded_love import RoyalMercyUnboundedLoveMixin
 from genesis_v18_7_16_fifth_shore import FifthShoreInnerGenesisMixin
+from genesis_v18_7_16_fifth_shore_precision import FifthShoreRestHumorPrecisionMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
@@ -83,6 +84,7 @@ class PlayableGenesisV187(
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
     RelationshipEpistemicIntegrityMixin,
+    FifthShoreRestHumorPrecisionMixin,
     FifthShoreInnerGenesisMixin,
     RoyalMercyUnboundedLoveMixin,
     RoyalMercyFaceIIMixin,
