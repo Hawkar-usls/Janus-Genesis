@@ -11,9 +11,10 @@
     "session": {"type": "object"},
     "privacy": {
       "type": "object",
-      "required": ["api_keys_included", "internal_realm_included", "branch_id_included", "private_human_chronicle_included"],
+      "required": ["api_keys_included", "free_text_included", "internal_realm_included", "branch_id_included", "private_human_chronicle_included"],
       "properties": {
         "api_keys_included": {"const": false},
+        "free_text_included": {"const": false},
         "internal_realm_included": {"const": false},
         "branch_id_included": {"const": false},
         "private_human_chronicle_included": {"const": false}
