@@ -42,7 +42,13 @@ with its HTTPS base URL in a separate reviewed change.
 - Provider names, model names, display names, action text, and host secrets are
   absent from token claims.
 - Every hosted turn requires an idempotency key.
-- Repeating the same key and request returns the original turn.
+- A durable `IN_FLIGHT` intent is written before the real world turn.
+- The receipt becomes `COMMITTED` only after the AI Link turn is persisted.
+- After an interruption, an exact persisted turn repairs its receipt and is
+  returned without executing again.
+- If no exact turn can be proven, the session fails closed with
+  `HOSTED_IDEMPOTENCY_RECOVERY_REQUIRED`; availability never wins over safety.
+- Repeating the same committed key and request returns the original turn.
 - Reusing a key for a different request is rejected.
 - Concurrent requests with the same key are serialized around the real world
   turn so only one can reach the runtime.
@@ -53,6 +59,8 @@ with its HTTPS base URL in a separate reviewed change.
 - TLS terminates at a trusted reverse proxy.
 - Live mode defaults off.
 - The kill switch defaults on.
+- `authoritative_runtime_available` is false whenever AI Link integrity,
+  hosted-store integrity, or idempotency recovery is not clean.
 - A filesystem sentinel can pause authoritative execution without a restart.
 - Rate limiting applies globally, per client, and per session.
 - Rate limiting is protection against automated flooding, not a moral score.

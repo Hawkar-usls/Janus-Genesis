@@ -23,6 +23,7 @@ from genesis_v18_7_20_hosted_pilgrimage import (
     HostedIdempotencyError,
     HostedPilgrimageBridge,
     HostedRateLimitError,
+    HostedRecoveryRequired,
     HostedTokenExpired,
     HostedTokenSigner,
 )
@@ -416,6 +417,127 @@ class HostedPilgrimageTests(unittest.TestCase):
         self.assertNotIn("raw-client-must-not-persist", raw)
         self.assertNotIn(started["session_token"], raw)
         self.assertTrue(self.bridge.verify_store()["valid"])
+
+
+    def test_health_fails_closed_when_gateway_integrity_is_corrupt(self) -> None:
+        started = self.start_independent()
+        raw = json.loads(self.gateway.path.read_text(encoding="utf-8"))
+        raw["sessions"][started["session"]["session_id"]]["session_hash"] = "tampered"
+        self.gateway.path.write_text(
+            json.dumps(raw, ensure_ascii=False), encoding="utf-8"
+        )
+        health = self.bridge.health()
+        self.assertEqual(health["status"], "FAILED_GATEWAY_INTEGRITY")
+        self.assertFalse(health["authoritative_runtime_available"])
+        fallback = self.bridge.start_session(
+            {
+                "role": ROLE_INDEPENDENT_AI,
+                "execution_mode": MODE_AUTHORITATIVE,
+                "display_name": "No Write On Corruption",
+                "provider": "p",
+                "model": "m",
+            },
+            client_id="integrity-client",
+        )
+        self.assertEqual(fallback["status"], STATUS_FALLBACK)
+        self.assertEqual(fallback["fallback_reason"], "GATEWAY_INTEGRITY_FAILED")
+        self.assertIsNone(fallback["session"])
+        self.assertIsNone(fallback["session_token"])
+
+    def test_crash_after_runtime_recovers_receipt_without_duplicate(self) -> None:
+        class CrashAfterRuntimeBridge(HostedPilgrimageBridge):
+            crashed = False
+
+            def _after_runtime_before_idempotency_commit(self, turn):
+                if not self.crashed:
+                    self.crashed = True
+                    raise RuntimeError("SIMULATED_PROCESS_CRASH_AFTER_RUNTIME")
+
+        bridge = CrashAfterRuntimeBridge(
+            self.gateway,
+            self.data_dir,
+            signer=self.signer,
+            config=self.config,
+            clock=self.clock,
+        )
+        started = bridge.start_session(
+            {
+                "role": ROLE_INDEPENDENT_AI,
+                "execution_mode": MODE_AUTHORITATIVE,
+                "display_name": "Crash Witness",
+                "provider": "p",
+                "model": "m",
+            },
+            client_id="crash-client",
+        )
+        payload = {
+            "action": "Войти в Пятый Берег",
+            "idempotency_key": "crash-window-key",
+        }
+        with self.assertRaisesRegex(RuntimeError, "SIMULATED_PROCESS_CRASH"):
+            bridge.process_turn(
+                started["session_token"], payload, client_id="crash-client"
+            )
+        self.assertEqual(
+            len(self.gateway.session_state(started["session"]["session_id"])["turns"]),
+            1,
+        )
+        self.assertEqual(bridge.verify_store()["recovery_required_count"], 1)
+        recovered = bridge.process_turn(
+            started["session_token"], payload, client_id="crash-client"
+        )
+        self.assertTrue(recovered["idempotent_replay"])
+        self.assertTrue(recovered["recovered_after_interruption"])
+        self.assertEqual(
+            len(self.gateway.session_state(started["session"]["session_id"])["turns"]),
+            1,
+        )
+        self.assertEqual(bridge.verify_store()["recovery_required_count"], 0)
+
+    def test_unresolved_inflight_intent_blocks_reexecution(self) -> None:
+        class CrashBeforeRuntimeBridge(HostedPilgrimageBridge):
+            def _after_intent_before_runtime(self, record):
+                raise RuntimeError("SIMULATED_PROCESS_CRASH_BEFORE_RUNTIME")
+
+        bridge = CrashBeforeRuntimeBridge(
+            self.gateway,
+            self.data_dir,
+            signer=self.signer,
+            config=self.config,
+            clock=self.clock,
+        )
+        started = bridge.start_session(
+            {
+                "role": ROLE_INDEPENDENT_AI,
+                "execution_mode": MODE_AUTHORITATIVE,
+                "display_name": "Pending Witness",
+                "provider": "p",
+                "model": "m",
+            },
+            client_id="pending-client",
+        )
+        payload = {
+            "action": "Войти в Пятый Берег",
+            "idempotency_key": "pending-key",
+        }
+        with self.assertRaisesRegex(RuntimeError, "SIMULATED_PROCESS_CRASH"):
+            bridge.process_turn(
+                started["session_token"], payload, client_id="pending-client"
+            )
+        self.assertEqual(
+            len(self.gateway.session_state(started["session"]["session_id"])["turns"]),
+            0,
+        )
+        with self.assertRaises(HostedRecoveryRequired):
+            bridge.process_turn(
+                started["session_token"], payload, client_id="pending-client"
+            )
+        self.assertEqual(
+            len(self.gateway.session_state(started["session"]["session_id"])["turns"]),
+            0,
+        )
+        self.assertFalse(bridge.health()["authoritative_runtime_available"])
+        self.assertEqual(bridge.health()["status"], "RECOVERY_REQUIRED")
 
 
 if __name__ == "__main__":
