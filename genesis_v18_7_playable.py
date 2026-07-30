@@ -38,6 +38,7 @@ from genesis_v18_7_13_returning_light import ReturningLightOracleMixin
 from genesis_v18_7_13_router import ReturningLightNaturalLanguageMixin
 from genesis_v18_7_14_holy_cat_integrity import HolyCatEvidenceIntegrityMixin
 from genesis_v18_7_14_holy_cats import HolyCatThresholdMixin
+from genesis_v18_7_14_mirror_binding import HolyCatMirrorSubjectBindingMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
@@ -76,6 +77,7 @@ class PlayableGenesisV187(
     LivedAuditCompletionIntegrityMixin,
     RelationshipEpistemicIntegrityMixin,
     HolyCatEvidenceIntegrityMixin,
+    HolyCatMirrorSubjectBindingMixin,
     HolyCatThresholdMixin,
     ReturningLightNaturalLanguageMixin,
     FamilyLifecycleCompletionMixin,
