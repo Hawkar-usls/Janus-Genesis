@@ -16,6 +16,7 @@ from genesis_v18_7_17_fifth_shore_bridge import (
 from genesis_v18_7_playable import (
     ACTIVE_EXTENSION_VERSIONS,
     CULTURE_EXTENSION_VERSIONS,
+    LIVING_BRIDGE_EXTENSION_VERSIONS,
     OBSERVER_EXTENSION_VERSIONS,
     PLAYABLE_VERSION,
     VOCATION_EXTENSION_VERSIONS,
@@ -46,7 +47,11 @@ class GenesisV18717FifthShoreLivingBridgeTests(unittest.TestCase):
         self.assertEqual(PLAYABLE_VERSION, "18.7.10")
         self.assertEqual(
             ACTIVE_EXTENSION_VERSIONS,
-            ("18.7.11", "18.7.12", "18.7.13", "18.7.17"),
+            ("18.7.11", "18.7.12", "18.7.13"),
+        )
+        self.assertEqual(
+            LIVING_BRIDGE_EXTENSION_VERSIONS,
+            ("18.7.17",),
         )
         self.assertEqual(OBSERVER_EXTENSION_VERSIONS, ("18.7.14",))
         self.assertEqual(VOCATION_EXTENSION_VERSIONS, ("18.7.15",))
