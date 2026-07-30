@@ -62,6 +62,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         return {
             "classification": "UNREALIZED_MIRROR",
             "status": "ARCHIVED",
+            "label": f"holy-cat-face:{self.world._cat_hash('witness')[:24]}",
             "isolation_verified": True,
             "raw_dialogue_in_canonical_archive": False,
             "raw_branch_persisted_in_canon": False,
