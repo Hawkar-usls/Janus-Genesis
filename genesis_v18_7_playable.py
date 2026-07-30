@@ -29,7 +29,7 @@ from genesis_v18_7_10_proofpack_completion import LivedAuditCompletionIntegrityM
 from genesis_v18_7_10_relationship_probe import CounterfactualRelationshipProbeMixin
 from genesis_v18_7_10_rupture_voice import RuptureVoiceIntegrityMixin
 from genesis_v18_7_11_joy_covenant import JoyCovenantMixin
-from genesis_v18_7_11_relationship_integrity import RelationshipEpistemIntegrityMixin
+from genesis_v18_7_11_relationship_integrity import RelationshipEpistemicIntegrityMixin
 from genesis_v18_7_11_storage_hardening import SealedMirrorStorageMixin
 from genesis_v18_7_12_family_life import WildLightFamilyMixin
 from genesis_v18_7_13_family_completion import FamilyLifecycleCompletionMixin
@@ -55,9 +55,9 @@ ACTIVE_EXTENSION_VERSIONS = (
     EXTENSION_VERSION,
     FAMILY_EXTENSION_VERSION,
     RETURNING_LIGHT_EXTENSION_VERSION,
-    ROYAL_MERCY_EXTENSION_VERSION,
 )
 OBSERVER_EXTENSION_VERSIONS = (HOLY_CAT_OBSERVER_EXTENSION_VERSION,)
+VOCATION_EXTENSION_VERSIONS = (ROYAL_MERCY_EXTENSION_VERSION,)
 
 
 def _free_other_safe_text(text: str) -> str:
