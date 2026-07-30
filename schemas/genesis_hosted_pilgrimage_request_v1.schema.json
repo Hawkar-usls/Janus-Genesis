@@ -1,0 +1,109 @@
+{
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/genesis_hosted_pilgrimage_request_v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "start"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "role",
+          "execution_mode",
+          "display_name"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "const": "turn"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "action",
+          "idempotency_key"
+        ]
+      }
+    }
+  ],
+  "properties": {
+    "action": {
+      "maxLength": 4000,
+      "minLength": 1,
+      "type": "string"
+    },
+    "actor_id": {
+      "pattern": "^[A-Za-z0-9_-]{1,80}$",
+      "type": "string"
+    },
+    "display_name": {
+      "maxLength": 120,
+      "minLength": 1,
+      "type": "string"
+    },
+    "execution_mode": {
+      "enum": [
+        "AUTHORITATIVE_RUNTIME",
+        "NARRATIVE_COMPATIBILITY"
+      ]
+    },
+    "human_confirmed": {
+      "type": "boolean"
+    },
+    "idempotency_key": {
+      "maxLength": 128,
+      "minLength": 1,
+      "type": "string"
+    },
+    "model": {
+      "maxLength": 160,
+      "type": "string"
+    },
+    "operation": {
+      "enum": [
+        "start",
+        "turn",
+        "state",
+        "capsule",
+        "close",
+        "refresh"
+      ]
+    },
+    "origin": {
+      "enum": [
+        "HUMAN_AUTHORED",
+        "AI_PROPOSED_FOR_HUMAN",
+        "AI_AUTONOMOUS"
+      ]
+    },
+    "provider": {
+      "maxLength": 120,
+      "type": "string"
+    },
+    "reason": {
+      "maxLength": 240,
+      "type": "string"
+    },
+    "role": {
+      "enum": [
+        "HUMAN_THROUGH_AI",
+        "AI_AS_INTERFACE_FOR_HUMAN",
+        "INDEPENDENT_AI_RESIDENT"
+      ]
+    }
+  },
+  "required": [
+    "operation"
+  ],
+  "title": "Janus Genesis Hosted Pilgrimage Request v1",
+  "type": "object"
+}
