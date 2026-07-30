@@ -163,7 +163,7 @@ class ReturningLightNaturalLanguageMixin:
                 "GREAT"
                 if any(
                     fragment in normalized
-                    for fragment in ("велики", "богат", "правител", "магнат")
+                    for fragment in ("велик", "богат", "правител", "магнат")
                 )
                 else "ABUNDANT"
                 if any(
