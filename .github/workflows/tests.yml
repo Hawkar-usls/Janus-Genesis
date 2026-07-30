@@ -91,6 +91,7 @@ jobs:
             scripts/run_returning_light_kingdom_audit.py \
             scripts/run_returning_light_kingdom_audit_fast.py \
             scripts/run_holy_cat_threshold_audit.py \
+            scripts/run_holy_cat_threshold_audit_verified.py \
             tools/genesis_api_server.py \
             tools/genesis_network_hub.py \
             play_genesis.py
@@ -138,7 +139,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
-          python scripts/run_holy_cat_threshold_audit.py \
+          python scripts/run_holy_cat_threshold_audit_verified.py \
             --output-dir artifacts/holy-cat-threshold-audit \
             --git-commit "$COMMIT"
       - name: Upload century proofpack
