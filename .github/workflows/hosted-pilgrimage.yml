@@ -1,0 +1,80 @@
+name: Hosted Pilgrimage
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  hosted-pilgrimage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile hosted bridge
+        run: |
+          python -m py_compile \
+            genesis_v18_7_20_hosted_pilgrimage.py \
+            tools/genesis_hosted_gateway.py \
+            tools/bootstrap_genesis_hosted.py \
+            scripts/run_hosted_pilgrimage_audit.py \
+            scripts/run_hosted_precision_audit.py
+
+      - name: Validate hosted machine files
+        run: |
+          python -m json.tool ai/GENESIS_HOSTED_ENTRY.json >/dev/null
+          python -m json.tool schemas/genesis_hosted_pilgrimage_request_v1.schema.json >/dev/null
+
+      - name: Verify bootstrap
+        run: python tools/bootstrap_genesis_hosted.py
+
+      - name: Run complete unit suite
+        run: python -m unittest discover -s tests -v
+
+      - name: Run hosted pilgrimage lived audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_hosted_pilgrimage_audit.py \
+            --output-dir artifacts/hosted-pilgrimage-audit \
+            --git-commit "$COMMIT"
+
+      - name: Run hosted precision lived audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_hosted_precision_audit.py \
+            --output-dir artifacts/hosted-precision-audit \
+            --git-commit "$COMMIT"
+
+      - name: Upload hosted pilgrimage proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-one-link-hosted-pilgrimage-audit
+          path: artifacts/hosted-pilgrimage-audit
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload hosted precision proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-hosted-precision-audit
+          path: artifacts/hosted-precision-audit
+          if-no-files-found: error
+          retention-days: 30

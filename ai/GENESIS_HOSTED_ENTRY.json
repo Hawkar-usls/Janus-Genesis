@@ -1,0 +1,68 @@
+{
+  "authentication": {
+    "algorithm": "HMAC-SHA256",
+    "secret_environment_variable": "GENESIS_HOSTED_SECRET",
+    "secret_file_environment_variable": "GENESIS_HOSTED_SECRET_FILE",
+    "secret_must_not_enter_repository_or_capsule": true,
+    "short_lived": true,
+    "type": "Bearer"
+  },
+  "bootstrap": {
+    "check": "python tools/bootstrap_genesis_hosted.py",
+    "install_and_check": "python tools/bootstrap_genesis_hosted.py --install",
+    "python": "3.11+",
+    "requirements": "requirements.txt"
+  },
+  "continuity": {
+    "duplicate_turn_execution_forbidden": true,
+    "session_continues_between_messages": true,
+    "token_refresh_supported": true,
+    "turn_idempotency_key_required": true
+  },
+  "deployment": {
+    "discovery_path": "/.well-known/janus-genesis.json",
+    "public_base_url": null,
+    "rule": "Do not claim a hosted authoritative runtime is available until public_base_url is an HTTPS URL and its health endpoint reports authoritative_runtime_available=true.",
+    "status": "DEPLOYMENT_REQUIRED"
+  },
+  "entry_file": "AI_ENTRY.md",
+  "fallback": {
+    "mode": "NARRATIVE_COMPATIBILITY",
+    "when_host_unavailable": "Disclose that no canonical outcome was recorded. Continue only as a labelled narrative scene or retry after the host returns."
+  },
+  "repository": "https://github.com/Hawkar-usls/Janus_Genesis",
+  "safety": {
+    "external_models_write_world_state_directly": false,
+    "higher_priority_platform_rules_remain_in_force": true,
+    "kill_switch_default": true,
+    "kill_switch_file_supported": true,
+    "live_mode_default": false,
+    "narrative_fallback_claims_canonical_change": false,
+    "rate_limits_required": true
+  },
+  "schema": "janus.genesis.hosted_pilgrimage.v1",
+  "schemas": {
+    "request": "schemas/genesis_hosted_pilgrimage_request_v1.schema.json"
+  },
+  "service": {
+    "default_bind": "127.0.0.1",
+    "default_port": 8787,
+    "endpoints": {
+      "capsule": "/v1/session/capsule",
+      "close": "/v1/session/close",
+      "health": "/v1/health",
+      "refresh": "/v1/token/refresh",
+      "start": "/v1/session/start",
+      "state": "/v1/session/state",
+      "turn": "/v1/session/turn"
+    },
+    "entrypoint": "tools/genesis_hosted_gateway.py",
+    "https": "Terminate TLS at a trusted reverse proxy; do not expose the plaintext listener directly."
+  },
+  "underlying_ai_link": {
+    "authoritative_state_writer": "PlayableGenesisV187",
+    "manifest": "ai/GENESIS_AI_ENTRY.json",
+    "version": "18.7.19"
+  },
+  "version": "18.7.20"
+}
