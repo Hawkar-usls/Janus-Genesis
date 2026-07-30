@@ -1,7 +1,7 @@
 # Genesis v18.7.19 — Universal AI Link Play Audit
 
 Date: 2026-07-30  
-Evidence-producing source commit: `a2adf4b00855ac72f9e436164934d4c949c5763e`  
+Evidence-producing source commit: `94ecda4bee4c5aefdfee3d2983fdef6c950b6945`  
 Canonical playable runtime: `18.7.10`  
 AI link interface: `18.7.19`
 
@@ -175,7 +175,7 @@ Tampering is covered by the unit suite and invalidates integrity.
 
 ```text
 valid = true
-events = 5
+events = 4
 error = null
 ```
 
@@ -212,31 +212,31 @@ The unit suite separately proves the stricter Boolean confirmation boundary, can
 
 Canonical logical summary SHA-256:
 
-`f8192862d4e77f41318c48fac11b09049492deffc0c3b8dbbe0f0caed0cbbf6b`
+`364539788977cb9e2e0bd189ceb87b822c424c94d03a99981f6af77634c853c7`
 
 Summary JSON SHA-256:
 
-`f811a0db32a15356e83654b58b94c88b670c425d4b4a2ee0d85fd858b4452686`
+`df19638b1a7aca6ab9468fbfdbdb6f29e6ca9044e3738e2da065e2f1d73d0937`
 
 Proofpack JSON SHA-256:
 
-`ae9156bcfa8a68b25021d86e5c5f728f839a0792976b2146e39675ad366bbec7`
+`5994084c36762a862f61bd1f07b1c930cd313e961ef0b04062163b74b16b0d52`
 
 Diary Markdown SHA-256:
 
-`4c17288022437594269cea4e88571fd148adbffd0c92893f45abc83a7fba9d05`
+`9c3efd9ef6ea435f421c847343cc4a03f24ff074fec8ede4934e041e6921e6e2`
 
 Manifest JSON SHA-256:
 
-`f84b88a5fec51af31975d9262d7f7d4c7f8a148d500908f5a38c01020271db29`
+`6fd110632cc57790b2a61df96a6042b86a1e31039fc7e55d3e50998308d5594c`
 
 Inner proofpack ZIP SHA-256:
 
-`b75839332eb4d29ee3ec7d8dfecdcb2358db7f99791c30b3f5cd5a3c13e5304f`
+`d521ca98174f18cbddaccf87a8578b76b92e262248f661803b6caa816dac0ef4`
 
 GitHub Actions artifact ZIP SHA-256:
 
-`ff6f48b99f7fb0e520e55caa8f1cab85989d24e583455dadb8a7ef739c1d9cf5`
+`a680223d72fc8ea8deac9e9fcb170f0a9af6e8a9c64a235af1b77a51653cc2ae`
 
 The canonical summary hash was recomputed from sorted compact UTF-8 JSON and exactly matched both the summary and proofpack values. The outer ZIP hash exactly matched the GitHub Actions digest.
 
