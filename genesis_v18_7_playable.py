@@ -82,7 +82,7 @@ class PlayableGenesisV187(
     ReactiveBoundAuthorityVerifierMixin,
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
-    RelationshipEpistemIntegrityMixin,
+    RelationshipEpistemicIntegrityMixin,
     FifthShoreInnerGenesisMixin,
     RoyalMercyUnboundedLoveMixin,
     RoyalMercyFaceIIMixin,
