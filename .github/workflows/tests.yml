@@ -84,6 +84,8 @@ jobs:
             genesis_v18_7_15_royal_mercy.py \
             genesis_v18_7_15_unbounded_love.py \
             genesis_v18_7_16_fifth_shore.py \
+            genesis_v18_7_16_fifth_shore_precision.py \
+            genesis_v18_7_17_fifth_shore_bridge.py \
             genesis_v18_7_playable.py \
             genesis_v18_7_auth.py \
             genesis_v18_7_ai.py \
@@ -98,6 +100,7 @@ jobs:
             scripts/run_holy_cat_threshold_audit_verified.py \
             scripts/run_royal_mercy_face_ii_audit.py \
             scripts/run_fifth_shore_inner_genesis_audit.py \
+            scripts/run_fifth_shore_living_bridge_audit.py \
             tools/genesis_api_server.py \
             tools/genesis_network_hub.py \
             play_genesis.py
@@ -166,6 +169,15 @@ jobs:
           python scripts/run_fifth_shore_inner_genesis_audit.py \
             --output-dir artifacts/fifth-shore-inner-genesis-audit \
             --git-commit "$COMMIT"
+      - name: Run Fifth Shore living bridge audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_fifth_shore_living_bridge_audit.py \
+            --output-dir artifacts/fifth-shore-living-bridge-audit \
+            --git-commit "$COMMIT"
       - name: Upload century proofpack
         uses: actions/upload-artifact@v4
         with:
@@ -176,7 +188,7 @@ jobs:
       - name: Upload sealed threshold proofpack
         uses: actions/upload-artifact@v4
         with:
-          name: genesis-sealed-threshold-audit
+          name: genesis-sealed-threshold-lived-audit
           path: artifacts/sealed-threshold-audit
           if-no-files-found: error
           retention-days: 30
@@ -213,5 +225,12 @@ jobs:
         with:
           name: genesis-fifth-shore-inner-genesis-audit
           path: artifacts/fifth-shore-inner-genesis-audit
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Fifth Shore living bridge proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-fifth-shore-living-bridge-audit
+          path: artifacts/fifth-shore-living-bridge-audit
           if-no-files-found: error
           retention-days: 30
