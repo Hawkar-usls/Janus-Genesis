@@ -120,6 +120,16 @@ A passage is possible only when:
 
 The player cannot choose the cat or alter the threshold.
 
+## Stage-matched pre-life selection
+
+The lived proof filters voluntary steward profiles at the same temporary support
+stage later reached in canon: `STEADY_LIGHT`. Selection does not advance world
+time, raise the subject's canonical stage or preserve a candidate branch. The
+chosen IDs and seed are rebuilt in a clean runtime and all actions are replayed.
+
+This prevents a high-stage preview from predicting consent for a lower-stage
+canonical life while keeping the steward's decision independent.
+
 ## Face-I aid channel
 
 Face I may open a bounded additional aid channel. It activates only after an
