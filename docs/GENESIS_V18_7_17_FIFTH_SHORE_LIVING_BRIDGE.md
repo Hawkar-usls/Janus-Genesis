@@ -210,14 +210,15 @@ unsafe fork rejected
 
 ```text
 PLAYABLE_VERSION = 18.7.10
-ACTIVE_EXTENSION_VERSIONS = 18.7.11, 18.7.12, 18.7.13, 18.7.17
+ACTIVE_EXTENSION_VERSIONS = 18.7.11, 18.7.12, 18.7.13
+LIVING_BRIDGE_EXTENSION_VERSIONS = 18.7.17
 OBSERVER_EXTENSION_VERSIONS = 18.7.14
 VOCATION_EXTENSION_VERSIONS = 18.7.15
 CULTURE_EXTENSION_VERSIONS = 18.7.16
 ```
 
 Замороженный playable runtime не переписывается. Пятый Берег включается через
-отдельный активный mixin и первый bounded router в `process_action`.
+отдельный living-bridge mixin и первый bounded router в `process_action`.
 
 ## Закон
 
