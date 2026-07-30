@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable Genesis v18.7.10 with separately versioned extensions through v18.7.12."""
+"""Playable Genesis v18.7.10 with separately versioned extensions through v18.7.13."""
 from __future__ import annotations
 
 import re
@@ -32,6 +32,10 @@ from genesis_v18_7_11_joy_covenant import JoyCovenantMixin
 from genesis_v18_7_11_relationship_integrity import RelationshipEpistemicIntegrityMixin
 from genesis_v18_7_11_storage_hardening import SealedMirrorStorageMixin
 from genesis_v18_7_12_family_life import WildLightFamilyMixin
+from genesis_v18_7_13_family_completion import FamilyLifecycleCompletionMixin
+from genesis_v18_7_13_peaceable_kingdom import PeaceableKingdomMixin
+from genesis_v18_7_13_returning_light import ReturningLightOracleMixin
+from genesis_v18_7_13_router import ReturningLightNaturalLanguageMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
@@ -39,7 +43,12 @@ from genesis_v18_7_compat import GenesisV187CompatibilityMixin
 PLAYABLE_VERSION = "18.7.10"
 EXTENSION_VERSION = "18.7.11"
 FAMILY_EXTENSION_VERSION = "18.7.12"
-ACTIVE_EXTENSION_VERSIONS = (EXTENSION_VERSION, FAMILY_EXTENSION_VERSION)
+RETURNING_LIGHT_EXTENSION_VERSION = "18.7.13"
+ACTIVE_EXTENSION_VERSIONS = (
+    EXTENSION_VERSION,
+    FAMILY_EXTENSION_VERSION,
+    RETURNING_LIGHT_EXTENSION_VERSION,
+)
 
 
 def _free_other_safe_text(text: str) -> str:
@@ -62,6 +71,10 @@ class PlayableGenesisV187(
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
     RelationshipEpistemicIntegrityMixin,
+    ReturningLightNaturalLanguageMixin,
+    FamilyLifecycleCompletionMixin,
+    ReturningLightOracleMixin,
+    PeaceableKingdomMixin,
     WildLightFamilyMixin,
     JoyCovenantMixin,
     SealedMirrorStorageMixin,
@@ -80,7 +93,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.10 runtime with sealed joy and family-life extensions."""
+    """v18.7.10 runtime with joy, family, Returning Light, and peaceable ecology."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
@@ -113,6 +126,10 @@ class PlayableGenesisV187(
         self.recover_incomplete_mirror_archives()
 
     def process_action(self, player_id: str, action: str):
+        v1813_result = self.try_v1813_action(player_id, action)
+        if v1813_result is not None:
+            return v1813_result
+
         joy_result = self.try_blessed_joy_action(player_id, action)
         if joy_result is not None:
             return joy_result
