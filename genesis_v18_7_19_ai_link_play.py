@@ -49,6 +49,14 @@ def _slug(value: str) -> str:
     return cleaned[:32] or "model"
 
 
+def _canonical_actor_id(value: str) -> str:
+    raw = str(value).strip()
+    canonical = "".join(ch for ch in raw if ch.isalnum() or ch in "-_")[:80]
+    if not canonical or canonical != raw:
+        raise ValueError("AI_LINK_ACTOR_ID_NOT_CANONICAL")
+    return canonical
+
+
 def ai_entry_manifest() -> dict[str, Any]:
     """Return the provider-neutral contract exposed to link-reading models."""
     return {
@@ -93,6 +101,7 @@ def ai_entry_manifest() -> dict[str, Any]:
             "silence_is_not_consent": True,
             "no_impersonation": True,
             "no_secret_or_api_key_in_capsule": True,
+            "no_free_text_in_public_capsule": True,
         },
     }
 
@@ -172,9 +181,16 @@ class GenesisAILinkGateway:
             }
             actor_id = f"ai-resident-{_slug(display_name)}-{_sha256(identity_seed)[:10]}"
         else:
-            actor_id = str(actor_id or "").strip()
-            if not actor_id:
+            if actor_id is None or not str(actor_id).strip():
                 raise ValueError("AI_LINK_HUMAN_ACTOR_ID_REQUIRED")
+            actor_id = _canonical_actor_id(str(actor_id))
+            for existing in store["sessions"].values():
+                if (
+                    isinstance(existing, dict)
+                    and existing.get("actor_id") == actor_id
+                    and existing.get("display_name") != display_name
+                ):
+                    raise ValueError("AI_LINK_ACTOR_ID_ALREADY_BOUND_TO_DIFFERENT_NAME")
 
         session_seed = {
             "role": role,
@@ -271,6 +287,8 @@ class GenesisAILinkGateway:
         origin: str,
         human_confirmed: bool = False,
     ) -> dict[str, Any]:
+        if type(human_confirmed) is not bool:
+            raise TypeError("AI_LINK_HUMAN_CONFIRMATION_MUST_BE_BOOLEAN")
         action = str(action).strip()
         if not action:
             raise ValueError("AI_LINK_EMPTY_ACTION")
@@ -375,13 +393,71 @@ class GenesisAILinkGateway:
 
     def export_capsule(self, session_id: str) -> dict[str, Any]:
         session = self.session_state(session_id)
+        safe_turns = []
+        for turn in session.get("turns", []):
+            result = turn.get("result", {}) if isinstance(turn, dict) else {}
+            safe_turns.append(
+                {
+                    "sequence": turn.get("sequence"),
+                    "actor_id": turn.get("actor_id"),
+                    "role": turn.get("role"),
+                    "origin": turn.get("origin"),
+                    "human_confirmed": turn.get("human_confirmed"),
+                    "action_sha256": turn.get("action_sha256"),
+                    "previous_turn_hash": turn.get("previous_turn_hash"),
+                    "turn_hash": turn.get("turn_hash"),
+                    "result": {
+                        "status": result.get("status"),
+                        "runtime_status": result.get("runtime_status"),
+                        "authoritative_runtime": result.get("authoritative_runtime"),
+                        "canonical_runtime_outcome_recorded": result.get(
+                            "canonical_runtime_outcome_recorded"
+                        ),
+                        "canonical_state_change_claimed": result.get(
+                            "canonical_state_change_claimed"
+                        ),
+                    },
+                }
+            )
+        safe_session = {
+            "session_id": session.get("session_id"),
+            "schema": session.get("schema"),
+            "interface_version": session.get("interface_version"),
+            "role": session.get("role"),
+            "execution_mode": session.get("execution_mode"),
+            "actor_id": session.get("actor_id"),
+            "display_name_sha256": hashlib.sha256(
+                str(session.get("display_name") or "").encode("utf-8")
+            ).hexdigest(),
+            "model_identity_sha256": _sha256(session.get("model_identity", {})),
+            "status": session.get("status"),
+            "autonomous_turns_allowed": session.get("autonomous_turns_allowed"),
+            "human_confirmation_required": session.get("human_confirmation_required"),
+            "human_identity_claimed": session.get("human_identity_claimed"),
+            "consciousness_status": session.get("consciousness_status"),
+            "legal_personhood_claimed": session.get("legal_personhood_claimed"),
+            "world_authority": session.get("world_authority"),
+            "private_human_memory_access": session.get("private_human_memory_access"),
+            "direct_state_write_allowed": session.get("direct_state_write_allowed"),
+            "runtime_mediation_required": session.get("runtime_mediation_required"),
+            "turns": safe_turns,
+            "next_sequence": session.get("next_sequence"),
+            "session_hash": session.get("session_hash"),
+            "return_open": session.get("return_open"),
+            "moral_failure_assigned": session.get("moral_failure_assigned"),
+        }
+        if session.get("close_reason") is not None:
+            safe_session["close_reason_sha256"] = hashlib.sha256(
+                str(session.get("close_reason")).encode("utf-8")
+            ).hexdigest()
         capsule = {
             "schema": AI_LINK_CAPSULE_SCHEMA,
             "interface_version": AI_LINK_INTERFACE_VERSION,
             "repository": REPOSITORY_URL,
-            "session": session,
+            "session": safe_session,
             "privacy": {
                 "api_keys_included": False,
+                "free_text_included": False,
                 "internal_realm_included": False,
                 "branch_id_included": False,
                 "private_human_chronicle_included": False,
@@ -390,6 +466,7 @@ class GenesisAILinkGateway:
                 "authoritative_only_when_runtime_flag_true": True,
                 "independent_ai_residency_is_simulation_role": True,
                 "consciousness_not_established": True,
+                "free_text_requires_separate_explicit_transfer": True,
             },
         }
         capsule["capsule_hash"] = _sha256(capsule)
