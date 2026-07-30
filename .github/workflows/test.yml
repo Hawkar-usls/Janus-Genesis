@@ -42,10 +42,11 @@ jobs:
           genesis_v18_7_13_family_completion.py genesis_v18_7_13_returning_light.py
           genesis_v18_7_13_peaceable_kingdom.py genesis_v18_7_13_router.py
           genesis_v18_7_14_holy_cats.py genesis_v18_7_14_holy_cat_integrity.py
+          genesis_v18_7_14_mirror_binding.py
           genesis_v18_7_playable.py genesis_v18_7_1_playable.py genesis_v18_7_2_playable.py
           genesis_v18_7_auth.py genesis_v18_7_ai.py genesis_v18_7_network.py genesis_v18_7_portable.py
           scripts/run_returning_light_kingdom_audit_fast.py
-          scripts/run_holy_cat_threshold_audit.py
+          scripts/run_holy_cat_threshold_audit.py scripts/run_holy_cat_threshold_audit_verified.py
           tools/build_external_lexicon.py tools/genesis_api_server.py tools/genesis_network_hub.py
           play_genesis.py
       - name: Test
