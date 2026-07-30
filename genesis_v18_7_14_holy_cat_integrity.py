@@ -39,9 +39,20 @@ class HolyCatEvidenceIntegrityMixin:
             mirror_metrics
         ):
             raise RuntimeError("HOLY_CAT_MIRROR_METRICS_HASH_MISMATCH")
-        expected_label = f"holy-cat-face:{self._cat_hash(subject_id)[:24]}"
-        if mirror_archive.get("label") != expected_label:
+
+        expected_binding = {
+            "namespace": "holy-cat-face",
+            "subject_hash_prefix": self._cat_hash(subject_id)[:24],
+        }
+        if mirror_archive.get("raw_mirror_label_archived") is not False:
+            raise RuntimeError("HOLY_CAT_RAW_MIRROR_LABEL_ARCHIVED")
+        if mirror_archive.get("privacy_safe_subject_binding") != expected_binding:
             raise RuntimeError("HOLY_CAT_MIRROR_SUBJECT_BINDING_MISMATCH")
+        if mirror_archive.get(
+            "privacy_safe_subject_binding_sha256"
+        ) != sha256_canonical(expected_binding):
+            raise RuntimeError("HOLY_CAT_MIRROR_SUBJECT_BINDING_HASH_MISMATCH")
+
         return super().holy_cat_witness_between_worlds(
             subject_id,
             canonical_witness=canonical_witness,
