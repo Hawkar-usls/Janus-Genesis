@@ -45,6 +45,7 @@ from genesis_v18_7_16_fifth_shore import FifthShoreInnerGenesisMixin
 from genesis_v18_7_16_fifth_shore_precision import FifthShoreRestHumorPrecisionMixin
 from genesis_v18_7_17_fifth_shore_bridge import FifthShoreLivingBridgeMixin
 from genesis_v18_7_18_threshold_discernment_guard import ThresholdDiscernmentGuardMixin
+from genesis_v18_7_18_threshold_guard_review_precision import ThresholdGuardReviewPrecisionMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
@@ -89,7 +90,8 @@ class PlayableGenesisV187(
     ReactiveBoundAuthorityVerifierMixin,
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
-    RelationshipEpistemicIntegrityMixin,
+    RelationshipEpistemIntegrityMixin,
+    ThresholdGuardReviewPrecisionMixin,
     ThresholdDiscernmentGuardMixin,
     FifthShoreLivingBridgeMixin,
     FifthShoreRestHumorPrecisionMixin,
