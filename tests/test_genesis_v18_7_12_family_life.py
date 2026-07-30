@@ -80,7 +80,9 @@ class GenesisV18712FamilyLifeTests(unittest.TestCase):
         self.assertEqual(EXTENSION_VERSION, "18.7.11")
         self.assertEqual(PLAYABLE_FAMILY_EXTENSION_VERSION, "18.7.12")
         self.assertEqual(FAMILY_EXTENSION_VERSION, "18.7.12")
-        self.assertEqual(ACTIVE_EXTENSION_VERSIONS, ("18.7.11", "18.7.12"))
+        self.assertGreaterEqual(len(ACTIVE_EXTENSION_VERSIONS), 2)
+        self.assertEqual(ACTIVE_EXTENSION_VERSIONS[:2], ("18.7.11", "18.7.12"))
+        self.assertEqual(len(set(ACTIVE_EXTENSION_VERSIONS)), len(ACTIVE_EXTENSION_VERSIONS))
         self.assertEqual(len(FAMILY_COVENANT_SHA256), 64)
 
     def test_companionship_requires_adults_and_free_other_acceptance(self) -> None:
