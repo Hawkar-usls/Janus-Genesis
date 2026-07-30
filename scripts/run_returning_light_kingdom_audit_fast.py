@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import builtins
+import inspect
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -171,15 +173,39 @@ def choose_lived_plan_fast() -> dict[str, Any]:
 
 
 def diagnostic_all(values: Any) -> bool:
-    """Name false invariant positions without weakening the original gate."""
+    """Expose failed gate values without weakening the original all()."""
     items = list(values)
     failed = [index for index, value in enumerate(items) if not value]
     if len(items) >= 30 and failed:
+        caller = inspect.currentframe().f_back
+        summary = caller.f_locals.get("summary") if caller else None
         print(
             "RETURNING_LIGHT_FALSE_INVARIANT_INDEXES="
             + ",".join(str(index) for index in failed),
             file=sys.stderr,
         )
+        if isinstance(summary, dict):
+            oracle = summary.get("oracle", {})
+            payload = {
+                "capacity_tier": oracle.get("capacity_tier"),
+                "returning_stage": oracle.get("returning_stage"),
+                "steady_stage": oracle.get("steady_stage"),
+                "returning_decision": oracle.get("returning_aid", {}).get("decision"),
+                "steady_decision": oracle.get("steady_aid", {}).get("decision"),
+                "returning_material": oracle.get("returning_aid", {}).get(
+                    "material_units_granted"
+                ),
+                "steady_material": oracle.get("steady_aid", {}).get(
+                    "material_units_granted"
+                ),
+                "steward_handle": caller.f_locals.get("steward_handle"),
+                "selected_preview": caller.f_locals.get("selection"),
+            }
+            print(
+                "RETURNING_LIGHT_DIAGNOSTIC="
+                + json.dumps(payload, ensure_ascii=False, sort_keys=True),
+                file=sys.stderr,
+            )
     return builtins.all(items)
 
 
