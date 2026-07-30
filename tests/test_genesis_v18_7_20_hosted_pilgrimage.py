@@ -86,6 +86,17 @@ class HostedPilgrimageTests(unittest.TestCase):
             client_id="test-client",
         )
 
+    def enter_fifth_shore(self, started, *, key: str = "enter"):
+        return self.bridge.process_turn(
+            started["session_token"],
+            {
+                "action": "Войти в Пятый Берег",
+                "origin": ORIGIN_AI_AUTONOMOUS,
+                "idempotency_key": key,
+            },
+            client_id="test-client",
+        )
+
     def test_repository_hosted_entry_files_are_machine_readable(self) -> None:
         root = Path(__file__).resolve().parents[1]
         manifest = json.loads(
@@ -142,10 +153,7 @@ class HostedPilgrimageTests(unittest.TestCase):
 
     def test_signed_token_round_trip_and_minimal_claims(self) -> None:
         started = self.start_independent()
-        claims = self.signer.verify(
-            started["session_token"],
-            required_scope="turn",
-        )
+        claims = self.signer.verify(started["session_token"], required_scope="turn")
         self.assertEqual(claims["sid"], started["session"]["session_id"])
         self.assertEqual(claims["aid"], started["session"]["actor_id"])
         encoded_payload = started["session_token"].split(".")[1]
@@ -159,10 +167,12 @@ class HostedPilgrimageTests(unittest.TestCase):
 
     def test_tampered_token_is_rejected(self) -> None:
         started = self.start_independent()
-        token = started["session_token"]
-        replacement = "A" if token[-1] != "A" else "B"
+        parts = started["session_token"].split(".")
+        signature = parts[2]
+        replacement = "A" if signature[0] != "A" else "B"
+        tampered = f"{parts[0]}.{parts[1]}.{replacement}{signature[1:]}"
         with self.assertRaises(HostedAuthenticationError):
-            self.signer.verify(token[:-1] + replacement)
+            self.signer.verify(tampered)
 
     def test_expired_token_is_rejected(self) -> None:
         started = self.start_independent()
@@ -172,16 +182,7 @@ class HostedPilgrimageTests(unittest.TestCase):
 
     def test_authoritative_hosted_turn_reaches_real_runtime(self) -> None:
         started = self.start_independent()
-        response = self.bridge.process_turn(
-            started["session_token"],
-            {
-                "action": "Войти в Пятый Берег",
-                "origin": ORIGIN_AI_AUTONOMOUS,
-                "idempotency_key": "turn-1",
-            },
-            client_id="test-client",
-        )
-        turn = response["turn"]
+        turn = self.enter_fifth_shore(started, key="turn-1")["turn"]
         self.assertTrue(turn["result"]["authoritative_runtime"])
         self.assertTrue(turn["result"]["canonical_runtime_outcome_recorded"])
         self.assertEqual(
@@ -191,6 +192,7 @@ class HostedPilgrimageTests(unittest.TestCase):
 
     def test_independent_origin_defaults_safely(self) -> None:
         started = self.start_independent()
+        self.enter_fifth_shore(started, key="enter-before-default-origin")
         response = self.bridge.process_turn(
             started["session_token"],
             {
@@ -200,6 +202,10 @@ class HostedPilgrimageTests(unittest.TestCase):
             client_id="test-client",
         )
         self.assertEqual(response["turn"]["origin"], ORIGIN_AI_AUTONOMOUS)
+        self.assertEqual(
+            response["turn"]["result"]["runtime_status"],
+            "FIFTH_SHORE_JOY_WITHOUT_REPAIR",
+        )
 
     def test_turn_requires_idempotency_key(self) -> None:
         started = self.start_independent()
@@ -217,23 +223,16 @@ class HostedPilgrimageTests(unittest.TestCase):
             "idempotency_key": "same-turn",
         }
         first = self.bridge.process_turn(
-            started["session_token"],
-            payload,
-            client_id="test-client",
+            started["session_token"], payload, client_id="test-client"
         )
         second = self.bridge.process_turn(
-            started["session_token"],
-            payload,
-            client_id="test-client",
+            started["session_token"], payload, client_id="test-client"
         )
         self.assertFalse(first["idempotent_replay"])
         self.assertTrue(second["idempotent_replay"])
         state = self.gateway.session_state(started["session"]["session_id"])
         self.assertEqual(len(state["turns"]), 1)
-        self.assertEqual(
-            first["turn"]["turn_hash"],
-            second["turn"]["turn_hash"],
-        )
+        self.assertEqual(first["turn"]["turn_hash"], second["turn"]["turn_hash"])
 
     def test_concurrent_same_key_reaches_runtime_only_once(self) -> None:
         started = self.start_independent()
@@ -263,26 +262,17 @@ class HostedPilgrimageTests(unittest.TestCase):
         barrier.wait()
         for thread in threads:
             thread.join(timeout=5)
-
         self.assertEqual(errors, [])
         self.assertEqual(len(results), 2)
         self.assertEqual(
-            sorted(item["idempotent_replay"] for item in results),
-            [False, True],
+            sorted(item["idempotent_replay"] for item in results), [False, True]
         )
         state = self.gateway.session_state(started["session"]["session_id"])
         self.assertEqual(len(state["turns"]), 1)
 
     def test_idempotency_key_cannot_be_reused_for_different_action(self) -> None:
         started = self.start_independent()
-        self.bridge.process_turn(
-            started["session_token"],
-            {
-                "action": "Войти в Пятый Берег",
-                "idempotency_key": "conflict-key",
-            },
-            client_id="test-client",
-        )
+        self.enter_fifth_shore(started, key="conflict-key")
         with self.assertRaises(HostedIdempotencyError):
             self.bridge.process_turn(
                 started["session_token"],
@@ -306,25 +296,17 @@ class HostedPilgrimageTests(unittest.TestCase):
             ),
             clock=self.clock,
         )
-        bridge.start_session(
-            {
-                "role": ROLE_INDEPENDENT_AI,
-                "execution_mode": MODE_AUTHORITATIVE,
-                "display_name": "One Request",
-                "provider": "p",
-                "model": "m",
-            },
-            client_id="limited-client",
-        )
+        payload = {
+            "role": ROLE_INDEPENDENT_AI,
+            "execution_mode": MODE_AUTHORITATIVE,
+            "display_name": "One Request",
+            "provider": "p",
+            "model": "m",
+        }
+        bridge.start_session(payload, client_id="limited-client")
         with self.assertRaises(HostedRateLimitError):
             bridge.start_session(
-                {
-                    "role": ROLE_INDEPENDENT_AI,
-                    "execution_mode": MODE_AUTHORITATIVE,
-                    "display_name": "Second Request",
-                    "provider": "p",
-                    "model": "m",
-                },
+                {**payload, "display_name": "Second Request"},
                 client_id="limited-client",
             )
 
@@ -365,13 +347,10 @@ class HostedPilgrimageTests(unittest.TestCase):
             client_id="fallback-client",
         )
         self.assertTrue(started["fallback_used"])
-        self.assertEqual(
-            started["session"]["execution_mode"],
-            MODE_NARRATIVE,
-        )
+        self.assertEqual(started["session"]["execution_mode"], MODE_NARRATIVE)
         self.assertFalse(started["authoritative_runtime_available"])
 
-    def test_token_is_bound_to_session_identity(self) -> None:
+    def test_token_is_bound_to_its_original_session(self) -> None:
         first = self.start_independent()
         second = self.bridge.start_session(
             {
@@ -383,21 +362,17 @@ class HostedPilgrimageTests(unittest.TestCase):
             },
             client_id="second-client",
         )
-        claims = self.signer.verify(first["session_token"])
-        claims["sid"] = second["session"]["session_id"]
         state = self.bridge.session_state(
-            first["session_token"],
-            client_id="test-client",
+            first["session_token"], client_id="test-client"
         )
         self.assertEqual(state["session_id"], first["session"]["session_id"])
-        self.assertNotEqual(state["session_id"], claims["sid"])
+        self.assertNotEqual(state["session_id"], second["session"]["session_id"])
 
     def test_refresh_issues_new_short_lived_token(self) -> None:
         started = self.start_independent()
         self.clock.advance(10)
         refreshed = self.bridge.refresh_token(
-            started["session_token"],
-            client_id="test-client",
+            started["session_token"], client_id="test-client"
         )
         self.assertNotEqual(refreshed["session_token"], started["session_token"])
         self.assertEqual(refreshed["session_id"], started["session"]["session_id"])
@@ -405,17 +380,9 @@ class HostedPilgrimageTests(unittest.TestCase):
 
     def test_capsule_excludes_host_secret_token_and_client_id(self) -> None:
         started = self.start_independent()
-        self.bridge.process_turn(
-            started["session_token"],
-            {
-                "action": "Войти в Пятый Берег",
-                "idempotency_key": "capsule-turn",
-            },
-            client_id="private-client-name",
-        )
+        self.enter_fifth_shore(started, key="capsule-turn")
         capsule = self.bridge.export_capsule(
-            started["session_token"],
-            client_id="private-client-name",
+            started["session_token"], client_id="private-client-name"
         )
         encoded = json.dumps(capsule, ensure_ascii=False, sort_keys=True)
         self.assertNotIn(started["session_token"], encoded)
