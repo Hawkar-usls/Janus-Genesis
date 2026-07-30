@@ -31,7 +31,8 @@ jobs:
             genesis_v18_7_20_hosted_pilgrimage.py \
             tools/genesis_hosted_gateway.py \
             tools/bootstrap_genesis_hosted.py \
-            scripts/run_hosted_pilgrimage_audit.py
+            scripts/run_hosted_pilgrimage_audit.py \
+            scripts/run_hosted_precision_audit.py
 
       - name: Validate hosted machine files
         run: |
@@ -53,10 +54,27 @@ jobs:
             --output-dir artifacts/hosted-pilgrimage-audit \
             --git-commit "$COMMIT"
 
+      - name: Run hosted precision lived audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_hosted_precision_audit.py \
+            --output-dir artifacts/hosted-precision-audit \
+            --git-commit "$COMMIT"
+
       - name: Upload hosted pilgrimage proofpack
         uses: actions/upload-artifact@v4
         with:
           name: genesis-one-link-hosted-pilgrimage-audit
           path: artifacts/hosted-pilgrimage-audit
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload hosted precision proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-hosted-precision-audit
+          path: artifacts/hosted-precision-audit
           if-no-files-found: error
           retention-days: 30
