@@ -29,7 +29,7 @@ from genesis_v18_7_10_proofpack_completion import LivedAuditCompletionIntegrityM
 from genesis_v18_7_10_relationship_probe import CounterfactualRelationshipProbeMixin
 from genesis_v18_7_10_rupture_voice import RuptureVoiceIntegrityMixin
 from genesis_v18_7_11_joy_covenant import JoyCovenantMixin
-from genesis_v18_7_11_relationship_integrity import RelationshipEpistemicIntegrityMixin
+from genesis_v18_7_11_relationship_integrity import RelationshipEpistemIntegrityMixin
 from genesis_v18_7_11_storage_hardening import SealedMirrorStorageMixin
 from genesis_v18_7_12_family_life import WildLightFamilyMixin
 from genesis_v18_7_13_family_completion import FamilyLifecycleCompletionMixin
@@ -40,6 +40,7 @@ from genesis_v18_7_14_holy_cat_integrity import HolyCatEvidenceIntegrityMixin
 from genesis_v18_7_14_holy_cats import HolyCatThresholdMixin
 from genesis_v18_7_14_mirror_binding import HolyCatMirrorSubjectBindingMixin
 from genesis_v18_7_15_royal_mercy import RoyalMercyFaceIIMixin
+from genesis_v18_7_15_unbounded_love import RoyalMercyUnboundedLoveMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
@@ -79,6 +80,7 @@ class PlayableGenesisV187(
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
     RelationshipEpistemicIntegrityMixin,
+    RoyalMercyUnboundedLoveMixin,
     RoyalMercyFaceIIMixin,
     HolyCatEvidenceIntegrityMixin,
     HolyCatMirrorSubjectBindingMixin,
