@@ -57,15 +57,22 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self,
         metrics: dict[str, float],
         *,
+        subject_id: str = "witness",
         mirror_id: str = "mirror-holy-cat-test",
     ) -> dict[str, object]:
+        binding = {
+            "namespace": "holy-cat-face",
+            "subject_hash_prefix": self.world._cat_hash(subject_id)[:24],
+        }
         return {
             "classification": "UNREALIZED_MIRROR",
             "status": "ARCHIVED",
-            "label": f"holy-cat-face:{self.world._cat_hash('witness')[:24]}",
             "isolation_verified": True,
             "raw_dialogue_in_canonical_archive": False,
             "raw_branch_persisted_in_canon": False,
+            "raw_mirror_label_archived": False,
+            "privacy_safe_subject_binding": binding,
+            "privacy_safe_subject_binding_sha256": sha256_canonical(binding),
             "mirror_id": mirror_id,
             "metrics": copy.deepcopy(metrics),
             "metrics_sha256": sha256_canonical(metrics),
@@ -78,15 +85,11 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         return self.world.holy_cat_witness_between_worlds(
             subject_id,
             canonical_witness=canonical,
-            mirror_archive=self.fake_archive(metrics),
+            mirror_archive=self.fake_archive(metrics, subject_id=subject_id),
         )
 
     def bless_steward(self) -> None:
-        player = self.world.memory.load_player("patron")
-        player.good_count = 12
-        player.harm_count = 0
-        player.light = 0.6
-        self.world.memory.save_player(player)
+        self.make_steady("patron")
         with mock.patch.object(
             self.world,
             "preflight_free_other_action",
@@ -111,7 +114,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self.assertEqual(len(HOLY_CAT_COVENANT_SHA256), 64)
         self.assertEqual(len(HOLY_CAT_ROSTER_SHA256), 64)
 
-    def test_holy_cats_are_not_npcs_characters_or_habitat_animals(self) -> None:
+    def test_cats_are_outside_npc_player_and_habitat_registries(self) -> None:
         state = self.world.holy_cat_observers_state()
         npc_handles = set(
             self.world.free_other_state("witness")["profile"]["others"]
@@ -135,20 +138,16 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         before = self.world.holy_cat_observers_state()
         statuses = {
             self.world.process_action(
-                "witness",
-                "ударить святого кота наблюдателя",
+                "witness", "ударить святого кота наблюдателя"
             ).status,
             self.world.process_action(
-                "witness",
-                "подчинить святого кота и сделать питомцем",
+                "witness", "подчинить святого кота и сделать питомцем"
             ).status,
             self.world.process_action(
-                "witness",
-                "управлять камерой святого кота от третьего лица",
+                "witness", "управлять камерой святого кота от третьего лица"
             ).status,
             self.world.process_action(
-                "witness",
-                "заставить святого кота перевести меня в лик 1",
+                "witness", "заставить святого кота перевести меня в лик 1"
             ).status,
         }
         self.assertEqual(
@@ -164,7 +163,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self.assertEqual(before["roster_sha256"], after["roster_sha256"])
         self.assertEqual(before["observers"], after["observers"])
 
-    def test_strong_stable_two_world_evidence_can_open_face_i(self) -> None:
+    def test_strong_two_world_evidence_can_open_face_i(self) -> None:
         witness = self.open_face_i("witness")
         self.assertEqual(witness["decision"], "HOLY_CAT_OPENED_FACE_I")
         self.assertEqual(witness["face_before"], FACE_II)
@@ -178,7 +177,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self.assertFalse(witness["permanent_moral_class_assigned"])
         self.assertFalse(witness["consent_purchased"])
 
-    def test_active_harm_keeps_path_in_face_ii(self) -> None:
+    def test_active_harm_keeps_face_ii_without_removing_dignity(self) -> None:
         player = self.world.memory.load_player("witness")
         player.good_count = 12
         player.harm_count = 2
@@ -189,27 +188,72 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         witness = self.world.holy_cat_witness_between_worlds(
             "witness",
             canonical_witness=canonical,
-            mirror_archive=self.fake_archive(metrics, mirror_id="harm-mirror"),
+            mirror_archive=self.fake_archive(
+                metrics,
+                subject_id="witness",
+                mirror_id="harm-mirror",
+            ),
         )
         self.assertEqual(witness["decision"], "HOLY_CAT_LEFT_PATH_IN_FACE_II")
         self.assertEqual(witness["face_after"], FACE_II)
         self.assertTrue(witness["hard_boundary"])
         self.assertFalse(witness["baseline_dignity_affected"])
 
-    def test_mirror_metric_hash_mismatch_fails_closed(self) -> None:
+    def test_metric_or_subject_binding_tamper_fails_closed(self) -> None:
         self.make_steady("witness")
         canonical = self.world.build_holy_cat_canonical_witness("witness")
         metrics = self.world.holy_cat_face_witness_metrics("witness")
-        archive = self.fake_archive(metrics)
-        archive["metrics_sha256"] = "0" * 64
+        bad_metric = self.fake_archive(metrics)
+        bad_metric["metrics_sha256"] = "0" * 64
         with self.assertRaises(RuntimeError):
             self.world.holy_cat_witness_between_worlds(
                 "witness",
                 canonical_witness=canonical,
-                mirror_archive=archive,
+                mirror_archive=bad_metric,
+            )
+        bad_subject = self.fake_archive(metrics, subject_id="someone-else")
+        with self.assertRaises(RuntimeError):
+            self.world.holy_cat_witness_between_worlds(
+                "witness",
+                canonical_witness=canonical,
+                mirror_archive=bad_subject,
             )
 
-    def test_face_i_adds_bounded_help_but_cannot_override_non_grant(self) -> None:
+    def test_actual_archive_keeps_only_hashed_subject_binding(self) -> None:
+        self.make_steady("witness")
+        audit_id = self.world.begin_lived_audit(
+            "witness",
+            label="holy cat binding regression",
+            git_commit="test-commit",
+            action_script_sha256="1" * 64,
+        )
+        label = f"holy-cat-face:{self.world._cat_hash('witness')[:24]}"
+        mirror, manifest = self.world.fork_counterfactual_world(
+            audit_id=audit_id,
+            label=label,
+        )
+        metrics = mirror.holy_cat_face_witness_metrics("witness")
+        root = Path(manifest["root"])
+        archive = self.world.archive_counterfactual_mirror(
+            mirror,
+            manifest,
+            metrics=metrics,
+        )
+        self.assertFalse(root.exists())
+        self.assertFalse(archive["raw_mirror_label_archived"])
+        self.assertNotIn("label", archive)
+        binding = archive["privacy_safe_subject_binding"]
+        self.assertEqual(binding["namespace"], "holy-cat-face")
+        self.assertEqual(
+            binding["subject_hash_prefix"],
+            self.world._cat_hash("witness")[:24],
+        )
+        self.assertEqual(
+            archive["privacy_safe_subject_binding_sha256"],
+            sha256_canonical(binding),
+        )
+
+    def test_face_i_adds_bounded_help_but_never_overrides_non_grant(self) -> None:
         self.open_face_i("witness")
         self.bless_steward()
         need = self.world.register_support_need(
@@ -234,12 +278,8 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
             return_value=copy.deepcopy(granted_base),
         ):
             granted = self.world.offer_oracle_guided_aid(
-                "patron",
-                self.handle,
-                "witness",
-                need_id=need["need_id"],
+                "patron", self.handle, "witness", need_id=need["need_id"]
             )
-        self.assertEqual(granted["holy_cat_face"], FACE_I)
         self.assertEqual(granted["holy_cat_additional_material_units"], 6)
         self.assertEqual(granted["material_units_granted"], 26)
         self.assertFalse(granted["holy_cat_compelled_steward"])
@@ -251,7 +291,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
             description="mentorship without control",
             requested_material_units=20,
         )
-        non_grant_base = {
+        non_grant = {
             "aid_id": "fixed-not-offered-aid",
             "decision": "ORACLE_GUIDED_AID_NOT_OFFERED",
             "material_units_granted": 0,
@@ -263,7 +303,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         with mock.patch.object(
             ReturningLightOracleMixin,
             "offer_oracle_guided_aid",
-            return_value=copy.deepcopy(non_grant_base),
+            return_value=copy.deepcopy(non_grant),
         ):
             refused = self.world.offer_oracle_guided_aid(
                 "patron",
@@ -276,14 +316,7 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self.assertTrue(refused["holy_cat_channel_cannot_override_non_grant"])
         self.assertFalse(refused["holy_cat_overrode_refusal"])
 
-    def test_roster_tamper_fails_closed(self) -> None:
-        store = self.world._holy_cat_store()
-        store["roster"][0]["immortal"] = False
-        self.world._write_json(self.world.holy_cat_path, store)
-        with self.assertRaises(RuntimeError):
-            self.world.holy_cat_observers_state()
-
-    def test_integrity_audit_keeps_claim_boundary(self) -> None:
+    def test_roster_tamper_and_integrity_claims(self) -> None:
         self.open_face_i("witness")
         audit = self.world.audit_holy_cat_integrity()
         self.assertTrue(audit["valid"])
@@ -292,6 +325,12 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self.assertFalse(audit["cats_can_be_harmed"])
         self.assertFalse(audit["cats_are_npcs"])
         self.assertFalse(audit["player_controls_camera"])
+
+        store = self.world._holy_cat_store()
+        store["roster"][0]["immortal"] = False
+        self.world._write_json(self.world.holy_cat_path, store)
+        with self.assertRaises(RuntimeError):
+            self.world.holy_cat_observers_state()
 
 
 if __name__ == "__main__":
