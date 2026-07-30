@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Playable Genesis v18.7.10 with separately versioned extensions through v18.7.14."""
+"""Playable Genesis v18.7.10 with separately versioned extensions through v18.7.15."""
 from __future__ import annotations
 
 import re
@@ -39,6 +39,7 @@ from genesis_v18_7_13_router import ReturningLightNaturalLanguageMixin
 from genesis_v18_7_14_holy_cat_integrity import HolyCatEvidenceIntegrityMixin
 from genesis_v18_7_14_holy_cats import HolyCatThresholdMixin
 from genesis_v18_7_14_mirror_binding import HolyCatMirrorSubjectBindingMixin
+from genesis_v18_7_15_royal_mercy import RoyalMercyFaceIIMixin
 from genesis_v18_7_9_persistence import BoundAuthorityPersistenceMixin
 from genesis_v18_7_9_reactive_verifier import ReactiveBoundAuthorityVerifierMixin
 from genesis_v18_7_compat import GenesisV187CompatibilityMixin
@@ -48,10 +49,12 @@ EXTENSION_VERSION = "18.7.11"
 FAMILY_EXTENSION_VERSION = "18.7.12"
 RETURNING_LIGHT_EXTENSION_VERSION = "18.7.13"
 HOLY_CAT_OBSERVER_EXTENSION_VERSION = "18.7.14"
+ROYAL_MERCY_EXTENSION_VERSION = "18.7.15"
 ACTIVE_EXTENSION_VERSIONS = (
     EXTENSION_VERSION,
     FAMILY_EXTENSION_VERSION,
     RETURNING_LIGHT_EXTENSION_VERSION,
+    ROYAL_MERCY_EXTENSION_VERSION,
 )
 OBSERVER_EXTENSION_VERSIONS = (HOLY_CAT_OBSERVER_EXTENSION_VERSION,)
 
@@ -76,6 +79,7 @@ class PlayableGenesisV187(
     BoundAuthorityPersistenceMixin,
     LivedAuditCompletionIntegrityMixin,
     RelationshipEpistemicIntegrityMixin,
+    RoyalMercyFaceIIMixin,
     HolyCatEvidenceIntegrityMixin,
     HolyCatMirrorSubjectBindingMixin,
     HolyCatThresholdMixin,
@@ -101,7 +105,7 @@ class PlayableGenesisV187(
     FreeOtherMixin,
     PlayableGenesisV186,
 ):
-    """v18.7.10 runtime with joy, family, Returning Light, peaceable ecology and holy cats."""
+    """v18.7.10 runtime with layered joy, family, light, peace, cats and royal mercy."""
 
     def __init__(self, data_dir: str | Path = "data_v17") -> None:
         super().__init__(data_dir)
@@ -134,6 +138,10 @@ class PlayableGenesisV187(
         self.recover_incomplete_mirror_archives()
 
     def process_action(self, player_id: str, action: str):
+        royal_result = self.try_royal_mercy_action(player_id, action)
+        if royal_result is not None:
+            return royal_result
+
         holy_cat_result = self.try_holy_cat_action(player_id, action)
         if holy_cat_result is not None:
             return holy_cat_result
