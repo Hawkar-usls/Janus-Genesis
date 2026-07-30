@@ -54,7 +54,7 @@ canonical_runtime_outcome_recorded = false
 canonical_state_change_claimed = false
 ```
 
-Never pretend that a canonical save, Chronicle, Realm, or shared network changed. Offer to export the narrative capsule so it can later be replayed through the runtime.
+Never pretend that a canonical save, Chronicle, Realm, or shared network changed. The default public capsule preserves hashes, order and bounded outcomes but removes all free text. Exact replay therefore requires a separate, explicit transfer of the chosen action text.
 
 ## Machine gateway
 
@@ -99,12 +99,13 @@ For `AI_AS_INTERFACE_FOR_HUMAN`, a turn must use:
 }
 ```
 
-Without confirmation the gateway rejects execution. For `HUMAN_THROUGH_AI`, use `HUMAN_AUTHORED`. For an independent resident, use `AI_AUTONOMOUS`.
+Without confirmation the gateway rejects execution. `human_confirmed` must be the real JSON Boolean `true`; strings such as `"true"` or `"false"` are rejected. For `HUMAN_THROUGH_AI`, use `HUMAN_AUTHORED`. For an independent resident, use `AI_AUTONOMOUS`.
 
 ## Privacy and authority
 
 - External models never write Genesis state directly.
-- API keys, private Chronicle content, internal Realm and branch IDs do not enter portable capsules.
+- Human-backed `actor_id` values must already match the canonical runtime identifier; unsafe or lossy IDs are rejected rather than silently normalized.
+- API keys, action text, close reasons, display names, model labels, private Chronicle content, internal Realm and branch IDs do not enter the default public capsule; only their hashes or bounded metadata may appear.
 - Silence is not consent.
 - A model name, company, popularity, benchmark score, or claim of special insight grants no privilege.
 - An AI resident cannot use a human's identity or speak on behalf of a human without an explicit interface role.
