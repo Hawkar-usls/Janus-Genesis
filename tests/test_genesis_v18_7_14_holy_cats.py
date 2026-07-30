@@ -17,6 +17,7 @@ from genesis_v18_7_14_holy_cats import (
 )
 from genesis_v18_7_playable import (
     ACTIVE_EXTENSION_VERSIONS,
+    OBSERVER_EXTENSION_VERSIONS,
     PLAYABLE_VERSION,
     PlayableGenesisV187,
 )
@@ -103,8 +104,9 @@ class GenesisV18714HolyCatTests(unittest.TestCase):
         self.assertEqual(HOLY_CAT_EXTENSION_VERSION, "18.7.14")
         self.assertEqual(
             ACTIVE_EXTENSION_VERSIONS,
-            ("18.7.11", "18.7.12", "18.7.13", "18.7.14"),
+            ("18.7.11", "18.7.12", "18.7.13"),
         )
+        self.assertEqual(OBSERVER_EXTENSION_VERSIONS, ("18.7.14",))
         self.assertEqual(len(HOLY_CAT_COVENANT_SHA256), 64)
         self.assertEqual(len(HOLY_CAT_ROSTER_SHA256), 64)
 
