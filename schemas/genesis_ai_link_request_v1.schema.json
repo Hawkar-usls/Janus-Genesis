@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/genesis_ai_link_request_v1.schema.json",
+  "title": "Janus Genesis AI Link Request v1",
+  "type": "object",
+  "required": ["operation"],
+  "properties": {
+    "operation": {
+      "enum": ["manifest", "register", "turn", "state", "capsule", "close", "verify"]
+    },
+    "role": {
+      "enum": ["HUMAN_THROUGH_AI", "AI_AS_INTERFACE_FOR_HUMAN", "INDEPENDENT_AI_RESIDENT"]
+    },
+    "execution_mode": {
+      "enum": ["AUTHORITATIVE_RUNTIME", "NARRATIVE_COMPATIBILITY"]
+    },
+    "origin": {
+      "enum": ["HUMAN_AUTHORED", "AI_PROPOSED_FOR_HUMAN", "AI_AUTONOMOUS"]
+    },
+    "session_id": {"type": "string", "minLength": 1, "maxLength": 128},
+    "actor_id": {"type": "string", "minLength": 1, "maxLength": 256},
+    "display_name": {"type": "string", "minLength": 1, "maxLength": 120},
+    "provider": {"type": "string", "minLength": 1, "maxLength": 120},
+    "model": {"type": "string", "minLength": 1, "maxLength": 160},
+    "action": {"type": "string", "minLength": 1, "maxLength": 4000},
+    "human_confirmed": {"type": "boolean"},
+    "reason": {"type": "string", "maxLength": 240}
+  },
+  "additionalProperties": false
+}
