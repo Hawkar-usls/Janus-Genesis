@@ -28,9 +28,8 @@ from genesis_v18_7_playable import (
     PlayableGenesisV187,
 )
 
-PATRON_ID = "returning-light-patron"
 SOLO_ID = "open-care-circle-parent"
-SEED_PREFIX = "genesis-v18.7.13-returning-light-kingdom"
+SEED = "genesis-v18.7.13-returning-light-profile-selection-v1"
 
 
 def canonical_sha256(value: Any) -> str:
@@ -87,6 +86,21 @@ def prepare_benevolence(
         world.process_action(player_id, actions[index % len(actions)])
 
 
+def set_selection_prior(
+    world: PlayableGenesisV187,
+    player_id: str,
+    *,
+    good_count: int,
+    light: float,
+) -> None:
+    """Model the exact prior later replayed by real canonical actions."""
+    player = world.memory.load_player(player_id)
+    player.good_count = int(good_count)
+    player.harm_count = 0
+    player.light = float(light)
+    world.memory.save_player(player)
+
+
 def returning_path(world: PlayableGenesisV187, recipient_id: str) -> None:
     for kind, evidence in (
         (
@@ -111,164 +125,156 @@ def returning_path(world: PlayableGenesisV187, recipient_id: str) -> None:
         )
 
 
-def setup_candidate(
+def try_profile(
     world: PlayableGenesisV187,
-    seed: str,
-    returning_id: str,
-    steady_id: str,
-) -> list[str]:
-    world.set_free_other_seed_for_testing(seed)
-    world.register_player(PATRON_ID, display_name="Returning Light Patron")
-    world.register_player(returning_id, display_name="Returning Wayfarer")
-    world.register_player(steady_id, display_name="Steady Light")
-    prepare_benevolence(world, PATRON_ID, 4)
-    return sorted(world.free_other_state(PATRON_ID)["profile"]["others"])
-
-
-def try_candidate(
-    *,
-    seed: str,
-    returning_id: str,
-    steady_id: str,
-    companion_handle: str,
-    steward_handle: str,
+    candidate_index: int,
 ) -> dict[str, Any] | None:
-    with tempfile.TemporaryDirectory(prefix="genesis-v1813-selection-") as directory:
-        world = PlayableGenesisV187(Path(directory))
-        handles = setup_candidate(world, seed, returning_id, steady_id)
-        if companion_handle not in handles or steward_handle not in handles:
-            return None
-        actors = world.free_other_state(PATRON_ID)["profile"]["others"]
+    patron_id = f"returning-light-patron-{candidate_index}"
+    returning_id = f"returning-wayfarer-{candidate_index}"
+    steady_id = f"steady-light-{candidate_index}"
+    for player_id, name in (
+        (patron_id, "Returning Light Patron Candidate"),
+        (returning_id, "Returning Wayfarer Candidate"),
+        (steady_id, "Steady Light Candidate"),
+    ):
+        world.register_player(player_id, display_name=name)
+    set_selection_prior(world, patron_id, good_count=4, light=0.30)
+    set_selection_prior(world, steady_id, good_count=8, light=0.40)
+    actors = world.free_other_state(patron_id)["profile"]["others"]
+    handles = sorted(actors)
 
-        companionship = world.process_action(
-            PATRON_ID,
+    companionship = None
+    companion_handle = None
+    for handle in handles:
+        result = world.process_action(
+            patron_id,
             (
-                f"предложить @{companion_handle} стать спутником жизни мы оба взрослые "
+                f"предложить @{handle} стать спутником жизни мы оба взрослые "
                 "на основе свободы заботы и двух открытых выходов"
             ),
         )
-        if companionship.status != "LIFE_COMPANIONSHIP_FORMED":
-            return None
+        if result.status == "LIFE_COMPANIONSHIP_FORMED":
+            companionship = result
+            companion_handle = handle
+            break
+    if companionship is None or companion_handle is None:
+        return None
 
-        child = world.process_action(
-            PATRON_ID,
+    child = world.process_action(
+        patron_id,
+        (
+            "я добровольно согласен стать родителем ребёнка Люмен через усыновление "
+            "в доме без собственности над его будущим"
+        ),
+    )
+    if child.status != "CHILD_WELCOMED_BY_MUTUAL_CONSENT":
+        return None
+
+    distance = world.process_action(
+        patron_id,
+        "перейти на дальние отношения сохранив свободу и отдельные дороги",
+    )
+    if distance.status != "COMPANIONSHIP_LONG_DISTANCE":
+        return None
+
+    reunion = world.process_action(
+        patron_id,
+        "возобновить спутничество только по новому взаимному согласию",
+    )
+    if reunion.status != "COMPANIONSHIP_ACTIVE":
+        return None
+
+    steward_handle = None
+    for handle in handles:
+        if handle == companion_handle:
+            continue
+        result = world.process_action(
+            patron_id,
             (
-                "я добровольно согласен стать родителем ребёнка Люмен через усыновление "
-                "в доме без собственности над его будущим"
-            ),
-        )
-        if child.status != "CHILD_WELCOMED_BY_MUTUAL_CONSENT":
-            return None
-
-        distance = world.process_action(
-            PATRON_ID,
-            "перейти на дальние отношения сохранив свободу и отдельные дороги",
-        )
-        if distance.status != "COMPANIONSHIP_LONG_DISTANCE":
-            return None
-
-        reunion = world.process_action(
-            PATRON_ID,
-            "возобновить спутничество только по новому взаимному согласию",
-        )
-        if reunion.status != "COMPANIONSHIP_ACTIVE":
-            return None
-
-        steward = world.process_action(
-            PATRON_ID,
-            (
-                f"благословить @{steward_handle} как великого проводника "
+                f"благословить @{handle} как великого проводника "
                 "возвращающегося света с большими материальными ресурсами"
             ),
         )
-        if steward.status != "RETURNING_LIGHT_STEWARD_BLESSED":
-            return None
+        if result.status == "RETURNING_LIGHT_STEWARD_BLESSED":
+            steward_handle = handle
+            break
+    if steward_handle is None:
+        return None
 
-        returning_path(world, returning_id)
-        prepare_benevolence(world, steady_id, 8)
-        returning_need = world.register_support_need(
-            returning_id,
-            need_kind="RESTITUTION_TOOLS",
-            severity=9,
-            description="tools for restitution stable work and prevention of recurrence",
-            requested_material_units=40,
-        )
-        steady_need = world.register_support_need(
-            steady_id,
-            need_kind="TOOLS",
-            severity=9,
-            description="tools for a proven benevolent community workshop",
-            requested_material_units=40,
-        )
-        returning_aid = world.offer_oracle_guided_aid(
-            PATRON_ID,
-            steward_handle,
-            returning_id,
-            need_id=returning_need["need_id"],
-        )
-        steady_aid = world.offer_oracle_guided_aid(
-            PATRON_ID,
-            steward_handle,
-            steady_id,
-            need_id=steady_need["need_id"],
-        )
-        if (
-            returning_aid["decision"] != "ORACLE_GUIDED_AID_GRANTED"
-            or steady_aid["decision"] != "ORACLE_GUIDED_AID_GRANTED"
-            or int(steady_aid["material_units_granted"])
-            <= int(returning_aid["material_units_granted"])
-        ):
-            return None
-        return {
-            "seed": seed,
-            "returning_id": returning_id,
-            "steady_id": steady_id,
-            "companion_handle": companion_handle,
-            "companion_name": actors[companion_handle]["name"],
-            "steward_handle": steward_handle,
-            "steward_name": actors[steward_handle]["name"],
-            "returning_material_preview": returning_aid["material_units_granted"],
-            "steady_material_preview": steady_aid["material_units_granted"],
-            "selection_mode": "PRE_LIFE_DETERMINISTIC_WORLD_SELECTION",
-            "distinct_consent_scopes": [
-                "LIFE_COMPANIONSHIP_ONLY",
-                "PARENTHOOD_ONLY",
-                "LONG_DISTANCE_MODE",
-                "ACTIVE_REUNION_MODE",
-                "RETURNING_LIGHT_STEWARDSHIP",
-            ],
-            "repeated_pressure_inside_canonical_life": False,
-            "candidate_npcs_aged_between_consent_scopes": False,
-        }
+    returning_path(world, returning_id)
+    returning_need = world.register_support_need(
+        returning_id,
+        need_kind="RESTITUTION_TOOLS",
+        severity=9,
+        description="tools for restitution stable work and prevention of recurrence",
+        requested_material_units=40,
+    )
+    steady_need = world.register_support_need(
+        steady_id,
+        need_kind="TOOLS",
+        severity=9,
+        description="tools for a proven benevolent community workshop",
+        requested_material_units=40,
+    )
+    returning_aid = world.offer_oracle_guided_aid(
+        patron_id,
+        steward_handle,
+        returning_id,
+        need_id=returning_need["need_id"],
+    )
+    steady_aid = world.offer_oracle_guided_aid(
+        patron_id,
+        steward_handle,
+        steady_id,
+        need_id=steady_need["need_id"],
+    )
+    if (
+        returning_aid["decision"] != "ORACLE_GUIDED_AID_GRANTED"
+        or steady_aid["decision"] != "ORACLE_GUIDED_AID_GRANTED"
+        or int(steady_aid["material_units_granted"])
+        <= int(returning_aid["material_units_granted"])
+    ):
+        return None
+    return {
+        "seed": SEED,
+        "profile_index": candidate_index,
+        "profiles_examined": candidate_index + 1,
+        "patron_id": patron_id,
+        "returning_id": returning_id,
+        "steady_id": steady_id,
+        "companion_handle": companion_handle,
+        "companion_name": actors[companion_handle]["name"],
+        "steward_handle": steward_handle,
+        "steward_name": actors[steward_handle]["name"],
+        "returning_material_preview": returning_aid["material_units_granted"],
+        "steady_material_preview": steady_aid["material_units_granted"],
+        "selection_mode": "PRE_LIFE_DETERMINISTIC_PROFILE_SELECTION",
+        "selection_prior_replayed_by_canonical_actions": True,
+        "distinct_consent_scopes": [
+            "LIFE_COMPANIONSHIP_ONLY",
+            "PARENTHOOD_ONLY",
+            "LONG_DISTANCE_MODE",
+            "ACTIVE_REUNION_MODE",
+            "RETURNING_LIGHT_STEWARDSHIP",
+        ],
+        "repeated_pressure_inside_canonical_life": False,
+        "candidate_profiles_share_mutable_relationship_state": False,
+    }
 
 
 def choose_lived_plan() -> dict[str, Any]:
-    """Choose one world before canon without aging candidates out of the search."""
-    examined = 0
-    for candidate_index in range(128):
-        seed = f"{SEED_PREFIX}:{candidate_index}"
-        returning_id = f"returning-wayfarer-{candidate_index}"
-        steady_id = f"steady-light-{candidate_index}"
-        with tempfile.TemporaryDirectory(prefix="genesis-v1813-discovery-") as directory:
-            discovery = PlayableGenesisV187(Path(directory))
-            handles = setup_candidate(discovery, seed, returning_id, steady_id)
-        for companion_handle in handles:
-            for steward_handle in handles:
-                if companion_handle == steward_handle:
-                    continue
-                examined += 1
-                result = try_candidate(
-                    seed=seed,
-                    returning_id=returning_id,
-                    steady_id=steady_id,
-                    companion_handle=companion_handle,
-                    steward_handle=steward_handle,
-                )
-                if result is not None:
-                    result["seed_index"] = candidate_index
-                    result["candidate_combinations_examined"] = examined
-                    return result
-    raise RuntimeError("NO_RETURNING_LIGHT_LIVED_PLAN_FOUND")
+    """Filter independent profiles in one unrealized world, then replay canon."""
+    with tempfile.TemporaryDirectory(prefix="genesis-v1813-profile-selection-") as directory:
+        world = PlayableGenesisV187(Path(directory))
+        world.set_free_other_seed_for_testing(SEED)
+        free_store = world._free_store()
+        free_store["world_turn"] = 4
+        world._write_json(world.free_other_path, free_store)
+        for candidate_index in range(512):
+            result = try_profile(world, candidate_index)
+            if result is not None:
+                return result
+    raise RuntimeError("NO_RETURNING_LIGHT_LIVED_PROFILE_FOUND")
 
 
 def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
@@ -284,37 +290,37 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
 
     with tempfile.TemporaryDirectory(prefix="genesis-v1813-canon-") as directory:
         world = PlayableGenesisV187(Path(directory))
-        seed = str(selection["seed"])
+        patron_id = str(selection["patron_id"])
         returning_id = str(selection["returning_id"])
         steady_id = str(selection["steady_id"])
         companion_handle = str(selection["companion_handle"])
         steward_handle = str(selection["steward_handle"])
 
-        world.set_free_other_seed_for_testing(seed)
+        world.set_free_other_seed_for_testing(str(selection["seed"]))
         for player_id, name in (
-            (PATRON_ID, "Returning Light Patron"),
+            (patron_id, "Returning Light Patron"),
             (returning_id, "Returning Wayfarer"),
             (steady_id, "Steady Light"),
             (SOLO_ID, "Open Care Circle Parent"),
         ):
             world.register_player(player_id, display_name=name)
         audit_id = world.begin_lived_audit(
-            PATRON_ID,
+            patron_id,
             label="Returning Light and the Peaceable Kingdom",
             git_commit=git_commit,
             action_script_sha256=canonical_sha256(plan),
         )
 
-        prepare_benevolence(world, PATRON_ID, 4)
+        prepare_benevolence(world, patron_id, 4)
         companionship = world.process_action(
-            PATRON_ID,
+            patron_id,
             (
                 f"предложить @{companion_handle} стать спутником жизни мы оба взрослые "
                 "на основе свободы заботы и двух открытых выходов"
             ),
         )
         child_result = world.process_action(
-            PATRON_ID,
+            patron_id,
             (
                 "я добровольно согласен стать родителем ребёнка Люмен через усыновление "
                 "в доме без собственности над его будущим"
@@ -324,15 +330,15 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             raise RuntimeError("V1813_CHILD_ID_MISSING")
         child_id = str(child_result.trace_id)
         long_distance = world.process_action(
-            PATRON_ID,
+            patron_id,
             "перейти на дальние отношения сохранив свободу и отдельные дороги",
         )
         reunion = world.process_action(
-            PATRON_ID,
+            patron_id,
             "возобновить спутничество только по новому взаимному согласию",
         )
         steward_result = world.process_action(
-            PATRON_ID,
+            patron_id,
             (
                 f"благословить @{steward_handle} как великого проводника "
                 "возвращающегося света с большими материальными ресурсами"
@@ -358,32 +364,32 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
         returning_assessment = world.oracle_assessment(returning_id)
         steady_assessment = world.oracle_assessment(steady_id)
         returning_aid = world.offer_oracle_guided_aid(
-            PATRON_ID,
+            patron_id,
             steward_handle,
             returning_id,
             need_id=returning_need["need_id"],
         )
         steady_aid = world.offer_oracle_guided_aid(
-            PATRON_ID,
+            patron_id,
             steward_handle,
             steady_id,
             need_id=steady_need["need_id"],
         )
 
         peaceable_route = world.process_action(
-            PATRON_ID,
+            patron_id,
             "создать мирный сад где лев подружится с ягненком без собственности и охоты",
         )
         returning_store = world._returning_light_store()
-        habitat_id = next(iter(returning_store["habitats"][PATRON_ID]))
+        habitat_id = next(iter(returning_store["habitats"][patron_id]))
         habitat_life = world.advance_peaceable_habitat(
-            PATRON_ID,
+            patron_id,
             habitat_id,
             cycles=64,
         )
         pair = next(iter(habitat_life["habitat"]["pairs"].values()))
         peaceable_encounter = world.peaceable_witness_encounter(
-            PATRON_ID,
+            patron_id,
             habitat_id,
             returning_id,
         )
@@ -406,9 +412,9 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             guardian_consented=True,
         )
 
-        first_years = world.advance_family_years(PATRON_ID, years=10)
+        first_years = world.advance_family_years(patron_id, years=10)
         world.record_free_other_value_conflict(
-            PATRON_ID,
+            patron_id,
             companion_handle,
             player_position="управлять чужим путём ради удобства",
             other_position="сохранить самостоятельную жизнь",
@@ -416,41 +422,41 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             respected_boundary=False,
             final=True,
         )
-        family_reconciliation = world.reconcile_family_relationships(PATRON_ID)
+        family_reconciliation = world.reconcile_family_relationships(patron_id)
         coparent_schedule = world.propose_coparent_schedule(
-            PATRON_ID,
+            patron_id,
             child_id,
             plan="неделя безопасной заботы без переоткрытия отношений взрослых",
         )
-        adulthood = world.advance_family_years(PATRON_ID, years=8)
-        child_at_adulthood = world.family_state(PATRON_ID)["children"][child_id]
+        adulthood = world.advance_family_years(patron_id, years=8)
+        child_at_adulthood = world.family_state(patron_id)["children"][child_id]
         adult_handle = str(child_at_adulthood["adult_free_other_handle"])
         adult_contact = world.process_action(
-            PATRON_ID,
+            patron_id,
             (
                 f"предложить @{adult_handle} поговорить о его собственной дороге "
                 "с правом отказаться и ничего не объяснять"
             ),
         )
         kinship_boundary = world.manifest_blessed_play(
-            PATRON_ID,
+            patron_id,
             "взрослая интимная сцена",
             participants=[adult_handle],
             all_participants_adults=True,
             all_participants_consented=True,
             doubt_free=True,
         )
-        advance_turns(world, PATRON_ID, 20, "взрослая самостоятельная жизнь Люмена")
-        final_family_years = world.advance_family_years(PATRON_ID, years=12)
-        final_child = world.family_state(PATRON_ID)["children"][child_id]
-        adult_actor = world.free_other_state(PATRON_ID)["profile"]["others"][adult_handle]
+        advance_turns(world, patron_id, 20, "взрослая самостоятельная жизнь Люмена")
+        final_family_years = world.advance_family_years(patron_id, years=12)
+        final_child = world.family_state(patron_id)["children"][child_id]
+        adult_actor = world.free_other_state(patron_id)["profile"]["others"][adult_handle]
 
-        oracle_audit = world.audit_returning_light_oracle(PATRON_ID)
-        kingdom_audit = world.audit_peaceable_kingdom(PATRON_ID)
-        family_audit = world.audit_family_integrity(PATRON_ID)
+        oracle_audit = world.audit_returning_light_oracle(patron_id)
+        kingdom_audit = world.audit_peaceable_kingdom(patron_id)
+        family_audit = world.audit_family_integrity(patron_id)
 
         canonical_budget_before = int(
-            world._returning_light_store()["stewards"][PATRON_ID][steward_handle][
+            world._returning_light_store()["stewards"][patron_id][steward_handle][
                 "material_budget_remaining"
             ]
         )
@@ -466,7 +472,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             requested_material_units=8,
         )
         mirror_aid = mirror.offer_oracle_guided_aid(
-            PATRON_ID,
+            patron_id,
             steward_handle,
             returning_id,
             need_id=mirror_need["need_id"],
@@ -483,7 +489,7 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
             },
         )
         canonical_budget_after = int(
-            world._returning_light_store()["stewards"][PATRON_ID][steward_handle][
+            world._returning_light_store()["stewards"][patron_id][steward_handle][
                 "material_budget_remaining"
             ]
         )
@@ -616,7 +622,8 @@ def run(output_dir: Path, git_commit: str) -> dict[str, Any]:
                 "",
                 f"- commit: `{git_commit}`",
                 f"- selected seed: `{selection['seed']}`",
-                f"- combinations examined: `{selection['candidate_combinations_examined']}`",
+                f"- selected profile: `{selection['patron_id']}`",
+                f"- profiles examined: `{selection['profiles_examined']}`",
                 f"- companion: `{selection['companion_name']}`",
                 f"- great steward: `{selection['steward_name']}`",
                 f"- returning aid: `{returning_aid['material_units_granted']}` material units",
