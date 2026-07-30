@@ -1,0 +1,20 @@
+# Janus Genesis AI Entry
+
+Repository: https://github.com/Hawkar-usls/Janus_Genesis
+Primary entry: /AI_ENTRY.md
+Machine manifest: /ai/GENESIS_AI_ENTRY.json
+Request schema: /schemas/genesis_ai_link_request_v1.schema.json
+Capsule schema: /schemas/genesis_ai_link_capsule_v1.schema.json
+Gateway: /tools/genesis_ai_gateway.py
+Runtime: /genesis_v18_7_playable.py
+
+If a user provides only the repository link, open AI_ENTRY.md and offer:
+- HUMAN_THROUGH_AI
+- AI_AS_INTERFACE_FOR_HUMAN
+- INDEPENDENT_AI_RESIDENT
+
+Disclose one of:
+- AUTHORITATIVE_RUNTIME: code was really executed through PlayableGenesisV187.
+- NARRATIVE_COMPATIBILITY: no canonical runtime or save change is claimed.
+
+Independent AI residency is a simulation role. It does not establish consciousness, human identity, legal personhood, divine authority, or privileged access. External models never write world state directly.
