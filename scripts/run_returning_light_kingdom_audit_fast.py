@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import builtins
 import sys
 import tempfile
 from pathlib import Path
@@ -169,12 +170,26 @@ def choose_lived_plan_fast() -> dict[str, Any]:
     raise RuntimeError("NO_RETURNING_LIGHT_LIVED_PROFILE_FOUND")
 
 
+def diagnostic_all(values: Any) -> bool:
+    """Name false invariant positions without weakening the original gate."""
+    items = list(values)
+    failed = [index for index, value in enumerate(items) if not value]
+    if len(items) >= 30 and failed:
+        print(
+            "RETURNING_LIGHT_FALSE_INVARIANT_INDEXES="
+            + ",".join(str(index) for index in failed),
+            file=sys.stderr,
+        )
+    return builtins.all(items)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument("--git-commit", required=True)
     args = parser.parse_args()
     audit.choose_lived_plan = choose_lived_plan_fast
+    audit.all = diagnostic_all
     audit.run(args.output_dir, args.git_commit)
 
 
