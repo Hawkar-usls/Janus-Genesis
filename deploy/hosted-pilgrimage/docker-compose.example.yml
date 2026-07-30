@@ -1,0 +1,46 @@
+services:
+  genesis_hosted_pilgrimage:
+    build:
+      context: ../..
+      dockerfile: deploy/hosted-pilgrimage/Dockerfile
+    image: janus-genesis-hosted:18.7.20
+    container_name: genesis_hosted_pilgrimage
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${GENESIS_HOSTED_PORT:-8787}:8787"
+    environment:
+      GENESIS_HOSTED_SECRET: "${GENESIS_HOSTED_SECRET:?set a secret of at least 32 bytes}"
+      GENESIS_PUBLIC_BASE_URL: "${GENESIS_PUBLIC_BASE_URL:-}"
+      GENESIS_HOSTED_LIVE_MODE: "${GENESIS_HOSTED_LIVE_MODE:-false}"
+      GENESIS_HOSTED_KILL_SWITCH: "${GENESIS_HOSTED_KILL_SWITCH:-true}"
+      GENESIS_HOSTED_KILL_SWITCH_FILE: "/data/HOSTED_KILL_SWITCH"
+      GENESIS_HOSTED_ALLOW_NARRATIVE_FALLBACK: "true"
+      GENESIS_HOSTED_TOKEN_TTL_SECONDS: "${GENESIS_HOSTED_TOKEN_TTL_SECONDS:-900}"
+      GENESIS_HOSTED_GLOBAL_LIMIT_PER_MINUTE: "${GENESIS_HOSTED_GLOBAL_LIMIT_PER_MINUTE:-120}"
+      GENESIS_HOSTED_CLIENT_LIMIT_PER_MINUTE: "${GENESIS_HOSTED_CLIENT_LIMIT_PER_MINUTE:-30}"
+      GENESIS_HOSTED_SESSION_LIMIT_PER_MINUTE: "${GENESIS_HOSTED_SESSION_LIMIT_PER_MINUTE:-20}"
+    volumes:
+      - genesis_hosted_data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 1.0
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json,urllib.request; d=json.load(urllib.request.urlopen('http://127.0.0.1:8787/v1/health',timeout=3)); assert d['ok']"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+volumes:
+  genesis_hosted_data:
