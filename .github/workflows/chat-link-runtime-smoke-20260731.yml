@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - codex/chat-link-runtime-smoke-20260731
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
