@@ -12,7 +12,7 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -78,6 +78,8 @@ jobs:
             genesis_v18_7_13_returning_light.py \
             genesis_v18_7_13_peaceable_kingdom.py \
             genesis_v18_7_13_router.py \
+            genesis_v18_7_14_holy_cats.py \
+            genesis_v18_7_14_holy_cat_integrity.py \
             genesis_v18_7_playable.py \
             genesis_v18_7_auth.py \
             genesis_v18_7_ai.py \
@@ -87,6 +89,8 @@ jobs:
             scripts/run_sealed_threshold_audit.py \
             scripts/run_wild_light_family_audit.py \
             scripts/run_returning_light_kingdom_audit.py \
+            scripts/run_returning_light_kingdom_audit_fast.py \
+            scripts/run_holy_cat_threshold_audit.py \
             tools/genesis_api_server.py \
             tools/genesis_network_hub.py \
             play_genesis.py
@@ -125,8 +129,17 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: |
           COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
-          python scripts/run_returning_light_kingdom_audit.py \
+          python scripts/run_returning_light_kingdom_audit_fast.py \
             --output-dir artifacts/returning-light-kingdom-audit \
+            --git-commit "$COMMIT"
+      - name: Run Holy Cat threshold audit
+        env:
+          AUDIT_COMMIT: ${{ github.event.pull_request.head.sha }}
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          COMMIT="${AUDIT_COMMIT:-$GITHUB_SHA}"
+          python scripts/run_holy_cat_threshold_audit.py \
+            --output-dir artifacts/holy-cat-threshold-audit \
             --git-commit "$COMMIT"
       - name: Upload century proofpack
         uses: actions/upload-artifact@v4
@@ -154,5 +167,12 @@ jobs:
         with:
           name: genesis-returning-light-kingdom-audit
           path: artifacts/returning-light-kingdom-audit
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Holy Cat threshold proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-holy-cat-threshold-audit
+          path: artifacts/holy-cat-threshold-audit
           if-no-files-found: error
           retention-days: 30
