@@ -1,7 +1,7 @@
 # Genesis v18.7.13 — Returning Light and the Peaceable Kingdom
 
-Genesis v18.7.13 is a separately versioned extension. It does not rename or
-rewrite the v18.7.10 Frozen Constitution, the v18.7.11 Right to Joy, or the
+Genesis v18.7.13 is a separately versioned gameplay extension. It does not rename
+or rewrite the v18.7.10 Frozen Constitution, the v18.7.11 Right to Joy, or the
 v18.7.12 Wild Light Family Covenant.
 
 ## Returning Light
@@ -96,6 +96,16 @@ Inside a covenant habitat:
 The animals may offer a symbolic witness of safety and comfort to a person on a
 repair path, but they do not classify that person's morality and are never
 forced to approach.
+
+## Deterministic pre-life selection
+
+The lived proof uses `PRE_LIFE_NON_AGING_PROFILE_FILTER`. Candidate player
+profiles remain independent, world time does not advance, and rejected offers
+are never repeated inside the canonical life. The selected profile is rebuilt
+from scratch and replayed through production code.
+
+This avoids turning consent into a rare multi-world lottery while preserving all
+separate consent scopes and the NPC's ordinary right to refuse.
 
 ## Persistence and claim boundary
 
