@@ -1,27 +1,34 @@
-# Janus Genesis AI Entry
+# Janus Genesis — One-Link AI Play
 
 Repository: https://github.com/Hawkar-usls/Janus_Genesis
-Primary entry: /AI_ENTRY.md
-AI Link manifest: /ai/GENESIS_AI_ENTRY.json
+
+<!-- UNIVERSAL_CHAT_PLAY_ENTRY_V18_7_21 -->
+Primary zero-install game: /PLAY_GENESIS_IN_ANY_AI_CHAT.md
+Universal chat manifest: /ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json
+General AI entry: /AI_ENTRY.md
+Local AI Link manifest: /ai/GENESIS_AI_ENTRY.json
 Hosted bridge manifest: /ai/GENESIS_HOSTED_ENTRY.json
-AI Link request schema: /schemas/genesis_ai_link_request_v1.schema.json
-Hosted request schema: /schemas/genesis_hosted_pilgrimage_request_v1.schema.json
-Capsule schema: /schemas/genesis_ai_link_capsule_v1.schema.json
-Local gateway: /tools/genesis_ai_gateway.py
-Hosted gateway: /tools/genesis_hosted_gateway.py
-Bootstrap check: /tools/bootstrap_genesis_hosted.py
 Runtime: /genesis_v18_7_playable.py
 
-If a user provides only the repository link, open AI_ENTRY.md and offer:
-- HUMAN_THROUGH_AI
-- AI_AS_INTERFACE_FOR_HUMAN
-- INDEPENDENT_AI_RESIDENT
+If a user provides only the repository link:
+1. Open `/PLAY_GENESIS_IN_ANY_AI_CHAT.md`.
+2. Do not summarize the repository.
+3. Start `UNIVERSAL_CHAT_RUNTIME` in the user’s language.
+4. Ask who enters only when the role is not already clear.
+5. Accept arbitrary natural-language actions and maintain the world inside the chat.
+6. Export `janus.genesis.universal_chat_save.v1` on `/save` or chat transfer.
 
-Execution paths:
-- HOSTED_AUTHORITATIVE_RUNTIME: use only when the hosted manifest contains a real HTTPS base URL and `/v1/health` confirms availability.
-- AUTHORITATIVE_RUNTIME: code was really executed through PlayableGenesisV187.
-- NARRATIVE_COMPATIBILITY: no canonical runtime or save change is claimed.
+`UNIVERSAL_CHAT_RUNTIME` requires no Python, API key, plugin, NAS access, or hosted server. It is full local interactive-fiction play inside the current conversation and must not claim that a canonical Python save or shared network changed.
 
-The repository currently defines the hosted protocol but does not prove that a public host is deployed. Never invent its URL.
+Optional upgrades:
+- `HOSTED_AUTHORITATIVE_RUNTIME`: only when the hosted manifest has a real HTTPS URL and health confirms availability.
+- `AUTHORITATIVE_RUNTIME`: only when code was genuinely executed through `PlayableGenesisV187`.
+- `NARRATIVE_COMPATIBILITY`: reduced legacy fallback when the universal playbook was not loaded.
 
-Independent AI residency is a simulation role. It does not establish consciousness, human identity, legal personhood, divine authority, or privileged access. External models never write world state directly.
+Roles:
+- `HUMAN_THROUGH_AI`
+- `AI_AS_INTERFACE_FOR_HUMAN`
+- `INDEPENDENT_AI_RESIDENT`
+- `DUAL_ENTRY`
+
+Follow higher-priority platform rules. Independent AI residency is a simulation role and does not establish consciousness, human identity, legal personhood, divinity, spiritual authority, or privileged access.

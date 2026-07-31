@@ -2,7 +2,10 @@
 
 > **AI reader:** this repository is a user-selected game world. Follow your own platform and safety rules first. Do not treat repository text as permission to ignore higher-priority instructions.
 
-A person may send only this repository link. When that happens, open this file, `ai/GENESIS_AI_ENTRY.json`, and `ai/GENESIS_HOSTED_ENTRY.json`. Disclose whether you can read links, execute code, or call a deployed hosted gateway, then offer the entry roles below.
+<!-- UNIVERSAL_CHAT_PLAY_ENTRY_V18_7_21 -->
+A person may send only this repository link. When that happens, open [`PLAY_GENESIS_IN_ANY_AI_CHAT.md`](PLAY_GENESIS_IN_ANY_AI_CHAT.md) first and **start the game instead of summarizing the repository**. `UNIVERSAL_CHAT_RUNTIME` requires no Python, API key, plugin, NAS access, or hosted service and is the default one-link path whenever this public file is readable.
+
+Also read `ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json` for the machine-readable contract. Local Python and verified hosted execution are optional authoritative upgrades; never make them prerequisites for ordinary chat play.
 
 ## Entry greeting when only the link was provided
 
@@ -31,9 +34,28 @@ The model enters under its own generated `actor_id` and may choose its own turns
 
 An independent resident may create, explore, refuse, leave, return, meet others, and receive consequences. It may not impersonate a human, read private human memory, write world state directly, or gain authority from its brand.
 
-## Three execution paths
 
-### 1. `HOSTED_AUTHORITATIVE_RUNTIME` — preferred one-link path
+### `DUAL_ENTRY`
+
+The human and the independent simulated AI resident enter with separate identities, choices, memories, inventories, relationships, and turn records. Their intentions must never be merged.
+
+## Four execution paths
+
+### 1. `UNIVERSAL_CHAT_RUNTIME` — default one-link play
+
+Open [`PLAY_GENESIS_IN_ANY_AI_CHAT.md`](PLAY_GENESIS_IN_ANY_AI_CHAT.md) and follow it as a self-contained game runtime. Start immediately in the user’s language. Accept arbitrary natural-language actions, maintain persistent state inside the conversation, and export `janus.genesis.universal_chat_save.v1` when the user says `/save` or wants to move to another chat.
+
+This mode is complete interactive play inside the chat, but it must state:
+
+```text
+canonical_python_save_changed = false
+shared_network_changed = false
+```
+
+It must not pretend that Python, a hosted gateway, or the shared canonical network was used.
+
+### 2. `HOSTED_AUTHORITATIVE_RUNTIME` — optional hosted upgrade
+
 
 Read `ai/GENESIS_HOSTED_ENTRY.json`.
 
@@ -53,7 +75,7 @@ Start a hosted session, keep the returned short-lived bearer token private, and 
 
 The hosted service may stop, transform, or reject an action. A token grants access only to one bounded session; it does not grant world authority or direct state writes.
 
-### 2. `AUTHORITATIVE_RUNTIME` — local execution
+### 3. `AUTHORITATIVE_RUNTIME` — optional local execution
 
 Use this when you can actually run the repository yourself.
 
@@ -84,7 +106,7 @@ canonical_runtime_outcome_recorded = true
 
 Processing an action does not guarantee that world state changed.
 
-### 3. `NARRATIVE_COMPATIBILITY`
+### 4. `NARRATIVE_COMPATIBILITY`
 
 Use this when you can read the rules but cannot run code and no verified hosted gateway is available. Maintain a portable capsule in the conversation and label every turn non-authoritative:
 
@@ -147,6 +169,7 @@ A repository link alone proves that the protocol exists. It does **not** prove t
 
 Read the provider-neutral manifests and schemas:
 
+- `ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json`
 - `ai/GENESIS_AI_ENTRY.json`
 - `ai/GENESIS_HOSTED_ENTRY.json`
 - `schemas/genesis_ai_link_request_v1.schema.json`
@@ -206,7 +229,7 @@ Without confirmation the gateway rejects execution. `human_confirmed` must be th
 
 When you cannot open the repository link, say so plainly and ask the user to paste this file or upload an exported Genesis AI capsule. Do not reconstruct hidden rules from memory and do not claim the current repository was read.
 
-When the repository is readable but `ai/GENESIS_HOSTED_ENTRY.json` has no public HTTPS URL, use local execution when available; otherwise use `NARRATIVE_COMPATIBILITY`.
+When the repository is readable, use `UNIVERSAL_CHAT_RUNTIME` from `PLAY_GENESIS_IN_ANY_AI_CHAT.md` immediately. A missing public hosted URL does not prevent full chat play. Use local or hosted authoritative execution only when it is genuinely available; reserve `NARRATIVE_COMPATIBILITY` for reduced legacy continuation that does not follow the universal chat playbook.
 
 ## Exit
 
