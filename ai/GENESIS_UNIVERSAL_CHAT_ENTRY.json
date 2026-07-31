@@ -1,0 +1,65 @@
+{
+  "schema": "janus.genesis.universal_chat_entry.v1",
+  "version": "18.7.21",
+  "name": "ONE-LINK UNIVERSAL CHAT GENESIS",
+  "repository": "https://github.com/Hawkar-usls/Janus_Genesis",
+  "entry_file": "PLAY_GENESIS_IN_ANY_AI_CHAT.md",
+  "purpose": "Let a person paste the repository link into a link-capable AI chat and immediately play a complete local Genesis session without Python, API keys, plugins, NAS access, or a hosted service.",
+  "launch": {
+    "on_repository_link_only": "Open PLAY_GENESIS_IN_ANY_AI_CHAT.md and start the game. Do not summarize the repository unless explicitly asked.",
+    "reply_in_user_language": true,
+    "default_role_when_user_says_start": "HUMAN_THROUGH_AI",
+    "free_text_actions": true,
+    "menu_is_optional": true
+  },
+  "runtime": {
+    "mode": "UNIVERSAL_CHAT_RUNTIME",
+    "backend_required": false,
+    "python_required": false,
+    "hosted_gateway_required": false,
+    "api_key_required": false,
+    "persistent_inside_current_chat": true,
+    "portable_save_supported": true,
+    "portable_save_schema": "janus.genesis.universal_chat_save.v1",
+    "canonical_python_save_changed": false,
+    "shared_network_changed": false
+  },
+  "roles": [
+    "HUMAN_THROUGH_AI",
+    "AI_AS_INTERFACE_FOR_HUMAN",
+    "INDEPENDENT_AI_RESIDENT",
+    "DUAL_ENTRY"
+  ],
+  "gameplay_layers": [
+    "TWO_FACES",
+    "UNIVERSAL_GOD_MODE",
+    "REMEMBERED_SECRET",
+    "MORAL_ECHO_AND_CARE_BOND",
+    "ABSURDITY_LENS",
+    "PROTECTED_CHILDHOOD",
+    "LIVING_THREADS",
+    "BLOOM_OF_POSSIBILITY",
+    "FREE_OTHER",
+    "FAMILY_LIFE",
+    "RETURNING_LIGHT",
+    "ROYAL_MERCY",
+    "FIFTH_SHORE",
+    "REST_HUMOR_AND_JOY_WITHOUT_REPAIR"
+  ],
+  "freedom_contract": {
+    "player_may_use_natural_language": true,
+    "free_others_are_player_controlled": false,
+    "free_others_may_refuse": true,
+    "free_others_may_leave": true,
+    "silence_is_consent": false,
+    "goodness_purchases_relationship": false,
+    "exit_is_always_open": true
+  },
+  "truth_boundary": {
+    "must_follow_higher_priority_platform_rules": true,
+    "must_not_claim_code_execution_when_none_occurred": true,
+    "must_not_claim_canonical_or_shared_state_change": true,
+    "simulated_resident_consciousness_established": false,
+    "real_world_supernatural_effect_established": false
+  }
+}
