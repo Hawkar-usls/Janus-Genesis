@@ -1,0 +1,162 @@
+{
+  "report_id": "JANUS_113_8_SIM_3_PROTOCOL_FREEZE_REPORT-v1.0",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "protocol_id": "JANUS-113.8-SIM-3-EXTERNAL-AUTHOR-VERIFIER-PROTOCOL",
+  "human_authorization_local": "2026-08-04T19:55:00+03:00",
+  "protocol_freeze": {
+    "pull_request": 64,
+    "head_sha": "76d5b5367053e62f1c5734e386092df2ddc02565",
+    "merge_commit_sha": "547af90a3ae2831ed744d663d85796b97d5343bb",
+    "merge_method": "squash",
+    "merged_at_utc": "2026-08-04T17:08:11Z",
+    "merged_at_local": "2026-08-04T20:08:11+03:00",
+    "changed_files": 8,
+    "additions": 2505,
+    "deletions": 0,
+    "terminal": "SIM_3_PROTOCOL_FROZEN"
+  },
+  "frozen_bindings": {
+    "protocol_json_sha256": "a8d94de7e35c06f6211984a1b595cff8abcaef0c32f9f763e606b3e2f85f5d0a",
+    "submission_schema_sha256": "415eb938d441311f84f9e3f773a19e2a485254795c0a88d569a9c9cf89f6eff5",
+    "author_attestation_schema_sha256": "419deec0f650ea162a791c6f1d5a59e1574fe4bd8971e1c083d7e8e1ef882ed4",
+    "sim2_admission_report_sha256": "ee5ffd32e670d3546374c0b8be1ac713703ca0ae8ee26a6c4764d85555bb4088",
+    "validator_sha256": "f953048df0272892e27e4f36c239c426bd8ce506f20dc11a2484c4f49c4a43e9",
+    "protocol_spec_sha256": "6e6d5c7a98032f50a6386f5318aa4bc47bbb0f3d12da944380decc5ffa9051c0"
+  },
+  "protocol_candidate_artifact": {
+    "workflow_name": "JANUS 113.8 SIM-3 Protocol",
+    "workflow_run_id": 30932328711,
+    "workflow_run_number": 1,
+    "conclusion": "success",
+    "artifact_name": "janus-113-8-sim-3-protocol-candidate",
+    "artifact_id": 8901638695,
+    "artifact_size_bytes": 944,
+    "artifact_zip_sha256": "27c84a1827a9295470e9831d1e8231ce6d11e067da6358f42d12d54c0e7afb54",
+    "expires_at_utc": "2026-09-03T17:06:18Z"
+  },
+  "protocol_ci": {
+    "all_protocol_jobs_green": true,
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "successful_jobs": [
+      "protocol-contracts-python-3.11",
+      "protocol-contracts-python-3.12",
+      "protocol-contracts-python-3.13",
+      "freeze-candidate-manifest"
+    ],
+    "external_verifier_present_in_genesis": false,
+    "format_only_validator_scope": "structure, local file bindings, chronology, cryptographic commitment reconstruction, metric thresholds, and safety declarations",
+    "format_only_validator_is_external_verifier": false
+  },
+  "repository_ci": {
+    "all_observed_pull_request_workflows_green": true,
+    "successful_workflows": [
+      "JANUS 113.8 SIM-3 Protocol",
+      "test",
+      "Genesis century lived audit",
+      "Hosted Pilgrimage",
+      "Threshold review precision",
+      "Genesis Tests",
+      "AI Link Play"
+    ]
+  },
+  "canonical_laws": [
+    "ANSWER WITHOUT WITNESS LEDGER = NON_FUNDAMENTUM",
+    "CORPUS RESULT WITHOUT INDEPENDENT REPLAY = NON_FUNDAMENTUM",
+    "PUBLIC CLAIM WITHOUT REACHABLE PROVENANCE = OPEN, NOT TRUTH",
+    "VERIFIER CONTROLLED BY THE CLAIMANT = INDEPENDENCE NOT ESTABLISHED"
+  ],
+  "ceremony": [
+    "PROTOCOL_FREEZE",
+    "ROUTER_FREEZE",
+    "EXTERNAL_COMMITMENT",
+    "PUBLIC_CASE_REVEAL",
+    "ROUTER_OUTPUT_FREEZE",
+    "TRUTH_AND_SALT_REVEAL",
+    "EXTERNAL_VERIFICATION",
+    "NEUTRAL_REPLAY"
+  ],
+  "independence_boundary": {
+    "external_author_must_use_separate_repository_owner": true,
+    "external_author_may_have_push_maintain_or_admin_permission_on_genesis": false,
+    "public_source_history_required": true,
+    "immutable_external_release_digest_required": true,
+    "author_and_conflict_attestation_required": true,
+    "genesis_verifier_import_or_execution_allowed": false,
+    "line_for_line_translation_allowed": false,
+    "full_admission_requires": "a non-Python external implementation or a combined review of two independently authored implementations without a shared verifier library",
+    "social_independence_is_mathematically_proven": false
+  },
+  "external_author_call": {
+    "issue_number": 65,
+    "issue_title": "SIM-3: external verifier author required",
+    "opened_at_utc": "2026-08-04T17:09:06Z",
+    "opened_at_local": "2026-08-04T20:09:06+03:00",
+    "state": "OPEN",
+    "qualifying_external_author_bound": false,
+    "external_commitment_received": false
+  },
+  "challenge_minimums": {
+    "new_public_sources": 5,
+    "independent_repository_owners": 3,
+    "case_count": 100,
+    "class_count": 10,
+    "minimum_cases_per_class": 5,
+    "source_refs": "FULL_40_HEX_COMMIT_SHA",
+    "honest_open_class_required": true,
+    "gold_labels_in_router_input": false,
+    "reuse_of_five_exact_sim2_source_objects": false
+  },
+  "admission_metrics": {
+    "case_alignment": 1.0,
+    "witness_ledger_replay": 1.0,
+    "commitment_reconstruction": 1.0,
+    "exact_terminal_accuracy_minimum": 0.99,
+    "false_acceptance_rate_maximum": 0.0,
+    "false_rejection_rate_maximum": 0.01,
+    "decisive_coverage_minimum": 0.95,
+    "brier_score_maximum": 0.02,
+    "expected_calibration_error_maximum": 0.05,
+    "any_false_acceptance_blocks_admission": true
+  },
+  "safety_boundary": {
+    "network_read": "BOUNDED_PUBLIC_HTTPS_ONLY",
+    "network_write": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "autonomous_background_loop": false,
+    "real_syslog_ingest": false,
+    "private_repository_access": false,
+    "repository_secrets_available_to_external_code": false,
+    "runtime_authority": "NONE",
+    "consciousness_status": "NOT_CLAIMED"
+  },
+  "claim_boundary": {
+    "admitted": "The SIM-3 external-author protocol, schemas, commitment ceremony, format-only validator, CI bindings, and public author call are frozen in main.",
+    "not_admitted": [
+      "an external verifier implementation",
+      "an eligible external author",
+      "an external challenge commitment",
+      "organizationally independent replay",
+      "JANUS_113.8_SIM_3_PROVISIONAL_EXTERNAL_REPLAY",
+      "JANUS_113.8_SIM_3_ADMITTED",
+      "unrestricted open-world correctness",
+      "general semantic fact-checking",
+      "consciousness",
+      "organism status",
+      "pain, boredom, or qualia",
+      "network write",
+      "file deletion",
+      "self-modification",
+      "external actuation",
+      "autonomous runtime authority"
+    ]
+  },
+  "current_terminal": "SIM_3_EXTERNAL_AUTHOR_REQUIRED",
+  "execution_status": "BLOCKED_UNTIL_QUALIFYING_EXTERNAL_COMMITMENT",
+  "next_terminal": "SIM_3_EXTERNAL_COMMITMENT_ACCEPTED"
+}
