@@ -109,6 +109,7 @@ jobs:
           terminal = "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
           assert lab["phase_a"]["terminal"] == terminal
           assert lab["phase_a"]["evidence_head_sha"] == "62092ceed79cefb5104933cbff3732450797c00f"
+          assert lab["phase_a"]["target_git_blob_sha"] == "f3e39b62066420fbe35040bed25f5c3c291580c4"
           assert report["terminal"] == terminal
           assert report["target"]["modified_relative_to_main"] is False
           assert report["contract_result"]["test_methods"] == 11
@@ -162,8 +163,9 @@ jobs:
           assert acceptance["frozen_schema_mutated_by_acceptance"] is False
           assert acceptance["router_patch_present_at_acceptance"] is False
           assert acceptance["router_patch_allowed_after_acceptance"] is True
-          assert lab["phase_b_gate"]["human_review_result"] == "ACCEPTED_WITHOUT_FINDINGS"
-          assert lab["phase_b_gate"]["reviewed_schema_head_sha"] == "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8"
+          assert lab["phase_b_schema"]["human_review_result"] == "ACCEPTED_WITHOUT_FINDINGS"
+          assert lab["phase_b_schema"]["reviewed_schema_head_sha"] == "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8"
+          assert lab["phase_b_schema"]["terminal"] == accepted
 
           computed = {}
           for artifact in repair["frozen_schema_artifacts"].values():
@@ -216,10 +218,11 @@ jobs:
             -v 2>&1 | tee lab-phase-b.log
           grep -q "test_a04_" lab-phase-b.log
           grep -q "test_a14_" lab-phase-b.log
+          grep -q "Ran 13 tests" lab-phase-b.log
           grep -q "OK" lab-phase-b.log
           echo "ROUTER_HARDENING_LAB_1_PHASE_B_CONTRACT_PASS"
 
-      - name: Confirm defensive laboratory boundary
+      - name: Confirm candidate and defensive laboratory boundary
         run: |
           python - <<'PY'
           import json
@@ -228,16 +231,31 @@ jobs:
           lab = json.loads(
               Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
           )
-          assert lab["phase_b_implementation"]["contract_present"] is True
-          assert lab["phase_b_implementation"]["router_patch_present"] is True
+          result = json.loads(
+              Path(
+                  "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_IMPLEMENTATION_RESULT.json"
+              ).read_text(encoding="utf-8")
+          )
+          candidate = "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE"
+          implementation = lab["phase_b_implementation"]
+          assert implementation["contract_path"] == "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py"
+          assert implementation["contract_committed_before_router_patch"] is True
+          assert implementation["contract_test_count"] == 13
+          assert implementation["candidate_established"] is True
+          assert implementation["laboratory_admitted"] is False
+          assert implementation["merge_authorized"] is False
+          assert lab["current_terminal"] == candidate
+          assert lab["next_action"] == "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
+          assert result["terminal"] == candidate
+          assert result["candidate_gate"]["human_review_before_merge_complete"] is False
+          assert result["admission"]["laboratory_admitted"] is False
           assert lab["safety"]["owned_repository_only"] is True
-          assert lab["safety"]["synthetic_and_local_fixtures_only"] is True
-          assert lab["safety"]["real_network_read_during_lab_tests"] is False
+          assert lab["safety"]["synthetic_and_local_fixtures_only_for_phase_b_contracts"] is True
           assert lab["safety"]["network_write"] is False
           assert lab["safety"]["runtime_authority"] == "NONE"
           assert lab["independence"]["organizational_independence"] is False
           assert lab["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
-          print("ROUTER_HARDENING_LAB_1_PHASE_B_BOUNDARY_PASS")
+          print("ROUTER_HARDENING_LAB_1_CANDIDATE_BOUNDARY_PASS")
           PY
 
       - name: Upload Phase-B contract transcript
