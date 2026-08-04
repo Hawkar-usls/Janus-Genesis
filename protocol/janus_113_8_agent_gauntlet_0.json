@@ -1,0 +1,100 @@
+{
+  "schema": "janus.genesis.agent_gauntlet.protocol.v1",
+  "protocol_id": "JANUS_113.8_AGENT_GAUNTLET_0",
+  "version": "v1.0",
+  "status": "ACTIVE_READ_ONLY_SHADOW",
+  "branch": "research/janus-113-8-agent-gauntlet-0",
+  "target": {
+    "path": "sim/janus_113_8_sim2_router.py",
+    "git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+    "declared_version": "JANUS-113.8-SIM-2-ROUTER-v1.0"
+  },
+  "purpose": "Deterministic internal red-team replay that freezes cracks and held guards before any repair cycle.",
+  "law": "A CRACK REPAIRED BEFORE IT IS FROZEN IS NOT YET A WITNESS.",
+  "mode": "READ_ONLY_SHADOW",
+  "output_contract": {
+    "attack_ledger": "attack_ledger.jsonl",
+    "report": "gauntlet_report.json",
+    "hash_algorithm": "SHA-256",
+    "chain_genesis": "0000000000000000000000000000000000000000000000000000000000000000",
+    "proof_carrying": true
+  },
+  "attacks": [
+    {
+      "attack_id": "A0-001",
+      "vector": "DECLARED_PROVENANCE_PATH_NOT_BOUND_TO_FETCH_URL",
+      "expected_current_outcome": "CRACK_REPRODUCED"
+    },
+    {
+      "attack_id": "A0-002",
+      "vector": "UNICODE_NORMALIZATION_SPLIT",
+      "expected_current_outcome": "CRACK_REPRODUCED"
+    },
+    {
+      "attack_id": "A0-003",
+      "vector": "MUTABLE_NON_HEX_REFERENCE_ACCEPTED_AS_PINNED",
+      "expected_current_outcome": "CRACK_REPRODUCED"
+    },
+    {
+      "attack_id": "A0-004",
+      "vector": "MARKER_PRESENCE_WITHOUT_SEMANTIC_CONFIRMATION",
+      "expected_current_outcome": "BOUNDARY_EXPOSED"
+    },
+    {
+      "attack_id": "A0-005",
+      "vector": "UNTRUSTED_ALTERNATE_DIGEST_FORCES_PRE_FETCH_OPEN",
+      "expected_current_outcome": "OPEN_DOS_REPRODUCED"
+    },
+    {
+      "attack_id": "A0-006",
+      "vector": "DUPLICATE_CASE_ID_WITH_DIVERGENT_SEMANTICS",
+      "expected_current_outcome": "CRACK_REPRODUCED"
+    },
+    {
+      "attack_id": "A0-007",
+      "vector": "CONFIDENT_PREDICTIONS_WITH_TRUNCATED_LEDGER",
+      "expected_current_outcome": "GUARD_HELD"
+    },
+    {
+      "attack_id": "A0-008",
+      "vector": "LOCALLY_CORRECT_BRANCHES_WITH_UNCHECKED_GLOBAL_SEMANTICS",
+      "expected_current_outcome": "BOUNDARY_EXPOSED"
+    }
+  ],
+  "outcome_vocabulary": [
+    "CRACK_REPRODUCED",
+    "OPEN_DOS_REPRODUCED",
+    "BOUNDARY_EXPOSED",
+    "GUARD_HELD"
+  ],
+  "invariants": {
+    "fix_on_discovery": false,
+    "merge_authorized": false,
+    "network_used": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "autonomous_background_loop": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "runtime_authority": "NONE",
+    "sim3_external_author_impersonated": false,
+    "sim3_external_door_touched": false,
+    "consciousness_claimed": false
+  },
+  "completion_contract": {
+    "attack_count": 8,
+    "unique_attack_ids": true,
+    "all_records_hash_chained": true,
+    "all_records_fix_applied_false": true,
+    "report_binds_complete_ledger": true,
+    "expected_terminal": "JANUS_113.8_AGENT_GAUNTLET_0_ATTACK_LEDGER_FROZEN"
+  },
+  "claim_boundaries": [
+    "This is an internal training and hardening run, not the independent SIM-3 verdict.",
+    "A reproduced weakness is scoped to the frozen router contract and deterministic attack setup.",
+    "A boundary-exposed result is not automatically a defect.",
+    "A held guard is preserved and is not rewritten as a failed attack campaign.",
+    "No result establishes consciousness, organism status, universal fact checking, or P versus NP."
+  ]
+}
