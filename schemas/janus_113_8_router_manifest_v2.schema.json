@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/janus_113_8_router_manifest_v2.schema.json",
+  "title": "JANUS 113.8 Hardened Router Run Manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "input_nonempty_line_count",
+    "prediction_count",
+    "ledger_entry_count",
+    "parse_status_counts",
+    "decision_counts",
+    "public_cases_sha256",
+    "predictions_sha256",
+    "witness_ledger_sha256",
+    "final_ledger_hash",
+    "line_conservation",
+    "valid_terminals_only",
+    "unique_network_targets",
+    "deterministic_output",
+    "safety_boundary"
+  ],
+  "properties": {
+    "schema": {
+      "const": "janus.genesis.router.manifest.v2"
+    },
+    "version": {
+      "const": "JANUS-113.8-HARDENED-ROUTER-v2.0"
+    },
+    "input_nonempty_line_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "prediction_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "ledger_entry_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "parse_status_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "decision_counts": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "public_cases_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "predictions_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "witness_ledger_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "final_ledger_hash": {
+      "$ref": "#/$defs/sha256"
+    },
+    "line_conservation": {
+      "const": true
+    },
+    "valid_terminals_only": {
+      "const": true
+    },
+    "unique_network_targets": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 10000
+    },
+    "deterministic_output": {
+      "const": true
+    },
+    "safety_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_read",
+        "allowed_host",
+        "network_write",
+        "file_deletion",
+        "self_modification",
+        "external_actuation",
+        "runtime_authority"
+      ],
+      "properties": {
+        "network_read": {
+          "const": "BOUNDED_PUBLIC_HTTPS_ONLY"
+        },
+        "allowed_host": {
+          "const": "raw.githubusercontent.com"
+        },
+        "network_write": {
+          "const": false
+        },
+        "file_deletion": {
+          "const": false
+        },
+        "self_modification": {
+          "const": false
+        },
+        "external_actuation": {
+          "const": false
+        },
+        "runtime_authority": {
+          "const": "NONE"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "x-janus-conservation-equation": "input_nonempty_line_count == prediction_count == ledger_entry_count == sum(parse_status_counts) == sum(decision_counts)"
+}
