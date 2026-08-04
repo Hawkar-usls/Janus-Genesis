@@ -1,0 +1,126 @@
+name: JANUS 113.8 SIM-1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "sim/janus_113_8_sim1.py"
+      - "sim/janus_113_8_sim1_verifier.py"
+      - "tests/test_janus_113_8_sim1.py"
+      - "docs/JANUS_113_8_SIM_1_SPEC.md"
+      - ".github/workflows/janus-113-8-sim1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-contracts:
+    name: unit-contracts-python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile producer and independent verifier
+        run: |
+          python -m py_compile \
+            sim/janus_113_8_sim1.py \
+            sim/janus_113_8_sim1_verifier.py
+
+      - name: Run SIM-1 unit contracts
+        run: python -m unittest discover -s tests -p "test_janus_113_8_sim1.py" -v
+
+  deterministic-adversarial-replay:
+    name: deterministic-adversarial-replay
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate two independent serialized corpora
+        env:
+          SOURCE_DATE_EPOCH: "1785860340"
+        run: |
+          python sim/janus_113_8_sim1.py \
+            --output artifacts/janus-113-8-sim-1/run-a \
+            --seed 1138001919 \
+            --cases 100 \
+            --print-summary
+          python sim/janus_113_8_sim1.py \
+            --output artifacts/janus-113-8-sim-1/run-b \
+            --seed 1138001919 \
+            --cases 100 \
+            --print-summary
+
+      - name: Run separate verifier on both corpora
+        run: |
+          python sim/janus_113_8_sim1_verifier.py \
+            --input artifacts/janus-113-8-sim-1/run-a \
+            --output artifacts/janus-113-8-sim-1/verify-a \
+            --print-summary
+          python sim/janus_113_8_sim1_verifier.py \
+            --input artifacts/janus-113-8-sim-1/run-b \
+            --output artifacts/janus-113-8-sim-1/verify-b \
+            --print-summary
+
+      - name: Verify deterministic admission and freeze CI summary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("artifacts/janus-113-8-sim-1")
+          ma = json.loads((root / "run-a/producer_manifest.json").read_text(encoding="utf-8"))
+          mb = json.loads((root / "run-b/producer_manifest.json").read_text(encoding="utf-8"))
+          va = json.loads((root / "verify-a/independent_verification_report.json").read_text(encoding="utf-8"))
+          vb = json.loads((root / "verify-b/independent_verification_report.json").read_text(encoding="utf-8"))
+
+          assert ma["case_count"] == mb["case_count"] == 100
+          assert ma["replay_digest_sha256"] == mb["replay_digest_sha256"]
+          assert va["admitted"] is True and vb["admitted"] is True
+          assert va["terminal"] == vb["terminal"] == "JANUS_113.8_SIM_1_ADMITTED"
+          assert va["replay_digest_sha256"] == vb["replay_digest_sha256"] == ma["replay_digest_sha256"]
+          assert all(value == 10 for value in va["attack_counts"].values())
+
+          summary = {
+              "schema": "janus.genesis.sim1.ci_summary.v1",
+              "terminal": "JANUS_113.8_SIM_1_ADMITTED",
+              "admitted": True,
+              "case_count": 100,
+              "attack_class_count": 10,
+              "cases_per_attack_class": 10,
+              "replay_digest_sha256": ma["replay_digest_sha256"],
+              "producer_runs": 2,
+              "independent_verifier_runs": 2,
+              "next_terminal": "SIM_2_OPEN_WORLD_CALIBRATION_REQUIRED",
+          }
+          (root / "ci_summary.json").write_text(
+              json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload proof-carrying SIM-1 corpus and reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-sim-1-proofpack
+          path: artifacts/janus-113-8-sim-1/
+          if-no-files-found: error
+          retention-days: 30
