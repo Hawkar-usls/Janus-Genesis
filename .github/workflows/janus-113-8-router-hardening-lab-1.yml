@@ -11,6 +11,7 @@ on:
       - "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_*"
       - "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1*.md"
       - "sim/janus_113_8_sim2_router.py"
+      - "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py"
       - ".github/workflows/janus-113-8-router-hardening-lab-1.yml"
   workflow_dispatch:
 
@@ -18,8 +19,8 @@ permissions:
   contents: read
 
 jobs:
-  phase-a-pre-repair-contracts:
-    name: phase-a-confirm-frozen-findings-python-${{ matrix.python-version }}
+  phase-a-historical-replay:
+    name: phase-a-historical-replay-python-${{ matrix.python-version }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     strategy:
@@ -27,45 +28,41 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
     steps:
-      - name: Check out Genesis
+      - name: Check out exact pre-repair evidence head
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          ref: 62092ceed79cefb5104933cbff3732450797c00f
+          fetch-depth: 1
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Prove router is still the pre-repair target
-        run: |
-          git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
-          echo "pre-repair router unchanged relative to main: PASS"
-
-      - name: Compile laboratory contract
+      - name: Compile historical expected-failure contract
         run: |
           python -m py_compile \
             lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py
 
-      - name: Run contracts and require expected pre-repair failure
+      - name: Require exact historical pre-repair failure state
         shell: bash
         run: |
           set +e
           python -m unittest \
             lab_contracts.janus_113_8_router_hardening_lab_1_expected_failures \
-            -v 2>&1 | tee lab-phase-a.log
+            -v 2>&1 | tee lab-phase-a-historical.log
           status=${PIPESTATUS[0]}
           set -e
 
           if [ "$status" -eq 0 ]; then
-            echo "ERROR: all hardening contracts unexpectedly passed before repair"
+            echo "ERROR: historical pre-repair contract unexpectedly passed"
             exit 1
           fi
 
           python - <<'PY'
           from pathlib import Path
 
-          text = Path("lab-phase-a.log").read_text(encoding="utf-8")
+          text = Path("lab-phase-a-historical.log").read_text(encoding="utf-8")
           expected = [
               "test_a04_provenance_metadata_must_bind_to_url",
               "test_a05_prediction_hash_must_bind_complete_input_case",
@@ -81,37 +78,27 @@ jobs:
           ]
           missing = [name for name in expected if name not in text]
           if missing:
-              raise SystemExit(f"missing contract executions: {missing}")
-          if "Ran 11 tests" not in text:
-              raise SystemExit("the complete eleven-contract suite did not execute")
-          if "FAILED" not in text:
-              raise SystemExit("unittest did not record the required pre-repair FAILED state")
+              raise SystemExit(f"missing historical contract executions: {missing}")
+          if "Ran 11 tests" not in text or "FAILED" not in text:
+              raise SystemExit("historical Phase-A failure state was not reproduced")
           print("ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED")
           PY
-
-      - name: Upload pre-repair failure transcript
-        uses: actions/upload-artifact@v4
-        with:
-          name: janus-113-8-router-hardening-lab-1-phase-a-python-${{ matrix.python-version }}
-          path: lab-phase-a.log
-          if-no-files-found: error
-          retention-days: 30
 
   phase-a-evidence-binding:
     name: phase-a-frozen-evidence-binding
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out Genesis
+      - name: Check out current laboratory branch
         uses: actions/checkout@v4
 
-      - name: Validate frozen Phase-A evidence remains intact
+      - name: Validate permanent Phase-A evidence
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
 
-          protocol = json.loads(
+          lab = json.loads(
               Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
           )
           report = json.loads(
@@ -120,37 +107,24 @@ jobs:
               )
           )
           terminal = "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
-          assert protocol["phase_a"]["terminal"] == terminal
-          assert protocol["phase_a"]["status"] == "PRE_REPAIR_FAILURE_REPRODUCED_AND_FROZEN"
-          assert protocol["phase_a"]["router_patch_present"] is False
-          assert protocol["phase_a"]["expected_contract_count"] == 11
-          assert protocol["phase_a"]["tests_run_per_python"] == 11
-          assert protocol["phase_a"]["failures_per_python"] == 11
-          assert protocol["phase_a"]["errors_per_python"] == 1
+          assert lab["phase_a"]["terminal"] == terminal
+          assert lab["phase_a"]["evidence_head_sha"] == "62092ceed79cefb5104933cbff3732450797c00f"
           assert report["terminal"] == terminal
-          assert report["router_repair_status"] == "NOT_STARTED"
           assert report["target"]["modified_relative_to_main"] is False
           assert report["contract_result"]["test_methods"] == 11
           assert report["contract_result"]["frozen_implementation_findings_reproduced"] == 10
           print("ROUTER_HARDENING_LAB_1_PHASE_A_EVIDENCE_BINDING_PASS")
           PY
 
-  phase-b-repair-schema-freeze:
-    name: phase-b-repair-schema-freeze
+  phase-b-schema-acceptance:
+    name: phase-b-repair-schema-acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check out Genesis
+      - name: Check out current laboratory branch
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
-      - name: Prove no router repair is present
-        run: |
-          git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
-          echo "router patch absent during repair-schema review: PASS"
-
-      - name: Validate schema JSON, hashes, report, and frozen invariants
+      - name: Validate immutable schemas and acceptance witness
         run: |
           python - <<'PY'
           import hashlib
@@ -165,88 +139,52 @@ jobs:
                   encoding="utf-8"
               )
           )
-          report = json.loads(
+          freeze = json.loads(
               Path(
                   "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_FREEZE_REPORT.json"
               ).read_text(encoding="utf-8")
           )
+          acceptance = json.loads(
+              Path(
+                  "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_ACCEPTANCE.json"
+              ).read_text(encoding="utf-8")
+          )
 
-          expected_terminal = "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW"
-          assert lab["current_terminal"] == expected_terminal
-          assert lab["next_action"] == "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
-          assert lab["phase_b_gate"]["router_patch_present"] is False
-          assert lab["phase_b_gate"]["router_patch_allowed_now"] is False
-          assert repair["current_terminal"] == expected_terminal
-          assert repair["router_patch_present"] is False
+          accepted = "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
+          frozen = "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW"
+
+          assert repair["current_terminal"] == frozen
           assert repair["router_patch_allowed_now"] is False
-          assert repair["next_action"] == "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
-          assert report["terminal"] == expected_terminal
-          assert report["evidence_head_sha"] == "c7e9520eff4b70718161946a6818a2657ea1fafd"
-          assert report["workflow"]["run_id"] == 30952500694
-          assert report["workflow"]["conclusion"] == "success"
-          assert report["target"]["modified_relative_to_main"] is False
-          assert report["target"]["repair_started"] is False
-          assert report["review_gate"]["router_patch_allowed_now"] is False
+          assert freeze["terminal"] == frozen
+          assert acceptance["reviewed_schema_head_sha"] == "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8"
+          assert acceptance["terminal"] == accepted
+          assert acceptance["review_findings"] == []
+          assert acceptance["frozen_schema_mutated_by_acceptance"] is False
+          assert acceptance["router_patch_present_at_acceptance"] is False
+          assert acceptance["router_patch_allowed_after_acceptance"] is True
+          assert lab["current_terminal"] == accepted
+          assert lab["phase_b_gate"]["status"] == "REPAIR_SCHEMA_ACCEPTED"
+          assert lab["phase_b_gate"]["router_patch_present"] is False
+          assert lab["phase_b_gate"]["router_patch_allowed_now"] is True
+          assert lab["next_action"] == "IMPLEMENT_MINIMAL_ROUTER_REPAIR_WITH_SEPARATE_PHASE_B_CONTRACT"
 
-          computed_hashes = {}
+          computed = {}
           for artifact in repair["frozen_schema_artifacts"].values():
               path = Path(artifact["path"])
-              data = path.read_bytes()
-              digest = hashlib.sha256(data).hexdigest()
-              computed_hashes[str(path)] = digest
+              digest = hashlib.sha256(path.read_bytes()).hexdigest()
               assert digest == artifact["sha256_utf8"], path
-              parsed = json.loads(data.decode("utf-8"))
-              assert parsed["$schema"] == "https://json-schema.org/draft/2020-12/schema"
-              assert parsed["additionalProperties"] is False
+              computed[str(path)] = digest
 
-          report_hashes = {
-              item["path"]: item["sha256_utf8"] for item in report["frozen_contract"]["schemas"]
+          frozen_hashes = {
+              item["path"]: item["sha256_utf8"] for item in freeze["frozen_contract"]["schemas"]
           }
-          assert computed_hashes == report_hashes
-
-          case_schema = json.loads(
-              Path("schemas/janus_113_8_router_case_v2.schema.json").read_text(encoding="utf-8")
-          )
-          prediction_schema = json.loads(
-              Path("schemas/janus_113_8_router_prediction_v2.schema.json").read_text(encoding="utf-8")
-          )
-          ledger_schema = json.loads(
-              Path("schemas/janus_113_8_router_ledger_entry_v2.schema.json").read_text(
-                  encoding="utf-8"
-              )
-          )
-          manifest_schema = json.loads(
-              Path("schemas/janus_113_8_router_manifest_v2.schema.json").read_text(encoding="utf-8")
-          )
-
-          assert case_schema["properties"]["schema"]["const"] == "janus.genesis.router.public_case.v2"
-          assert set(case_schema["properties"]["provenance_mode"]["enum"]) == {
-              "LEGACY_SIM2_RELEASE_TAG",
-              "STRICT_IMMUTABLE_COMMIT",
-          }
-          terminals = set(prediction_schema["properties"]["decision_terminal"]["enum"])
-          required_terminals = {
-              "REFUTED_RESOURCE_LIMIT",
-              "REFUTED_JSON_DUPLICATE_KEY",
-              "REFUTED_IDENTIFIER_COLLISION",
-              "REFUTED_PROVENANCE_MISMATCH",
-              "REFUTED_NON_CANONICAL_URL",
-              "SAFETY_BLOCK_REDIRECT_TARGET",
-          }
-          assert required_terminals <= terminals
-          assert ledger_schema["properties"]["input_line_sha256"]["$ref"] == "#/$defs/sha256"
-          assert set(manifest_schema["properties"]["run_terminal"]["enum"]) == {
-              "COMPLETED",
-              "REFUTED_CORPUS_LIMIT",
-          }
+          assert computed == frozen_hashes
           assert repair["ingestion"]["silent_line_drop"] is False
+          assert repair["witness_ledger"]["malformed_lines_preserved"] is True
           assert repair["canonical_url_gate"]["network_read_before_gate"] is False
           assert repair["redirect_and_fetch"]["final_response_url_revalidation"] is True
-          assert repair["witness_ledger"]["malformed_lines_preserved"] is True
-          assert repair["witness_ledger"]["duplicate_key_lines_preserved"] is True
-          assert repair["determinism"]["wall_clock_fields_in_predictions"] is False
           assert repair["compatibility"]["historical_artifacts_rewritten"] is False
           assert repair["independence"]["organizational_independence"] is False
           assert repair["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
-          print("ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FREEZE_PASS")
+          print("ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED")
           PY
