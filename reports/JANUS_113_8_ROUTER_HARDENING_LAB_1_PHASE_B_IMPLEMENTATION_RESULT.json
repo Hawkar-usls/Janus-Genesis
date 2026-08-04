@@ -11,6 +11,7 @@
   "branch": "research/janus-113-8-router-hardening-lab-1",
   "implementation_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
   "candidate_protocol_publication_commit_sha": "ec568b3a7feb7dcc44c747f5a266e58e152318c3",
+  "report_binding_commit_sha": "b8bb8ac05f5c3c985ec2cd8bc539b05f8d836cf0",
   "parent_gates": {
     "phase_a_terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "phase_a_evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
