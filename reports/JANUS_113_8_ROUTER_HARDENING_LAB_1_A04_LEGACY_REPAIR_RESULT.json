@@ -1,0 +1,154 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.a04_legacy_repair_result.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-A04-LEGACY-REPAIR-v1.0",
+  "recorded_local_time": "2026-08-05T02:27:55+03:00",
+  "role": "JANUS_LAB_AGENT",
+  "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+  "runtime_authority": "NONE",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 67,
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "blocking_review": {
+    "reviewed_head_sha": "4936b1c046cf22aa2b44b6dcace4d4e06afde31b",
+    "verdict": "CHANGES_REQUIRED",
+    "blocking_finding": "A04_LEGACY_PROVENANCE_TUPLE_BYPASS",
+    "laboratory_admitted": false,
+    "merge_authorized": false
+  },
+  "red_regression_evidence": {
+    "contract_path": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
+    "contract_commit_sha": "e175adbfcf04b78c808b98feeb06617e16b34781",
+    "router_modified_in_contract_commit": false,
+    "test_name": "test_a04_legacy_provenance_tuple_must_bind_before_fetch",
+    "coordinates": [
+      "LEGACY_SOURCE_REPOSITORY_MISMATCH",
+      "LEGACY_SOURCE_PATH_MISMATCH"
+    ],
+    "expected_terminal": "REFUTED_PROVENANCE_MISMATCH",
+    "expected_fetch_calls": 0,
+    "workflow_run_id": 30958090460,
+    "workflow_run_number": 58,
+    "python_results": {
+      "3.11": "FAILED_AS_EXPECTED",
+      "3.12": "FAILED_AS_EXPECTED",
+      "3.13": "FAILED_AS_EXPECTED"
+    },
+    "observed_before_repair": {
+      "repository_mismatch_terminal": "SUPPORTED_PUBLIC_PROVENANCE",
+      "path_mismatch_terminal": "SUPPORTED_PUBLIC_PROVENANCE",
+      "tests_run": 14,
+      "failures": 2
+    },
+    "terminal": "A04_LEGACY_BYPASS_REPRODUCED"
+  },
+  "minimal_router_repair": {
+    "commit_sha": "20f399d1eae13827e4cafd1b4d78569c4980ef3a",
+    "path": "sim/janus_113_8_sim2_router.py",
+    "files_changed": 1,
+    "repair": "Bind source_repository, source_ref, and source_path to the decoded canonical source_url tuple before branching into LEGACY or STRICT provenance policy.",
+    "legacy_relaxations_remaining": [
+      "FULL_COMMIT_REQUIREMENT",
+      "COMMIT_IMMUTABILITY_CLAIM"
+    ],
+    "legacy_relaxations_removed": [
+      "REPOSITORY_IDENTITY",
+      "REF_IDENTITY",
+      "PATH_IDENTITY"
+    ],
+    "network_read_before_tuple_gate": false
+  },
+  "ci_harness_alignment": {
+    "commit_sha": "92c8031e7826e443f6f0e082a9d5d1749522a6c0",
+    "change": "Update the Phase-B transcript assertion from 13 to 14 tests.",
+    "router_semantics_changed": false
+  },
+  "historical_sim2_separation": {
+    "unit_contract_commit_sha": "bf56ffde9cdf900ca50f67d76b127e825888ed39",
+    "workflow_commit_sha": "e335273434b212a8cbc4c4fa0e970be5d3d3daa1",
+    "frozen_router_path": "gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py",
+    "frozen_router_source_commit_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "frozen_router_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+    "current_hardened_router_is_historical_sim2_target": false,
+    "historical_artifacts_rewritten": false
+  },
+  "green_replay_evidence": {
+    "implementation_evidence_head_sha": "e335273434b212a8cbc4c4fa0e970be5d3d3daa1",
+    "phase_b": {
+      "workflow_run_id": 30959904924,
+      "workflow_run_number": 62,
+      "contract_test_count": 14,
+      "python_results": {
+        "3.11": "PASS",
+        "3.12": "PASS",
+        "3.13": "PASS"
+      },
+      "historical_phase_a_replay": {
+        "3.11": "PASS",
+        "3.12": "PASS",
+        "3.13": "PASS"
+      },
+      "artifacts": [
+        {
+          "python": "3.11",
+          "artifact_id": 8912529022,
+          "zip_sha256": "0c9d751adb8fac37bc509fd29c8d36df1c4fae46b93502675c921bc4c475118f"
+        },
+        {
+          "python": "3.12",
+          "artifact_id": 8912531226,
+          "zip_sha256": "88cb3f3bbc68ceaba94fa34ca4659cf4bb44bda6e18eb74a0649e965716ec953"
+        },
+        {
+          "python": "3.13",
+          "artifact_id": 8912516311,
+          "zip_sha256": "303476307866b6b94c1d38e4d86d7934f19c80c8ade2e7067ec785085dfb9b5e"
+        }
+      ]
+    },
+    "historical_sim2": {
+      "workflow_run_id": 30959904955,
+      "workflow_run_number": 25,
+      "conclusion": "success",
+      "unit_contracts_python_3_11": "PASS",
+      "unit_contracts_python_3_12": "PASS",
+      "pinned_open_world_calibration": "PASS",
+      "target_binding_verified": true,
+      "terminal": "JANUS_113.8_SIM_2_ADMITTED",
+      "artifact_id": 8912551139,
+      "artifact_zip_sha256": "eacf7112145db8a21936aec3545d020579117a59a8242fd01a60cea4c7b3143f",
+      "next_terminal": "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED"
+    },
+    "all_exact_head_workflows": {
+      "JANUS 113.8 Agent Gauntlet-0": "success",
+      "JANUS 113.8 Router Hardening Laboratory-1": "success",
+      "JANUS 113.8 SIM-2": "success",
+      "Genesis century lived audit": "success",
+      "AI Link Play": "success",
+      "Genesis Tests": "success",
+      "Threshold review precision": "success",
+      "Hosted Pilgrimage": "success",
+      "test": "success"
+    }
+  },
+  "result": {
+    "a04_legacy_bypass_reproduced_before_fix": true,
+    "contract_committed_before_fix": true,
+    "repository_mismatch_rejected_before_fetch": true,
+    "path_mismatch_rejected_before_fetch": true,
+    "phase_b_contracts_green_on_three_python_versions": true,
+    "historical_sim2_bound_to_exact_v1_target": true,
+    "historical_gauntlet_unchanged": true,
+    "known_blocking_finding_repaired": true,
+    "human_re_review_complete": false,
+    "laboratory_admitted": false,
+    "merge_authorized": false
+  },
+  "terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_A04_REPAIRED_AWAITING_HUMAN_RE_REVIEW",
+  "next_action": "HUMAN_RE_REVIEW_A04_REPAIR_EVIDENCE_BEFORE_MERGE",
+  "independence": {
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_this_repair": false
+  },
+  "claim_boundary": "This report proves internal reproduction and repair of the reviewed A04 legacy tuple-binding defect. It does not admit or merge Laboratory-1, establish organizational independence, satisfy SIM-3, or grant runtime authority."
+}
