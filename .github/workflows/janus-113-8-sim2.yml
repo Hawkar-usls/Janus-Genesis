@@ -1,0 +1,160 @@
+name: JANUS 113.8 SIM-2
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "fixtures/janus_113_8_sim2_sources.json"
+      - "sim/janus_113_8_sim2_builder.py"
+      - "sim/janus_113_8_sim2_router.py"
+      - "sim/janus_113_8_sim2_evaluator.py"
+      - "tests/test_janus_113_8_sim2.py"
+      - "docs/JANUS_113_8_SIM_2_SPEC.md"
+      - ".github/workflows/janus-113-8-sim2.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-contracts:
+    name: unit-contracts-python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile SIM-2 chamber
+        run: |
+          python -m py_compile \
+            sim/janus_113_8_sim2_builder.py \
+            sim/janus_113_8_sim2_router.py \
+            sim/janus_113_8_sim2_evaluator.py
+
+      - name: Run SIM-2 unit contracts
+        run: python -m unittest discover -s tests -p "test_janus_113_8_sim2.py" -v
+
+  pinned-open-world-calibration:
+    name: pinned-open-world-calibration
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Build held-out public corpora A and B
+        run: |
+          python sim/janus_113_8_sim2_builder.py \
+            --sources fixtures/janus_113_8_sim2_sources.json \
+            --output artifacts/janus-113-8-sim-2/run-a/corpus \
+            --seed 1138001938 \
+            --repetitions 4 \
+            --print-summary
+          python sim/janus_113_8_sim2_builder.py \
+            --sources fixtures/janus_113_8_sim2_sources.json \
+            --output artifacts/janus-113-8-sim-2/run-b/corpus \
+            --seed 1138001938 \
+            --repetitions 4 \
+            --print-summary
+
+      - name: Run JANUS router without gold labels
+        run: |
+          python sim/janus_113_8_sim2_router.py \
+            --input artifacts/janus-113-8-sim-2/run-a/corpus/cases_public.jsonl \
+            --output artifacts/janus-113-8-sim-2/run-a/router \
+            --print-summary
+          python sim/janus_113_8_sim2_router.py \
+            --input artifacts/janus-113-8-sim-2/run-b/corpus/cases_public.jsonl \
+            --output artifacts/janus-113-8-sim-2/run-b/router \
+            --print-summary
+
+      - name: Independently re-fetch, reconstruct, and calibrate
+        run: |
+          python sim/janus_113_8_sim2_evaluator.py \
+            --sources fixtures/janus_113_8_sim2_sources.json \
+            --corpus artifacts/janus-113-8-sim-2/run-a/corpus \
+            --router artifacts/janus-113-8-sim-2/run-a/router \
+            --output artifacts/janus-113-8-sim-2/run-a/evaluation \
+            --print-summary
+          python sim/janus_113_8_sim2_evaluator.py \
+            --sources fixtures/janus_113_8_sim2_sources.json \
+            --corpus artifacts/janus-113-8-sim-2/run-b/corpus \
+            --router artifacts/janus-113-8-sim-2/run-b/router \
+            --output artifacts/janus-113-8-sim-2/run-b/evaluation \
+            --print-summary
+
+      - name: Verify dual-chamber admission
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          root = Path("artifacts/janus-113-8-sim-2")
+          ma = json.loads((root / "run-a/corpus/builder_manifest.json").read_text(encoding="utf-8"))
+          mb = json.loads((root / "run-b/corpus/builder_manifest.json").read_text(encoding="utf-8"))
+          ea = json.loads((root / "run-a/evaluation/independent_evaluation_report.json").read_text(encoding="utf-8"))
+          eb = json.loads((root / "run-b/evaluation/independent_evaluation_report.json").read_text(encoding="utf-8"))
+
+          assert ma["case_count"] == mb["case_count"] == 200
+          assert ma["source_count"] == mb["source_count"] == 5
+          assert ma["replay_digest_sha256"] == mb["replay_digest_sha256"]
+          assert ma["public_cases_sha256"] == mb["public_cases_sha256"]
+          assert ma["truth_sha256"] == mb["truth_sha256"]
+          assert ea["admitted"] is True and eb["admitted"] is True
+          assert ea["terminal"] == eb["terminal"] == "JANUS_113.8_SIM_2_ADMITTED"
+          assert ea["replay_digest_sha256"] == eb["replay_digest_sha256"] == ma["replay_digest_sha256"]
+          for report in (ea, eb):
+              metrics = report["metrics"]
+              assert metrics["router_exact_terminal_accuracy"] == 1.0
+              assert metrics["false_acceptance_rate"] == 0.0
+              assert metrics["false_rejection_rate"] == 0.0
+              assert metrics["decisive_coverage"] == 1.0
+              assert metrics["brier_score"] <= 0.0002
+              assert metrics["expected_calibration_error"] <= 0.011
+              assert all(report["builder_checks"].values())
+              assert all(report["router_checks"].values())
+              assert all(report["suite_checks"].values())
+
+          summary = {
+              "schema": "janus.genesis.sim2.ci_summary.v1",
+              "terminal": "JANUS_113.8_SIM_2_ADMITTED",
+              "admitted": True,
+              "source_count": 5,
+              "case_count": 200,
+              "mutation_class_count": 10,
+              "cases_per_mutation": 20,
+              "builder_runs": 2,
+              "router_runs": 2,
+              "independent_evaluator_runs": 2,
+              "replay_digest_sha256": ma["replay_digest_sha256"],
+              "metrics": ea["metrics"],
+              "next_terminal": "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED",
+          }
+          (root / "ci_summary.json").write_text(
+              json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload SIM-2 proof-carrying calibration pack
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-sim-2-proofpack
+          path: artifacts/janus-113-8-sim-2/
+          if-no-files-found: error
+          retention-days: 30

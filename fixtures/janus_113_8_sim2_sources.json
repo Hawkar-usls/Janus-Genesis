@@ -1,0 +1,58 @@
+{
+  "schema": "janus.genesis.sim2.public_sources.v1",
+  "network_policy": {
+    "read_only": true,
+    "allowed_scheme": "https",
+    "allowed_host": "raw.githubusercontent.com",
+    "unpinned_refs_forbidden": [
+      "main",
+      "master",
+      "HEAD"
+    ],
+    "per_source_max_bytes": 300000,
+    "timeout_seconds": 20,
+    "retry_count": 3
+  },
+  "sources": [
+    {
+      "source_id": "CPYTHON_LICENSE_3_12_0",
+      "repository": "python/cpython",
+      "ref": "v3.12.0",
+      "path": "LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/python/cpython/v3.12.0/LICENSE",
+      "required_marker": "PYTHON SOFTWARE FOUNDATION LICENSE VERSION 2"
+    },
+    {
+      "source_id": "REQUESTS_LICENSE_2_31_0",
+      "repository": "psf/requests",
+      "ref": "v2.31.0",
+      "path": "LICENSE",
+      "raw_url": "https://raw.githubusercontent.com/psf/requests/v2.31.0/LICENSE",
+      "required_marker": "Apache License"
+    },
+    {
+      "source_id": "LINUX_README_6_1",
+      "repository": "torvalds/linux",
+      "ref": "v6.1",
+      "path": "README",
+      "raw_url": "https://raw.githubusercontent.com/torvalds/linux/v6.1/README",
+      "required_marker": "Linux kernel"
+    },
+    {
+      "source_id": "GIT_README_2_42_0",
+      "repository": "git/git",
+      "ref": "v2.42.0",
+      "path": "README.md",
+      "raw_url": "https://raw.githubusercontent.com/git/git/v2.42.0/README.md",
+      "required_marker": "Git - fast, scalable, distributed revision control system"
+    },
+    {
+      "source_id": "RUST_COPYRIGHT_1_72_0",
+      "repository": "rust-lang/rust",
+      "ref": "1.72.0",
+      "path": "COPYRIGHT",
+      "raw_url": "https://raw.githubusercontent.com/rust-lang/rust/1.72.0/COPYRIGHT",
+      "required_marker": "The Rust Project is dual-licensed under Apache 2.0 and MIT"
+    }
+  ]
+}
