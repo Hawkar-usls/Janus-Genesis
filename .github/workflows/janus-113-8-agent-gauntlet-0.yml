@@ -1,0 +1,155 @@
+name: JANUS 113.8 Agent Gauntlet-0
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "gauntlet/janus_113_8_agent_gauntlet_0.py"
+      - "gauntlet/janus_113_8_agent_gauntlet_0_offline_runner.py"
+      - "gauntlet/janus_113_8_agent_gauntlet_0_verifier.py"
+      - "gauntlet/__init__.py"
+      - "tests/test_janus_113_8_agent_gauntlet_0.py"
+      - "docs/JANUS_113_8_AGENT_GAUNTLET_0_SPEC.md"
+      - ".github/workflows/janus-113-8-agent-gauntlet-0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-contracts:
+    name: gauntlet-contracts-python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile gauntlet, offline runner, and verifier
+        run: |
+          python -m py_compile \
+            gauntlet/janus_113_8_agent_gauntlet_0.py \
+            gauntlet/janus_113_8_agent_gauntlet_0_offline_runner.py \
+            gauntlet/janus_113_8_agent_gauntlet_0_verifier.py
+
+      - name: Run Agent Gauntlet-0 contracts
+        run: python -m unittest discover -s tests -p "test_janus_113_8_agent_gauntlet_0.py" -v
+
+  adaptive-shadow-gauntlet:
+    name: adaptive-read-only-shadow-gauntlet
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Enforce read-only target
+        run: |
+          git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
+          echo "target router unchanged relative to main: PASS"
+
+      - name: Run chamber A through canonical no-network runner
+        run: |
+          python -m gauntlet.janus_113_8_agent_gauntlet_0_offline_runner \
+            --output artifacts/gauntlet-a \
+            --print-summary
+          python -m gauntlet.janus_113_8_agent_gauntlet_0_verifier \
+            --proofpack artifacts/gauntlet-a \
+            --repository-root . \
+            --output artifacts/gauntlet-a/verification_report.json
+
+      - name: Run chamber B through canonical no-network runner
+        run: |
+          python -m gauntlet.janus_113_8_agent_gauntlet_0_offline_runner \
+            --output artifacts/gauntlet-b \
+            --print-summary
+          python -m gauntlet.janus_113_8_agent_gauntlet_0_verifier \
+            --proofpack artifacts/gauntlet-b \
+            --repository-root . \
+            --output artifacts/gauntlet-b/verification_report.json
+
+      - name: Require byte-identical independent runs
+        run: |
+          for name in attack_results.jsonl attack_ledger.jsonl finding_catalog.json gauntlet_manifest.json verification_report.json; do
+            cmp "artifacts/gauntlet-a/$name" "artifacts/gauntlet-b/$name"
+          done
+          echo "dual deterministic replay: PASS"
+
+      - name: Seal CI proofpack manifest
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path("artifacts")
+          a = root / "gauntlet-a"
+          manifest = json.loads((a / "gauntlet_manifest.json").read_text(encoding="utf-8"))
+          report = json.loads((a / "verification_report.json").read_text(encoding="utf-8"))
+
+          assert manifest["terminal"] == "JANUS_113.8_AGENT_GAUNTLET_0_COMPLETED_WITH_FINDINGS"
+          assert manifest["status_counts"] == {
+              "BOUNDARY_CONFIRMED": 1,
+              "FINDING": 10,
+              "RESISTED": 4,
+          }
+          assert report["verified"] is True
+          assert report["terminal"] == manifest["terminal"]
+          assert report["claim_boundary"]["organizational_independence"] is False
+          assert report["claim_boundary"]["sim3_external_author_requirement_satisfied"] is False
+          assert report["claim_boundary"]["router_patched_by_this_proofpack"] is False
+
+          files = {}
+          for path in sorted(root.rglob("*")):
+              if path.is_file():
+                  files[str(path.relative_to(root))] = {
+                      "bytes": path.stat().st_size,
+                      "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+                  }
+
+          seal = {
+              "schema": "janus.genesis.agent_gauntlet0.ci_proofpack_manifest.v1",
+              "terminal": manifest["terminal"],
+              "attack_count": manifest["attack_count"],
+              "status_counts": manifest["status_counts"],
+              "replay_digest_sha256": manifest["replay_digest_sha256"],
+              "final_ledger_hash": manifest["final_ledger_hash"],
+              "dual_runs_byte_identical": True,
+              "target_router_modified": False,
+              "canonical_runner": "gauntlet.janus_113_8_agent_gauntlet_0_offline_runner",
+              "real_network_read": False,
+              "sim3_effect": "NONE_EXTERNAL_AUTHOR_REQUIREMENT_UNCHANGED",
+              "files": files,
+          }
+          (root / "ci_proofpack_manifest.json").write_text(
+              json.dumps(seal, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(seal, indent=2))
+          PY
+
+      - name: Upload proof-carrying attack ledger
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-agent-gauntlet-0-proofpack
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
