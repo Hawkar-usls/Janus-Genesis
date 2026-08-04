@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/janus_113_8_sim3_author_attestation.schema.json",
+  "title": "JANUS 113.8 SIM-3 External Author Attestation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol_id",
+    "author",
+    "external_repository",
+    "development_window",
+    "genesis_relationship",
+    "implementation",
+    "reuse_disclosure",
+    "conflicts_of_interest",
+    "public_archival_and_replay_authorized",
+    "attestation_text",
+    "attestation_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "janus.genesis.sim3.author_attestation.v1"
+    },
+    "protocol_id": {
+      "const": "JANUS-113.8-SIM-3-EXTERNAL-AUTHOR-VERIFIER-PROTOCOL"
+    },
+    "author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "github_login",
+        "display_name",
+        "public_contact"
+      ],
+      "properties": {
+        "github_login": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$",
+          "not": {
+            "const": "Hawkar-usls"
+          }
+        },
+        "display_name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "public_contact": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
+    },
+    "external_repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "full_name",
+        "url",
+        "owner_login",
+        "commit_sha",
+        "release_tag",
+        "release_archive_sha256",
+        "license_spdx"
+      ],
+      "properties": {
+        "full_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "not": {
+            "pattern": "^Hawkar-usls/"
+          }
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://github\\.com/"
+        },
+        "owner_login": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "const": "Hawkar-usls"
+          }
+        },
+        "commit_sha": {
+          "$ref": "#/$defs/sha40"
+        },
+        "release_tag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "release_archive_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "license_spdx": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "development_window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "started_utc",
+        "released_utc"
+      ],
+      "properties": {
+        "started_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "released_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "genesis_relationship": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository_permission_during_development",
+        "employment_or_financial_relationship",
+        "prior_collaboration",
+        "relationship_details"
+      ],
+      "properties": {
+        "repository_permission_during_development": {
+          "enum": [
+            "none",
+            "read",
+            "triage"
+          ]
+        },
+        "employment_or_financial_relationship": {
+          "type": "boolean"
+        },
+        "prior_collaboration": {
+          "type": "boolean"
+        },
+        "relationship_details": {
+          "type": "string",
+          "maxLength": 4000
+        }
+      }
+    },
+    "implementation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_language",
+        "runtime_versions",
+        "build_command",
+        "verify_command",
+        "dependency_lock_files",
+        "generated_code_used"
+      ],
+      "properties": {
+        "primary_language": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "runtime_versions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "build_command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "verify_command": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "dependency_lock_files": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "generated_code_used": {
+          "type": "boolean"
+        }
+      }
+    },
+    "reuse_disclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "genesis_verifier_imported",
+        "genesis_verifier_executed",
+        "line_for_line_translation",
+        "genesis_code_consulted",
+        "third_party_components"
+      ],
+      "properties": {
+        "genesis_verifier_imported": {
+          "const": false
+        },
+        "genesis_verifier_executed": {
+          "const": false
+        },
+        "line_for_line_translation": {
+          "const": false
+        },
+        "genesis_code_consulted": {
+          "type": "boolean"
+        },
+        "third_party_components": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "version",
+              "license_spdx",
+              "purpose"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              "version": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "license_spdx": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 100
+              },
+              "purpose": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            }
+          }
+        }
+      }
+    },
+    "conflicts_of_interest": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000
+      }
+    },
+    "public_archival_and_replay_authorized": {
+      "const": true
+    },
+    "attestation_text": {
+      "type": "string",
+      "minLength": 50,
+      "maxLength": 10000
+    },
+    "attestation_sha256": {
+      "$ref": "#/$defs/sha256"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    }
+  }
+}
