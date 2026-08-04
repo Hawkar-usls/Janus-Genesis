@@ -39,11 +39,7 @@
     "tests_run_per_python": 11,
     "failures_per_python": 11,
     "errors_per_python": 1,
-    "python_versions": [
-      "3.11",
-      "3.12",
-      "3.13"
-    ],
+    "python_versions": ["3.11", "3.12", "3.13"],
     "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
   },
   "phase_b_schema": {
@@ -65,7 +61,7 @@
     "started_local_time": "2026-08-05T00:52:00+03:00",
     "result_recorded_local_time": "2026-08-05T01:23:30+03:00",
     "implementation_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_IMPLEMENTATION_RESULT.json",
-    "evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
+    "implementation_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
     "contract_path": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
     "contract_commit_sha": "bfbf1e3fcf43b1741e4c861c73c81a8d558e722d",
     "contract_committed_before_router_patch": true,
@@ -80,7 +76,6 @@
       "3.13": "PASS"
     },
     "laboratory_workflow_run_id": 30956071692,
-    "laboratory_workflow_run_number": 50,
     "phase_a_evidence_replayed_from_exact_historical_target": true,
     "historical_gauntlet_bound_to_exact_pre_repair_blob": true,
     "historical_gauntlet_workflow_run_id": 30956071734,
@@ -103,28 +98,16 @@
     "ledger_replay": 1.0,
     "dual_router_outputs_byte_identical": true,
     "source_separated_replay_complete": true,
-    "all_observed_workflows_on_evidence_head_green": true,
+    "all_observed_workflows_on_implementation_evidence_head_green": true,
     "candidate_established": true,
     "laboratory_admitted": false,
     "merge_authorized": false
   },
   "evidence_artifacts": {
     "phase_b_contract_transcripts": [
-      {
-        "python": "3.11",
-        "artifact_id": 8911071909,
-        "zip_sha256": "5f70999135b6fb14e1802068f998dd652d5fe11eacd4500dfd0f58509015905e"
-      },
-      {
-        "python": "3.12",
-        "artifact_id": 8911054704,
-        "zip_sha256": "56578642a7f8614c23e3246de6f52050239d6b7e9ba1490e266409d5a951c849"
-      },
-      {
-        "python": "3.13",
-        "artifact_id": 8911069680,
-        "zip_sha256": "96cc4dec6499dd0d318b4127121007517a7fd2b520081ccb6781c89e7a1a3c36"
-      }
+      {"python": "3.11", "artifact_id": 8911071909, "zip_sha256": "5f70999135b6fb14e1802068f998dd652d5fe11eacd4500dfd0f58509015905e"},
+      {"python": "3.12", "artifact_id": 8911054704, "zip_sha256": "56578642a7f8614c23e3246de6f52050239d6b7e9ba1490e266409d5a951c849"},
+      {"python": "3.13", "artifact_id": 8911069680, "zip_sha256": "96cc4dec6499dd0d318b4127121007517a7fd2b520081ccb6781c89e7a1a3c36"}
     ],
     "historical_gauntlet": {
       "artifact_id": 8911071538,
