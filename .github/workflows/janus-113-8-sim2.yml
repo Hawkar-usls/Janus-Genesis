@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "fixtures/janus_113_8_sim2_sources.json"
+      - "gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py"
       - "sim/janus_113_8_sim2_builder.py"
       - "sim/janus_113_8_sim2_router.py"
       - "sim/janus_113_8_sim2_evaluator.py"
@@ -15,6 +16,11 @@ on:
 
 permissions:
   contents: read
+
+env:
+  HISTORICAL_ROUTER_PATH: gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py
+  HISTORICAL_ROUTER_COMMIT: 62092ceed79cefb5104933cbff3732450797c00f
+  HISTORICAL_ROUTER_GIT_BLOB_SHA: f3e39b62066420fbe35040bed25f5c3c291580c4
 
 jobs:
   unit-contracts:
@@ -34,9 +40,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Compile SIM-2 chamber
+      - name: Compile SIM-2 chamber and historical target
         run: |
           python -m py_compile \
+            gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py \
             sim/janus_113_8_sim2_builder.py \
             sim/janus_113_8_sim2_router.py \
             sim/janus_113_8_sim2_evaluator.py
@@ -57,6 +64,25 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Verify exact historical SIM-2 router target
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          path = Path(os.environ["HISTORICAL_ROUTER_PATH"])
+          data = path.read_bytes()
+          git_blob_sha = hashlib.sha1(
+              f"blob {len(data)}\0".encode("ascii") + data
+          ).hexdigest()
+          assert git_blob_sha == os.environ["HISTORICAL_ROUTER_GIT_BLOB_SHA"]
+          assert os.environ["HISTORICAL_ROUTER_COMMIT"] == "62092ceed79cefb5104933cbff3732450797c00f"
+          print("SIM_2_HISTORICAL_ROUTER_BINDING_PASS")
+          print(f"target_commit={os.environ['HISTORICAL_ROUTER_COMMIT']}")
+          print(f"target_git_blob_sha={git_blob_sha}")
+          PY
+
       - name: Build held-out public corpora A and B
         run: |
           python sim/janus_113_8_sim2_builder.py \
@@ -72,13 +98,13 @@ jobs:
             --repetitions 4 \
             --print-summary
 
-      - name: Run JANUS router without gold labels
+      - name: Run exact historical JANUS router without gold labels
         run: |
-          python sim/janus_113_8_sim2_router.py \
+          python "$HISTORICAL_ROUTER_PATH" \
             --input artifacts/janus-113-8-sim-2/run-a/corpus/cases_public.jsonl \
             --output artifacts/janus-113-8-sim-2/run-a/router \
             --print-summary
-          python sim/janus_113_8_sim2_router.py \
+          python "$HISTORICAL_ROUTER_PATH" \
             --input artifacts/janus-113-8-sim-2/run-b/corpus/cases_public.jsonl \
             --output artifacts/janus-113-8-sim-2/run-b/router \
             --print-summary
@@ -98,15 +124,18 @@ jobs:
             --output artifacts/janus-113-8-sim-2/run-b/evaluation \
             --print-summary
 
-      - name: Verify dual-chamber admission
+      - name: Verify dual-chamber historical admission
         run: |
           python - <<'PY'
           import json
+          import os
           from pathlib import Path
 
           root = Path("artifacts/janus-113-8-sim-2")
           ma = json.loads((root / "run-a/corpus/builder_manifest.json").read_text(encoding="utf-8"))
           mb = json.loads((root / "run-b/corpus/builder_manifest.json").read_text(encoding="utf-8"))
+          ra = json.loads((root / "run-a/router/router_manifest.json").read_text(encoding="utf-8"))
+          rb = json.loads((root / "run-b/router/router_manifest.json").read_text(encoding="utf-8"))
           ea = json.loads((root / "run-a/evaluation/independent_evaluation_report.json").read_text(encoding="utf-8"))
           eb = json.loads((root / "run-b/evaluation/independent_evaluation_report.json").read_text(encoding="utf-8"))
 
@@ -115,6 +144,7 @@ jobs:
           assert ma["replay_digest_sha256"] == mb["replay_digest_sha256"]
           assert ma["public_cases_sha256"] == mb["public_cases_sha256"]
           assert ma["truth_sha256"] == mb["truth_sha256"]
+          assert ra["version"] == rb["version"] == "JANUS-113.8-SIM-2-ROUTER-v1.0"
           assert ea["admitted"] is True and eb["admitted"] is True
           assert ea["terminal"] == eb["terminal"] == "JANUS_113.8_SIM_2_ADMITTED"
           assert ea["replay_digest_sha256"] == eb["replay_digest_sha256"] == ma["replay_digest_sha256"]
@@ -131,7 +161,7 @@ jobs:
               assert all(report["suite_checks"].values())
 
           summary = {
-              "schema": "janus.genesis.sim2.ci_summary.v1",
+              "schema": "janus.genesis.sim2.ci_summary.v2",
               "terminal": "JANUS_113.8_SIM_2_ADMITTED",
               "admitted": True,
               "source_count": 5,
@@ -139,8 +169,11 @@ jobs:
               "mutation_class_count": 10,
               "cases_per_mutation": 20,
               "builder_runs": 2,
-              "router_runs": 2,
+              "historical_router_runs": 2,
               "independent_evaluator_runs": 2,
+              "historical_router_target_commit": os.environ["HISTORICAL_ROUTER_COMMIT"],
+              "historical_router_target_git_blob_sha": os.environ["HISTORICAL_ROUTER_GIT_BLOB_SHA"],
+              "current_hardened_router_is_not_historical_sim2_target": True,
               "replay_digest_sha256": ma["replay_digest_sha256"],
               "metrics": ea["metrics"],
               "next_terminal": "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED",
