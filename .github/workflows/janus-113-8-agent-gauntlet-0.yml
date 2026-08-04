@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - "gauntlet/janus_113_8_agent_gauntlet_0.py"
+      - "gauntlet/janus_113_8_agent_gauntlet_0_offline_runner.py"
       - "gauntlet/janus_113_8_agent_gauntlet_0_verifier.py"
       - "gauntlet/__init__.py"
       - "tests/test_janus_113_8_agent_gauntlet_0.py"
@@ -35,10 +36,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Compile gauntlet and verifier
+      - name: Compile gauntlet, offline runner, and verifier
         run: |
           python -m py_compile \
             gauntlet/janus_113_8_agent_gauntlet_0.py \
+            gauntlet/janus_113_8_agent_gauntlet_0_offline_runner.py \
             gauntlet/janus_113_8_agent_gauntlet_0_verifier.py
 
       - name: Run Agent Gauntlet-0 contracts
@@ -64,9 +66,9 @@ jobs:
           git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
           echo "target router unchanged relative to main: PASS"
 
-      - name: Run chamber A
+      - name: Run chamber A through canonical no-network runner
         run: |
-          python -m gauntlet.janus_113_8_agent_gauntlet_0 \
+          python -m gauntlet.janus_113_8_agent_gauntlet_0_offline_runner \
             --output artifacts/gauntlet-a \
             --print-summary
           python -m gauntlet.janus_113_8_agent_gauntlet_0_verifier \
@@ -74,9 +76,9 @@ jobs:
             --repository-root . \
             --output artifacts/gauntlet-a/verification_report.json
 
-      - name: Run chamber B
+      - name: Run chamber B through canonical no-network runner
         run: |
-          python -m gauntlet.janus_113_8_agent_gauntlet_0 \
+          python -m gauntlet.janus_113_8_agent_gauntlet_0_offline_runner \
             --output artifacts/gauntlet-b \
             --print-summary
           python -m gauntlet.janus_113_8_agent_gauntlet_0_verifier \
@@ -132,6 +134,8 @@ jobs:
               "final_ledger_hash": manifest["final_ledger_hash"],
               "dual_runs_byte_identical": True,
               "target_router_modified": False,
+              "canonical_runner": "gauntlet.janus_113_8_agent_gauntlet_0_offline_runner",
+              "real_network_read": False,
               "sim3_effect": "NONE_EXTERNAL_AUTHOR_REQUIREMENT_UNCHANGED",
               "files": files,
           }
