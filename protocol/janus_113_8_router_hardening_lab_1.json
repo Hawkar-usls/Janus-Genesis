@@ -41,12 +41,49 @@
     "REGRESSION_AND_PROOF_CARRYING_REPLAY"
   ],
   "phase_a": {
-    "status": "CONTRACTS_COMMITTED_AWAITING_CI",
+    "status": "PRE_REPAIR_FAILURE_REPRODUCED_AND_FROZEN",
     "contract_module": "lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py",
     "workflow": ".github/workflows/janus-113-8-router-hardening-lab-1.yml",
+    "result_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_RESULT.json",
+    "evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "workflow_run_id": 30946545140,
+    "workflow_run_number": 19,
     "expected_contract_count": 11,
+    "tests_run_per_python": 11,
+    "failures_per_python": 11,
+    "errors_per_python": 1,
+    "python_versions": ["3.11", "3.12", "3.13"],
     "router_patch_present": false,
-    "success_condition": "PRE_REPAIR_ROUTER_FAILS_CONTRACTS_AND_ALL_CONTRACT_NAMES_ARE_RECORDED"
+    "ordinary_repository_workflows_green": true,
+    "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+    "artifacts": [
+      {
+        "python": "3.11",
+        "artifact_id": 8907528054,
+        "zip_sha256": "8dac63d01d833c370370902bf6650cf275ea2d9d7d151c15322ba84ebedab7d0"
+      },
+      {
+        "python": "3.12",
+        "artifact_id": 8907527503,
+        "zip_sha256": "a5cae6a0229e286428a9a64e61cfa0fa5a17c569f38da966405707f6c73a1e45"
+      },
+      {
+        "python": "3.13",
+        "artifact_id": 8907528855,
+        "zip_sha256": "b78b2f299a49a5f143595970ff8f7e4ed56639400c7922c1d027308fff090530"
+      }
+    ]
+  },
+  "phase_b_gate": {
+    "status": "BLOCKED_PENDING_REPAIR_SCHEMA_FREEZE",
+    "router_patch_allowed_now": false,
+    "required_before_patch": [
+      "FREEZE_HARDENED_PUBLIC_CASE_SCHEMA",
+      "FREEZE_TYPED_TERMINAL_SET",
+      "FREEZE_CANONICAL_URL_AND_PROVENANCE_RULES",
+      "FREEZE_LEDGER_LINE_CONSERVATION_SCHEMA",
+      "FREEZE_LEGACY_AND_STRICT_PROVENANCE_MODES"
+    ]
   },
   "candidate_terminals": {
     "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
@@ -72,6 +109,8 @@
   "work_order": [
     "FREEZE_SPEC_AND_SCHEMAS",
     "ADD_FAILING_REGRESSION_CONTRACTS",
+    "FREEZE_PHASE_A_FAILURE_EVIDENCE",
+    "FREEZE_REPAIR_SCHEMA",
     "IMPLEMENT_MINIMAL_ROUTER_REPAIRS",
     "GENERATE_DUAL_PROOFPACKS",
     "SOURCE_SEPARATED_REPLAY",
@@ -101,6 +140,6 @@
     "organizational_independence": false,
     "sim3_external_author_requirement": "UNCHANGED"
   },
-  "current_terminal": "ROUTER_HARDENING_LAB_1_PHASE_A_CONTRACTS_COMMITTED",
-  "next_action": "OBSERVE_PHASE_A_CI_AND_FREEZE_EXACT_PRE_REPAIR_FAILURE_TRANSCRIPT"
+  "current_terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+  "next_action": "FREEZE_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
 }
