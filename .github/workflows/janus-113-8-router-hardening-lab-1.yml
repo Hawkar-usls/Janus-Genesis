@@ -4,8 +4,9 @@ on:
   pull_request:
     branches: [main]
     paths:
-      - "lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py"
+      - "lab_contracts/**"
       - "protocol/janus_113_8_router_hardening_lab_1.json"
+      - "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_*"
       - "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1.md"
       - "sim/janus_113_8_sim2_router.py"
       - ".github/workflows/janus-113-8-router-hardening-lab-1.yml"
@@ -79,6 +80,8 @@ jobs:
           missing = [name for name in expected if name not in text]
           if missing:
               raise SystemExit(f"missing contract executions: {missing}")
+          if "Ran 11 tests" not in text:
+              raise SystemExit("the complete eleven-contract suite did not execute")
           if "FAILED" not in text:
               raise SystemExit("unittest did not record the required pre-repair FAILED state")
           print("ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED")
@@ -109,8 +112,10 @@ jobs:
           protocol = json.loads(
               Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
           )
-          assert protocol["current_terminal"] == "ROUTER_HARDENING_LAB_1_SPEC_FROZEN"
-          assert protocol["next_action"] == "ADD_FAILING_REGRESSION_CONTRACTS_BEFORE_ROUTER_PATCH"
+          assert protocol["current_terminal"] == "ROUTER_HARDENING_LAB_1_PHASE_A_CONTRACTS_COMMITTED"
+          assert protocol["next_action"] == "OBSERVE_PHASE_A_CI_AND_FREEZE_EXACT_PRE_REPAIR_FAILURE_TRANSCRIPT"
+          assert protocol["phase_a"]["expected_contract_count"] == 11
+          assert protocol["phase_a"]["router_patch_present"] is False
           assert len(protocol["frozen_findings"]) == 10
           assert protocol["frozen_boundary"] == "MOVABLE_GIT_TAG_ALLOWED_BY_SIM2_CONTRACT"
           assert protocol["safety"]["owned_repository_only"] is True
