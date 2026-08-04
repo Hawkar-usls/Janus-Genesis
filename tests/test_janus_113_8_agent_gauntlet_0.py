@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import copy
 import json
 import tempfile
 import unittest
 from pathlib import Path
 
-from gauntlet import janus_113_8_agent_gauntlet_0 as producer
+from gauntlet import janus_113_8_agent_gauntlet_0_offline_runner as producer
 from gauntlet import janus_113_8_agent_gauntlet_0_verifier as verifier
 
 
