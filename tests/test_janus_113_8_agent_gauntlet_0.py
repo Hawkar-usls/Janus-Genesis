@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import tempfile
 import unittest
@@ -10,13 +11,36 @@ from gauntlet import janus_113_8_agent_gauntlet_0_verifier as verifier
 
 
 ROOT = Path(__file__).resolve().parents[1]
+SNAPSHOT = ROOT / producer.FROZEN_SNAPSHOT_PATH
+
+
+def git_blob_sha(data: bytes) -> str:
+    header = f"blob {len(data)}\0".encode("ascii")
+    return hashlib.sha1(header + data).hexdigest()
 
 
 class AgentGauntlet0Tests(unittest.TestCase):
+    def historical_root(self, root: Path) -> Path:
+        target = root / producer.FROZEN_TARGET_PATH
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(SNAPSHOT.read_bytes())
+        return root
+
+    def verify(self, proofpack: Path) -> dict:
+        with tempfile.TemporaryDirectory() as tmp:
+            historical_root = self.historical_root(Path(tmp))
+            return verifier.verify_proofpack(proofpack, historical_root)
+
     def run_proofpack(self, root: Path) -> tuple[dict, dict]:
         manifest = producer.write_proofpack(root)
-        report = verifier.verify_proofpack(root, ROOT)
+        report = self.verify(root)
         return manifest, report
+
+    def test_frozen_target_snapshot_matches_exact_historical_git_blob(self) -> None:
+        self.assertTrue(SNAPSHOT.is_file())
+        self.assertEqual(git_blob_sha(SNAPSHOT.read_bytes()), producer.FROZEN_TARGET_GIT_BLOB_SHA)
+        self.assertEqual(producer.FROZEN_TARGET_COMMIT, "62092ceed79cefb5104933cbff3732450797c00f")
+        self.assertEqual(producer.router.VERSION, "JANUS-113.8-SIM-2-ROUTER-v1.0")
 
     def test_complete_proofpack_replays(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -67,11 +91,7 @@ class AgentGauntlet0Tests(unittest.TestCase):
                 "finding_catalog.json",
                 "gauntlet_manifest.json",
             ):
-                self.assertEqual(
-                    (dir_a / name).read_bytes(),
-                    (dir_b / name).read_bytes(),
-                    name,
-                )
+                self.assertEqual((dir_a / name).read_bytes(), (dir_b / name).read_bytes(), name)
         self.assertEqual(manifest_a["replay_digest_sha256"], manifest_b["replay_digest_sha256"])
 
     def test_result_tamper_is_rejected(self) -> None:
@@ -88,7 +108,7 @@ class AgentGauntlet0Tests(unittest.TestCase):
                 "".join(producer.canonical_json(item) + "\n" for item in results),
                 encoding="utf-8",
             )
-            report = verifier.verify_proofpack(output, ROOT)
+            report = self.verify(output)
         self.assertFalse(report["verified"])
         self.assertFalse(report["checks"]["result_hashes_replay"])
 
@@ -97,11 +117,8 @@ class AgentGauntlet0Tests(unittest.TestCase):
             output = Path(tmp)
             producer.write_proofpack(output)
             lines = (output / "attack_ledger.jsonl").read_text(encoding="utf-8").splitlines()
-            (output / "attack_ledger.jsonl").write_text(
-                "\n".join(lines[:-1]) + "\n",
-                encoding="utf-8",
-            )
-            report = verifier.verify_proofpack(output, ROOT)
+            (output / "attack_ledger.jsonl").write_text("\n".join(lines[:-1]) + "\n", encoding="utf-8")
+            report = self.verify(output)
         self.assertFalse(report["verified"])
         self.assertFalse(report["checks"]["ledger_count"])
         self.assertFalse(report["checks"]["complete_attack_ledger_replay"])
@@ -120,7 +137,7 @@ class AgentGauntlet0Tests(unittest.TestCase):
                 "".join(producer.canonical_json(item) + "\n" for item in entries),
                 encoding="utf-8",
             )
-            report = verifier.verify_proofpack(output, ROOT)
+            report = self.verify(output)
         self.assertFalse(report["verified"])
         self.assertFalse(report["checks"]["complete_attack_ledger_replay"])
 
@@ -132,7 +149,7 @@ class AgentGauntlet0Tests(unittest.TestCase):
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["status_counts"] = {"RESISTED": 15}
             manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-            report = verifier.verify_proofpack(output, ROOT)
+            report = self.verify(output)
         self.assertFalse(report["verified"])
         self.assertFalse(report["checks"]["status_counts_match_manifest"])
 
@@ -144,7 +161,7 @@ class AgentGauntlet0Tests(unittest.TestCase):
             manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
             manifest["safety_boundary"]["network_write"] = True
             manifest_path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-            report = verifier.verify_proofpack(output, ROOT)
+            report = self.verify(output)
         self.assertFalse(report["verified"])
         self.assertFalse(report["checks"]["safety_boundary"])
 
