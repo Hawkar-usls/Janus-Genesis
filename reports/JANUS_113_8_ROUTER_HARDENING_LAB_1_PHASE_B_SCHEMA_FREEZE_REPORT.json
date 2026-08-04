@@ -1,0 +1,146 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.phase_b_schema_freeze_report.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-PHASE-B-SCHEMA-FREEZE-v1.0",
+  "recorded_utc": "2026-08-04T21:32:00Z",
+  "role": "JANUS_LAB_AGENT",
+  "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+  "runtime_authority": "NONE",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 67,
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "evidence_head_sha": "c7e9520eff4b70718161946a6818a2657ea1fafd",
+  "target": {
+    "path": "sim/janus_113_8_sim2_router.py",
+    "modified_relative_to_main": false,
+    "repair_started": false
+  },
+  "parent_phase_a": {
+    "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+    "evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "workflow_run_id": 30946545140,
+    "report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_RESULT.json"
+  },
+  "frozen_contract": {
+    "protocol": "protocol/janus_113_8_router_hardening_repair_schema_v1.json",
+    "review_document": "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA.md",
+    "schemas": [
+      {
+        "path": "schemas/janus_113_8_router_case_v2.schema.json",
+        "sha256_utf8": "44d3b2f7e05f7faa7ad198f67f3a3fcda889ee28f9f5db0ba4903ee178ac0177"
+      },
+      {
+        "path": "schemas/janus_113_8_router_prediction_v2.schema.json",
+        "sha256_utf8": "093188bf9442609b009a74f6582b66826c53918b2c44ab33edb7c75732e043e9"
+      },
+      {
+        "path": "schemas/janus_113_8_router_ledger_entry_v2.schema.json",
+        "sha256_utf8": "00f474d716647876fa70cb8ecc6cca06f2b4b1220ec8f696afea2ff3346dc0b0"
+      },
+      {
+        "path": "schemas/janus_113_8_router_manifest_v2.schema.json",
+        "sha256_utf8": "ba22a318c0ea4f1852b1e8c0c7361ca34b284c8a0526dc6967ca58f7cbc44411"
+      }
+    ]
+  },
+  "contract_coverage": {
+    "coordinates": [
+      "A04",
+      "A05",
+      "A06",
+      "A07",
+      "A08",
+      "A09",
+      "A10",
+      "A11",
+      "A12",
+      "A13",
+      "A14"
+    ],
+    "implementation_findings_with_repair_paths": 10,
+    "historical_contract_boundaries_preserved": 1,
+    "phase_a_contract_rewritten": false,
+    "phase_b_passing_contract_created": false
+  },
+  "frozen_invariants": {
+    "malformed_line_processing_is_local": true,
+    "later_lines_continue_after_malformed_json": true,
+    "duplicate_json_keys_are_typed": true,
+    "raw_and_nfc_case_id_collisions_are_typed": true,
+    "provenance_tuple_binds_canonical_url": true,
+    "network_read_precedes_url_gate": false,
+    "redirect_target_revalidated": true,
+    "resource_limit_is_distinct_from_transport_open": true,
+    "strict_mode_requires_full_40_hex_commit": true,
+    "legacy_release_tag_mode_claims_commit_immutability": false,
+    "prediction_binds_exact_line_and_canonical_case": true,
+    "completed_run_requires_line_conservation": true,
+    "corpus_refusal_may_claim_completed_conservation": false,
+    "wall_clock_fields_in_deterministic_outputs": false
+  },
+  "workflow": {
+    "name": "JANUS 113.8 Router Hardening Laboratory-1",
+    "run_id": 30952500694,
+    "run_number": 32,
+    "conclusion": "success",
+    "jobs": {
+      "phase_a_frozen_evidence_binding": {
+        "job_id": 92137752058,
+        "conclusion": "success"
+      },
+      "phase_a_python_3_13": {
+        "job_id": 92137752121,
+        "conclusion": "success"
+      },
+      "phase_a_python_3_12": {
+        "job_id": 92137752132,
+        "conclusion": "success"
+      },
+      "phase_b_repair_schema_freeze": {
+        "job_id": 92137752151,
+        "conclusion": "success"
+      },
+      "phase_a_python_3_11": {
+        "job_id": 92137752154,
+        "conclusion": "success"
+      }
+    }
+  },
+  "repository_workflows_on_evidence_head": {
+    "AI Link Play": "success",
+    "JANUS 113.8 Router Hardening Laboratory-1": "success",
+    "Genesis century lived audit": "success",
+    "Genesis Tests": "success",
+    "Threshold review precision": "success",
+    "Hosted Pilgrimage": "success",
+    "test": "success"
+  },
+  "review_gate": {
+    "status": "OPEN",
+    "router_patch_allowed_now": false,
+    "required_action": "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH",
+    "next_terminal_on_acceptance": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
+  },
+  "safety": {
+    "owned_repository_only": true,
+    "synthetic_and_local_fixtures_only": true,
+    "real_network_read_during_lab_tests": false,
+    "network_write": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "nas_access": false,
+    "device_access": false,
+    "runtime_authority": "NONE"
+  },
+  "independence": {
+    "internal_lab_agent": true,
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_phase_b": false
+  },
+  "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+  "next_action": "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH",
+  "claim_boundary": "This report freezes the proposed internal router repair contract and its CI evidence. It does not prove a repaired router, source-separated replay, organizational independence, SIM-3 admission, consciousness, personhood, or authority over live systems."
+}
