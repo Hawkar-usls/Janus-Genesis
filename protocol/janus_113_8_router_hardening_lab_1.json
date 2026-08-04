@@ -79,18 +79,26 @@
     ]
   },
   "phase_b_gate": {
-    "status": "REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+    "status": "REPAIR_SCHEMA_ACCEPTED",
     "frozen_local_time": "2026-08-05T00:17:00+03:00",
+    "accepted_local_time": "2026-08-05T00:41:00+03:00",
+    "reviewed_schema_head_sha": "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8",
     "repair_schema": "protocol/janus_113_8_router_hardening_repair_schema_v1.json",
     "review_document": "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA.md",
+    "freeze_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_FREEZE_REPORT.json",
+    "acceptance_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_ACCEPTANCE.json",
     "schema_artifacts": [
       "schemas/janus_113_8_router_case_v2.schema.json",
       "schemas/janus_113_8_router_prediction_v2.schema.json",
       "schemas/janus_113_8_router_ledger_entry_v2.schema.json",
       "schemas/janus_113_8_router_manifest_v2.schema.json"
     ],
+    "human_review_result": "ACCEPTED_WITHOUT_FINDINGS",
+    "frozen_schema_mutated_by_acceptance": false,
     "router_patch_present": false,
-    "router_patch_allowed_now": false,
+    "router_patch_allowed_now": true,
+    "implementation_scope": "MINIMAL_PROOF_CARRYING_ROUTER_REPAIR_ONLY",
+    "required_phase_b_contract": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
     "required_review_findings": [
       "A04_THROUGH_A14_HAVE_EXPLICIT_REPAIR_PATHS",
       "MALFORMED_LINES_REMAIN_IN_WITNESS_LEDGER",
@@ -102,8 +110,8 @@
       "DETERMINISTIC_OUTPUT_CONTAINS_NO_WALL_CLOCK_FIELDS",
       "SIM3_EXTERNAL_AUTHOR_REQUIREMENT_REMAINS_UNCHANGED"
     ],
-    "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
-    "next_terminal_on_acceptance": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
+    "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
+    "next_terminal_after_implementation_evidence": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE"
   },
   "candidate_terminals": {
     "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
@@ -140,6 +148,7 @@
     "FREEZE_PHASE_A_FAILURE_EVIDENCE",
     "FREEZE_REPAIR_SCHEMA",
     "HUMAN_REVIEW_REPAIR_SCHEMA",
+    "ACCEPT_REPAIR_SCHEMA",
     "IMPLEMENT_MINIMAL_ROUTER_REPAIRS",
     "GENERATE_DUAL_PROOFPACKS",
     "SOURCE_SEPARATED_REPLAY",
@@ -170,6 +179,6 @@
     "sim3_external_author_requirement": "UNCHANGED",
     "sim3_satisfied_by_phase_b": false
   },
-  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
-  "next_action": "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
+  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
+  "next_action": "IMPLEMENT_MINIMAL_ROUTER_REPAIR_WITH_SEPARATE_PHASE_B_CONTRACT"
 }
