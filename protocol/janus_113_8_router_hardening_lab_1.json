@@ -15,7 +15,7 @@
     "source_pr": 66,
     "source_merge_commit": "a2edaeef7470497b8bffdf8d3992d0212839f5b8"
   },
-  "purpose": "Convert the frozen Agent Gauntlet-0 findings into a separate proof-carrying router hardening program without rewriting historical evidence or claiming SIM-3 independence.",
+  "purpose": "Convert the frozen Agent Gauntlet-0 findings into a proof-carrying router hardening candidate without rewriting historical evidence or claiming SIM-3 independence.",
   "frozen_findings": [
     "PROVENANCE_METADATA_NOT_BOUND_TO_URL",
     "PREDICTION_HASH_NOT_BOUND_TO_FULL_INPUT_CASE",
@@ -29,25 +29,12 @@
     "URL_PATH_CANONICALIZATION_NOT_ENFORCED"
   ],
   "frozen_boundary": "MOVABLE_GIT_TAG_ALLOWED_BY_SIM2_CONTRACT",
-  "tracks": [
-    "COMPLETE_INPUT_BINDING",
-    "PROVENANCE_TUPLE_BINDING",
-    "CANONICAL_URL_GATE",
-    "IDENTIFIER_DISCIPLINE",
-    "STRICT_JSONL_INGESTION",
-    "TYPED_RESOURCE_OUTCOMES",
-    "HISTORICAL_SIM2_COMPATIBILITY",
-    "WITNESS_LEDGER_CONSERVATION",
-    "REGRESSION_AND_PROOF_CARRYING_REPLAY"
-  ],
   "phase_a": {
     "status": "PRE_REPAIR_FAILURE_REPRODUCED_AND_FROZEN",
     "contract_module": "lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py",
-    "workflow": ".github/workflows/janus-113-8-router-hardening-lab-1.yml",
     "result_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_RESULT.json",
     "evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
-    "workflow_run_id": 30946545140,
-    "workflow_run_number": 19,
+    "target_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
     "expected_contract_count": 11,
     "tests_run_per_python": 11,
     "failures_per_python": 11,
@@ -57,28 +44,9 @@
       "3.12",
       "3.13"
     ],
-    "router_patch_present_at_evidence_head": false,
-    "ordinary_repository_workflows_green": true,
-    "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
-    "artifacts": [
-      {
-        "python": "3.11",
-        "artifact_id": 8907528054,
-        "zip_sha256": "8dac63d01d833c370370902bf6650cf275ea2d9d7d151c15322ba84ebedab7d0"
-      },
-      {
-        "python": "3.12",
-        "artifact_id": 8907527503,
-        "zip_sha256": "a5cae6a0229e286428a9a64e61cfa0fa5a17c569f38da966405707f6c73a1e45"
-      },
-      {
-        "python": "3.13",
-        "artifact_id": 8907528855,
-        "zip_sha256": "b78b2f299a49a5f143595970ff8f7e4ed56639400c7922c1d027308fff090530"
-      }
-    ]
+    "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
   },
-  "phase_b_gate": {
+  "phase_b_schema": {
     "status": "REPAIR_SCHEMA_ACCEPTED",
     "frozen_local_time": "2026-08-05T00:17:00+03:00",
     "accepted_local_time": "2026-08-05T00:41:00+03:00",
@@ -87,76 +55,106 @@
     "review_document": "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA.md",
     "freeze_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_FREEZE_REPORT.json",
     "acceptance_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_ACCEPTANCE.json",
-    "schema_artifacts": [
-      "schemas/janus_113_8_router_case_v2.schema.json",
-      "schemas/janus_113_8_router_prediction_v2.schema.json",
-      "schemas/janus_113_8_router_ledger_entry_v2.schema.json",
-      "schemas/janus_113_8_router_manifest_v2.schema.json"
-    ],
     "human_review_result": "ACCEPTED_WITHOUT_FINDINGS",
     "frozen_schema_mutated_by_acceptance": false,
     "router_patch_present_at_acceptance": false,
-    "router_patch_allowed_after_acceptance": true,
-    "implementation_scope": "MINIMAL_PROOF_CARRYING_ROUTER_REPAIR_ONLY",
-    "required_phase_b_contract": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
-    "required_review_findings": [
-      "A04_THROUGH_A14_HAVE_EXPLICIT_REPAIR_PATHS",
-      "MALFORMED_LINES_REMAIN_IN_WITNESS_LEDGER",
-      "URL_GATE_PRECEDES_NETWORK_READ",
-      "REDIRECT_TARGET_IS_REVALIDATED",
-      "LEGACY_AND_STRICT_PROVENANCE_MODES_CANNOT_COLLAPSE",
-      "PREDICTION_HASH_BINDS_EXACT_LINE_AND_CANONICAL_CASE",
-      "CORPUS_REFUSAL_CANNOT_CLAIM_COMPLETED_CONSERVATION",
-      "DETERMINISTIC_OUTPUT_CONTAINS_NO_WALL_CLOCK_FIELDS",
-      "SIM3_EXTERNAL_AUTHOR_REQUIREMENT_REMAINS_UNCHANGED"
-    ],
-    "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
-    "next_terminal_after_implementation_evidence": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE"
+    "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
   },
   "phase_b_implementation": {
-    "status": "PATCH_COMMITTED_AWAITING_CI",
+    "status": "CANDIDATE_ESTABLISHED_AWAITING_HUMAN_IMPLEMENTATION_REVIEW",
     "started_local_time": "2026-08-05T00:52:00+03:00",
-    "contract_present": true,
+    "result_recorded_local_time": "2026-08-05T01:23:30+03:00",
+    "implementation_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_IMPLEMENTATION_RESULT.json",
+    "evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
     "contract_path": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
     "contract_commit_sha": "bfbf1e3fcf43b1741e4c861c73c81a8d558e722d",
     "contract_committed_before_router_patch": true,
-    "router_patch_present": true,
+    "contract_test_count": 13,
     "router_path": "sim/janus_113_8_sim2_router.py",
-    "router_patch_commit_sha": "0725c7f4731bf10f98327fb9731281e5102c58cc",
-    "workflow_commit_sha": "900305a7c42fb4217cd685c6e28e5531bc37710f",
-    "phase_a_evidence_replayed_from_exact_historical_commit": true,
-    "phase_b_contract_python_versions": [
-      "3.11",
-      "3.12",
-      "3.13"
+    "initial_router_patch_commit_sha": "0725c7f4731bf10f98327fb9731281e5102c58cc",
+    "final_router_semantics_commit_sha": "51056feebb33c59e267d29a01bb01f74dd7e4cce",
+    "independent_evaluator_commit_sha": "fa550f7136cc069f500da526e79255716789125b",
+    "phase_b_contract_python_results": {
+      "3.11": "PASS",
+      "3.12": "PASS",
+      "3.13": "PASS"
+    },
+    "laboratory_workflow_run_id": 30956071692,
+    "laboratory_workflow_run_number": 50,
+    "phase_a_evidence_replayed_from_exact_historical_target": true,
+    "historical_gauntlet_bound_to_exact_pre_repair_blob": true,
+    "historical_gauntlet_workflow_run_id": 30956071734,
+    "historical_gauntlet_status_counts": {
+      "BOUNDARY_CONFIRMED": 1,
+      "FINDING": 10,
+      "RESISTED": 4
+    },
+    "historical_sim2_workflow_run_id": 30956071749,
+    "historical_sim2_terminal": "JANUS_113.8_SIM_2_ADMITTED",
+    "historical_sim2_metrics": {
+      "router_exact_terminal_accuracy": 1.0,
+      "false_acceptance_rate": 0.0,
+      "false_rejection_rate": 0.0,
+      "decisive_coverage": 1.0,
+      "brier_score": 0.00009999999999999996,
+      "expected_calibration_error": 0.01000000000000003
+    },
+    "input_line_conservation": 1.0,
+    "ledger_replay": 1.0,
+    "dual_router_outputs_byte_identical": true,
+    "source_separated_replay_complete": true,
+    "all_observed_workflows_on_evidence_head_green": true,
+    "candidate_established": true,
+    "laboratory_admitted": false,
+    "merge_authorized": false
+  },
+  "evidence_artifacts": {
+    "phase_b_contract_transcripts": [
+      {
+        "python": "3.11",
+        "artifact_id": 8911071909,
+        "zip_sha256": "5f70999135b6fb14e1802068f998dd652d5fe11eacd4500dfd0f58509015905e"
+      },
+      {
+        "python": "3.12",
+        "artifact_id": 8911054704,
+        "zip_sha256": "56578642a7f8614c23e3246de6f52050239d6b7e9ba1490e266409d5a951c849"
+      },
+      {
+        "python": "3.13",
+        "artifact_id": 8911069680,
+        "zip_sha256": "96cc4dec6499dd0d318b4127121007517a7fd2b520081ccb6781c89e7a1a3c36"
+      }
     ],
-    "phase_b_contract_result": "PENDING",
-    "proofpacks_generated": false,
-    "source_separated_replay_complete": false,
-    "candidate_admitted": false
+    "historical_gauntlet": {
+      "artifact_id": 8911071538,
+      "zip_sha256": "a0808bd493d783b29920724f6de99ade6ea418968805182765e8b46eb2e56a16"
+    },
+    "historical_sim2": {
+      "artifact_id": 8911098894,
+      "zip_sha256": "adb3744be4bedbd84f5c35e2ed831709cb78c956e426147d5da22b05994abcbe"
+    }
+  },
+  "admission_gate": {
+    "all_15_gauntlet_vectors_accounted": true,
+    "pre_repair_findings_reproduced": 10,
+    "baseline_controls_resisted": 4,
+    "phase_b_contracts_pass_on_python_3_11_3_12_3_13": true,
+    "false_acceptance": 0.0,
+    "completed_run_line_conservation": 1.0,
+    "ledger_replay": 1.0,
+    "dual_proofpacks_byte_identical": true,
+    "historical_sim2_compatibility_replayed": true,
+    "strict_commit_mode_replayed": true,
+    "source_separated_replay_complete": true,
+    "human_review_before_merge": false
   },
   "candidate_terminals": {
     "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "repair_schema_frozen": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
     "repair_schema_accepted": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
-    "repair_implemented_awaiting_ci": "ROUTER_HARDENING_LAB_1_REPAIR_IMPLEMENTED_AWAITING_CI",
     "candidate": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
     "admitted": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED"
-  },
-  "admission_gate": {
-    "gauntlet_vectors_accounted": 15,
-    "pre_repair_findings_reproduced": 10,
-    "post_repair_regressions_pass": 10,
-    "baseline_controls_resisted": 4,
-    "false_acceptance": 0,
-    "input_line_conservation": 1.0,
-    "ledger_replay": 1.0,
-    "dual_proofpacks_byte_identical": true,
-    "python_versions": [
-      "3.11",
-      "3.12",
-      "3.13"
-    ]
   },
   "compatibility": {
     "legacy_sim2_release_tag_mode": "DOCUMENTED_COMPATIBILITY",
@@ -177,13 +175,13 @@
     "RUN_PHASE_B_CONTRACTS",
     "GENERATE_DUAL_PROOFPACKS",
     "SOURCE_SEPARATED_REPLAY",
-    "PUBLISH_REMAINING_BOUNDARIES",
-    "HUMAN_REVIEW_BEFORE_MERGE"
+    "PUBLISH_IMPLEMENTATION_RESULT",
+    "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
   ],
   "safety": {
     "owned_repository_only": true,
-    "synthetic_and_local_fixtures_only": true,
-    "real_network_read_during_lab_tests": false,
+    "synthetic_and_local_fixtures_only_for_phase_b_contracts": true,
+    "bounded_public_https_only_for_historical_sim2_replay": true,
     "network_write": false,
     "private_repository_access": false,
     "repository_secrets_available": false,
@@ -204,6 +202,6 @@
     "sim3_external_author_requirement": "UNCHANGED",
     "sim3_satisfied_by_phase_b": false
   },
-  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_IMPLEMENTED_AWAITING_CI",
-  "next_action": "RUN_PHASE_B_CONTRACTS_ON_PYTHON_3_11_3_12_3_13"
+  "current_terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
+  "next_action": "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
 }
