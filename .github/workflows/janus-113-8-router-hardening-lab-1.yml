@@ -218,7 +218,7 @@ jobs:
             -v 2>&1 | tee lab-phase-b.log
           grep -q "test_a04_" lab-phase-b.log
           grep -q "test_a14_" lab-phase-b.log
-          grep -q "Ran 13 tests" lab-phase-b.log
+          grep -q "Ran 14 tests" lab-phase-b.log
           grep -q "OK" lab-phase-b.log
           echo "ROUTER_HARDENING_LAB_1_PHASE_B_CONTRACT_PASS"
 
