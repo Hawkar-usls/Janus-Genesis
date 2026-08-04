@@ -9,6 +9,7 @@ on:
       - "protocol/janus_113_8_router_hardening_repair_schema_v1.json"
       - "schemas/janus_113_8_router_*_v2.schema.json"
       - "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_*"
+      - "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_A04_*"
       - "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1*.md"
       - "sim/janus_113_8_sim2_router.py"
       - "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py"
@@ -222,7 +223,7 @@ jobs:
           grep -q "OK" lab-phase-b.log
           echo "ROUTER_HARDENING_LAB_1_PHASE_B_CONTRACT_PASS"
 
-      - name: Confirm candidate and defensive laboratory boundary
+      - name: Confirm repaired candidate and defensive laboratory boundary
         run: |
           python - <<'PY'
           import json
@@ -231,31 +232,56 @@ jobs:
           lab = json.loads(
               Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
           )
-          result = json.loads(
+          initial = json.loads(
               Path(
                   "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_IMPLEMENTATION_RESULT.json"
               ).read_text(encoding="utf-8")
           )
-          candidate = "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE"
+          a04 = json.loads(
+              Path(
+                  "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_A04_LEGACY_REPAIR_RESULT.json"
+              ).read_text(encoding="utf-8")
+          )
+          initial_candidate = "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE"
+          repaired = "JANUS_113.8_ROUTER_HARDENING_LAB_1_A04_REPAIRED_AWAITING_HUMAN_RE_REVIEW"
           implementation = lab["phase_b_implementation"]
+          repair = lab["a04_legacy_repair"]
+
           assert implementation["contract_path"] == "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py"
           assert implementation["contract_committed_before_router_patch"] is True
           assert implementation["contract_test_count"] == 13
           assert implementation["candidate_established"] is True
           assert implementation["laboratory_admitted"] is False
           assert implementation["merge_authorized"] is False
-          assert lab["current_terminal"] == candidate
-          assert lab["next_action"] == "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
-          assert result["terminal"] == candidate
-          assert result["candidate_gate"]["human_review_before_merge_complete"] is False
-          assert result["admission"]["laboratory_admitted"] is False
+          assert initial["terminal"] == initial_candidate
+          assert initial["admission"]["laboratory_admitted"] is False
+
+          assert repair["red_regression_commit_sha"] == "e175adbfcf04b78c808b98feeb06617e16b34781"
+          assert repair["minimal_router_repair_commit_sha"] == "20f399d1eae13827e4cafd1b4d78569c4980ef3a"
+          assert repair["full_tuple_binding_before_mode_split"] is True
+          assert repair["repository_mismatch_rejected_before_fetch"] is True
+          assert repair["path_mismatch_rejected_before_fetch"] is True
+          assert repair["phase_b_contract_test_count"] == 14
+          assert all(value == "PASS" for value in repair["phase_b_contract_python_results"].values())
+          assert repair["historical_sim2_bound_to_exact_frozen_v1_router"] is True
+          assert repair["human_re_review_complete"] is False
+          assert repair["terminal"] == repaired
+
+          assert a04["terminal"] == repaired
+          assert a04["result"]["known_blocking_finding_repaired"] is True
+          assert a04["result"]["human_re_review_complete"] is False
+          assert a04["result"]["laboratory_admitted"] is False
+          assert a04["result"]["merge_authorized"] is False
+          assert lab["current_terminal"] == repaired
+          assert lab["next_action"] == "HUMAN_RE_REVIEW_A04_REPAIR_EVIDENCE_BEFORE_MERGE"
+
           assert lab["safety"]["owned_repository_only"] is True
           assert lab["safety"]["synthetic_and_local_fixtures_only_for_phase_b_contracts"] is True
           assert lab["safety"]["network_write"] is False
           assert lab["safety"]["runtime_authority"] == "NONE"
           assert lab["independence"]["organizational_independence"] is False
           assert lab["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
-          print("ROUTER_HARDENING_LAB_1_CANDIDATE_BOUNDARY_PASS")
+          print("ROUTER_HARDENING_LAB_1_A04_REPAIRED_BOUNDARY_PASS")
           PY
 
       - name: Upload Phase-B contract transcript
