@@ -119,3 +119,7 @@ INDEPENDENT_REPLAY_AND_ADVERSARIAL_FIXTURE_EXPANSION_REQUIRED
 ```
 
 SIM-1 must introduce reproducible fuzz fixtures, stronger tamper attacks, malformed input, resource-exhaustion attacks, privacy-redaction tests, and an independent verifier implementation that does not share the producer code path.
+
+## Replay trigger
+
+This revision was made after the workflow gate was installed on the default branch so that the pull-request replay is evaluated by Genesis CI.
