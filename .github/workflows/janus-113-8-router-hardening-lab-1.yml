@@ -103,7 +103,7 @@ jobs:
       - name: Check out Genesis
         uses: actions/checkout@v4
 
-      - name: Validate frozen protocol
+      - name: Validate frozen Phase-A result
         run: |
           python - <<'PY'
           import json
@@ -112,10 +112,27 @@ jobs:
           protocol = json.loads(
               Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
           )
-          assert protocol["current_terminal"] == "ROUTER_HARDENING_LAB_1_PHASE_A_CONTRACTS_COMMITTED"
-          assert protocol["next_action"] == "OBSERVE_PHASE_A_CI_AND_FREEZE_EXACT_PRE_REPAIR_FAILURE_TRANSCRIPT"
+          report = json.loads(
+              Path("reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_RESULT.json").read_text(
+                  encoding="utf-8"
+              )
+          )
+
+          terminal = "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
+          assert protocol["current_terminal"] == terminal
+          assert protocol["next_action"] == "FREEZE_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
+          assert protocol["phase_a"]["status"] == "PRE_REPAIR_FAILURE_REPRODUCED_AND_FROZEN"
           assert protocol["phase_a"]["expected_contract_count"] == 11
+          assert protocol["phase_a"]["tests_run_per_python"] == 11
+          assert protocol["phase_a"]["failures_per_python"] == 11
+          assert protocol["phase_a"]["errors_per_python"] == 1
           assert protocol["phase_a"]["router_patch_present"] is False
+          assert report["terminal"] == terminal
+          assert report["router_repair_status"] == "NOT_STARTED"
+          assert report["target"]["modified_relative_to_main"] is False
+          assert report["contract_result"]["test_methods"] == 11
+          assert report["contract_result"]["frozen_implementation_findings_reproduced"] == 10
+          assert len(report["workflow"]["jobs"]) == 4
           assert len(protocol["frozen_findings"]) == 10
           assert protocol["frozen_boundary"] == "MOVABLE_GIT_TAG_ALLOWED_BY_SIM2_CONTRACT"
           assert protocol["safety"]["owned_repository_only"] is True
@@ -125,5 +142,5 @@ jobs:
           assert protocol["safety"]["runtime_authority"] == "NONE"
           assert protocol["independence"]["organizational_independence"] is False
           assert protocol["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
-          print("ROUTER_HARDENING_LAB_1_CONTRACT_FREEZE_PASS")
+          print("ROUTER_HARDENING_LAB_1_PHASE_A_RESULT_FREEZE_PASS")
           PY
