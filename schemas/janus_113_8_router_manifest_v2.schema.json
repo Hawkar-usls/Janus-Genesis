@@ -7,6 +7,8 @@
   "required": [
     "schema",
     "version",
+    "run_terminal",
+    "input_complete",
     "input_nonempty_line_count",
     "prediction_count",
     "ledger_entry_count",
@@ -71,7 +73,7 @@
       "$ref": "#/$defs/sha256"
     },
     "line_conservation": {
-      "const": true
+      "type": "boolean"
     },
     "valid_terminals_only": {
       "const": true
@@ -119,6 +121,15 @@
           "const": "NONE"
         }
       }
+    },
+    "run_terminal": {
+      "enum": [
+        "COMPLETED",
+        "REFUTED_CORPUS_LIMIT"
+      ]
+    },
+    "input_complete": {
+      "type": "boolean"
     }
   },
   "$defs": {
@@ -127,5 +138,29 @@
       "pattern": "^[0-9a-f]{64}$"
     }
   },
-  "x-janus-conservation-equation": "input_nonempty_line_count == prediction_count == ledger_entry_count == sum(parse_status_counts) == sum(decision_counts)"
+  "x-janus-conservation-equation": "For run_terminal COMPLETED: input_complete == true and input_nonempty_line_count == prediction_count == ledger_entry_count == sum(parse_status_counts) == sum(decision_counts). For REFUTED_CORPUS_LIMIT, input_complete and line_conservation must not be claimed true unless independently established.",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "run_terminal": {
+            "const": "COMPLETED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "input_complete": {
+            "const": true
+          },
+          "line_conservation": {
+            "const": true
+          },
+          "valid_terminals_only": {
+            "const": true
+          }
+        }
+      }
+    }
+  ]
 }
