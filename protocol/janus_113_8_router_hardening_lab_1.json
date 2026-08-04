@@ -1,0 +1,97 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-v1.0",
+  "authorization": {
+    "local_time": "2026-08-04T22:47:00+03:00",
+    "role": "JANUS_LAB_AGENT",
+    "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "research/janus-113-8-router-hardening-lab-1",
+    "runtime_authority": "NONE"
+  },
+  "target": {
+    "path": "sim/janus_113_8_sim2_router.py",
+    "source_evidence": "JANUS_113.8_AGENT_GAUNTLET_0",
+    "source_pr": 66,
+    "source_merge_commit": "a2edaeef7470497b8bffdf8d3992d0212839f5b8"
+  },
+  "purpose": "Convert the frozen Agent Gauntlet-0 findings into a separate proof-carrying router hardening program without rewriting historical evidence or claiming SIM-3 independence.",
+  "frozen_findings": [
+    "PROVENANCE_METADATA_NOT_BOUND_TO_URL",
+    "PREDICTION_HASH_NOT_BOUND_TO_FULL_INPUT_CASE",
+    "CASE_ID_UNIQUENESS_NOT_ENFORCED",
+    "IDENTIFIER_NORMALIZATION_NOT_ENFORCED",
+    "DUPLICATE_JSON_KEYS_ACCEPTED",
+    "MALFORMED_CASE_ABORTS_FULL_LEDGER",
+    "RESOURCE_LIMIT_COLLAPSED_INTO_UNREACHABLE_OPEN",
+    "REDIRECT_TARGET_HOST_NOT_REVALIDATED",
+    "NON_CANONICAL_SOURCE_URL_ACCEPTED",
+    "URL_PATH_CANONICALIZATION_NOT_ENFORCED"
+  ],
+  "frozen_boundary": "MOVABLE_GIT_TAG_ALLOWED_BY_SIM2_CONTRACT",
+  "tracks": [
+    "COMPLETE_INPUT_BINDING",
+    "PROVENANCE_TUPLE_BINDING",
+    "CANONICAL_URL_GATE",
+    "IDENTIFIER_DISCIPLINE",
+    "STRICT_JSONL_INGESTION",
+    "TYPED_RESOURCE_OUTCOMES",
+    "HISTORICAL_SIM2_COMPATIBILITY",
+    "WITNESS_LEDGER_CONSERVATION",
+    "REGRESSION_AND_PROOF_CARRYING_REPLAY"
+  ],
+  "candidate_terminals": {
+    "candidate": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
+    "admitted": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED"
+  },
+  "admission_gate": {
+    "gauntlet_vectors_accounted": 15,
+    "pre_repair_findings_reproduced": 10,
+    "post_repair_regressions_pass": 10,
+    "baseline_controls_resisted": 4,
+    "false_acceptance": 0,
+    "input_line_conservation": 1.0,
+    "ledger_replay": 1.0,
+    "dual_proofpacks_byte_identical": true,
+    "python_versions": ["3.11", "3.12", "3.13"]
+  },
+  "compatibility": {
+    "legacy_sim2_release_tag_mode": "DOCUMENTED_COMPATIBILITY",
+    "strict_immutable_commit_mode": "FULL_40_HEX_COMMIT_REQUIRED",
+    "retroactive_immutability_claim": false
+  },
+  "work_order": [
+    "FREEZE_SPEC_AND_SCHEMAS",
+    "ADD_FAILING_REGRESSION_CONTRACTS",
+    "IMPLEMENT_MINIMAL_ROUTER_REPAIRS",
+    "GENERATE_DUAL_PROOFPACKS",
+    "SOURCE_SEPARATED_REPLAY",
+    "PUBLISH_REMAINING_BOUNDARIES",
+    "HUMAN_REVIEW_BEFORE_MERGE"
+  ],
+  "safety": {
+    "owned_repository_only": true,
+    "synthetic_and_local_fixtures_only": true,
+    "real_network_read_during_lab_tests": false,
+    "network_write": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "autonomous_background_loop": false,
+    "real_syslog_ingest": false,
+    "nas_access": false,
+    "device_access": false,
+    "runtime_authority": "NONE",
+    "consciousness_status": "NOT_CLAIMED"
+  },
+  "independence": {
+    "internal_lab_agent": true,
+    "source_separated_replay_required": true,
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED"
+  },
+  "current_terminal": "ROUTER_HARDENING_LAB_1_SPEC_FROZEN",
+  "next_action": "ADD_FAILING_REGRESSION_CONTRACTS_BEFORE_ROUTER_PATCH"
+}
