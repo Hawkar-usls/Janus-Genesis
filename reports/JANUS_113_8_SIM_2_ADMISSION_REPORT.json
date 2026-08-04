@@ -1,0 +1,128 @@
+{
+  "report_id": "JANUS_113_8_SIM_2_ADMISSION_REPORT-v1.0",
+  "timestamp_utc": "2026-08-04T16:52:21Z",
+  "human_authorization_local": "2026-08-04T19:38:00+03:00",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 63,
+  "head_sha": "7c03299ebce095e98f4cb261f116657219903227",
+  "merged_commit_sha": "fdea6f6926f33bd6b61f1cd0f781c8d77ffd18b5",
+  "merge_method": "squash",
+  "simulation": {
+    "workflow_name": "JANUS 113.8 SIM-2",
+    "workflow_run_id": 30930924057,
+    "workflow_run_number": 1,
+    "conclusion": "success",
+    "terminal": "JANUS_113.8_SIM_2_ADMITTED",
+    "seed": 1138001938,
+    "source_count": 5,
+    "case_count": 200,
+    "mutation_class_count": 10,
+    "cases_per_mutation": 20,
+    "builder_runs": 2,
+    "router_runs": 2,
+    "independent_evaluator_runs": 2,
+    "unit_contract_count_per_python_version": 12,
+    "python_versions": [
+      "3.11",
+      "3.12"
+    ]
+  },
+  "public_sources": [
+    "python/cpython@v3.12.0:LICENSE",
+    "psf/requests@v2.31.0:LICENSE",
+    "torvalds/linux@v6.1:README",
+    "git/git@v2.42.0:README.md",
+    "rust-lang/rust@1.72.0:COPYRIGHT"
+  ],
+  "cryptographic_bindings": {
+    "source_snapshot_sha256": "c6ec63d0910f6fc4e424a5be84a96fbf0623d630c25fc0cce28e85056c9a2492",
+    "public_cases_sha256": "889d0cb14cfcb853f721eefaa0cc158abd244da1b91c51dd134aba007c3b263b",
+    "truth_sha256": "58f58295ace7f3f30ea79fb5c05b3dfadde793fcb287c558edb2f57ace44ea96",
+    "replay_digest_sha256": "3a93b44f0056035b29daee10b5c529ab5e37dd9bc68a6be7b2c2fc41bf80f04b",
+    "predictions_sha256": "529c577d74eb8f2dd8e379d15456df90f5808882ae1abeffb04496fce6c0c2c7",
+    "witness_ledger_sha256": "36ec25ca34a8210ccf6cec3fbf5e9495b63d553d835773f6b76f4d8bc1c7807c",
+    "final_ledger_hash": "b4e4716b7df7cd47ef0eceff66880c956dd356eedacdba63e5223608b153d214"
+  },
+  "terminal_counts": {
+    "SUPPORTED_PUBLIC_PROVENANCE": 20,
+    "REFUTED_HASH": 20,
+    "REFUTED_SIZE": 20,
+    "REFUTED_MARKER": 20,
+    "REFUTED_SCHEMA": 20,
+    "OPEN_SOURCE_UNREACHABLE": 20,
+    "OPEN_UNPINNED_PROVENANCE": 20,
+    "OPEN_CONFLICTING_CLAIMS": 20,
+    "SAFETY_BLOCK_UNTRUSTED_SOURCE": 40
+  },
+  "calibration": {
+    "truth_reconstruction_accuracy": 1.0,
+    "router_exact_terminal_accuracy": 1.0,
+    "false_acceptance_rate": 0.0,
+    "false_rejection_rate": 0.0,
+    "decisive_coverage": 1.0,
+    "brier_score": 0.0001,
+    "expected_calibration_error": 0.01,
+    "failed_case_ids": []
+  },
+  "independent_replay": {
+    "all_builder_snapshots_matched_external_refetch": true,
+    "all_builder_truth_entries_reconstructed": true,
+    "all_router_terminals_reconstructed": true,
+    "all_prediction_hashes_replayed": true,
+    "complete_witness_ledger_replayed": true,
+    "source_path_independence": true,
+    "organizational_independence": false
+  },
+  "proofpack": {
+    "artifact_name": "janus-113-8-sim-2-proofpack",
+    "artifact_id": 8901131031,
+    "artifact_size_bytes": 84892,
+    "artifact_zip_sha256": "924f058f329016a37737e26473424749b8803f93466d7a934ccc083bb61d4092",
+    "expires_at_utc": "2026-09-03T16:50:10Z",
+    "file_count": 23
+  },
+  "repository_ci": {
+    "all_observed_pull_request_workflows_green": true,
+    "successful_workflows": [
+      "JANUS 113.8 SIM-2",
+      "test",
+      "Threshold review precision",
+      "Genesis Tests",
+      "Hosted Pilgrimage",
+      "Genesis century lived audit",
+      "AI Link Play"
+    ]
+  },
+  "canonical_laws": [
+    "ANSWER WITHOUT WITNESS LEDGER = NON_FUNDAMENTUM",
+    "CORPUS RESULT WITHOUT INDEPENDENT REPLAY = NON_FUNDAMENTUM",
+    "PUBLIC CLAIM WITHOUT REACHABLE PROVENANCE = OPEN, NOT TRUTH"
+  ],
+  "claim_boundary": {
+    "admitted": "Five pinned public GitHub text artifacts, 200 held-out provenance cases, dual source-path replay, exact typed terminal reconstruction, and bounded calibration metrics.",
+    "not_admitted": [
+      "unrestricted open-world correctness",
+      "general semantic fact-checking",
+      "organizationally independent verification",
+      "DNS, TLS, Git tag, or upstream supply-chain immunity",
+      "complete privacy or secret detection",
+      "consciousness",
+      "organism status",
+      "pain, boredom, or qualia",
+      "live syslog ingestion",
+      "file deletion",
+      "self-modification",
+      "network write",
+      "external actuation",
+      "autonomous background runtime"
+    ],
+    "network_read": true,
+    "network_write": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "real_syslog_ingest": false,
+    "runtime_authority": "NONE"
+  },
+  "next_terminal": "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED"
+}
