@@ -1,13 +1,21 @@
 from __future__ import annotations
 
+import hashlib
 import inspect
 import json
 import unittest
+from pathlib import Path
 
+from gauntlet import janus_113_8_sim2_router_frozen_pre_repair as historical_router
 from sim import janus_113_8_sim2_builder as builder
 from sim import janus_113_8_sim2_evaluator as evaluator
 from sim import janus_113_8_sim2_router as router
 
+
+ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_ROUTER_PATH = ROOT / "gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py"
+HISTORICAL_ROUTER_COMMIT = "62092ceed79cefb5104933cbff3732450797c00f"
+HISTORICAL_ROUTER_GIT_BLOB_SHA = "f3e39b62066420fbe35040bed25f5c3c291580c4"
 
 DATA = b"JANUS PUBLIC FIXTURE\nrequired marker\n"
 SNAPSHOT = {
@@ -23,6 +31,10 @@ SNAPSHOT = {
 }
 
 
+def git_blob_sha(data: bytes) -> str:
+    return hashlib.sha1(f"blob {len(data)}\0".encode("ascii") + data).hexdigest()
+
+
 def build_fixture(seed: int = 1138001938):
     return builder.build_cases([SNAPSHOT], seed=seed, repetitions=1)
 
@@ -36,6 +48,15 @@ def fake_fetch(url: str) -> bytes:
 
 
 class JanusSim2Tests(unittest.TestCase):
+    def test_historical_router_snapshot_is_exactly_bound(self) -> None:
+        self.assertTrue(HISTORICAL_ROUTER_PATH.is_file())
+        self.assertEqual(
+            git_blob_sha(HISTORICAL_ROUTER_PATH.read_bytes()),
+            HISTORICAL_ROUTER_GIT_BLOB_SHA,
+        )
+        self.assertEqual(HISTORICAL_ROUTER_COMMIT, "62092ceed79cefb5104933cbff3732450797c00f")
+        self.assertEqual(historical_router.VERSION, "JANUS-113.8-SIM-2-ROUTER-v1.0")
+
     def test_builder_is_deterministic(self) -> None:
         first = build_fixture()
         second = build_fixture()
@@ -78,11 +99,14 @@ class JanusSim2Tests(unittest.TestCase):
         strict_result = router.evaluate_case(strict, fetcher=fake_fetch, cache={})
         self.assertEqual(strict_result["decision_terminal"], "REFUTED_SCHEMA")
 
-    def test_router_matches_all_synthetic_terminals(self) -> None:
+    def test_historical_router_matches_all_synthetic_terminals(self) -> None:
         cases, truth = build_fixture()
         truth_by_id = {item["case_id"]: item for item in truth}
         cache: dict[str, bytes | Exception] = {}
-        decisions = [router.evaluate_case(case, fetcher=fake_fetch, cache=cache) for case in cases]
+        decisions = [
+            historical_router.evaluate_case(case, fetcher=fake_fetch, cache=cache)
+            for case in cases
+        ]
         self.assertEqual({decision["case_id"] for decision in decisions}, set(truth_by_id))
         for decision in decisions:
             self.assertEqual(
@@ -91,7 +115,7 @@ class JanusSim2Tests(unittest.TestCase):
                 decision,
             )
 
-    def test_router_does_not_fetch_blocked_or_unpinned_cases(self) -> None:
+    def test_historical_router_does_not_fetch_blocked_or_unpinned_cases(self) -> None:
         cases, truth = build_fixture()
         truth_by_id = {item["case_id"]: item for item in truth}
         calls: list[str] = []
@@ -107,7 +131,7 @@ class JanusSim2Tests(unittest.TestCase):
             in {"unpinned_ref", "disallowed_host", "unsupported_scheme", "conflicting_claims"}
         ]
         for case in selected:
-            router.evaluate_case(case, fetcher=forbidden_fetch, cache={})
+            historical_router.evaluate_case(case, fetcher=forbidden_fetch, cache={})
         self.assertEqual(calls, [])
 
     def test_evaluator_reconstructs_all_terminals_without_router(self) -> None:
