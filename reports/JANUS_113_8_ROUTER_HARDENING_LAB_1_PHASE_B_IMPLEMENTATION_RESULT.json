@@ -9,7 +9,8 @@
   "repository": "Hawkar-usls/Janus_Genesis",
   "pull_request": 67,
   "branch": "research/janus-113-8-router-hardening-lab-1",
-  "evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
+  "implementation_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
+  "candidate_protocol_publication_commit_sha": "ec568b3a7feb7dcc44c747f5a266e58e152318c3",
   "parent_gates": {
     "phase_a_terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "phase_a_evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
@@ -44,7 +45,6 @@
     "final_router_semantics_commit_sha": "51056feebb33c59e267d29a01bb01f74dd7e4cce",
     "independent_evaluator_commit_sha": "fa550f7136cc069f500da526e79255716789125b",
     "historical_sim2_contract_update_commit_sha": "03872248fe337498edcde02a3e227a96734fd40e",
-    "final_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
     "implemented_properties": [
       "Historical SIM-2 v1 compatibility enters through an explicit legacy adapter.",
       "Hardened v2 strict mode requires a full lowercase 40-hex commit SHA.",
@@ -177,7 +177,7 @@
     "artifact_zip_sha256": "adb3744be4bedbd84f5c35e2ed831709cb78c956e426147d5da22b05994abcbe",
     "next_terminal": "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED"
   },
-  "all_workflows_on_evidence_head": {
+  "all_workflows_on_implementation_evidence_head": {
     "JANUS 113.8 Agent Gauntlet-0": "success",
     "JANUS 113.8 Router Hardening Laboratory-1": "success",
     "JANUS 113.8 SIM-2": "success",
