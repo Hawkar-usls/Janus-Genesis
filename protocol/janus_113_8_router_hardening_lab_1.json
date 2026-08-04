@@ -57,7 +57,7 @@
       "3.12",
       "3.13"
     ],
-    "router_patch_present": false,
+    "router_patch_present_at_evidence_head": false,
     "ordinary_repository_workflows_green": true,
     "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "artifacts": [
@@ -95,8 +95,8 @@
     ],
     "human_review_result": "ACCEPTED_WITHOUT_FINDINGS",
     "frozen_schema_mutated_by_acceptance": false,
-    "router_patch_present": false,
-    "router_patch_allowed_now": true,
+    "router_patch_present_at_acceptance": false,
+    "router_patch_allowed_after_acceptance": true,
     "implementation_scope": "MINIMAL_PROOF_CARRYING_ROUTER_REPAIR_ONLY",
     "required_phase_b_contract": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
     "required_review_findings": [
@@ -113,10 +113,33 @@
     "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
     "next_terminal_after_implementation_evidence": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE"
   },
+  "phase_b_implementation": {
+    "status": "PATCH_COMMITTED_AWAITING_CI",
+    "started_local_time": "2026-08-05T00:52:00+03:00",
+    "contract_present": true,
+    "contract_path": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
+    "contract_commit_sha": "bfbf1e3fcf43b1741e4c861c73c81a8d558e722d",
+    "contract_committed_before_router_patch": true,
+    "router_patch_present": true,
+    "router_path": "sim/janus_113_8_sim2_router.py",
+    "router_patch_commit_sha": "0725c7f4731bf10f98327fb9731281e5102c58cc",
+    "workflow_commit_sha": "900305a7c42fb4217cd685c6e28e5531bc37710f",
+    "phase_a_evidence_replayed_from_exact_historical_commit": true,
+    "phase_b_contract_python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "phase_b_contract_result": "PENDING",
+    "proofpacks_generated": false,
+    "source_separated_replay_complete": false,
+    "candidate_admitted": false
+  },
   "candidate_terminals": {
     "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "repair_schema_frozen": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
     "repair_schema_accepted": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
+    "repair_implemented_awaiting_ci": "ROUTER_HARDENING_LAB_1_REPAIR_IMPLEMENTED_AWAITING_CI",
     "candidate": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
     "admitted": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED"
   },
@@ -149,7 +172,9 @@
     "FREEZE_REPAIR_SCHEMA",
     "HUMAN_REVIEW_REPAIR_SCHEMA",
     "ACCEPT_REPAIR_SCHEMA",
+    "ADD_PHASE_B_CONTRACT_BEFORE_ROUTER_PATCH",
     "IMPLEMENT_MINIMAL_ROUTER_REPAIRS",
+    "RUN_PHASE_B_CONTRACTS",
     "GENERATE_DUAL_PROOFPACKS",
     "SOURCE_SEPARATED_REPLAY",
     "PUBLISH_REMAINING_BOUNDARIES",
@@ -179,6 +204,6 @@
     "sim3_external_author_requirement": "UNCHANGED",
     "sim3_satisfied_by_phase_b": false
   },
-  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
-  "next_action": "IMPLEMENT_MINIMAL_ROUTER_REPAIR_WITH_SEPARATE_PHASE_B_CONTRACT"
+  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_IMPLEMENTED_AWAITING_CI",
+  "next_action": "RUN_PHASE_B_CONTRACTS_ON_PYTHON_3_11_3_12_3_13"
 }
