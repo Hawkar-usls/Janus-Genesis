@@ -40,7 +40,16 @@
     "WITNESS_LEDGER_CONSERVATION",
     "REGRESSION_AND_PROOF_CARRYING_REPLAY"
   ],
+  "phase_a": {
+    "status": "CONTRACTS_COMMITTED_AWAITING_CI",
+    "contract_module": "lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py",
+    "workflow": ".github/workflows/janus-113-8-router-hardening-lab-1.yml",
+    "expected_contract_count": 11,
+    "router_patch_present": false,
+    "success_condition": "PRE_REPAIR_ROUTER_FAILS_CONTRACTS_AND_ALL_CONTRACT_NAMES_ARE_RECORDED"
+  },
   "candidate_terminals": {
+    "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "candidate": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
     "admitted": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED"
   },
@@ -92,6 +101,6 @@
     "organizational_independence": false,
     "sim3_external_author_requirement": "UNCHANGED"
   },
-  "current_terminal": "ROUTER_HARDENING_LAB_1_SPEC_FROZEN",
-  "next_action": "ADD_FAILING_REGRESSION_CONTRACTS_BEFORE_ROUTER_PATCH"
+  "current_terminal": "ROUTER_HARDENING_LAB_1_PHASE_A_CONTRACTS_COMMITTED",
+  "next_action": "OBSERVE_PHASE_A_CI_AND_FREEZE_EXACT_PRE_REPAIR_FAILURE_TRANSCRIPT"
 }
