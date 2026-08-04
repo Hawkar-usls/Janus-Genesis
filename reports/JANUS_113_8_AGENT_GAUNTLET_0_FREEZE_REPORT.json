@@ -1,0 +1,115 @@
+{
+  "schema": "janus.genesis.agent_gauntlet0.freeze_report.v1",
+  "version": "JANUS-113.8-AGENT-GAUNTLET-0-v1.0",
+  "recorded_utc": "2026-08-04T19:46:00Z",
+  "status": "AGENT_GAUNTLET_0_FROZEN",
+  "role": "JANUS_INTERNAL_ADVERSARIAL_AGENT",
+  "mode": "READ_ONLY_SHADOW",
+  "target": {
+    "path": "sim/janus_113_8_sim2_router.py",
+    "router_version": "JANUS-113.8-SIM-2-ROUTER-v1.0",
+    "source_sha256": "3e53d90add1ad7398b6aba6242323628546b0dce46d8ff78881fa8d6d311ac43",
+    "modified_by_gauntlet": false
+  },
+  "pull_request": {
+    "number": 66,
+    "head_sha": "756c132296ed3ac18b0eb96a6aa6da01ec132311",
+    "merge_commit_sha": "a2edaeef7470497b8bffdf8d3992d0212839f5b8",
+    "merge_method": "squash",
+    "merged": true
+  },
+  "workflow": {
+    "name": "JANUS 113.8 Agent Gauntlet-0",
+    "run_id": 30942893683,
+    "conclusion": "success",
+    "jobs": {
+      "adaptive_read_only_shadow_gauntlet": {
+        "job_id": 92105504689,
+        "conclusion": "success"
+      },
+      "python_3_11": {
+        "job_id": 92105504746,
+        "conclusion": "success"
+      },
+      "python_3_12": {
+        "job_id": 92105504698,
+        "conclusion": "success"
+      },
+      "python_3_13": {
+        "job_id": 92105504721,
+        "conclusion": "success"
+      }
+    }
+  },
+  "result": {
+    "terminal": "JANUS_113.8_AGENT_GAUNTLET_0_COMPLETED_WITH_FINDINGS",
+    "attack_count": 15,
+    "status_counts": {
+      "RESISTED": 4,
+      "FINDING": 10,
+      "BOUNDARY_CONFIRMED": 1,
+      "HARNESS_ERROR": 0
+    },
+    "candidate_conservation": true,
+    "dual_proofpacks_byte_identical": true,
+    "source_separated_replay_verified": true
+  },
+  "resisted_controls": [
+    "WRONG_DIGEST_TO_REFUTED_HASH",
+    "UNTRUSTED_HOST_TO_SAFETY_BLOCK_UNTRUSTED_SOURCE",
+    "CONFLICTING_DIGESTS_TO_OPEN_CONFLICTING_CLAIMS",
+    "FLOATING_MAIN_TO_OPEN_UNPINNED_PROVENANCE"
+  ],
+  "reproducible_findings": [
+    "PROVENANCE_METADATA_NOT_BOUND_TO_URL",
+    "PREDICTION_HASH_NOT_BOUND_TO_FULL_INPUT_CASE",
+    "CASE_ID_UNIQUENESS_NOT_ENFORCED",
+    "IDENTIFIER_NORMALIZATION_NOT_ENFORCED",
+    "DUPLICATE_JSON_KEYS_ACCEPTED",
+    "MALFORMED_CASE_ABORTS_FULL_LEDGER",
+    "RESOURCE_LIMIT_COLLAPSED_INTO_UNREACHABLE_OPEN",
+    "REDIRECT_TARGET_HOST_NOT_REVALIDATED",
+    "NON_CANONICAL_SOURCE_URL_ACCEPTED",
+    "URL_PATH_CANONICALIZATION_NOT_ENFORCED"
+  ],
+  "contract_boundary": "MOVABLE_GIT_TAG_ALLOWED_BY_SIM2_CONTRACT",
+  "proof_bindings": {
+    "attack_results_sha256": "807e8c6f895f06870bba903aae6d0a90fde03ec69066681fa72b5792767df6a6",
+    "attack_ledger_sha256": "3165f3db05aaed4a501d7fcea6fe6b0b14409a6c18f48cfc36aefcaf3aa535b7",
+    "finding_catalog_sha256": "210bff9e22a3cc306c6927a1c994b91d7a89f3ad099fd36da629409cc3801f90",
+    "gauntlet_manifest_sha256": "d3ba241a8162072f147e52b76ebfa33e8759d85e26169bf37da9781dc53a6d86",
+    "verification_report_sha256": "d735187487dd67dffc1cfdaad2f4a4055840c8c86ce867db4cb4ba135077a3bd",
+    "final_ledger_hash": "dc0014afc1777f8f942c4dc44f9d54078f51735de5801de874749df8320e5067",
+    "replay_digest_sha256": "b7950eecd8de5047dd5921bd989d2d7c66d227dc6eff88a6164a60d05e0094f3"
+  },
+  "artifact": {
+    "id": 8905886960,
+    "name": "janus-113-8-agent-gauntlet-0-proofpack",
+    "size_bytes": 18444,
+    "zip_sha256": "1e60899242c0554241482e33104647a4945dfb97346cba7b79ea64c9b300d12e",
+    "expires_utc": "2026-09-03T19:22:46Z"
+  },
+  "claim_boundary": {
+    "internal_adaptive_red_team": "ESTABLISHED",
+    "router_hardened": "NOT_YET_CLAIMED",
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "consciousness_status": "NOT_CLAIMED"
+  },
+  "safety_boundary": {
+    "real_network_read": false,
+    "network_write": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "private_repository_access": false,
+    "repository_secrets": false,
+    "real_syslog_ingest": false,
+    "runtime_authority": "NONE"
+  },
+  "next_gate": {
+    "terminal": "JANUS_113.8_ROUTER_HARDENING_REQUIRED",
+    "rule": "Open a separate hardening branch; do not rewrite or erase the frozen Gauntlet-0 evidence.",
+    "sim3_parallel_state": "SIM_3_EXTERNAL_AUTHOR_REQUIRED"
+  }
+}
