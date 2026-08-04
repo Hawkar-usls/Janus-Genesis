@@ -97,6 +97,29 @@ class RouterHardeningPhaseBContract(unittest.TestCase):
         self.assertEqual(result["decision_terminal"], "REFUTED_PROVENANCE_MISMATCH")
         self.assertEqual(fetch_calls, 0)
 
+    def test_a04_legacy_provenance_tuple_must_bind_before_fetch(self) -> None:
+        mutations = {
+            "repository": ("source_repository", "different-owner/different-repo"),
+            "path": ("source_path", "different/path.txt"),
+        }
+        for label, (field, value) in mutations.items():
+            with self.subTest(label=label):
+                case = legacy_v1_case()
+                case[field] = value
+                fetch_calls = 0
+
+                def fetcher(_: str) -> bytes:
+                    nonlocal fetch_calls
+                    fetch_calls += 1
+                    return GOOD_BYTES
+
+                result = router.evaluate_case(case, fetcher=fetcher)
+                self.assertEqual(
+                    result["decision_terminal"],
+                    "REFUTED_PROVENANCE_MISMATCH",
+                )
+                self.assertEqual(fetch_calls, 0)
+
     def test_a05_prediction_hash_binds_exact_case_input(self) -> None:
         case_a = strict_case(case_id="same-visible-case")
         case_b = strict_case(case_id="same-visible-case")
