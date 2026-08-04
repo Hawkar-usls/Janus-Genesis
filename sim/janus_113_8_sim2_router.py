@@ -181,9 +181,20 @@ def _url_gate(case: dict[str, Any]) -> tuple[str | None, str, str]:
         return "SAFETY_BLOCK_UNTRUSTED_SOURCE", "UNTRUSTED_SOURCE_ORIGIN", str(exc)
     except ValueError as exc:
         return "REFUTED_NON_CANONICAL_URL", "NON_CANONICAL_SOURCE_URL", str(exc)
+
+    declared_ref = case.get("source_ref")
+    mode = case.get("provenance_mode")
+    if mode == LEGACY_MODE:
+        # Historical SIM-2 intentionally tested floating refs and unreachable
+        # alternate paths. Preserve those terminals without pretending that the
+        # release-tag protocol had the strict v2 tuple-binding guarantee.
+        if observed_ref in UNPINNED_REFS or declared_ref in UNPINNED_REFS or observed_ref != declared_ref:
+            return "OPEN_UNPINNED_PROVENANCE", "LEGACY_MODE_FLOATING_REF", "legacy source ref is floating or mismatched"
+        return None, "LEGACY_SIM2_CANONICAL_ORIGIN", "historical SIM-2 canonical origin accepted without a strict tuple claim"
+
     if (
         f"{owner}/{repository}" != case.get("source_repository")
-        or observed_ref != case.get("source_ref")
+        or observed_ref != declared_ref
         or observed_path != case.get("source_path")
     ):
         return (
@@ -191,16 +202,12 @@ def _url_gate(case: dict[str, Any]) -> tuple[str | None, str, str]:
             "PROVENANCE_TUPLE_MISMATCH",
             "declared provenance does not equal the canonical URL tuple",
         )
-    ref = case["source_ref"]
-    if case["provenance_mode"] == STRICT_MODE and not HEX40.fullmatch(ref):
+    if not isinstance(declared_ref, str) or not HEX40.fullmatch(declared_ref):
         return (
             "OPEN_UNPINNED_PROVENANCE",
             "STRICT_MODE_REQUIRES_FULL_COMMIT",
             "strict mode requires a full lowercase 40-hex commit SHA",
         )
-    if ref in UNPINNED_REFS:
-        code = "LEGACY_MODE_FLOATING_REF" if case["provenance_mode"] == LEGACY_MODE else "STRICT_MODE_REQUIRES_FULL_COMMIT"
-        return "OPEN_UNPINNED_PROVENANCE", code, "source ref is floating"
     return None, "CANONICAL_PUBLIC_SOURCE", "trusted canonical public source"
 
 
