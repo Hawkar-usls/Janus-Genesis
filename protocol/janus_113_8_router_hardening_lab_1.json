@@ -52,7 +52,11 @@
     "tests_run_per_python": 11,
     "failures_per_python": 11,
     "errors_per_python": 1,
-    "python_versions": ["3.11", "3.12", "3.13"],
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
     "router_patch_present": false,
     "ordinary_repository_workflows_green": true,
     "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
@@ -75,18 +79,36 @@
     ]
   },
   "phase_b_gate": {
-    "status": "BLOCKED_PENDING_REPAIR_SCHEMA_FREEZE",
+    "status": "REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+    "frozen_local_time": "2026-08-05T00:17:00+03:00",
+    "repair_schema": "protocol/janus_113_8_router_hardening_repair_schema_v1.json",
+    "review_document": "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA.md",
+    "schema_artifacts": [
+      "schemas/janus_113_8_router_case_v2.schema.json",
+      "schemas/janus_113_8_router_prediction_v2.schema.json",
+      "schemas/janus_113_8_router_ledger_entry_v2.schema.json",
+      "schemas/janus_113_8_router_manifest_v2.schema.json"
+    ],
+    "router_patch_present": false,
     "router_patch_allowed_now": false,
-    "required_before_patch": [
-      "FREEZE_HARDENED_PUBLIC_CASE_SCHEMA",
-      "FREEZE_TYPED_TERMINAL_SET",
-      "FREEZE_CANONICAL_URL_AND_PROVENANCE_RULES",
-      "FREEZE_LEDGER_LINE_CONSERVATION_SCHEMA",
-      "FREEZE_LEGACY_AND_STRICT_PROVENANCE_MODES"
-    ]
+    "required_review_findings": [
+      "A04_THROUGH_A14_HAVE_EXPLICIT_REPAIR_PATHS",
+      "MALFORMED_LINES_REMAIN_IN_WITNESS_LEDGER",
+      "URL_GATE_PRECEDES_NETWORK_READ",
+      "REDIRECT_TARGET_IS_REVALIDATED",
+      "LEGACY_AND_STRICT_PROVENANCE_MODES_CANNOT_COLLAPSE",
+      "PREDICTION_HASH_BINDS_EXACT_LINE_AND_CANONICAL_CASE",
+      "CORPUS_REFUSAL_CANNOT_CLAIM_COMPLETED_CONSERVATION",
+      "DETERMINISTIC_OUTPUT_CONTAINS_NO_WALL_CLOCK_FIELDS",
+      "SIM3_EXTERNAL_AUTHOR_REQUIREMENT_REMAINS_UNCHANGED"
+    ],
+    "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+    "next_terminal_on_acceptance": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
   },
   "candidate_terminals": {
     "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+    "repair_schema_frozen": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+    "repair_schema_accepted": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
     "candidate": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
     "admitted": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED"
   },
@@ -99,11 +121,17 @@
     "input_line_conservation": 1.0,
     "ledger_replay": 1.0,
     "dual_proofpacks_byte_identical": true,
-    "python_versions": ["3.11", "3.12", "3.13"]
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ]
   },
   "compatibility": {
     "legacy_sim2_release_tag_mode": "DOCUMENTED_COMPATIBILITY",
     "strict_immutable_commit_mode": "FULL_40_HEX_COMMIT_REQUIRED",
+    "historical_v1_adapter": "REQUIRED",
+    "hardened_v2_schema": "janus.genesis.router.public_case.v2",
     "retroactive_immutability_claim": false
   },
   "work_order": [
@@ -111,6 +139,7 @@
     "ADD_FAILING_REGRESSION_CONTRACTS",
     "FREEZE_PHASE_A_FAILURE_EVIDENCE",
     "FREEZE_REPAIR_SCHEMA",
+    "HUMAN_REVIEW_REPAIR_SCHEMA",
     "IMPLEMENT_MINIMAL_ROUTER_REPAIRS",
     "GENERATE_DUAL_PROOFPACKS",
     "SOURCE_SEPARATED_REPLAY",
@@ -138,8 +167,9 @@
     "internal_lab_agent": true,
     "source_separated_replay_required": true,
     "organizational_independence": false,
-    "sim3_external_author_requirement": "UNCHANGED"
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_phase_b": false
   },
-  "current_terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
-  "next_action": "FREEZE_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
+  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+  "next_action": "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
 }
