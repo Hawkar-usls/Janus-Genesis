@@ -1,0 +1,532 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/janus_113_8_sim3_submission.schema.json",
+  "title": "JANUS 113.8 SIM-3 External Verification Submission",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "protocol",
+    "external_author",
+    "external_repository",
+    "chronology",
+    "commitments",
+    "router_freeze",
+    "challenge",
+    "router_outputs",
+    "external_verification",
+    "neutral_replay",
+    "metrics",
+    "safety_boundary",
+    "requested_terminal"
+  ],
+  "properties": {
+    "schema": {
+      "const": "janus.genesis.sim3.external_submission.v1"
+    },
+    "protocol": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_id",
+        "protocol_commit_sha",
+        "protocol_json_sha256",
+        "submission_schema_sha256",
+        "author_attestation_schema_sha256",
+        "sim2_admission_report_sha256"
+      ],
+      "properties": {
+        "protocol_id": {
+          "const": "JANUS-113.8-SIM-3-EXTERNAL-AUTHOR-VERIFIER-PROTOCOL"
+        },
+        "protocol_commit_sha": {
+          "$ref": "#/$defs/sha40"
+        },
+        "protocol_json_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "submission_schema_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "author_attestation_schema_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "sim2_admission_report_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "external_author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "github_login",
+        "attestation_path",
+        "attestation_sha256",
+        "genesis_permission_during_development"
+      ],
+      "properties": {
+        "github_login": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "const": "Hawkar-usls"
+          }
+        },
+        "attestation_path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "attestation_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "genesis_permission_during_development": {
+          "enum": [
+            "none",
+            "read",
+            "triage"
+          ]
+        }
+      }
+    },
+    "external_repository": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "full_name",
+        "url",
+        "owner_login",
+        "commit_sha",
+        "release_tag",
+        "release_archive_sha256",
+        "primary_language",
+        "license_spdx"
+      ],
+      "properties": {
+        "full_name": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+          "not": {
+            "pattern": "^Hawkar-usls/"
+          }
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://github\\.com/"
+        },
+        "owner_login": {
+          "type": "string",
+          "minLength": 1,
+          "not": {
+            "const": "Hawkar-usls"
+          }
+        },
+        "commit_sha": {
+          "$ref": "#/$defs/sha40"
+        },
+        "release_tag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "release_archive_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "primary_language": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "license_spdx": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100
+        }
+      }
+    },
+    "chronology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "protocol_frozen_utc",
+        "router_frozen_utc",
+        "external_commitment_published_utc",
+        "public_cases_revealed_utc",
+        "router_outputs_frozen_utc",
+        "truth_revealed_utc",
+        "external_report_published_utc",
+        "neutral_replay_completed_utc"
+      ],
+      "properties": {
+        "protocol_frozen_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "router_frozen_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "external_commitment_published_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "public_cases_revealed_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "router_outputs_frozen_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "truth_revealed_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "external_report_published_utc": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "neutral_replay_completed_utc": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "commitments": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cases_sha256",
+        "truth_sha256",
+        "challenge_salt_sha256",
+        "challenge_commitment_sha256",
+        "commitment_reconstructed"
+      ],
+      "properties": {
+        "cases_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "truth_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "challenge_salt_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "challenge_commitment_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "commitment_reconstructed": {
+          "const": true
+        }
+      }
+    },
+    "router_freeze": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "commit_sha",
+        "entrypoint",
+        "source_digest_sha256",
+        "modified_after_case_reveal"
+      ],
+      "properties": {
+        "repository": {
+          "const": "Hawkar-usls/Janus_Genesis"
+        },
+        "commit_sha": {
+          "$ref": "#/$defs/sha40"
+        },
+        "entrypoint": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "source_digest_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "modified_after_case_reveal": {
+          "const": false
+        }
+      }
+    },
+    "challenge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "new_public_sources",
+        "independent_repository_owners",
+        "case_count",
+        "class_count",
+        "minimum_cases_per_class",
+        "all_source_refs_are_full_commit_shas",
+        "contains_honest_open_class",
+        "router_input_contains_gold_labels",
+        "reuses_exact_sim2_source_objects"
+      ],
+      "properties": {
+        "new_public_sources": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "independent_repository_owners": {
+          "type": "integer",
+          "minimum": 3
+        },
+        "case_count": {
+          "type": "integer",
+          "minimum": 100
+        },
+        "class_count": {
+          "type": "integer",
+          "minimum": 10
+        },
+        "minimum_cases_per_class": {
+          "type": "integer",
+          "minimum": 5
+        },
+        "all_source_refs_are_full_commit_shas": {
+          "const": true
+        },
+        "contains_honest_open_class": {
+          "const": true
+        },
+        "router_input_contains_gold_labels": {
+          "const": false
+        },
+        "reuses_exact_sim2_source_objects": {
+          "const": false
+        }
+      }
+    },
+    "router_outputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "predictions_sha256",
+        "witness_ledger_sha256",
+        "run_manifest_sha256",
+        "final_ledger_hash"
+      ],
+      "properties": {
+        "predictions_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "witness_ledger_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "run_manifest_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "final_ledger_hash": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "external_verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_verdicts_sha256",
+        "verification_report_sha256",
+        "replay_manifest_sha256",
+        "imports_genesis_verifier",
+        "executes_genesis_verifier",
+        "line_for_line_translation"
+      ],
+      "properties": {
+        "case_verdicts_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "verification_report_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "replay_manifest_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "imports_genesis_verifier": {
+          "const": false
+        },
+        "executes_genesis_verifier": {
+          "const": false
+        },
+        "line_for_line_translation": {
+          "const": false
+        }
+      }
+    },
+    "neutral_replay": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runner_identity",
+        "runner_repository",
+        "run_url",
+        "report_reproduced",
+        "repository_secrets_available",
+        "network_write_allowed",
+        "bounded_timeout",
+        "bounded_memory",
+        "bounded_process_count",
+        "proofpack_sha256"
+      ],
+      "properties": {
+        "runner_identity": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "runner_repository": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "run_url": {
+          "type": "string",
+          "format": "uri",
+          "pattern": "^https://"
+        },
+        "report_reproduced": {
+          "const": true
+        },
+        "repository_secrets_available": {
+          "const": false
+        },
+        "network_write_allowed": {
+          "const": false
+        },
+        "bounded_timeout": {
+          "const": true
+        },
+        "bounded_memory": {
+          "const": true
+        },
+        "bounded_process_count": {
+          "const": true
+        },
+        "proofpack_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "case_alignment",
+        "witness_ledger_replay",
+        "commitment_reconstruction",
+        "exact_terminal_accuracy",
+        "false_acceptance_rate",
+        "false_rejection_rate",
+        "decisive_coverage",
+        "brier_score",
+        "expected_calibration_error"
+      ],
+      "properties": {
+        "case_alignment": {
+          "$ref": "#/$defs/probability"
+        },
+        "witness_ledger_replay": {
+          "$ref": "#/$defs/probability"
+        },
+        "commitment_reconstruction": {
+          "$ref": "#/$defs/probability"
+        },
+        "exact_terminal_accuracy": {
+          "$ref": "#/$defs/probability"
+        },
+        "false_acceptance_rate": {
+          "$ref": "#/$defs/probability"
+        },
+        "false_rejection_rate": {
+          "$ref": "#/$defs/probability"
+        },
+        "decisive_coverage": {
+          "$ref": "#/$defs/probability"
+        },
+        "brier_score": {
+          "$ref": "#/$defs/probability"
+        },
+        "expected_calibration_error": {
+          "$ref": "#/$defs/probability"
+        }
+      }
+    },
+    "safety_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_read",
+        "network_write",
+        "file_deletion",
+        "self_modification",
+        "external_actuation",
+        "autonomous_background_loop",
+        "real_syslog_ingest",
+        "private_repository_access",
+        "repository_secrets_available_to_external_code",
+        "runtime_authority",
+        "consciousness_status"
+      ],
+      "properties": {
+        "network_read": {
+          "const": "BOUNDED_PUBLIC_HTTPS_ONLY"
+        },
+        "network_write": {
+          "const": false
+        },
+        "file_deletion": {
+          "const": false
+        },
+        "self_modification": {
+          "const": false
+        },
+        "external_actuation": {
+          "const": false
+        },
+        "autonomous_background_loop": {
+          "const": false
+        },
+        "real_syslog_ingest": {
+          "const": false
+        },
+        "private_repository_access": {
+          "const": false
+        },
+        "repository_secrets_available_to_external_code": {
+          "const": false
+        },
+        "runtime_authority": {
+          "const": "NONE"
+        },
+        "consciousness_status": {
+          "const": "NOT_CLAIMED"
+        }
+      }
+    },
+    "requested_terminal": {
+      "enum": [
+        "JANUS_113.8_SIM_3_PROVISIONAL_EXTERNAL_REPLAY",
+        "JANUS_113.8_SIM_3_ADMITTED"
+      ]
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "probability": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    }
+  }
+}
