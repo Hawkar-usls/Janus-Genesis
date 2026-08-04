@@ -162,11 +162,8 @@ jobs:
           assert acceptance["frozen_schema_mutated_by_acceptance"] is False
           assert acceptance["router_patch_present_at_acceptance"] is False
           assert acceptance["router_patch_allowed_after_acceptance"] is True
-          assert lab["current_terminal"] == accepted
-          assert lab["phase_b_gate"]["status"] == "REPAIR_SCHEMA_ACCEPTED"
-          assert lab["phase_b_gate"]["router_patch_present"] is False
-          assert lab["phase_b_gate"]["router_patch_allowed_now"] is True
-          assert lab["next_action"] == "IMPLEMENT_MINIMAL_ROUTER_REPAIR_WITH_SEPARATE_PHASE_B_CONTRACT"
+          assert lab["phase_b_gate"]["human_review_result"] == "ACCEPTED_WITHOUT_FINDINGS"
+          assert lab["phase_b_gate"]["reviewed_schema_head_sha"] == "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8"
 
           computed = {}
           for artifact in repair["frozen_schema_artifacts"].values():
@@ -188,3 +185,65 @@ jobs:
           assert repair["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
           print("ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED")
           PY
+
+  phase-b-router-contract:
+    name: phase-b-router-contract-python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out current laboratory branch
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile repaired router and Phase-B contract
+        run: |
+          python -m py_compile \
+            sim/janus_113_8_sim2_router.py \
+            tests/test_janus_113_8_router_hardening_lab_1_phase_b.py
+
+      - name: Run accepted A04-A14 contract
+        run: |
+          python -m unittest \
+            tests.test_janus_113_8_router_hardening_lab_1_phase_b \
+            -v 2>&1 | tee lab-phase-b.log
+          grep -q "test_a04_" lab-phase-b.log
+          grep -q "test_a14_" lab-phase-b.log
+          grep -q "OK" lab-phase-b.log
+          echo "ROUTER_HARDENING_LAB_1_PHASE_B_CONTRACT_PASS"
+
+      - name: Confirm defensive laboratory boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          lab = json.loads(
+              Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
+          )
+          assert lab["phase_b_implementation"]["contract_present"] is True
+          assert lab["phase_b_implementation"]["router_patch_present"] is True
+          assert lab["safety"]["owned_repository_only"] is True
+          assert lab["safety"]["synthetic_and_local_fixtures_only"] is True
+          assert lab["safety"]["real_network_read_during_lab_tests"] is False
+          assert lab["safety"]["network_write"] is False
+          assert lab["safety"]["runtime_authority"] == "NONE"
+          assert lab["independence"]["organizational_independence"] is False
+          assert lab["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
+          print("ROUTER_HARDENING_LAB_1_PHASE_B_BOUNDARY_PASS")
+          PY
+
+      - name: Upload Phase-B contract transcript
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-router-hardening-lab-1-phase-b-python-${{ matrix.python-version }}
+          path: lab-phase-b.log
+          if-no-files-found: error
+          retention-days: 30
