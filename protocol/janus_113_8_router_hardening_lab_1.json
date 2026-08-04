@@ -39,7 +39,11 @@
     "tests_run_per_python": 11,
     "failures_per_python": 11,
     "errors_per_python": 1,
-    "python_versions": ["3.11", "3.12", "3.13"],
+    "python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
     "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
   },
   "phase_b_schema": {
@@ -57,65 +61,124 @@
     "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
   },
   "phase_b_implementation": {
-    "status": "CANDIDATE_ESTABLISHED_AWAITING_HUMAN_IMPLEMENTATION_REVIEW",
+    "status": "A04_REPAIRED_AWAITING_HUMAN_RE_REVIEW",
     "started_local_time": "2026-08-05T00:52:00+03:00",
-    "result_recorded_local_time": "2026-08-05T01:23:30+03:00",
+    "initial_result_recorded_local_time": "2026-08-05T01:23:30+03:00",
     "implementation_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_IMPLEMENTATION_RESULT.json",
-    "implementation_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
+    "initial_implementation_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
     "contract_path": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
     "contract_commit_sha": "bfbf1e3fcf43b1741e4c861c73c81a8d558e722d",
     "contract_committed_before_router_patch": true,
     "contract_test_count": 13,
     "router_path": "sim/janus_113_8_sim2_router.py",
     "initial_router_patch_commit_sha": "0725c7f4731bf10f98327fb9731281e5102c58cc",
-    "final_router_semantics_commit_sha": "51056feebb33c59e267d29a01bb01f74dd7e4cce",
+    "pre_review_router_semantics_commit_sha": "51056feebb33c59e267d29a01bb01f74dd7e4cce",
     "independent_evaluator_commit_sha": "fa550f7136cc069f500da526e79255716789125b",
+    "candidate_established": true,
+    "laboratory_admitted": false,
+    "merge_authorized": false
+  },
+  "human_implementation_review": {
+    "reviewed_head_sha": "4936b1c046cf22aa2b44b6dcace4d4e06afde31b",
+    "verdict": "CHANGES_REQUIRED",
+    "blocking_finding": "A04_LEGACY_PROVENANCE_TUPLE_BYPASS",
+    "accepted_without_additional_findings": [
+      "A05_THROUGH_A14",
+      "A09_WITNESS_LEDGER_CONSERVATION",
+      "TYPED_RESOURCE_AND_REDIRECT_OUTCOMES",
+      "NFC_COLLISION_ACCOUNTING",
+      "DOMAIN_SEPARATED_HASHING",
+      "DETERMINISTIC_OUTPUT",
+      "HISTORICAL_GAUNTLET_BINDING"
+    ],
+    "formal_request_changes_available_to_author_account": false,
+    "terminal": "ROUTER_HARDENING_LAB_1_CHANGES_REQUIRED"
+  },
+  "a04_legacy_repair": {
+    "result_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_A04_LEGACY_REPAIR_RESULT.json",
+    "red_regression_commit_sha": "e175adbfcf04b78c808b98feeb06617e16b34781",
+    "red_regression_workflow_run_id": 30958090460,
+    "red_regression_test_count": 14,
+    "red_regression_failures_per_python": 2,
+    "red_regression_python_versions": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "router_modified_in_red_regression_commit": false,
+    "minimal_router_repair_commit_sha": "20f399d1eae13827e4cafd1b4d78569c4980ef3a",
+    "ci_harness_alignment_commit_sha": "92c8031e7826e443f6f0e082a9d5d1749522a6c0",
+    "historical_sim2_unit_binding_commit_sha": "bf56ffde9cdf900ca50f67d76b127e825888ed39",
+    "historical_sim2_workflow_binding_commit_sha": "e335273434b212a8cbc4c4fa0e970be5d3d3daa1",
+    "repair_evidence_head_sha": "e335273434b212a8cbc4c4fa0e970be5d3d3daa1",
+    "full_tuple_binding_before_mode_split": true,
+    "repository_mismatch_rejected_before_fetch": true,
+    "ref_mismatch_rejected_before_fetch": true,
+    "path_mismatch_rejected_before_fetch": true,
+    "legacy_full_commit_requirement_relaxed": true,
+    "legacy_immutability_claim_relaxed": true,
+    "legacy_identity_binding_relaxed": false,
+    "phase_b_contract_test_count": 14,
     "phase_b_contract_python_results": {
       "3.11": "PASS",
       "3.12": "PASS",
       "3.13": "PASS"
     },
-    "laboratory_workflow_run_id": 30956071692,
-    "phase_a_evidence_replayed_from_exact_historical_target": true,
-    "historical_gauntlet_bound_to_exact_pre_repair_blob": true,
-    "historical_gauntlet_workflow_run_id": 30956071734,
-    "historical_gauntlet_status_counts": {
-      "BOUNDARY_CONFIRMED": 1,
-      "FINDING": 10,
-      "RESISTED": 4
-    },
-    "historical_sim2_workflow_run_id": 30956071749,
+    "laboratory_workflow_run_id": 30959904924,
+    "laboratory_workflow_run_number": 62,
+    "historical_sim2_bound_to_exact_frozen_v1_router": true,
+    "historical_sim2_target_commit_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "historical_sim2_target_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+    "historical_sim2_workflow_run_id": 30959904955,
+    "historical_sim2_workflow_run_number": 25,
     "historical_sim2_terminal": "JANUS_113.8_SIM_2_ADMITTED",
-    "historical_sim2_metrics": {
-      "router_exact_terminal_accuracy": 1.0,
-      "false_acceptance_rate": 0.0,
-      "false_rejection_rate": 0.0,
-      "decisive_coverage": 1.0,
-      "brier_score": 0.00009999999999999996,
-      "expected_calibration_error": 0.01000000000000003
-    },
-    "input_line_conservation": 1.0,
-    "ledger_replay": 1.0,
-    "dual_router_outputs_byte_identical": true,
-    "source_separated_replay_complete": true,
-    "all_observed_workflows_on_implementation_evidence_head_green": true,
-    "candidate_established": true,
-    "laboratory_admitted": false,
-    "merge_authorized": false
+    "all_observed_workflows_on_repair_evidence_head_green": true,
+    "known_blocking_finding_repaired": true,
+    "human_re_review_complete": false,
+    "terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_A04_REPAIRED_AWAITING_HUMAN_RE_REVIEW"
   },
   "evidence_artifacts": {
-    "phase_b_contract_transcripts": [
-      {"python": "3.11", "artifact_id": 8911071909, "zip_sha256": "5f70999135b6fb14e1802068f998dd652d5fe11eacd4500dfd0f58509015905e"},
-      {"python": "3.12", "artifact_id": 8911054704, "zip_sha256": "56578642a7f8614c23e3246de6f52050239d6b7e9ba1490e266409d5a951c849"},
-      {"python": "3.13", "artifact_id": 8911069680, "zip_sha256": "96cc4dec6499dd0d318b4127121007517a7fd2b520081ccb6781c89e7a1a3c36"}
+    "initial_phase_b_contract_transcripts": [
+      {
+        "python": "3.11",
+        "artifact_id": 8911071909,
+        "zip_sha256": "5f70999135b6fb14e1802068f998dd652d5fe11eacd4500dfd0f58509015905e"
+      },
+      {
+        "python": "3.12",
+        "artifact_id": 8911054704,
+        "zip_sha256": "56578642a7f8614c23e3246de6f52050239d6b7e9ba1490e266409d5a951c849"
+      },
+      {
+        "python": "3.13",
+        "artifact_id": 8911069680,
+        "zip_sha256": "96cc4dec6499dd0d318b4127121007517a7fd2b520081ccb6781c89e7a1a3c36"
+      }
+    ],
+    "a04_repair_phase_b_contract_transcripts": [
+      {
+        "python": "3.11",
+        "artifact_id": 8912529022,
+        "zip_sha256": "0c9d751adb8fac37bc509fd29c8d36df1c4fae46b93502675c921bc4c475118f"
+      },
+      {
+        "python": "3.12",
+        "artifact_id": 8912531226,
+        "zip_sha256": "88cb3f3bbc68ceaba94fa34ca4659cf4bb44bda6e18eb74a0649e965716ec953"
+      },
+      {
+        "python": "3.13",
+        "artifact_id": 8912516311,
+        "zip_sha256": "303476307866b6b94c1d38e4d86d7934f19c80c8ade2e7067ec785085dfb9b5e"
+      }
     ],
     "historical_gauntlet": {
       "artifact_id": 8911071538,
       "zip_sha256": "a0808bd493d783b29920724f6de99ade6ea418968805182765e8b46eb2e56a16"
     },
-    "historical_sim2": {
-      "artifact_id": 8911098894,
-      "zip_sha256": "adb3744be4bedbd84f5c35e2ed831709cb78c956e426147d5da22b05994abcbe"
+    "a04_repair_historical_sim2": {
+      "artifact_id": 8912551139,
+      "zip_sha256": "eacf7112145db8a21936aec3545d020579117a59a8242fd01a60cea4c7b3143f"
     }
   },
   "admission_gate": {
@@ -123,26 +186,32 @@
     "pre_repair_findings_reproduced": 10,
     "baseline_controls_resisted": 4,
     "phase_b_contracts_pass_on_python_3_11_3_12_3_13": true,
+    "a04_legacy_regression_reproduced_before_fix": true,
+    "a04_legacy_tuple_binding_repaired": true,
     "false_acceptance": 0.0,
     "completed_run_line_conservation": 1.0,
     "ledger_replay": 1.0,
     "dual_proofpacks_byte_identical": true,
-    "historical_sim2_compatibility_replayed": true,
+    "historical_sim2_compatibility_replayed_against_frozen_v1_target": true,
     "strict_commit_mode_replayed": true,
     "source_separated_replay_complete": true,
-    "human_review_before_merge": false
+    "human_review_before_merge": false,
+    "human_re_review_after_a04_repair": false
   },
   "candidate_terminals": {
     "pre_repair_reproduced": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
     "repair_schema_frozen": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
     "repair_schema_accepted": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
     "candidate": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
+    "changes_required": "ROUTER_HARDENING_LAB_1_CHANGES_REQUIRED",
+    "a04_repaired": "JANUS_113.8_ROUTER_HARDENING_LAB_1_A04_REPAIRED_AWAITING_HUMAN_RE_REVIEW",
     "admitted": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED"
   },
   "compatibility": {
-    "legacy_sim2_release_tag_mode": "DOCUMENTED_COMPATIBILITY",
+    "legacy_sim2_release_tag_mode": "DOCUMENTED_COMPATIBILITY_WITH_EXACT_TUPLE_BINDING",
     "strict_immutable_commit_mode": "FULL_40_HEX_COMMIT_REQUIRED",
     "historical_v1_adapter": "REQUIRED",
+    "historical_sim2_replay_target": "EXACT_FROZEN_V1_ROUTER",
     "hardened_v2_schema": "janus.genesis.router.public_case.v2",
     "retroactive_immutability_claim": false
   },
@@ -159,7 +228,13 @@
     "GENERATE_DUAL_PROOFPACKS",
     "SOURCE_SEPARATED_REPLAY",
     "PUBLISH_IMPLEMENTATION_RESULT",
-    "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
+    "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE",
+    "ADD_A04_LEGACY_FAILING_REGRESSION_BEFORE_FIX",
+    "IMPLEMENT_MINIMAL_A04_TUPLE_BINDING_REPAIR",
+    "BIND_HISTORICAL_SIM2_TO_EXACT_FROZEN_V1_TARGET",
+    "REPLAY_ALL_EXACT_HEAD_CI",
+    "PUBLISH_A04_REPAIR_RESULT",
+    "HUMAN_RE_REVIEW_A04_REPAIR_EVIDENCE_BEFORE_MERGE"
   ],
   "safety": {
     "owned_repository_only": true,
@@ -183,8 +258,9 @@
     "source_separated_replay_required": true,
     "organizational_independence": false,
     "sim3_external_author_requirement": "UNCHANGED",
-    "sim3_satisfied_by_phase_b": false
+    "sim3_satisfied_by_phase_b": false,
+    "sim3_satisfied_by_a04_repair": false
   },
-  "current_terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
-  "next_action": "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
+  "current_terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_A04_REPAIRED_AWAITING_HUMAN_RE_REVIEW",
+  "next_action": "HUMAN_RE_REVIEW_A04_REPAIR_EVIDENCE_BEFORE_MERGE"
 }
