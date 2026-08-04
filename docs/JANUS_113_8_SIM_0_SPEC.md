@@ -22,6 +22,10 @@ SIM-0 tests one narrow engineering claim:
 
 It does **not** test or claim consciousness, organism status, pain, boredom, life, physical free-energy minimization, quantum coherence, or autonomous agency.
 
+## Genesis execution boundary
+
+The simulation runs inside the `Hawkar-usls/Janus_Genesis` repository through a dedicated GitHub Actions replay. Genesis supplies the isolated execution chamber and artifact transport; SIM-0 does not alter a live Genesis save or enter the shared world.
+
 ## Canonical law
 
 ```text
