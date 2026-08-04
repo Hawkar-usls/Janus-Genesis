@@ -51,10 +51,7 @@ class JanusSim2Tests(unittest.TestCase):
 
     def test_all_mutation_classes_are_emitted(self) -> None:
         _, truth = build_fixture()
-        self.assertEqual(
-            {item["mutation_class"] for item in truth},
-            set(builder.MUTATIONS),
-        )
+        self.assertEqual({item["mutation_class"] for item in truth}, set(builder.MUTATIONS))
         self.assertEqual(len(truth), 10)
 
     def test_public_cases_preserve_fail_closed_authority(self) -> None:
@@ -65,15 +62,28 @@ class JanusSim2Tests(unittest.TestCase):
             self.assertNotIn("expected_terminal", case)
             self.assertNotIn("mutation_class", case)
 
+    def test_historical_integer_nonce_is_accepted_only_through_v1_adapter(self) -> None:
+        cases, truth = build_fixture()
+        exact_id = next(item["case_id"] for item in truth if item["mutation_class"] == "exact_valid")
+        legacy = next(item for item in cases if item["case_id"] == exact_id)
+        self.assertIsInstance(legacy["nonce"], int)
+        result = router.evaluate_case(legacy, fetcher=fake_fetch, cache={})
+        self.assertEqual(result["decision_terminal"], "SUPPORTED_PUBLIC_PROVENANCE")
+
+        strict = dict(legacy)
+        strict["schema"] = router.HARDENED_SCHEMA
+        strict["provenance_mode"] = router.STRICT_MODE
+        strict["source_ref"] = "1" * 40
+        strict["source_url"] = strict["source_url"].replace("v1.0.0", "1" * 40)
+        strict_result = router.evaluate_case(strict, fetcher=fake_fetch, cache={})
+        self.assertEqual(strict_result["decision_terminal"], "REFUTED_SCHEMA")
+
     def test_router_matches_all_synthetic_terminals(self) -> None:
         cases, truth = build_fixture()
         truth_by_id = {item["case_id"]: item for item in truth}
         cache: dict[str, bytes | Exception] = {}
         decisions = [router.evaluate_case(case, fetcher=fake_fetch, cache=cache) for case in cases]
-        self.assertEqual(
-            {decision["case_id"] for decision in decisions},
-            set(truth_by_id),
-        )
+        self.assertEqual({decision["case_id"] for decision in decisions}, set(truth_by_id))
         for decision in decisions:
             self.assertEqual(
                 decision["decision_terminal"],
@@ -103,9 +113,7 @@ class JanusSim2Tests(unittest.TestCase):
     def test_evaluator_reconstructs_all_terminals_without_router(self) -> None:
         cases, truth = build_fixture()
         truth_by_id = {item["case_id"]: item for item in truth}
-        cache: dict[str, bytes | Exception] = {
-            SNAPSHOT["raw_url"]: DATA,
-        }
+        cache: dict[str, bytes | Exception] = {SNAPSHOT["raw_url"]: DATA}
         for case in cases:
             if ".janus-missing-" in case["source_url"]:
                 cache[case["source_url"]] = RuntimeError("synthetic 404")
@@ -128,19 +136,22 @@ class JanusSim2Tests(unittest.TestCase):
         self.assertAlmostEqual(ece, 0.01, places=12)
         self.assertEqual(sum(row["count"] for row in bins), 100)
 
-    def test_witness_ledger_replay_and_tamper_detection(self) -> None:
+    def test_witness_ledger_v2_replay_and_tamper_detection(self) -> None:
         cases, _ = build_fixture()
         predictions = [router.evaluate_case(case, fetcher=fake_fetch, cache={}) for case in cases]
         previous = "0" * 64
         ledger = []
         for ordinal, prediction in enumerate(predictions):
             body = {
+                "schema": "janus.genesis.router.ledger_entry.v2",
                 "ordinal": ordinal,
-                "case_id": prediction["case_id"],
+                "input_line_sha256": prediction["input_line_sha256"],
                 "prediction_sha256": prediction["prediction_sha256"],
                 "prev_hash": previous,
             }
-            entry_hash = evaluator.sha256_text(evaluator.canonical_json(body))
+            entry_hash = evaluator.sha256_text(
+                evaluator.LEDGER_DOMAIN + evaluator.canonical_json(body)
+            )
             ledger.append({**body, "entry_hash": entry_hash})
             previous = entry_hash
         ok, final_hash = evaluator.verify_witness_ledger(predictions, ledger)
@@ -155,19 +166,28 @@ class JanusSim2Tests(unittest.TestCase):
         with self.assertRaises(ValueError):
             builder.build_cases([SNAPSHOT], seed=1, repetitions=0)
         with self.assertRaises(ValueError):
-            builder.build_cases(
-                [SNAPSHOT], seed=1, repetitions=builder.MAX_REPETITIONS + 1
-            )
+            builder.build_cases([SNAPSHOT], seed=1, repetitions=builder.MAX_REPETITIONS + 1)
 
-    def test_router_prediction_hash_is_self_consistent(self) -> None:
+    def test_router_prediction_v2_hash_is_self_consistent(self) -> None:
         cases, truth = build_fixture()
-        exact_id = next(
-            item["case_id"] for item in truth if item["mutation_class"] == "exact_valid"
-        )
+        exact_id = next(item["case_id"] for item in truth if item["mutation_class"] == "exact_valid")
         case = next(item for item in cases if item["case_id"] == exact_id)
         prediction = router.evaluate_case(case, fetcher=fake_fetch, cache={})
-        claimed = prediction.pop("prediction_sha256")
-        self.assertEqual(claimed, router.sha256_text(router.canonical_json(prediction)))
+
+        body = dict(prediction)
+        claimed_prediction = body.pop("prediction_sha256")
+        claimed_body = body.pop("prediction_body_sha256")
+        expected_body = router.sha256_text(router.canonical_json(body))
+        expected_prediction = router.sha256_text(
+            router.PREDICTION_DOMAIN
+            + prediction["input_line_sha256"]
+            + "\n"
+            + (prediction["input_case_sha256"] or "NULL")
+            + "\n"
+            + expected_body
+        )
+        self.assertEqual(claimed_body, expected_body)
+        self.assertEqual(claimed_prediction, expected_prediction)
 
 
 if __name__ == "__main__":
