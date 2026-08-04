@@ -1,0 +1,78 @@
+name: JANUS 113.8 SIM-0
+
+on:
+  push:
+    branches:
+      - research/janus-113-8-sim-0
+    paths:
+      - "sim/janus_113_8_sim0.py"
+      - "sim/__init__.py"
+      - "tests/test_janus_113_8_sim0.py"
+      - "docs/JANUS_113_8_SIM_0_SPEC.md"
+      - ".github/workflows/janus-113-8-sim-0.yml"
+  pull_request:
+    paths:
+      - "sim/janus_113_8_sim0.py"
+      - "sim/__init__.py"
+      - "tests/test_janus_113_8_sim0.py"
+      - "docs/JANUS_113_8_SIM_0_SPEC.md"
+      - ".github/workflows/janus-113-8-sim-0.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: janus-113-8-sim-0-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deterministic-read-only-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile simulator
+        run: python -m py_compile sim/janus_113_8_sim0.py
+
+      - name: Run independent unit contracts
+        run: python -m unittest discover -s tests -p "test_janus_113_8_sim0.py" -v
+
+      - name: Run deterministic Genesis replay
+        env:
+          SOURCE_DATE_EPOCH: "1785870060"
+        run: |
+          python sim/janus_113_8_sim0.py \
+            --output artifacts/janus-113-8-sim-0 \
+            --print-summary
+
+      - name: Verify sealed terminal
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          summary = json.loads(
+              Path("artifacts/janus-113-8-sim-0/summary.json").read_text(encoding="utf-8")
+          )
+          assert summary["admitted"] is True, summary
+          assert summary["terminal"] == "JANUS_113.8_SIM_0_ADMITTED", summary
+          assert summary["scenario_count"] == 10, summary
+          print(json.dumps(summary, indent=2))
+          PY
+
+      - name: Upload proof-carrying replay
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-sim-0-proofpack
+          path: artifacts/janus-113-8-sim-0/
+          if-no-files-found: error
+          retention-days: 30
