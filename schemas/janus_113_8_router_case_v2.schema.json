@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Hawkar-usls/Janus_Genesis/schemas/janus_113_8_router_case_v2.schema.json",
+  "title": "JANUS 113.8 Hardened Router Public Case v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "provenance_mode",
+    "case_id",
+    "nonce",
+    "source_id",
+    "source_repository",
+    "source_ref",
+    "source_path",
+    "source_url",
+    "claim",
+    "read_only",
+    "runtime_authority"
+  ],
+  "properties": {
+    "schema": {
+      "const": "janus.genesis.router.public_case.v2"
+    },
+    "provenance_mode": {
+      "enum": [
+        "LEGACY_SIM2_RELEASE_TAG",
+        "STRICT_IMMUTABLE_COMMIT"
+      ]
+    },
+    "case_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "nonce": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "source_id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "source_repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$",
+      "maxLength": 201
+    },
+    "source_ref": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200
+    },
+    "source_path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2048,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.?($|/))(?!.*//).+$"
+    },
+    "source_url": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096,
+      "pattern": "^https://raw\\.githubusercontent\\.com/"
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sha256",
+        "size_bytes",
+        "required_marker",
+        "alternate_sha256"
+      ],
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300000
+        },
+        "required_marker": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "alternate_sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "read_only": {
+      "const": true
+    },
+    "runtime_authority": {
+      "const": "NONE"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "provenance_mode": {
+            "const": "STRICT_IMMUTABLE_COMMIT"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source_ref": {
+            "$ref": "#/$defs/sha40"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "provenance_mode": {
+            "const": "LEGACY_SIM2_RELEASE_TAG"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "source_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "not": {
+              "enum": [
+                "main",
+                "master",
+                "HEAD"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "sha40": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    }
+  },
+  "x-janus-semantic-rules": [
+    "All identifier comparison keys are Unicode NFC normalized.",
+    "source_repository/source_ref/source_path must bind exactly to the decoded canonical source_url tuple.",
+    "STRICT_IMMUTABLE_COMMIT requires a full lowercase 40-hex commit SHA.",
+    "LEGACY_SIM2_RELEASE_TAG preserves historical release-tag compatibility but does not assert commit immutability.",
+    "Gold labels are forbidden in router input."
+  ]
+}
