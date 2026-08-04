@@ -1,0 +1,129 @@
+name: JANUS 113.8 SIM-3 Protocol
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "docs/JANUS_113_8_SIM_3_EXTERNAL_AUTHOR_PROTOCOL.md"
+      - "protocol/janus_113_8_sim3_protocol.json"
+      - "schemas/janus_113_8_sim3_submission.schema.json"
+      - "schemas/janus_113_8_sim3_author_attestation.schema.json"
+      - "scripts/validate_janus_113_8_sim3_submission.py"
+      - "tests/test_janus_113_8_sim3_protocol.py"
+      - ".github/workflows/janus-113-8-sim3-protocol.yml"
+      - ".github/ISSUE_TEMPLATE/janus-sim3-external-verifier.md"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  protocol-contracts:
+    name: protocol-contracts-python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Compile format-only validator
+        run: python -m py_compile scripts/validate_janus_113_8_sim3_submission.py
+
+      - name: Run SIM-3 protocol contracts
+        run: python -m unittest discover -s tests -p "test_janus_113_8_sim3_protocol.py" -v
+
+  freeze-candidate-manifest:
+    name: freeze-candidate-manifest
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate protocol JSON and produce candidate bindings
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          paths = {
+              "protocol_json_sha256": Path("protocol/janus_113_8_sim3_protocol.json"),
+              "submission_schema_sha256": Path("schemas/janus_113_8_sim3_submission.schema.json"),
+              "author_attestation_schema_sha256": Path("schemas/janus_113_8_sim3_author_attestation.schema.json"),
+              "sim2_admission_report_sha256": Path("reports/JANUS_113_8_SIM_2_ADMISSION_REPORT.json"),
+              "validator_sha256": Path("scripts/validate_janus_113_8_sim3_submission.py"),
+              "protocol_spec_sha256": Path("docs/JANUS_113_8_SIM_3_EXTERNAL_AUTHOR_PROTOCOL.md"),
+          }
+          parsed = {name: json.loads(path.read_text(encoding="utf-8")) for name, path in paths.items() if path.suffix == ".json"}
+          protocol = parsed["protocol_json_sha256"]
+          sim2 = parsed["sim2_admission_report_sha256"]
+
+          assert protocol["protocol_id"] == "JANUS-113.8-SIM-3-EXTERNAL-AUTHOR-VERIFIER-PROTOCOL"
+          assert protocol["status"] == "PROTOCOL_CANDIDATE"
+          assert protocol["current_terminal"] == "SIM_3_PROTOCOL_CANDIDATE"
+          assert protocol["next_terminal"] == "SIM_3_PROTOCOL_FROZEN"
+          assert protocol["execution_blocker"] == "EXTERNAL_AUTHOR_NOT_YET_BOUND"
+          assert sim2["simulation"]["terminal"] == "JANUS_113.8_SIM_2_ADMITTED"
+          assert sim2["next_terminal"] == "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED"
+          assert protocol["prerequisites"]["sim2_replay_digest_sha256"] == sim2["cryptographic_bindings"]["replay_digest_sha256"]
+          assert protocol["prerequisites"]["sim2_final_ledger_hash"] == sim2["cryptographic_bindings"]["final_ledger_hash"]
+
+          bindings = {
+              name: hashlib.sha256(path.read_bytes()).hexdigest()
+              for name, path in paths.items()
+          }
+          manifest = {
+              "schema": "janus.genesis.sim3.protocol_candidate_manifest.v1",
+              "protocol_id": protocol["protocol_id"],
+              "status": "SIM_3_PROTOCOL_CANDIDATE",
+              "bindings": bindings,
+              "safety_boundary": protocol["safety_boundary"],
+              "external_author_bound": False,
+              "external_verifier_present_in_genesis": False,
+              "next_terminal": "SIM_3_PROTOCOL_FROZEN",
+          }
+          out = Path("artifacts/janus-113-8-sim-3-protocol")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "protocol_candidate_manifest.json").write_text(
+              json.dumps(manifest, indent=2) + "\n", encoding="utf-8"
+          )
+          print(json.dumps(manifest, indent=2))
+          PY
+
+      - name: Confirm no external verifier was smuggled into Genesis
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          forbidden = [
+              Path("sim/janus_113_8_sim3_verifier.py"),
+              Path("sim/janus_113_8_sim3_external_verifier.py"),
+              Path("external/janus_113_8_sim3_verifier"),
+          ]
+          present = [str(path) for path in forbidden if path.exists()]
+          assert not present, f"Genesis must not author the external verifier: {present}"
+          print("external verifier implementation absent from Genesis: PASS")
+          PY
+
+      - name: Upload protocol candidate bindings
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-sim-3-protocol-candidate
+          path: artifacts/janus-113-8-sim-3-protocol/
+          if-no-files-found: error
+          retention-days: 30
