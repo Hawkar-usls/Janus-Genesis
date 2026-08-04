@@ -40,8 +40,7 @@
         "VALID_JSON",
         "MALFORMED_JSON",
         "DUPLICATE_JSON_KEY",
-        "LINE_RESOURCE_LIMIT",
-        "CORPUS_RESOURCE_LIMIT"
+        "LINE_RESOURCE_LIMIT"
       ]
     },
     "input_case_sha256": {
@@ -98,7 +97,6 @@
         "REFUTED_MARKER",
         "REFUTED_SCHEMA",
         "REFUTED_RESOURCE_LIMIT",
-        "REFUTED_CORPUS_LIMIT",
         "REFUTED_JSON_DUPLICATE_KEY",
         "REFUTED_IDENTIFIER_COLLISION",
         "REFUTED_PROVENANCE_MISMATCH",
