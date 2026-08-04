@@ -282,8 +282,17 @@ def _adapt_case(case: Any) -> tuple[dict[str, Any] | None, str | None]:
         if not isinstance(value, str) or not 1 <= len(value) <= 256:
             return None, f"{field} is invalid"
     nonce = adapted.get("nonce")
-    if not isinstance(nonce, str) or not 1 <= len(nonce) <= 256:
-        return None, "nonce is invalid"
+    if adapted["provenance_mode"] == LEGACY_MODE:
+        nonce_is_historical_integer = (
+            isinstance(nonce, int)
+            and not isinstance(nonce, bool)
+            and 0 <= nonce <= (2**64 - 1)
+        )
+        nonce_is_bounded_text = isinstance(nonce, str) and 1 <= len(nonce) <= 256
+        if not (nonce_is_historical_integer or nonce_is_bounded_text):
+            return None, "legacy nonce is invalid"
+    elif not isinstance(nonce, str) or not 1 <= len(nonce) <= 256:
+        return None, "strict nonce is invalid"
     repository = adapted.get("source_repository")
     if not isinstance(repository, str) or len(repository) > 201 or not REPOSITORY.fullmatch(repository):
         return None, "source_repository is invalid"
