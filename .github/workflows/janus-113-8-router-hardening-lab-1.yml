@@ -1,0 +1,124 @@
+name: JANUS 113.8 Router Hardening Laboratory-1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py"
+      - "protocol/janus_113_8_router_hardening_lab_1.json"
+      - "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1.md"
+      - "sim/janus_113_8_sim2_router.py"
+      - ".github/workflows/janus-113-8-router-hardening-lab-1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  phase-a-pre-repair-contracts:
+    name: phase-a-confirm-frozen-findings-python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Prove router is still the pre-repair target
+        run: |
+          git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
+          echo "pre-repair router unchanged relative to main: PASS"
+
+      - name: Compile laboratory contract
+        run: |
+          python -m py_compile \
+            lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py
+
+      - name: Run contracts and require expected pre-repair failure
+        shell: bash
+        run: |
+          set +e
+          python -m unittest \
+            lab_contracts.janus_113_8_router_hardening_lab_1_expected_failures \
+            -v 2>&1 | tee lab-phase-a.log
+          status=${PIPESTATUS[0]}
+          set -e
+
+          if [ "$status" -eq 0 ]; then
+            echo "ERROR: all hardening contracts unexpectedly passed before repair"
+            exit 1
+          fi
+
+          python - <<'PY'
+          from pathlib import Path
+
+          text = Path("lab-phase-a.log").read_text(encoding="utf-8")
+          expected = [
+              "test_a04_provenance_metadata_must_bind_to_url",
+              "test_a05_prediction_hash_must_bind_complete_input_case",
+              "test_a06_duplicate_case_id_must_be_accounted_not_accepted_twice",
+              "test_a07_unicode_normalized_identifier_collision_must_be_rejected",
+              "test_a08_duplicate_json_key_must_produce_typed_rejection",
+              "test_a09_malformed_jsonl_line_must_not_abort_full_ledger",
+              "test_a10_resource_limit_must_not_collapse_into_unreachable_open",
+              "test_a11_redirect_target_must_be_revalidated",
+              "test_a12_query_or_fragment_must_be_rejected_as_noncanonical",
+              "test_a13_dot_segment_path_must_be_rejected_as_noncanonical",
+              "test_a14_strict_mode_must_require_full_commit_sha",
+          ]
+          missing = [name for name in expected if name not in text]
+          if missing:
+              raise SystemExit(f"missing contract executions: {missing}")
+          if "FAILED" not in text:
+              raise SystemExit("unittest did not record the required pre-repair FAILED state")
+          print("ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED")
+          PY
+
+      - name: Upload pre-repair failure transcript
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-113-8-router-hardening-lab-1-phase-a-python-${{ matrix.python-version }}
+          path: lab-phase-a.log
+          if-no-files-found: error
+          retention-days: 30
+
+  phase-a-contract-freeze:
+    name: phase-a-contract-and-safety-freeze
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out Genesis
+        uses: actions/checkout@v4
+
+      - name: Validate frozen protocol
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          protocol = json.loads(
+              Path("protocol/janus_113_8_router_hardening_lab_1.json").read_text(encoding="utf-8")
+          )
+          assert protocol["current_terminal"] == "ROUTER_HARDENING_LAB_1_SPEC_FROZEN"
+          assert protocol["next_action"] == "ADD_FAILING_REGRESSION_CONTRACTS_BEFORE_ROUTER_PATCH"
+          assert len(protocol["frozen_findings"]) == 10
+          assert protocol["frozen_boundary"] == "MOVABLE_GIT_TAG_ALLOWED_BY_SIM2_CONTRACT"
+          assert protocol["safety"]["owned_repository_only"] is True
+          assert protocol["safety"]["synthetic_and_local_fixtures_only"] is True
+          assert protocol["safety"]["real_network_read_during_lab_tests"] is False
+          assert protocol["safety"]["network_write"] is False
+          assert protocol["safety"]["runtime_authority"] == "NONE"
+          assert protocol["independence"]["organizational_independence"] is False
+          assert protocol["independence"]["sim3_external_author_requirement"] == "UNCHANGED"
+          print("ROUTER_HARDENING_LAB_1_CONTRACT_FREEZE_PASS")
+          PY
