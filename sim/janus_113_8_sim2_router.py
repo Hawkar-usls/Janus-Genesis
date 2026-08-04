@@ -182,26 +182,34 @@ def _url_gate(case: dict[str, Any]) -> tuple[str | None, str, str]:
     except ValueError as exc:
         return "REFUTED_NON_CANONICAL_URL", "NON_CANONICAL_SOURCE_URL", str(exc)
 
+    declared_repository = case.get("source_repository")
     declared_ref = case.get("source_ref")
-    mode = case.get("provenance_mode")
-    if mode == LEGACY_MODE:
-        # Historical SIM-2 intentionally tested floating refs and unreachable
-        # alternate paths. Preserve those terminals without pretending that the
-        # release-tag protocol had the strict v2 tuple-binding guarantee.
-        if observed_ref in UNPINNED_REFS or declared_ref in UNPINNED_REFS or observed_ref != declared_ref:
-            return "OPEN_UNPINNED_PROVENANCE", "LEGACY_MODE_FLOATING_REF", "legacy source ref is floating or mismatched"
-        return None, "LEGACY_SIM2_CANONICAL_ORIGIN", "historical SIM-2 canonical origin accepted without a strict tuple claim"
-
+    declared_path = case.get("source_path")
     if (
-        f"{owner}/{repository}" != case.get("source_repository")
+        f"{owner}/{repository}" != declared_repository
         or observed_ref != declared_ref
-        or observed_path != case.get("source_path")
+        or observed_path != declared_path
     ):
         return (
             "REFUTED_PROVENANCE_MISMATCH",
             "PROVENANCE_TUPLE_MISMATCH",
             "declared provenance does not equal the canonical URL tuple",
         )
+
+    mode = case.get("provenance_mode")
+    if mode == LEGACY_MODE:
+        if observed_ref in UNPINNED_REFS:
+            return (
+                "OPEN_UNPINNED_PROVENANCE",
+                "LEGACY_MODE_FLOATING_REF",
+                "legacy source ref is floating",
+            )
+        return (
+            None,
+            "LEGACY_SIM2_CANONICAL_ORIGIN",
+            "legacy release-tag provenance tuple is bound without a commit-immutability claim",
+        )
+
     if not isinstance(declared_ref, str) or not HEX40.fullmatch(declared_ref):
         return (
             "OPEN_UNPINNED_PROVENANCE",
