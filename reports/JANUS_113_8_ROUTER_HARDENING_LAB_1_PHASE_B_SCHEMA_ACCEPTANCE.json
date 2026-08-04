@@ -1,0 +1,80 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.phase_b_schema_acceptance.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-PHASE-B-SCHEMA-ACCEPTANCE-v1.0",
+  "accepted_local_time": "2026-08-05T00:41:00+03:00",
+  "accepted_utc": "2026-08-04T21:41:00Z",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 67,
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "human_reviewer": {
+    "name": "Hawkar",
+    "github_login": "Hawkar-usls",
+    "role": "LABORATORY_HUMAN_REVIEWER",
+    "review_result": "ACCEPTED_WITHOUT_FINDINGS"
+  },
+  "reviewed_schema_head_sha": "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8",
+  "reviewed_schema_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+  "reviewed_artifacts": [
+    "protocol/janus_113_8_router_hardening_repair_schema_v1.json",
+    "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA.md",
+    "schemas/janus_113_8_router_case_v2.schema.json",
+    "schemas/janus_113_8_router_prediction_v2.schema.json",
+    "schemas/janus_113_8_router_ledger_entry_v2.schema.json",
+    "schemas/janus_113_8_router_manifest_v2.schema.json",
+    "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_FREEZE_REPORT.json"
+  ],
+  "review_evidence": {
+    "laboratory_workflow_run_id": 30952782111,
+    "laboratory_workflow_run_number": 34,
+    "laboratory_workflow_conclusion": "success",
+    "all_observed_workflows_green": true,
+    "router_modified_during_schema_review": false
+  },
+  "accepted_findings": {
+    "a04_through_a14_have_explicit_repair_paths": true,
+    "malformed_lines_remain_in_witness_ledger": true,
+    "duplicate_and_unicode_collisions_are_typed_and_preserved": true,
+    "url_gate_precedes_network_read": true,
+    "redirect_target_is_revalidated": true,
+    "resource_refusal_is_distinct_from_transport_open": true,
+    "legacy_and_strict_provenance_modes_remain_distinct": true,
+    "historical_sim2_artifacts_are_not_rewritten": true,
+    "prediction_hash_binds_exact_line_and_canonical_case": true,
+    "corpus_refusal_cannot_claim_completed_conservation": true,
+    "deterministic_outputs_contain_no_wall_clock_fields": true,
+    "sim3_external_author_requirement_remains_unchanged": true
+  },
+  "review_findings": [],
+  "frozen_schema_mutated_by_acceptance": false,
+  "router_patch_present_at_acceptance": false,
+  "router_patch_allowed_after_acceptance": true,
+  "implementation_authority": {
+    "scope": "MINIMAL_PROOF_CARRYING_ROUTER_REPAIR_ONLY",
+    "target": "sim/janus_113_8_sim2_router.py",
+    "phase_b_contract_required": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
+    "local_and_synthetic_fixtures_only": true,
+    "human_review_before_merge": true,
+    "runtime_authority": "NONE"
+  },
+  "safety": {
+    "owned_repository_only": true,
+    "real_network_read_during_lab_tests": false,
+    "network_write": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "nas_access": false,
+    "device_access": false,
+    "runtime_authority": "NONE"
+  },
+  "independence": {
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_acceptance": false
+  },
+  "terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
+  "next_action": "IMPLEMENT_MINIMAL_ROUTER_REPAIR_WITH_SEPARATE_PHASE_B_CONTRACT",
+  "claim_boundary": "This acceptance authorizes a bounded internal implementation attempt against the frozen repair schema. It does not prove that the router is repaired, does not admit Laboratory-1, and does not satisfy SIM-3 organizational independence."
+}
