@@ -82,8 +82,8 @@ class RouterHardeningExpectedFailures(unittest.TestCase):
         self.assertEqual(result["decision_terminal"], "REFUTED_PROVENANCE_MISMATCH")
 
     def test_a05_prediction_hash_must_bind_complete_input_case(self) -> None:
-        case_a = canonical_case(case_id="case-a")
-        case_b = canonical_case(case_id="case-b")
+        case_a = canonical_case(case_id="same-visible-case")
+        case_b = canonical_case(case_id="same-visible-case")
         case_b["nonce"] = "different-nonce"
         result_a = router.evaluate_case(case_a, fetcher=lambda _: GOOD_BYTES)
         result_b = router.evaluate_case(case_b, fetcher=lambda _: GOOD_BYTES)
