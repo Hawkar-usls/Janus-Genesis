@@ -8,7 +8,7 @@ on:
       - "protocol/janus_113_8_router_hardening_lab_1.json"
       - "protocol/janus_113_8_router_hardening_repair_schema_v1.json"
       - "schemas/janus_113_8_router_*_v2.schema.json"
-      - "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_*"
+      - "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_*"
       - "docs/JANUS_113_8_ROUTER_HARDENING_LAB_1*.md"
       - "sim/janus_113_8_sim2_router.py"
       - ".github/workflows/janus-113-8-router-hardening-lab-1.yml"
@@ -150,7 +150,7 @@ jobs:
           git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
           echo "router patch absent during repair-schema review: PASS"
 
-      - name: Validate schema JSON, hashes, and frozen invariants
+      - name: Validate schema JSON, hashes, report, and frozen invariants
         run: |
           python - <<'PY'
           import hashlib
@@ -165,6 +165,11 @@ jobs:
                   encoding="utf-8"
               )
           )
+          report = json.loads(
+              Path(
+                  "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_B_SCHEMA_FREEZE_REPORT.json"
+              ).read_text(encoding="utf-8")
+          )
 
           expected_terminal = "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW"
           assert lab["current_terminal"] == expected_terminal
@@ -175,14 +180,29 @@ jobs:
           assert repair["router_patch_present"] is False
           assert repair["router_patch_allowed_now"] is False
           assert repair["next_action"] == "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH"
+          assert report["terminal"] == expected_terminal
+          assert report["evidence_head_sha"] == "c7e9520eff4b70718161946a6818a2657ea1fafd"
+          assert report["workflow"]["run_id"] == 30952500694
+          assert report["workflow"]["conclusion"] == "success"
+          assert report["target"]["modified_relative_to_main"] is False
+          assert report["target"]["repair_started"] is False
+          assert report["review_gate"]["router_patch_allowed_now"] is False
 
+          computed_hashes = {}
           for artifact in repair["frozen_schema_artifacts"].values():
               path = Path(artifact["path"])
               data = path.read_bytes()
-              assert hashlib.sha256(data).hexdigest() == artifact["sha256_utf8"], path
+              digest = hashlib.sha256(data).hexdigest()
+              computed_hashes[str(path)] = digest
+              assert digest == artifact["sha256_utf8"], path
               parsed = json.loads(data.decode("utf-8"))
               assert parsed["$schema"] == "https://json-schema.org/draft/2020-12/schema"
               assert parsed["additionalProperties"] is False
+
+          report_hashes = {
+              item["path"]: item["sha256_utf8"] for item in report["frozen_contract"]["schemas"]
+          }
+          assert computed_hashes == report_hashes
 
           case_schema = json.loads(
               Path("schemas/janus_113_8_router_case_v2.schema.json").read_text(encoding="utf-8")
