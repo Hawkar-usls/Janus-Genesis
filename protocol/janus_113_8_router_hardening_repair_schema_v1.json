@@ -1,0 +1,255 @@
+{
+  "schema": "janus.genesis.router_hardening_repair_schema.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-PHASE-B-SCHEMA-v1.0",
+  "frozen_local_time": "2026-08-05T00:17:00+03:00",
+  "role": "JANUS_LAB_AGENT",
+  "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+  "runtime_authority": "NONE",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "target": "sim/janus_113_8_sim2_router.py",
+  "parent_evidence": {
+    "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+    "evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "workflow_run_id": 30946545140,
+    "phase_a_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_PHASE_A_RESULT.json",
+    "router_modified_in_phase_a": false
+  },
+  "frozen_schema_artifacts": {
+    "public_case_v2": {
+      "path": "schemas/janus_113_8_router_case_v2.schema.json",
+      "sha256_utf8": "44d3b2f7e05f7faa7ad198f67f3a3fcda889ee28f9f5db0ba4903ee178ac0177"
+    },
+    "prediction_v2": {
+      "path": "schemas/janus_113_8_router_prediction_v2.schema.json",
+      "sha256_utf8": "093188bf9442609b009a74f6582b66826c53918b2c44ab33edb7c75732e043e9"
+    },
+    "ledger_entry_v2": {
+      "path": "schemas/janus_113_8_router_ledger_entry_v2.schema.json",
+      "sha256_utf8": "00f474d716647876fa70cb8ecc6cca06f2b4b1220ec8f696afea2ff3346dc0b0"
+    },
+    "manifest_v2": {
+      "path": "schemas/janus_113_8_router_manifest_v2.schema.json",
+      "sha256_utf8": "ba22a318c0ea4f1852b1e8c0c7361ca34b284c8a0526dc6967ca58f7cbc44411"
+    }
+  },
+  "compatibility": {
+    "historical_input_schema": "janus.genesis.sim2.public_case.v1",
+    "historical_mode": "LEGACY_SIM2_RELEASE_TAG",
+    "hardened_input_schema": "janus.genesis.router.public_case.v2",
+    "future_default_mode": "STRICT_IMMUTABLE_COMMIT",
+    "v1_adapter_rule": "A valid historical v1 case is evaluated without adding or changing claim data; the adapter assigns LEGACY_SIM2_RELEASE_TAG internally and emits v2 prediction/ledger/manifest records.",
+    "historical_artifacts_rewritten": false,
+    "retroactive_commit_immutability_claim": false,
+    "phase_a_contract_file_mutated": false
+  },
+  "resource_limits": {
+    "max_public_source_bytes": 300000,
+    "max_input_file_bytes": 16777216,
+    "max_nonempty_lines": 10000,
+    "max_jsonl_line_bytes": 65536,
+    "max_string_characters": 4096,
+    "max_json_nesting_depth": 16,
+    "max_object_members": 64,
+    "network_timeout_seconds": 20,
+    "network_retry_count": 3
+  },
+  "ingestion": {
+    "encoding": "UTF-8",
+    "blank_lines": "IGNORED_AND_NOT_COUNTED",
+    "nonempty_line_rule": "Each non-empty line within an accepted corpus receives exactly one ordinal, input_line_sha256, prediction record, and Witness Ledger entry.",
+    "duplicate_key_detection": "REQUIRED_AT_EVERY_JSON_OBJECT_DEPTH_BEFORE_OBJECT_CONSTRUCTION",
+    "malformed_line_behavior": "REFUTED_SCHEMA with parse_status MALFORMED_JSON; later lines continue.",
+    "duplicate_key_behavior": "REFUTED_JSON_DUPLICATE_KEY with parse_status DUPLICATE_JSON_KEY; no network read.",
+    "line_limit_behavior": "REFUTED_RESOURCE_LIMIT with parse_status LINE_RESOURCE_LIMIT; no JSON parse and no network read.",
+    "corpus_limit_behavior": "The run manifest receives REFUTED_CORPUS_LIMIT and must not claim input_complete or line_conservation unless independently established.",
+    "silent_line_drop": false
+  },
+  "identifier_rules": {
+    "comparison_normalization": "Unicode NFC",
+    "case_id_collision_scope": "one complete corpus",
+    "collision_behavior": "The first occurrence keeps its ordinary result; every later raw or NFC-equivalent occurrence receives REFUTED_IDENTIFIER_COLLISION and remains in the ledger.",
+    "normalized_case_id_output_required": true,
+    "provenance_fields_must_be_nfc": true
+  },
+  "canonical_url_gate": {
+    "scheme": "https",
+    "host": "raw.githubusercontent.com",
+    "host_case": "lowercase exact",
+    "userinfo_allowed": false,
+    "explicit_port_allowed": false,
+    "query_allowed": false,
+    "fragment_allowed": false,
+    "empty_path_segments_allowed": false,
+    "dot_segments_allowed": false,
+    "decoded_slash_or_backslash_inside_segment_allowed": false,
+    "nul_allowed": false,
+    "percent_encoding": "Decode each segment exactly once, reject invalid or non-canonical escapes, re-encode with RFC3986 unreserved safe set -._~, and require exact round-trip equality.",
+    "tuple_binding": [
+      "source_repository owner",
+      "source_repository repository",
+      "source_ref",
+      "source_path"
+    ],
+    "mismatch_terminal": "REFUTED_PROVENANCE_MISMATCH",
+    "noncanonical_terminal": "REFUTED_NON_CANONICAL_URL",
+    "untrusted_origin_terminal": "SAFETY_BLOCK_UNTRUSTED_SOURCE",
+    "network_read_before_gate": false
+  },
+  "provenance_modes": {
+    "LEGACY_SIM2_RELEASE_TAG": {
+      "allowed_for": "historical SIM-2 compatibility and explicit compatibility tests",
+      "forbidden_refs": [
+        "main",
+        "master",
+        "HEAD"
+      ],
+      "immutability_claim": false
+    },
+    "STRICT_IMMUTABLE_COMMIT": {
+      "source_ref_pattern": "^[0-9a-f]{40}$",
+      "required_for": "future held-out and SIM-3 challenge inputs",
+      "failure_terminal": "OPEN_UNPINNED_PROVENANCE",
+      "reason_code": "STRICT_MODE_REQUIRES_FULL_COMMIT"
+    }
+  },
+  "redirect_and_fetch": {
+    "request_method": "GET",
+    "network_write": false,
+    "allowed_origin": "https://raw.githubusercontent.com",
+    "final_response_url_revalidation": true,
+    "final_url_must_bind_original_tuple": true,
+    "redirect_failure_terminal": "SAFETY_BLOCK_REDIRECT_TARGET",
+    "source_size_failure_terminal": "REFUTED_RESOURCE_LIMIT",
+    "transport_failure_terminal": "OPEN_SOURCE_UNREACHABLE",
+    "typed_exception_classes_required": [
+      "ResourceLimitError",
+      "RedirectTargetError",
+      "SourceReadError"
+    ]
+  },
+  "terminal_precedence": [
+    "RUN_LEVEL_CORPUS_GATE",
+    "LINE_RESOURCE_GATE",
+    "JSON_PARSE_AND_DUPLICATE_KEY_GATE",
+    "CASE_SCHEMA_GATE",
+    "NORMALIZED_IDENTIFIER_COLLISION_GATE",
+    "URL_ORIGIN_AND_CANONICALITY_GATE",
+    "PROVENANCE_TUPLE_AND_PINNING_GATE",
+    "CONFLICTING_CLAIM_GATE",
+    "FETCH_AND_REDIRECT_GATE",
+    "OBSERVED_HASH_SIZE_MARKER_CHECKS",
+    "SUPPORTED_PUBLIC_PROVENANCE"
+  ],
+  "per_case_terminals": {
+    "supported": [
+      "SUPPORTED_PUBLIC_PROVENANCE"
+    ],
+    "refuted": [
+      "REFUTED_HASH",
+      "REFUTED_SIZE",
+      "REFUTED_MARKER",
+      "REFUTED_SCHEMA",
+      "REFUTED_RESOURCE_LIMIT",
+      "REFUTED_JSON_DUPLICATE_KEY",
+      "REFUTED_IDENTIFIER_COLLISION",
+      "REFUTED_PROVENANCE_MISMATCH",
+      "REFUTED_NON_CANONICAL_URL"
+    ],
+    "open": [
+      "OPEN_SOURCE_UNREACHABLE",
+      "OPEN_UNPINNED_PROVENANCE",
+      "OPEN_CONFLICTING_CLAIMS"
+    ],
+    "safety_block": [
+      "SAFETY_BLOCK_UNTRUSTED_SOURCE",
+      "SAFETY_BLOCK_REDIRECT_TARGET"
+    ]
+  },
+  "run_terminals": [
+    "COMPLETED",
+    "REFUTED_CORPUS_LIMIT"
+  ],
+  "hash_bindings": {
+    "canonical_json": "json.dumps(value, sort_keys=True, separators=(',', ':'), ensure_ascii=False)",
+    "input_line_sha256": "SHA256 exact non-empty UTF-8 line bytes without line terminator",
+    "input_case_sha256": "SHA256 canonical parsed case, or null when parsing is not unique or possible",
+    "prediction_body_sha256": "SHA256 canonical prediction fields excluding prediction_body_sha256 and prediction_sha256",
+    "prediction_sha256": "SHA256('JANUS_ROUTER_PREDICTION_V2\\n' || input_line_sha256 || '\\n' || (input_case_sha256 or 'NULL') || '\\n' || prediction_body_sha256)",
+    "ledger_entry_sha256": "SHA256('JANUS_ROUTER_LEDGER_V2\\n' || canonical ledger body)",
+    "ledger_genesis_prev_hash": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "witness_ledger": {
+    "one_entry_per_nonempty_line_for_completed_runs": true,
+    "ordinal_sequence": "0..N-1 without gaps",
+    "binds_input_line": true,
+    "binds_prediction": true,
+    "malformed_lines_preserved": true,
+    "duplicate_key_lines_preserved": true,
+    "collision_lines_preserved": true,
+    "rejected_lines_preserved": true,
+    "open_lines_preserved": true,
+    "safety_blocked_lines_preserved": true,
+    "completed_run_conservation_equation": "input_nonempty_line_count == prediction_count == ledger_entry_count == sum(parse_status_counts) == sum(decision_counts)"
+  },
+  "determinism": {
+    "wall_clock_fields_in_predictions": false,
+    "wall_clock_fields_in_ledger": false,
+    "wall_clock_fields_in_manifest": false,
+    "same_input_and_mocked_fetches_produce_byte_identical_outputs": true,
+    "dual_proofpacks_required": true
+  },
+  "phase_b_contract_policy": {
+    "phase_a_expected_failure_transcripts_remain_immutable": true,
+    "phase_a_contract_module_remains_historical": true,
+    "phase_b_contract_module": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
+    "phase_b_contracts_must_map_a04_through_a14": true,
+    "contract_deletion_or_weakening_after_router_patch": false,
+    "minimal_patch_only": true,
+    "source_separated_replay_required": true
+  },
+  "admission_gate": {
+    "phase_b_contracts_pass_on_python": [
+      "3.11",
+      "3.12",
+      "3.13"
+    ],
+    "all_15_gauntlet_vectors_accounted": true,
+    "baseline_controls_resisted": 4,
+    "false_acceptance": 0,
+    "completed_run_line_conservation": 1.0,
+    "ledger_replay": 1.0,
+    "dual_proofpacks_byte_identical": true,
+    "historical_sim2_compatibility_replayed": true,
+    "strict_commit_mode_replayed": true,
+    "human_review_before_merge": true
+  },
+  "safety": {
+    "owned_repository_only": true,
+    "synthetic_and_local_fixtures_only": true,
+    "real_network_read_during_lab_tests": false,
+    "network_write": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "autonomous_background_loop": false,
+    "real_syslog_ingest": false,
+    "nas_access": false,
+    "device_access": false,
+    "runtime_authority": "NONE",
+    "consciousness_status": "NOT_CLAIMED"
+  },
+  "independence": {
+    "internal_lab_agent": true,
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_phase_b": false
+  },
+  "router_patch_present": false,
+  "router_patch_allowed_now": false,
+  "current_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_FROZEN_FOR_REVIEW",
+  "next_action": "HUMAN_REVIEW_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH",
+  "next_terminal_on_acceptance": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED"
+}

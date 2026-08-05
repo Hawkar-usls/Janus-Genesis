@@ -1,0 +1,32 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.phase_a_plan.v1",
+  "laboratory": "ROUTER_HARDENING_LAB_1",
+  "role": "JANUS_LAB_AGENT",
+  "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+  "runtime_authority": "NONE",
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "pull_request": 67,
+  "target": "sim/janus_113_8_sim2_router.py",
+  "target_modified": false,
+  "contract_module": "lab_contracts/janus_113_8_router_hardening_lab_1_expected_failures.py",
+  "workflow": ".github/workflows/janus-113-8-router-hardening-lab-1.yml",
+  "contract_count": 11,
+  "phase": "PRE_REPAIR_EXPECTED_FAILURE",
+  "success_condition": "The unchanged router fails the frozen hardening contracts on Python 3.11, 3.12, and 3.13; every contract name appears in the preserved transcript; no real network access occurs.",
+  "safety": {
+    "owned_repository_only": true,
+    "local_fixtures_only": true,
+    "real_network_read": false,
+    "network_write": false,
+    "private_repository_access": false,
+    "secrets": false,
+    "external_actuation": false,
+    "runtime_authority": "NONE"
+  },
+  "independence": {
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED"
+  },
+  "current_terminal": "ROUTER_HARDENING_LAB_1_PHASE_A_CONTRACTS_COMMITTED",
+  "next_terminal_on_green_workflow": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED"
+}

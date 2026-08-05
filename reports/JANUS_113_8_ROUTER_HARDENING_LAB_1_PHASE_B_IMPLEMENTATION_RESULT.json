@@ -1,0 +1,235 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.phase_b_implementation_result.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-PHASE-B-IMPLEMENTATION-v1.0",
+  "recorded_local_time": "2026-08-05T01:23:30+03:00",
+  "recorded_utc": "2026-08-04T22:23:30Z",
+  "role": "JANUS_LAB_AGENT",
+  "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+  "runtime_authority": "NONE",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 67,
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "implementation_evidence_head_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2",
+  "parent_gates": {
+    "phase_a_terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+    "phase_a_evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "phase_a_target_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+    "repair_schema_terminal": "ROUTER_HARDENING_LAB_1_REPAIR_SCHEMA_ACCEPTED",
+    "reviewed_schema_head_sha": "bd48fe1116b4417ea6e56e7e7d8d2908923dd6c8",
+    "schema_review_result": "ACCEPTED_WITHOUT_FINDINGS"
+  },
+  "contract_first_order": {
+    "phase_b_contract": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py",
+    "contract_commit_sha": "bfbf1e3fcf43b1741e4c861c73c81a8d558e722d",
+    "router_target": "sim/janus_113_8_sim2_router.py",
+    "initial_router_patch_commit_sha": "0725c7f4731bf10f98327fb9731281e5102c58cc",
+    "contract_committed_before_router_patch": true,
+    "contract_test_count": 13,
+    "coordinates_mapped": [
+      "A04",
+      "A05",
+      "A06",
+      "A07",
+      "A08",
+      "A09",
+      "A10",
+      "A11",
+      "A12",
+      "A13",
+      "A14"
+    ]
+  },
+  "implementation": {
+    "router_version": "JANUS-113.8-HARDENED-ROUTER-v2.0",
+    "final_router_semantics_commit_sha": "51056feebb33c59e267d29a01bb01f74dd7e4cce",
+    "independent_evaluator_commit_sha": "fa550f7136cc069f500da526e79255716789125b",
+    "historical_sim2_contract_update_commit_sha": "03872248fe337498edcde02a3e227a96734fd40e",
+    "implemented_properties": [
+      "Historical SIM-2 v1 compatibility enters through an explicit legacy adapter.",
+      "Hardened v2 strict mode requires a full lowercase 40-hex commit SHA.",
+      "Duplicate JSON keys are rejected before object construction at every object depth.",
+      "Malformed JSONL processing is line-local and later witnesses continue.",
+      "Every non-empty line in a completed run receives one ordinal, prediction, and Witness Ledger entry.",
+      "Resource, redirect, and transport outcomes remain distinct typed terminals.",
+      "Strict v2 provenance binds repository, ref, path, and canonical URL before network read.",
+      "Final redirect targets are revalidated before response bytes are trusted.",
+      "Raw and Unicode NFC-equivalent case identifiers receive typed collision handling.",
+      "Prediction and ledger hashes use frozen domain-separated v2 formulas.",
+      "Deterministic router outputs contain no wall-clock fields.",
+      "Corpus refusal cannot claim completed line conservation."
+    ]
+  },
+  "implementation_correction_ledger": [
+    {
+      "observation": "A non-NFC case identifier was initially rejected before corpus collision accounting.",
+      "correction": "Preserve the raw identifier, compare identity under NFC, and retain the later collision in the ledger.",
+      "commit_sha": "cfa421703b1de3f2d7ed520a117c86bf50550ab5"
+    },
+    {
+      "observation": "Historical SIM-2 generated integer nonces while the hardened v2 schema requires text nonces.",
+      "correction": "Permit bounded historical integer nonces only inside the explicit legacy v1 adapter; strict v2 remains text-only.",
+      "commit_sha": "ec2eb1e2313146ead78b578b492cfb5cf13e99f8"
+    },
+    {
+      "observation": "Applying strict v2 tuple-binding semantics retroactively altered historical SIM-2 mutation terminals.",
+      "correction": "Keep strict tuple binding in v2 while preserving the admitted historical v1 release-tag semantics without claiming commit immutability.",
+      "commit_sha": "51056feebb33c59e267d29a01bb01f74dd7e4cce"
+    },
+    {
+      "observation": "Running the historical Agent Gauntlet-0 against the repaired router changed the original 10/4 finding record.",
+      "correction": "Bind Gauntlet-0 to an exact vendored snapshot of the pre-repair router and verify its Git blob SHA before replay; do not weaken or rewrite the historical expectations.",
+      "frozen_target_commit_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+      "frozen_target_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+      "vendored_snapshot": "gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py",
+      "final_binding_commit_sha": "673bbd8de9e2332c14c62ce1741252ec7d0ecbe2"
+    }
+  ],
+  "phase_b_contract_evidence": {
+    "workflow_name": "JANUS 113.8 Router Hardening Laboratory-1",
+    "workflow_run_id": 30956071692,
+    "workflow_run_number": 50,
+    "conclusion": "success",
+    "python_results": {
+      "3.11": "PASS",
+      "3.12": "PASS",
+      "3.13": "PASS"
+    },
+    "historical_phase_a_replay_python_results": {
+      "3.11": "EXPECTED_PRE_REPAIR_FAILURE_REPRODUCED",
+      "3.12": "EXPECTED_PRE_REPAIR_FAILURE_REPRODUCED",
+      "3.13": "EXPECTED_PRE_REPAIR_FAILURE_REPRODUCED"
+    },
+    "artifacts": [
+      {
+        "python": "3.11",
+        "artifact_id": 8911071909,
+        "zip_sha256": "5f70999135b6fb14e1802068f998dd652d5fe11eacd4500dfd0f58509015905e"
+      },
+      {
+        "python": "3.12",
+        "artifact_id": 8911054704,
+        "zip_sha256": "56578642a7f8614c23e3246de6f52050239d6b7e9ba1490e266409d5a951c849"
+      },
+      {
+        "python": "3.13",
+        "artifact_id": 8911069680,
+        "zip_sha256": "96cc4dec6499dd0d318b4127121007517a7fd2b520081ccb6781c89e7a1a3c36"
+      }
+    ]
+  },
+  "historical_gauntlet_evidence": {
+    "workflow_name": "JANUS 113.8 Agent Gauntlet-0",
+    "workflow_run_id": 30956071734,
+    "workflow_run_number": 15,
+    "conclusion": "success",
+    "target_commit_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "target_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+    "target_source_sha256": "3e53d90add1ad7398b6aba6242323628546b0dce46d8ff78881fa8d6d311ac43",
+    "attack_count": 15,
+    "status_counts": {
+      "BOUNDARY_CONFIRMED": 1,
+      "FINDING": 10,
+      "RESISTED": 4
+    },
+    "terminal": "JANUS_113.8_AGENT_GAUNTLET_0_COMPLETED_WITH_FINDINGS",
+    "attack_results_sha256": "807e8c6f895f06870bba903aae6d0a90fde03ec69066681fa72b5792767df6a6",
+    "attack_ledger_sha256": "3165f3db05aaed4a501d7fcea6fe6b0b14409a6c18f48cfc36aefcaf3aa535b7",
+    "finding_catalog_sha256": "210bff9e22a3cc306c6927a1c994b91d7a89f3ad099fd36da629409cc3801f90",
+    "replay_digest_sha256": "b7950eecd8de5047dd5921bd989d2d7c66d227dc6eff88a6164a60d05e0094f3",
+    "final_ledger_hash": "dc0014afc1777f8f942c4dc44f9d54078f51735de5801de874749df8320e5067",
+    "dual_runs_byte_identical": true,
+    "real_network_read": false,
+    "artifact_id": 8911071538,
+    "artifact_zip_sha256": "a0808bd493d783b29920724f6de99ade6ea418968805182765e8b46eb2e56a16"
+  },
+  "historical_sim2_replay": {
+    "workflow_name": "JANUS 113.8 SIM-2",
+    "workflow_run_id": 30956071749,
+    "workflow_run_number": 13,
+    "conclusion": "success",
+    "source_count": 5,
+    "case_count": 200,
+    "mutation_class_count": 10,
+    "cases_per_mutation": 20,
+    "builder_runs": 2,
+    "router_runs": 2,
+    "independent_evaluator_runs": 2,
+    "terminal": "JANUS_113.8_SIM_2_ADMITTED",
+    "metrics": {
+      "truth_reconstruction_accuracy": 1.0,
+      "router_exact_terminal_accuracy": 1.0,
+      "false_acceptance_rate": 0.0,
+      "false_rejection_rate": 0.0,
+      "decisive_coverage": 1.0,
+      "brier_score": 0.00009999999999999996,
+      "expected_calibration_error": 0.01000000000000003
+    },
+    "line_conservation": 1.0,
+    "ledger_replay": 1.0,
+    "public_cases_sha256": "889d0cb14cfcb853f721eefaa0cc158abd244da1b91c51dd134aba007c3b263b",
+    "predictions_sha256": "d2f095f3cd83f058ac23be774e823d64624544aae04fa020192d2c193a23e5e0",
+    "witness_ledger_sha256": "554bb5ac659d2ea58ab122df15ae11012d46772bcabea7452c27a41583828f88",
+    "final_ledger_hash": "36824f47528957c2d600e08c57147c9d5a0b992b2718b432faf7a8cb746be424",
+    "replay_digest_sha256": "3a93b44f0056035b29daee10b5c529ab5e37dd9bc68a6be7b2c2fc41bf80f04b",
+    "dual_router_outputs_byte_identical": true,
+    "artifact_id": 8911098894,
+    "artifact_zip_sha256": "adb3744be4bedbd84f5c35e2ed831709cb78c956e426147d5da22b05994abcbe",
+    "next_terminal": "SIM_3_EXTERNAL_AUTHOR_VERIFIER_REQUIRED"
+  },
+  "all_workflows_on_implementation_evidence_head": {
+    "JANUS 113.8 Agent Gauntlet-0": "success",
+    "JANUS 113.8 Router Hardening Laboratory-1": "success",
+    "JANUS 113.8 SIM-2": "success",
+    "Genesis century lived audit": "success",
+    "AI Link Play": "success",
+    "Genesis Tests": "success",
+    "Threshold review precision": "success",
+    "Hosted Pilgrimage": "success",
+    "test": "success"
+  },
+  "candidate_gate": {
+    "all_15_gauntlet_vectors_accounted": true,
+    "pre_repair_findings_reproduced": 10,
+    "baseline_controls_resisted": 4,
+    "phase_b_contracts_pass_python_3_11_3_12_3_13": true,
+    "false_acceptance": 0.0,
+    "completed_run_line_conservation": 1.0,
+    "ledger_replay": 1.0,
+    "dual_proofpacks_byte_identical": true,
+    "historical_sim2_compatibility_replayed": true,
+    "strict_commit_mode_replayed": true,
+    "source_separated_replay_complete": true,
+    "human_review_before_merge_complete": false
+  },
+  "admission": {
+    "candidate_established": true,
+    "laboratory_admitted": false,
+    "merge_authorized": false,
+    "remaining_gate": "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE"
+  },
+  "safety": {
+    "owned_repository_only": true,
+    "synthetic_and_local_fixtures_only_for_phase_b_contracts": true,
+    "bounded_public_https_only_for_historical_sim2_replay": true,
+    "network_write": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "autonomous_background_loop": false,
+    "real_syslog_ingest": false,
+    "nas_access": false,
+    "device_access": false,
+    "runtime_authority": "NONE"
+  },
+  "independence": {
+    "internal_lab_agent": true,
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_this_candidate": false
+  },
+  "terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_CANDIDATE",
+  "next_action": "HUMAN_REVIEW_IMPLEMENTATION_EVIDENCE_BEFORE_MERGE",
+  "claim_boundary": "This result establishes an internally reproduced proof-carrying hardening candidate for the accepted A04-A14 repair contract. It does not merge or admit Laboratory-1, establish organizational independence, satisfy SIM-3, claim consciousness or personhood, or grant authority over live systems."
+}

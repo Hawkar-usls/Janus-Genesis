@@ -1,0 +1,117 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.a04_human_re_review_acceptance.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-A04-HUMAN-RE-REVIEW-v1.0",
+  "recorded_local_time": "2026-08-05T02:51:00+03:00",
+  "role": "HUMAN_IMPLEMENTATION_REVIEW",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 67,
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "reviewed_head_sha": "67205b078db8258b758ed35219487353041960d5",
+  "github_review_id": 4859874525,
+  "review_type": "COMMIT_ANCHORED_REVIEW_COMMENT",
+  "formal_self_approval_available": false,
+  "verdict": "ACCEPTED_WITHOUT_FINDINGS",
+  "review_scope": {
+    "blocking_finding": "A04_LEGACY_PROVENANCE_TUPLE_BYPASS",
+    "red_regression_commit_sha": "e175adbfcf04b78c808b98feeb06617e16b34781",
+    "minimal_router_repair_commit_sha": "20f399d1eae13827e4cafd1b4d78569c4980ef3a",
+    "repair_evidence_report": "reports/JANUS_113_8_ROUTER_HARDENING_LAB_1_A04_LEGACY_REPAIR_RESULT.json",
+    "router_path": "sim/janus_113_8_sim2_router.py",
+    "contract_path": "tests/test_janus_113_8_router_hardening_lab_1_phase_b.py"
+  },
+  "contract_first_evidence": {
+    "red_regression_precedes_repair": true,
+    "router_modified_in_red_regression_commit": false,
+    "red_workflow_run_id": 30958090460,
+    "red_python_results": {
+      "3.11": "FAILED_AS_EXPECTED",
+      "3.12": "FAILED_AS_EXPECTED",
+      "3.13": "FAILED_AS_EXPECTED"
+    },
+    "observed_pre_repair_failures": 2,
+    "coordinates": [
+      "LEGACY_SOURCE_REPOSITORY_MISMATCH",
+      "LEGACY_SOURCE_PATH_MISMATCH"
+    ]
+  },
+  "implementation_review": {
+    "semantic_repair_commit_count": 1,
+    "semantic_repair_files_changed": 1,
+    "full_repository_ref_path_binding_before_mode_split": true,
+    "legacy_repository_identity_relaxed": false,
+    "legacy_ref_identity_relaxed": false,
+    "legacy_path_identity_relaxed": false,
+    "legacy_full_commit_requirement_relaxed": true,
+    "legacy_commit_immutability_claim_relaxed": true,
+    "repository_mismatch_terminal": "REFUTED_PROVENANCE_MISMATCH",
+    "path_mismatch_terminal": "REFUTED_PROVENANCE_MISMATCH",
+    "fetch_calls_for_mismatch": 0,
+    "new_blocking_findings": [],
+    "new_non_blocking_findings": []
+  },
+  "green_evidence": {
+    "exact_head_workflow_runs": {
+      "JANUS 113.8 Agent Gauntlet-0": 30960246066,
+      "JANUS 113.8 Router Hardening Laboratory-1": 30960246071,
+      "JANUS 113.8 SIM-2": 30960246079,
+      "Genesis century lived audit": 30960246119,
+      "AI Link Play": 30960246097,
+      "Genesis Tests": 30960246072,
+      "Threshold review precision": 30960246080,
+      "Hosted Pilgrimage": 30960246117,
+      "test": 30960246094
+    },
+    "all_exact_head_workflows_success": true,
+    "phase_b_contract_test_count": 14,
+    "phase_b_python_results": {
+      "3.11": "PASS",
+      "3.12": "PASS",
+      "3.13": "PASS"
+    },
+    "source_separated_replay_complete": true,
+    "dual_outputs_byte_identical": true,
+    "ledger_replay": 1.0,
+    "completed_run_line_conservation": 1.0,
+    "false_acceptance": 0.0
+  },
+  "historical_evidence": {
+    "historical_sim2_target_commit_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+    "historical_sim2_target_git_blob_sha": "f3e39b62066420fbe35040bed25f5c3c291580c4",
+    "current_hardened_router_is_historical_sim2_target": false,
+    "historical_sim2_terminal": "JANUS_113.8_SIM_2_ADMITTED",
+    "historical_gauntlet_unchanged": true,
+    "historical_artifacts_rewritten": false
+  },
+  "accepted_previous_properties": [
+    "A05_THROUGH_A14",
+    "A09_WITNESS_LEDGER_CONSERVATION",
+    "TYPED_RESOURCE_AND_REDIRECT_OUTCOMES",
+    "NFC_COLLISION_ACCOUNTING",
+    "DOMAIN_SEPARATED_HASHING",
+    "DETERMINISTIC_OUTPUT",
+    "HISTORICAL_GAUNTLET_BINDING"
+  ],
+  "result": {
+    "blocking_finding_closed": true,
+    "human_re_review_complete": true,
+    "laboratory_admitted": true,
+    "merge_authorized": true,
+    "merge_executed": false
+  },
+  "independence": {
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_this_review": false
+  },
+  "safety": {
+    "owned_repository_only": true,
+    "network_write": false,
+    "file_deletion": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "runtime_authority": "NONE"
+  },
+  "terminal": "JANUS_113.8_ROUTER_HARDENING_LAB_1_ADMITTED",
+  "next_action": "AUTHOR_DECISION_TO_MERGE_PR_67",
+  "claim_boundary": "This human re-review admits Router Hardening Laboratory-1 and authorizes merge of PR #67. It does not execute the merge, establish organizational independence, satisfy SIM-3, or grant runtime authority."
+}

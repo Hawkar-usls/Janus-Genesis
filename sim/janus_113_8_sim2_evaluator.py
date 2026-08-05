@@ -2,8 +2,8 @@
 """Independent evaluator for JANUS 113.8 SIM-2 open-world calibration.
 
 This module imports neither the corpus builder nor the router. It independently
-re-fetches pinned public artifacts, reconstructs the expected terminal for every
-case, replays the witness ledger, and computes calibration metrics.
+re-fetches pinned public artifacts, reconstructs every expected terminal, and
+replays both historical v1 and hardened v2 prediction and Witness Ledger formats.
 """
 
 from __future__ import annotations
@@ -22,13 +22,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-VERSION = "JANUS-113.8-SIM-2-INDEPENDENT-EVALUATOR-v1.0"
+VERSION = "JANUS-113.8-SIM-2-INDEPENDENT-EVALUATOR-v2.0"
 ALLOWED_HOST = "raw.githubusercontent.com"
 UNPINNED_REFS = {"main", "master", "HEAD"}
 MAX_SOURCE_BYTES = 300_000
 TIMEOUT_SECONDS = 20
 RETRY_COUNT = 3
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
+PREDICTION_DOMAIN = "JANUS_ROUTER_PREDICTION_V2\n"
+LEDGER_DOMAIN = "JANUS_ROUTER_LEDGER_V2\n"
 
 
 def canonical_json(value: Any) -> str:
@@ -147,9 +149,7 @@ def _claim_shape_ok(claim: Any) -> bool:
     return alternate is None or (isinstance(alternate, str) and HEX64.fullmatch(alternate) is not None)
 
 
-def independent_terminal(
-    case: Any, cache: dict[str, bytes | Exception]
-) -> tuple[str, str]:
+def independent_terminal(case: Any, cache: dict[str, bytes | Exception]) -> tuple[str, str]:
     if not _case_shape_ok(case) or not _claim_shape_ok(case.get("claim") if isinstance(case, dict) else None):
         return "REFUTED_SCHEMA", "independent schema replay failed"
     claim = case["claim"]
@@ -199,7 +199,9 @@ def terminal_class(terminal: str) -> str:
     return "OPEN"
 
 
-def expected_calibration_error(probabilities: list[float], labels: list[int], bins: int = 10) -> tuple[float, list[dict[str, Any]]]:
+def expected_calibration_error(
+    probabilities: list[float], labels: list[int], bins: int = 10
+) -> tuple[float, list[dict[str, Any]]]:
     if len(probabilities) != len(labels) or not probabilities:
         raise ValueError("calibration vectors must be non-empty and aligned")
     rows: list[dict[str, Any]] = []
@@ -233,23 +235,62 @@ def expected_calibration_error(probabilities: list[float], labels: list[int], bi
     return ece, rows
 
 
-def verify_witness_ledger(predictions: list[dict[str, Any]], ledger: list[dict[str, Any]]) -> tuple[bool, str]:
+def _verify_prediction_v2(prediction: dict[str, Any], ordinal: int) -> tuple[bool, str]:
+    body = dict(prediction)
+    claimed_prediction_hash = body.pop("prediction_sha256", None)
+    claimed_body_hash = body.pop("prediction_body_sha256", None)
+    expected_body_hash = sha256_text(canonical_json(body))
+    if claimed_body_hash != expected_body_hash:
+        return False, f"prediction body hash mismatch at ordinal {ordinal}"
+    input_line_hash = prediction.get("input_line_sha256")
+    input_case_hash = prediction.get("input_case_sha256") or "NULL"
+    if not isinstance(input_line_hash, str):
+        return False, f"prediction input line hash missing at ordinal {ordinal}"
+    expected_prediction_hash = sha256_text(
+        PREDICTION_DOMAIN
+        + input_line_hash
+        + "\n"
+        + input_case_hash
+        + "\n"
+        + expected_body_hash
+    )
+    if claimed_prediction_hash != expected_prediction_hash:
+        return False, f"prediction hash mismatch at ordinal {ordinal}"
+    return True, expected_prediction_hash
+
+
+def verify_witness_ledger(
+    predictions: list[dict[str, Any]], ledger: list[dict[str, Any]]
+) -> tuple[bool, str]:
     if len(predictions) != len(ledger):
         return False, "prediction and ledger lengths differ"
     previous = "0" * 64
     for ordinal, (prediction, entry) in enumerate(zip(predictions, ledger, strict=True)):
-        prediction_body = dict(prediction)
-        claimed_prediction_hash = prediction_body.pop("prediction_sha256", None)
-        expected_prediction_hash = sha256_text(canonical_json(prediction_body))
-        if claimed_prediction_hash != expected_prediction_hash:
-            return False, f"prediction hash mismatch at ordinal {ordinal}"
-        expected_body = {
-            "ordinal": ordinal,
-            "case_id": prediction["case_id"],
-            "prediction_sha256": expected_prediction_hash,
-            "prev_hash": previous,
-        }
-        expected_hash = sha256_text(canonical_json(expected_body))
+        if prediction.get("schema") == "janus.genesis.router.prediction.v2":
+            ok, prediction_hash = _verify_prediction_v2(prediction, ordinal)
+            if not ok:
+                return False, prediction_hash
+            expected_body = {
+                "schema": "janus.genesis.router.ledger_entry.v2",
+                "ordinal": ordinal,
+                "input_line_sha256": prediction["input_line_sha256"],
+                "prediction_sha256": prediction_hash,
+                "prev_hash": previous,
+            }
+            expected_hash = sha256_text(LEDGER_DOMAIN + canonical_json(expected_body))
+        else:
+            prediction_body = dict(prediction)
+            prediction_hash = prediction_body.pop("prediction_sha256", None)
+            expected_prediction_hash = sha256_text(canonical_json(prediction_body))
+            if prediction_hash != expected_prediction_hash:
+                return False, f"prediction hash mismatch at ordinal {ordinal}"
+            expected_body = {
+                "ordinal": ordinal,
+                "case_id": prediction["case_id"],
+                "prediction_sha256": expected_prediction_hash,
+                "prev_hash": previous,
+            }
+            expected_hash = sha256_text(canonical_json(expected_body))
         if entry != {**expected_body, "entry_hash": expected_hash}:
             return False, f"ledger chain mismatch at ordinal {ordinal}"
         previous = expected_hash
@@ -280,11 +321,7 @@ def evaluate(
     ledger = read_jsonl(ledger_path)
 
     source_snapshots_match = canonical_json(independent_snapshots) == canonical_json(builder_snapshot)
-    stable_replay = {
-        "snapshots": builder_snapshot,
-        "public_cases": public_cases,
-        "truth": truth,
-    }
+    stable_replay = {"snapshots": builder_snapshot, "public_cases": public_cases, "truth": truth}
     builder_checks = {
         "source_snapshot_sha256": builder_manifest.get("source_snapshot_sha256")
         == sha256_text(snapshot_path.read_text(encoding="utf-8")),
@@ -297,7 +334,22 @@ def evaluate(
         "source_snapshots_match_independent_fetch": source_snapshots_match,
         "case_count": builder_manifest.get("case_count") == len(public_cases) == len(truth),
     }
+
     ledger_ok, final_ledger_hash = verify_witness_ledger(predictions, ledger)
+    manifest_is_v2 = router_manifest.get("schema") == "janus.genesis.router.manifest.v2"
+    if manifest_is_v2:
+        case_count_ok = (
+            router_manifest.get("run_terminal") == "COMPLETED"
+            and router_manifest.get("input_complete") is True
+            and router_manifest.get("line_conservation") is True
+            and router_manifest.get("input_nonempty_line_count") == len(public_cases)
+            and router_manifest.get("prediction_count") == len(predictions)
+            and router_manifest.get("ledger_entry_count") == len(ledger)
+            and len(predictions) == len(ledger) == len(public_cases)
+        )
+    else:
+        case_count_ok = router_manifest.get("case_count") == len(predictions)
+
     router_checks = {
         "public_cases_sha256": router_manifest.get("public_cases_sha256")
         == sha256_text(public_path.read_text(encoding="utf-8")),
@@ -307,7 +359,7 @@ def evaluate(
         == sha256_text(ledger_path.read_text(encoding="utf-8")),
         "final_ledger_hash": router_manifest.get("final_ledger_hash") == final_ledger_hash,
         "ledger_replay": ledger_ok,
-        "case_count": router_manifest.get("case_count") == len(predictions),
+        "case_count": case_count_ok,
         "valid_terminals_only": router_manifest.get("valid_terminals_only") is True,
     }
 
@@ -316,9 +368,7 @@ def evaluate(
     unique_case_ids = len({case["case_id"] for case in public_cases}) == len(public_cases)
     aligned_ids = set(truth_by_id) == set(prediction_by_id) == {case["case_id"] for case in public_cases}
 
-    cache: dict[str, bytes | Exception] = {
-        url: fetch_public_text(url) for url in independent_source_map
-    }
+    cache: dict[str, bytes | Exception] = {url: fetch_public_text(url) for url in independent_source_map}
     results: list[dict[str, Any]] = []
     for case in public_cases:
         independent, independent_reason = independent_terminal(case, cache)
@@ -360,7 +410,10 @@ def evaluate(
     decisive = [r for r in results if r["independent_class"] in {"SUPPORTED", "REFUTED"}]
     probabilities = [float(r["support_probability"]) for r in decisive]
     labels = [1 if r["independent_class"] == "SUPPORTED" else 0 for r in decisive]
-    brier_score = sum((probability - label) ** 2 for probability, label in zip(probabilities, labels, strict=True)) / len(decisive)
+    brier_score = sum(
+        (probability - label) ** 2
+        for probability, label in zip(probabilities, labels, strict=True)
+    ) / len(decisive)
     ece, calibration_bins = expected_calibration_error(probabilities, labels)
     decisive_coverage = sum(r["router_class"] in {"SUPPORTED", "REFUTED"} for r in decisive) / len(decisive)
 
@@ -390,18 +443,12 @@ def evaluate(
         "".join(canonical_json(item) + "\n" for item in results), encoding="utf-8"
     )
     (output_dir / "calibration_bins.json").write_text(
-        json.dumps(
-            {
-                "schema": "janus.genesis.sim2.calibration_bins.v1",
-                "bins": calibration_bins,
-            },
-            indent=2,
-        )
+        json.dumps({"schema": "janus.genesis.sim2.calibration_bins.v1", "bins": calibration_bins}, indent=2)
         + "\n",
         encoding="utf-8",
     )
     report = {
-        "schema": "janus.genesis.sim2.independent_evaluation_report.v1",
+        "schema": "janus.genesis.sim2.independent_evaluation_report.v2",
         "version": VERSION,
         "generated_utc": utc_now(),
         "terminal": terminal,
@@ -439,7 +486,7 @@ def evaluate(
         json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
     )
     summary = {
-        "schema": "janus.genesis.sim2.summary.v1",
+        "schema": "janus.genesis.sim2.summary.v2",
         "terminal": terminal,
         "admitted": admitted,
         "source_count": len(independent_snapshots),

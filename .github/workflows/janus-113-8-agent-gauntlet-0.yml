@@ -7,6 +7,7 @@ on:
       - "gauntlet/janus_113_8_agent_gauntlet_0.py"
       - "gauntlet/janus_113_8_agent_gauntlet_0_offline_runner.py"
       - "gauntlet/janus_113_8_agent_gauntlet_0_verifier.py"
+      - "gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py"
       - "gauntlet/__init__.py"
       - "tests/test_janus_113_8_agent_gauntlet_0.py"
       - "docs/JANUS_113_8_AGENT_GAUNTLET_0_SPEC.md"
@@ -15,6 +16,12 @@ on:
 
 permissions:
   contents: read
+
+env:
+  FROZEN_TARGET_COMMIT: 62092ceed79cefb5104933cbff3732450797c00f
+  FROZEN_TARGET_GIT_BLOB_SHA: f3e39b62066420fbe35040bed25f5c3c291580c4
+  FROZEN_SNAPSHOT: gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py
+  HISTORICAL_TARGET: .gauntlet-historical-root/sim/janus_113_8_sim2_router.py
 
 jobs:
   unit-contracts:
@@ -36,10 +43,11 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Compile gauntlet, offline runner, and verifier
+      - name: Compile gauntlet, frozen target, offline runner, and verifier
         run: |
           python -m py_compile \
             gauntlet/janus_113_8_agent_gauntlet_0.py \
+            gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py \
             gauntlet/janus_113_8_agent_gauntlet_0_offline_runner.py \
             gauntlet/janus_113_8_agent_gauntlet_0_verifier.py
 
@@ -61,10 +69,25 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Enforce read-only target
+      - name: Verify immutable historical target snapshot
         run: |
-          git diff --exit-code origin/main...HEAD -- sim/janus_113_8_sim2_router.py
-          echo "target router unchanged relative to main: PASS"
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+
+          source = Path(os.environ["FROZEN_SNAPSHOT"])
+          data = source.read_bytes()
+          git_blob = hashlib.sha1(f"blob {len(data)}\0".encode("ascii") + data).hexdigest()
+          assert git_blob == os.environ["FROZEN_TARGET_GIT_BLOB_SHA"]
+
+          target = Path(os.environ["HISTORICAL_TARGET"])
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_bytes(data)
+          print("GAUNTLET_0_HISTORICAL_TARGET_BINDING_PASS")
+          print(f"source_commit={os.environ['FROZEN_TARGET_COMMIT']}")
+          print(f"git_blob_sha={git_blob}")
+          PY
 
       - name: Run chamber A through canonical no-network runner
         run: |
@@ -73,7 +96,7 @@ jobs:
             --print-summary
           python -m gauntlet.janus_113_8_agent_gauntlet_0_verifier \
             --proofpack artifacts/gauntlet-a \
-            --repository-root . \
+            --repository-root .gauntlet-historical-root \
             --output artifacts/gauntlet-a/verification_report.json
 
       - name: Run chamber B through canonical no-network runner
@@ -83,7 +106,7 @@ jobs:
             --print-summary
           python -m gauntlet.janus_113_8_agent_gauntlet_0_verifier \
             --proofpack artifacts/gauntlet-b \
-            --repository-root . \
+            --repository-root .gauntlet-historical-root \
             --output artifacts/gauntlet-b/verification_report.json
 
       - name: Require byte-identical independent runs
@@ -98,6 +121,7 @@ jobs:
           python - <<'PY'
           import hashlib
           import json
+          import os
           from pathlib import Path
 
           root = Path("artifacts")
@@ -126,14 +150,16 @@ jobs:
                   }
 
           seal = {
-              "schema": "janus.genesis.agent_gauntlet0.ci_proofpack_manifest.v1",
+              "schema": "janus.genesis.agent_gauntlet0.ci_proofpack_manifest.v2",
               "terminal": manifest["terminal"],
               "attack_count": manifest["attack_count"],
               "status_counts": manifest["status_counts"],
               "replay_digest_sha256": manifest["replay_digest_sha256"],
               "final_ledger_hash": manifest["final_ledger_hash"],
               "dual_runs_byte_identical": True,
-              "target_router_modified": False,
+              "historical_target_commit": os.environ["FROZEN_TARGET_COMMIT"],
+              "historical_target_git_blob_sha": os.environ["FROZEN_TARGET_GIT_BLOB_SHA"],
+              "current_repaired_router_is_not_gauntlet_target": True,
               "canonical_runner": "gauntlet.janus_113_8_agent_gauntlet_0_offline_runner",
               "real_network_read": False,
               "sim3_effect": "NONE_EXTERNAL_AUTHOR_REQUIREMENT_UNCHANGED",

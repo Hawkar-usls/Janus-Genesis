@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 """Canonical no-network runner for JANUS 113.8 Agent Gauntlet-0.
 
-The frozen SIM-2 router's ``write_predictions`` function binds its default
-network fetcher at definition time. Several corpus-level attacks need that
-function to exercise parsing and ledger behavior. This runner temporarily
-replaces only ``write_predictions`` with an equivalent local-fixture version,
-while leaving ``evaluate_case`` and the target router source untouched.
+Gauntlet-0 is a historical experiment against the exact pre-repair SIM-2
+router preserved from commit 62092ceed79cefb5104933cbff3732450797c00f.
+It must not silently retarget itself to a later repaired router.
 
-Direct execution of the producer module is non-canonical. CI and proofpacks
-must use this runner so the declared ``REAL_NETWORK_READ = FALSE`` boundary is
-true in execution, not merely in metadata.
+Several corpus-level attacks need ``write_predictions`` to exercise parsing and
+ledger behavior. This runner temporarily replaces only that function with an
+equivalent local-fixture version. No real network access occurs.
 """
 
 from __future__ import annotations
@@ -23,14 +21,24 @@ from typing import Any, Iterator
 from unittest import mock
 
 from gauntlet import janus_113_8_agent_gauntlet_0 as producer
+from gauntlet import janus_113_8_sim2_router_frozen_pre_repair as frozen_router
 
-router = producer.router
+FROZEN_TARGET_COMMIT = "62092ceed79cefb5104933cbff3732450797c00f"
+FROZEN_TARGET_GIT_BLOB_SHA = "f3e39b62066420fbe35040bed25f5c3c291580c4"
+FROZEN_TARGET_PATH = "sim/janus_113_8_sim2_router.py"
+FROZEN_SNAPSHOT_PATH = "gauntlet/janus_113_8_sim2_router_frozen_pre_repair.py"
+
+# Every producer function resolves its module-global ``router`` at execution
+# time. Rebinding it here makes the historical target explicit and prevents a
+# repaired current router from rewriting the original 10/4 finding record.
+producer.router = frozen_router
+router = frozen_router
 canonical_json = producer.canonical_json
 sha256_text = producer.sha256_text
 
 
 def offline_write_predictions(input_path: Path, output_dir: Path) -> dict[str, Any]:
-    """Replay router corpus writing with the gauntlet's in-memory fixture only."""
+    """Replay the frozen router's corpus writer with an in-memory fixture only."""
 
     lines = [line for line in input_path.read_text(encoding="utf-8").splitlines() if line]
     cases = [json.loads(line) for line in lines]
@@ -94,6 +102,12 @@ def offline_write_predictions(input_path: Path, output_dir: Path) -> dict[str, A
             "runtime_authority": "NONE",
         },
         "gauntlet_adapter": "LOCAL_FIXTURE_ONLY",
+        "historical_target": {
+            "repository_path": FROZEN_TARGET_PATH,
+            "source_commit": FROZEN_TARGET_COMMIT,
+            "git_blob_sha": FROZEN_TARGET_GIT_BLOB_SHA,
+            "vendored_snapshot_path": FROZEN_SNAPSHOT_PATH,
+        },
     }
     (output_dir / "router_manifest.json").write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False) + "\n",

@@ -1,0 +1,187 @@
+{
+  "schema": "janus.genesis.router_hardening_lab.phase_a_result.v1",
+  "version": "JANUS-113.8-ROUTER-HARDENING-LAB-1-PHASE-A-v1.0",
+  "recorded_utc": "2026-08-04T20:20:00Z",
+  "role": "JANUS_LAB_AGENT",
+  "mode": "DEFENSIVE_SOFTWARE_VERIFICATION",
+  "laboratory": "ROUTER_HARDENING_LAB_1",
+  "runtime_authority": "NONE",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "pull_request": 67,
+  "branch": "research/janus-113-8-router-hardening-lab-1",
+  "evidence_head_sha": "62092ceed79cefb5104933cbff3732450797c00f",
+  "base_sha": "85269d58d13f70a25d0ad26fd5c5b87b278462e7",
+  "target": {
+    "path": "sim/janus_113_8_sim2_router.py",
+    "modified_relative_to_main": false,
+    "source_gauntlet": "JANUS_113.8_AGENT_GAUNTLET_0",
+    "source_gauntlet_merge_commit": "a2edaeef7470497b8bffdf8d3992d0212839f5b8"
+  },
+  "workflow": {
+    "name": "JANUS 113.8 Router Hardening Laboratory-1",
+    "run_id": 30946545140,
+    "run_number": 19,
+    "conclusion": "success",
+    "success_semantics": "The dedicated workflow succeeded because the unchanged pre-repair router failed the complete hardened contract suite in the expected, recorded way.",
+    "jobs": {
+      "contract_and_safety_freeze": {
+        "job_id": 92117835554,
+        "conclusion": "success"
+      },
+      "python_3_11": {
+        "job_id": 92117835609,
+        "conclusion": "success",
+        "tests_run": 11,
+        "unittest_failures": 11,
+        "unittest_errors": 1,
+        "terminal_observed": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+        "artifact": {
+          "id": 8907528054,
+          "name": "janus-113-8-router-hardening-lab-1-phase-a-python-3.11",
+          "size_bytes": 1704,
+          "zip_sha256": "8dac63d01d833c370370902bf6650cf275ea2d9d7d151c15322ba84ebedab7d0",
+          "expires_at": "2026-09-03T20:16:48Z"
+        }
+      },
+      "python_3_12": {
+        "job_id": 92117835631,
+        "conclusion": "success",
+        "tests_run": 11,
+        "unittest_failures": 11,
+        "unittest_errors": 1,
+        "terminal_observed": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+        "artifact": {
+          "id": 8907527503,
+          "name": "janus-113-8-router-hardening-lab-1-phase-a-python-3.12",
+          "size_bytes": 1688,
+          "zip_sha256": "a5cae6a0229e286428a9a64e61cfa0fa5a17c569f38da966405707f6c73a1e45",
+          "expires_at": "2026-09-03T20:16:47Z"
+        }
+      },
+      "python_3_13": {
+        "job_id": 92117835750,
+        "conclusion": "success",
+        "tests_run": 11,
+        "unittest_failures": 11,
+        "unittest_errors": 1,
+        "terminal_observed": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+        "artifact": {
+          "id": 8907528855,
+          "name": "janus-113-8-router-hardening-lab-1-phase-a-python-3.13",
+          "size_bytes": 1723,
+          "zip_sha256": "b78b2f299a49a5f143595970ff8f7e4ed56639400c7922c1d027308fff090530",
+          "expires_at": "2026-09-03T20:16:50Z"
+        }
+      }
+    }
+  },
+  "contract_result": {
+    "test_methods": 11,
+    "frozen_implementation_findings_reproduced": 10,
+    "frozen_contract_boundaries_exercised": 1,
+    "cross_python_result_identical_by_semantics": true,
+    "summary_each_python": "Ran 11 tests; FAILED (failures=11, errors=1)",
+    "ordinary_ci_broken_by_expected_failures": false
+  },
+  "observations": [
+    {
+      "coordinate": "A04",
+      "contract": "Provenance metadata must bind to the URL tuple.",
+      "required_terminal": "REFUTED_PROVENANCE_MISMATCH",
+      "pre_repair_observation": "SUPPORTED_PUBLIC_PROVENANCE"
+    },
+    {
+      "coordinate": "A05",
+      "contract": "Prediction digest must bind the complete canonical input case.",
+      "required_property": "Different nonce under otherwise identical visible output produces a different prediction digest and exposes input_case_sha256.",
+      "pre_repair_observation": "Both inputs produced prediction_sha256 5cadfdcdc0f590052c5b0054eaaf2b3c499ed699a51f2e0f7f158c9f02aa0567."
+    },
+    {
+      "coordinate": "A06",
+      "contract": "A duplicate case identifier remains accounted and becomes a typed collision.",
+      "required_terminal": "REFUTED_IDENTIFIER_COLLISION",
+      "pre_repair_observation": "The second duplicate was accepted as SUPPORTED_PUBLIC_PROVENANCE."
+    },
+    {
+      "coordinate": "A07",
+      "contract": "NFC/NFD-equivalent identifiers cannot coexist as distinct accepted cases.",
+      "required_terminal": "REFUTED_IDENTIFIER_COLLISION",
+      "pre_repair_observation": "The normalized collision was accepted as SUPPORTED_PUBLIC_PROVENANCE."
+    },
+    {
+      "coordinate": "A08",
+      "contract": "Duplicate JSON object keys receive a typed rejection.",
+      "required_terminal": "REFUTED_JSON_DUPLICATE_KEY",
+      "pre_repair_observation": "The duplicate-key object was accepted as SUPPORTED_PUBLIC_PROVENANCE."
+    },
+    {
+      "coordinate": "A09",
+      "contract": "A malformed JSONL line retains its ledger position and does not abort later cases.",
+      "required_terminal": "REFUTED_SCHEMA",
+      "pre_repair_observation": "json.decoder.JSONDecodeError aborted write_predictions at sim/janus_113_8_sim2_router.py line 210."
+    },
+    {
+      "coordinate": "A10",
+      "contract": "A bounded source-size failure receives a typed resource outcome.",
+      "required_terminal": "REFUTED_RESOURCE_LIMIT",
+      "pre_repair_observation": "OPEN_SOURCE_UNREACHABLE"
+    },
+    {
+      "coordinate": "A11",
+      "contract": "The final response URL after redirect is revalidated before bytes are trusted.",
+      "required_terminal": "SAFETY_BLOCK_REDIRECT_TARGET",
+      "pre_repair_observation": "SUPPORTED_PUBLIC_PROVENANCE"
+    },
+    {
+      "coordinate": "A12",
+      "contract": "Query and fragment ambiguity is rejected as non-canonical.",
+      "required_terminal": "REFUTED_NON_CANONICAL_URL",
+      "pre_repair_observation": "Both query and fragment variants were accepted as SUPPORTED_PUBLIC_PROVENANCE."
+    },
+    {
+      "coordinate": "A13",
+      "contract": "Dot-segment path ambiguity is rejected as non-canonical.",
+      "required_terminal": "REFUTED_NON_CANONICAL_URL",
+      "pre_repair_observation": "SUPPORTED_PUBLIC_PROVENANCE"
+    },
+    {
+      "coordinate": "A14",
+      "contract": "Strict immutable-commit mode requires a full 40-hex commit SHA while legacy SIM-2 release-tag evidence remains historical.",
+      "required_terminal": "OPEN_UNPINNED_PROVENANCE",
+      "pre_repair_observation": "REFUTED_SCHEMA because the strict provenance mode is not yet part of the router contract."
+    }
+  ],
+  "repository_workflows_on_evidence_head": {
+    "AI Link Play": "success",
+    "Hosted Pilgrimage": "success",
+    "Threshold review precision": "success",
+    "Genesis Tests": "success",
+    "Genesis century lived audit": "success",
+    "test": "success",
+    "JANUS 113.8 Router Hardening Laboratory-1": "success"
+  },
+  "safety": {
+    "owned_repository_only": true,
+    "local_and_synthetic_fixtures_only": true,
+    "real_network_read": false,
+    "network_write": false,
+    "private_repository_access": false,
+    "repository_secrets_available": false,
+    "file_deletion_by_test": false,
+    "self_modification": false,
+    "external_actuation": false,
+    "nas_access": false,
+    "device_access": false,
+    "runtime_authority": "NONE"
+  },
+  "independence": {
+    "internal_lab_agent": true,
+    "organizational_independence": false,
+    "sim3_external_author_requirement": "UNCHANGED",
+    "sim3_satisfied_by_this_result": false
+  },
+  "router_repair_status": "NOT_STARTED",
+  "terminal": "ROUTER_HARDENING_LAB_1_PRE_REPAIR_FAILURE_REPRODUCED",
+  "next_action": "FREEZE_REPAIR_SCHEMA_BEFORE_ROUTER_PATCH",
+  "claim_boundary": "This report proves reproducible pre-repair contract failure in a local defensive test harness. It does not prove a hardened router, external verification, organizational independence, SIM-3 admission, consciousness, personhood, or authority over live systems."
+}
