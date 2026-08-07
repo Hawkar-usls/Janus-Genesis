@@ -1,0 +1,314 @@
+{
+  "attack_sweep": {
+    "all_pass": true,
+    "cases": {
+      "anchor_after_assignment": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "canonicalization_not_frozen": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "canonicalization_frozen"
+        ],
+        "observed_candidate": false
+      },
+      "clock_integrity_fail": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "clock_integrity_valid"
+        ],
+        "observed_candidate": false
+      },
+      "clock_step_audit_fail": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "no_clock_step_in_window"
+        ],
+        "observed_candidate": false
+      },
+      "clock_step_fake_negative_J": {
+        "J_ns": -1100,
+        "P_gamma_ns": -100,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "candidate_before_assignment",
+          "photon_after_send",
+          "photon_control_positive",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "independent_anchor_audit_fail": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "independent_time_anchor_valid"
+        ],
+        "observed_candidate": false
+      },
+      "known_channel_leakage": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "no_known_channel_leakage"
+        ],
+        "observed_candidate": false
+      },
+      "monotonic_tamper": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "local_chain_valid"
+        ],
+        "observed_candidate": false
+      },
+      "multiple_candidate_slots": {
+        "J_ns": null,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "single_preregistered_candidate_slot",
+          "candidate_before_assignment",
+          "return_bundle_present",
+          "exact_future_information_identity",
+          "negative_J_beyond_margin",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "negative_J_inside_uncertainty": {
+        "J_ns": -50,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "local_chain_valid",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic",
+          "negative_J_beyond_margin"
+        ],
+        "observed_candidate": false
+      },
+      "not_same_local_clock": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "same_local_clock"
+        ],
+        "observed_candidate": false
+      },
+      "payload_mismatch": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "exact_future_information_identity",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "photon_not_positive": {
+        "J_ns": -1100,
+        "P_gamma_ns": 0,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "photon_control_positive"
+        ],
+        "observed_candidate": false
+      },
+      "previous_hash_link_tamper": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "local_chain_valid",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "raw_event_hash_tamper": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "local_chain_valid",
+          "exact_future_information_identity",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "raw_return_not_preserved": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "raw_return_preserved"
+        ],
+        "observed_candidate": false
+      },
+      "rng_independence_fail": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "rng_independence_audited"
+        ],
+        "observed_candidate": false
+      },
+      "semantic_class_mismatch": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "exact_future_information_identity",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "sequence_tamper": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "local_chain_valid",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "synthetic_valid_identity_fixture": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": true,
+        "failed_checks": [],
+        "observed_candidate": true
+      },
+      "target_assigned_before_candidate": {
+        "J_ns": -1000,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "candidate_before_assignment",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "target_dependent_decoder": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "target_independent_decoding"
+        ],
+        "observed_candidate": false
+      },
+      "unblinded_protocol": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "blind_protocol"
+        ],
+        "observed_candidate": false
+      },
+      "wrong_external_anchor": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      },
+      "nonce_mismatch": {
+        "J_ns": -1100,
+        "P_gamma_ns": 10000,
+        "correct": true,
+        "expected_candidate": false,
+        "failed_checks": [
+          "exact_future_information_identity",
+          "preassignment_commitment_anchored",
+          "anchor_precedes_assignment_monotonic"
+        ],
+        "observed_candidate": false
+      }
+    },
+    "cases_correct": 25,
+    "cases_total": 25
+  },
+  "epistemic_boundary": "This suite validates a protocol/verifier against synthetic and adversarial records. It does not test a physical tachyon, FTL channel, precognition or retrocausal information transfer.",
+  "method": {
+    "Fundamentum": "independent recomputation, explicit tamper attacks, full attack sweep; survival is not proof",
+    "Genesis": "canonical SHA-256, previous-hash lineage, local sequence and append-only event model"
+  },
+  "monte_carlo": {
+    "class_only": {
+      "expected_rate": 0.03125,
+      "matches": 31392,
+      "rate": 0.031392,
+      "trials": 1000000,
+      "z_approx": 0.8161264924096652
+    },
+    "full_256bit_identity": {
+      "ideal_expected_per_trial": 2.698802673467014e-79,
+      "matches": 0,
+      "trials": 2000000
+    },
+    "reduced_16bit_surrogate": {
+      "expected_matches": 4.76837158203125,
+      "matches": 5,
+      "trials": 10000000
+    },
+    "seed": 4408
+  },
+  "physical_gate": "BLOCKED_NO_ESTABLISHED_CHANNEL",
+  "schema": "JANUS/genesis-proof-carrying-semantic-return-test/v0.3.0",
+  "status": "PASS"
+}
