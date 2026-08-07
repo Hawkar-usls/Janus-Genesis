@@ -1,0 +1,108 @@
+{
+  "assertions": {
+    "NOT_loop_has_no_deterministic_fixed_point": true,
+    "SCOBY_memory_increment_obstructs_exact_closure": true,
+    "backdated_timestamp_cheat_rejected": true,
+    "odd_Dirac_toggle_obstructs_exact_closure": true,
+    "postselection_rejected": true,
+    "self_consistent_copy_not_independent": true,
+    "winding_increment_obstructs_exact_closure": true
+  },
+  "causal_trace_lab": {
+    "backdated_insert_cheat": {
+      "hash_chain_failures": [],
+      "hash_chain_valid": true,
+      "naive_negative_J": true,
+      "pre_return_physically_recorded_before_assignment_by_sequence": false,
+      "reason": "negative coordinate timestamp was created after SEND in monotonic execution order",
+      "result": "REJECT"
+    },
+    "independent_rng_null_16bit": {
+      "expected_matches": 7.62939453125,
+      "expected_rate": 1.52587890625e-05,
+      "matches": 5,
+      "rate": 1e-05,
+      "trials": 500000
+    },
+    "independent_rng_null_8bit": {
+      "expected_rate": 0.00390625,
+      "matches": 777,
+      "rate": 0.003885,
+      "trials": 200000,
+      "z_approx": -0.15235047314224745
+    },
+    "postselection_attack_8bit": {
+      "expected": 390.625,
+      "matching_pairs_available_for_cherry_pick": 379,
+      "pool_trials": 100000,
+      "reason": "selecting a matching pair after inspecting the pool is post-selection, not a preregistered pre-SEND return",
+      "result": "REJECT"
+    },
+    "self_consistent_copy_loop": {
+      "exact_match": true,
+      "interpretation": "self-consistent copy loop, not independent future information",
+      "pre_return": 13786,
+      "reason": "exact identity is obtained by making future target depend on the earlier loop state",
+      "result": "REJECT_AS_FUTURE_BITS_TEST",
+      "rng_independence": false,
+      "target_at_send": 13786
+    }
+  },
+  "epistemic_boundary": {
+    "algorithmic_CTC_model_tested": true,
+    "future_bits_physical_preexistence_observed": false,
+    "key_result": "Genesis can test consistency conditions and distinguish several simulator cheats; it cannot turn a software backdated event into evidence of physical retrocausality.",
+    "physical_CTC_tested": false,
+    "physical_FTL_tested": false
+  },
+  "fixed_point_lab": {
+    "classical_payload_fixed_points": {
+      "identity_8bit": 256,
+      "interpretation": "identity has every payload as a fixed point; nonzero XOR maps have no deterministic classical fixed point",
+      "not_8bit": 0,
+      "xor_00000001_8bit": 0
+    },
+    "deutsch_distribution_analog": {
+      "important_boundary": "distributional consistency does not provide a definite pre-existing payload bit",
+      "one_bit_NOT_stationary_distribution": {
+        "p0": 0.5,
+        "p1": 0.5
+      }
+    },
+    "janus_full_state_exact_search": {
+      "derived_obstructions": {
+        "combined_obstruction": true,
+        "even_Z2_only_restores_topological_fixed_points": true,
+        "material_memory_increment": true,
+        "odd_Z2_toggle": true,
+        "signed_winding_increment": true
+      },
+      "domain": {
+        "mu_values": [
+          0,
+          1,
+          2
+        ],
+        "payload_bits": 3,
+        "winding_values": [
+          -1,
+          0,
+          1
+        ]
+      },
+      "fixed_point_counts": {
+        "burovchik_winding_increment": 0,
+        "combined_odd_dirac_winding_scoby": 0,
+        "even_dirac_two_toggles": 144,
+        "identity_loop": 144,
+        "odd_dirac_toggle": 0,
+        "scoby_memory_increment": 0
+      },
+      "total_states": 144
+    }
+  },
+  "purpose": "Test algorithmic/simulated CTC fixed-point behavior and the JANUS causal-topological obstruction inside Genesis. This is not a physical FTL experiment.",
+  "schema": "JANUS/genesis-ctc-fixed-point-lab/v0.1.0",
+  "seed": 1138,
+  "status": "PASS"
+}
