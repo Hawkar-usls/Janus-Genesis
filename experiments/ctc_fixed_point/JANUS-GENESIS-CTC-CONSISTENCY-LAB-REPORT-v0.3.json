@@ -1,0 +1,202 @@
+{
+  "admission": {
+    "ALGORITHMIC_FIXED_POINT_MATH": true,
+    "BACKDATED_TIMESTAMP_IS_RETROCAUSALITY": false,
+    "FUTURE_BITS_PHYSICALLY_PREEXIST": false,
+    "MATERIAL_MEMORY_ALWAYS_OBSTRUCTS_CLOSURE": false,
+    "PHYSICAL_CTC_TESTED": false,
+    "PHYSICAL_FTL_TESTED": false,
+    "SIGNED_RECEIPT_PROVES_PROVENANCE": true,
+    "SIGNED_RECEIPT_PROVES_UNPREDICTABILITY": false,
+    "SIMULATED_CTC_CONSTRAINT_GRAPH": true,
+    "W_IS_SO3_TOPOLOGICAL_INVARIANT": false
+  },
+  "causal_graph_models": {
+    "backdated_timestamp": {
+      "classification": "ACYCLIC_RECORD_WITH_EDITED_COORDINATE_TIME",
+      "full_graph_cycle": false,
+      "retrocausality": false
+    },
+    "bootstrap_copy": {
+      "classification": "SELF_CONSISTENT_COPY_POSSIBLE_BUT_NOT_INDEPENDENT_FUTURE",
+      "full_graph_cycle": false,
+      "future_source_independent_of_pre_return": false
+    },
+    "idealized_ctc_constraint_graph": {
+      "classification": "CYCLIC_ONLY_BECAUSE_RETROCAUSAL_EDGE_IS_ASSUMED",
+      "full_graph_cycle": true,
+      "ordinary_subgraph_cycle": false,
+      "physical_instantiation": "NOT_ESTABLISHED"
+    },
+    "ordinary_forward": {
+      "classification": "ACYCLIC_FORWARD_MODEL",
+      "full_graph_cycle": false,
+      "ordinary_edges_cycle": false
+    }
+  },
+  "corrections_from_prior_versions": [
+    "Coordinate timestamps in software are model labels; they are not physical proper-time evidence.",
+    "W in Z is treated as an auxiliary signed history encoder, not as a new topological invariant of SO(3).",
+    "W -> W+1 and mu -> mu+1 are analyzed by exact equations rather than a truncated finite-domain count.",
+    "SCOBY/material memory is not assumed absolutely irreversible; affine relaxation can admit a fixed point.",
+    "The 1/2-1/2 NOT result is labeled a classical stochastic stationary distribution, not a full Deutsch quantum-CTC calculation.",
+    "A signed entropy receipt proves provenance/integrity, not unconditional unpredictability.",
+    "Future-information null bounds are stated in terms of conditional min-entropy at the PRE_RETURN freeze time."
+  ],
+  "entropy_provenance": {
+    "correct_status": "PROVENANCE_ATTESTED_UNPREDICTABILITY_REQUIRES_EXTERNAL_TRUST_AND_ENTROPY_AUDIT",
+    "signed_entropy_receipt_does_not_prove": [
+      "the authority private state was unknowable to every process before assignment",
+      "the host OS/hypervisor was uncompromised",
+      "the entropy source had the claimed conditional min-entropy",
+      "physical retrocausality"
+    ],
+    "signed_entropy_receipt_proves": [
+      "which authority key signed the receipt",
+      "which pre-return commitment hash the assignment was bound to",
+      "which bundle bytes the authority attested",
+      "receipt integrity against later modification"
+    ]
+  },
+  "fixed_point_math": {
+    "classical_not_stationary_distribution": {
+      "boundary": "classical Markov/stochastic consistency analog only",
+      "p0": "1/2",
+      "p1": "1/2"
+    },
+    "janus_closure": {
+      "burovchik_history_register": {
+        "W_plus_0_fixed_point_exists_over_Z": true,
+        "W_plus_1_fixed_point_exists_over_Z": false,
+        "boundary": "W is an auxiliary signed history counter/encoder. It is not an additional topological invariant of SO(3)."
+      },
+      "dirac_z2": {
+        "even_4pi_fixed_point_exists": true,
+        "interpretation": "pi_1(SO(3))=Z2: an odd toggle has no exact parity fixed point; two toggles restore the parity register.",
+        "odd_2pi_fixed_point_exists": false
+      },
+      "material_memory": {
+        "decay_without_stimulus": {
+          "fixed_point": "0",
+          "fixed_point_exists": true,
+          "map": "mu' = (1/2) mu"
+        },
+        "persistent_additive_case": {
+          "fixed_point": null,
+          "fixed_point_exists": false,
+          "map": "mu' = mu + 1"
+        },
+        "relaxing_case": {
+          "fixed_point": "2",
+          "fixed_point_exists": true,
+          "important_correction": "Material memory is an obstruction only when the net one-loop map has no fixed point within the physical state domain.",
+          "map": "mu' = (1/2) mu + 1"
+        }
+      },
+      "strong_closure_rule": "Exact closure requires every included physical/register component to satisfy its own fixed-point equation. Z2 reset alone is insufficient, but W or mu obstruct closure only if they are genuine retained state variables with no compensating reset/relaxation fixed point."
+    },
+    "payload": {
+      "identity_8bit_fixed_points": 256,
+      "not_8bit_fixed_points": 0,
+      "xor1_8bit_fixed_points": 0
+    }
+  },
+  "information_null": {
+    "ideal_256bit_one_million_trials": {
+      "conditional_min_entropy_bits": 256,
+      "exact_independent_uniform_familywise": 0.0,
+      "familywise_union_bound": 8.636168555094445e-72,
+      "per_trial_upper_bound": 8.636168555094445e-78,
+      "statement": "If H_inf(T | adversary_view_at_freeze) >= h, any fixed pre-return guess matches T with probability at most 2^-h per trial.",
+      "trials": 1000000
+    },
+    "ideal_256bit_single_trial": {
+      "conditional_min_entropy_bits": 256,
+      "exact_independent_uniform_familywise": 0.0,
+      "familywise_union_bound": 8.636168555094445e-78,
+      "per_trial_upper_bound": 8.636168555094445e-78,
+      "statement": "If H_inf(T | adversary_view_at_freeze) >= h, any fixed pre-return guess matches T with probability at most 2^-h per trial.",
+      "trials": 1
+    },
+    "monte_carlo_surrogates": {
+      "16bit": {
+        "bits": 16,
+        "expected_matches": 7.62939453125,
+        "expected_rate": 1.52587890625e-05,
+        "matches": 5,
+        "rate": 1e-05,
+        "trials": 500000,
+        "z_approx": -0.9519497670004415
+      },
+      "8bit": {
+        "bits": 8,
+        "expected_matches": 781.25,
+        "expected_rate": 0.00390625,
+        "matches": 777,
+        "rate": 0.003885,
+        "trials": 200000,
+        "z_approx": -0.15235047314224745
+      }
+    },
+    "semantic_class_policy": "Do not count semantic-class entropy toward the hard identity bound unless its conditional min-entropy is independently established; payload128+nonce128 alone supply the nominal 256-bit identity layer."
+  },
+  "next_gate": {
+    "critical_boundary": "Genesis can validate the protocol and mathematical consistency. A real negative-time or FTL claim requires a physical channel external to the simulator.",
+    "name": "JANUS INDEPENDENT-FUTURE BENCH GATE",
+    "requirements": [
+      "PRE_RETURN slot and raw bytes frozen before target generation",
+      "external or hardware-separated entropy source with measured/audited conditional min-entropy",
+      "signed provenance receipt bound to the PRE_RETURN commitment",
+      "independent append-only anchor outside the candidate process",
+      "single local acquisition order plus calibrated clock uncertainty",
+      "exact payload+nonce equality; no semantic post-selection",
+      "negative controls and independent replication"
+    ]
+  },
+  "purpose": "Correct the JANUS Genesis CTC sandbox so it distinguishes exact fixed-point mathematics, simulated causal graphs, entropy provenance, and physical claims.",
+  "report_sha256_without_self_hash": "b09c9bf84222ed56f020ff1e49d8a10b23ad2685242974b721f91bb69f47c2c1",
+  "schema": "JANUS/genesis-ctc-consistency-lab/v0.3.0",
+  "self_tests": {
+    "all_pass": true,
+    "mc16": {
+      "bits": 16,
+      "expected_matches": 7.62939453125,
+      "expected_rate": 1.52587890625e-05,
+      "matches": 5,
+      "rate": 1e-05,
+      "trials": 500000,
+      "z_approx": -0.9519497670004415
+    },
+    "mc8": {
+      "bits": 8,
+      "expected_matches": 781.25,
+      "expected_rate": 0.00390625,
+      "matches": 777,
+      "rate": 0.003885,
+      "trials": 200000,
+      "z_approx": -0.15235047314224745
+    },
+    "tests": {
+      "backdating_does_not_create_cycle": true,
+      "bootstrap_not_independent": true,
+      "classical_not_stationary_half_half": true,
+      "ideal_ctc_graph_cyclic": true,
+      "ideal_ctc_ordinary_subgraph_acyclic": true,
+      "integer_translation_nonzero_no_fixed_point": true,
+      "integer_translation_zero_fixed_point": true,
+      "mc16_sane_count": true,
+      "mc8_within_5sigma": true,
+      "ordinary_graph_acyclic": true,
+      "payload_identity_8bit_has_256": true,
+      "payload_not_8bit_has_zero": true,
+      "payload_xor1_8bit_has_zero": true,
+      "persistent_memory_increment_no_fixed_point": true,
+      "relaxing_memory_has_fixed_point_two": true,
+      "z2_even_fixed_point": true,
+      "z2_odd_no_fixed_point": true
+    },
+    "tests_passed": 17,
+    "tests_total": 17
+  },
+  "status": "PASS"
+}
