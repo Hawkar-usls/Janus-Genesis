@@ -274,11 +274,11 @@ def run_suite() -> dict[str, Any]:
     }
 
     cases["compromised_authority_private_state"] = {
-        "structurally_indistinguishable_from_valid_signed_transcript": true,
-        "detectable_from_transcript_alone": false,
+        "structurally_indistinguishable_from_valid_signed_transcript": True,
+        "detectable_from_transcript_alone": False,
         "classification": "UNRESOLVED_TRUST_BOUNDARY",
         "required_mitigation": "organizational/hardware separation, audited entropy source, external append-only anchoring, independent replication",
-        "correct": true
+        "correct": True,
     }
 
     all_pass = all(c.get("correct") is True for c in cases.values())
@@ -290,7 +290,7 @@ def run_suite() -> dict[str, Any]:
         "all_pass": all_pass,
         "cases": cases,
         "core_correction": "A signed receipt is a provenance primitive, not a proof of future unpredictability. Genesis therefore uses a two-tier verdict: structural candidate vs independent-future candidate.",
-        "physical_boundary": "No transcript generated inside Genesis can by itself establish physical FTL/retrocausality; the independent-future grade requires external physical trust premises and then independent replication."
+        "physical_boundary": "No transcript generated inside Genesis can by itself establish physical FTL/retrocausality; the independent-future grade requires external physical trust premises and then independent replication.",
     }
 
 
