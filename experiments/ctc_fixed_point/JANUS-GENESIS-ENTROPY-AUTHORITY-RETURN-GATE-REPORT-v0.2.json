@@ -1,0 +1,74 @@
+{
+  "attack_suite": {
+    "all_pass": true,
+    "cases": {
+      "honest_independent_entropy_no_match": {
+        "candidate": false,
+        "correct": true,
+        "expected": false,
+        "failed_checks": [
+          "exact_bundle_identity"
+        ]
+      },
+      "mutate_pre_return_after_authority_assignment": {
+        "candidate": false,
+        "correct": true,
+        "expected": false,
+        "failed_checks": [
+          "receipt:receipt_anchor"
+        ]
+      },
+      "query_authority_before_pre_return_then_backdate": {
+        "candidate": false,
+        "correct": true,
+        "expected": false,
+        "failed_checks": [
+          "event_order",
+          "receipt:receipt_anchor"
+        ]
+      },
+      "receipt_replay_on_changed_anchor": {
+        "candidate": false,
+        "correct": true,
+        "expected": false,
+        "failed_checks": [
+          "receipt:receipt_anchor",
+          "exact_bundle_identity"
+        ]
+      },
+      "wrong_authority_key_forgery": {
+        "candidate": false,
+        "correct": true,
+        "expected": false,
+        "failed_checks": [
+          "receipt:receipt_signature",
+          "exact_bundle_identity"
+        ]
+      }
+    },
+    "cases_correct": 5,
+    "cases_total": 5,
+    "oracle_peek_boundary": {
+      "bundle": {
+        "nonce_hex": "6e40",
+        "payload_hex": "a453",
+        "run_id": "oracle-peek",
+        "semantic_class": 0
+      },
+      "problem": "Without an external provenance receipt, a verifier cannot distinguish real preexistence from simulator foreknowledge.",
+      "structurally_possible_to_place_before_assignment": true
+    }
+  },
+  "epistemic_boundary": {
+    "physical_future_bits_preexistence_observed": false,
+    "physical_retrocausality_tested": false,
+    "software_entropy_provenance_architecture_tested": true
+  },
+  "schema": "JANUS/genesis-entropy-authority-return-gate/v0.2.0",
+  "status": "PASS",
+  "upgrade_from_v0_3": {
+    "new_requirement": "Target assignment must carry an Ed25519-signed receipt from a public key pinned before PRE_RETURN. The receipt binds run_id, the exact PRE_RETURN event hash, authority sequence, generated bundle and bundle digest.",
+    "old_weakness": "rng_independence_audited was a self-attested boolean and could be lied about by an oracle-peek simulator.",
+    "remaining_boundary": "If the candidate process controls or compromises the entropy authority/private key, software alone cannot prove unpredictability. Real experiments need organizational/hardware trust separation."
+  }
+}
