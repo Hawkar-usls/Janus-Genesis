@@ -1,0 +1,150 @@
+{
+  "all_pass": true,
+  "cases": {
+    "crash_recovery": [
+      {
+        "classification": "NO_NEW_COMMIT",
+        "eligible_after_external_reconciliation": false,
+        "event_durable": false,
+        "receipt_durable": false,
+        "witness_advanced": false
+      },
+      {
+        "classification": "RECOVERY_REQUIRED_EXTERNAL_AHEAD",
+        "eligible_after_external_reconciliation": false,
+        "event_durable": false,
+        "receipt_durable": false,
+        "witness_advanced": true
+      },
+      {
+        "classification": "RECOVERY_REQUIRED_EXTERNAL_AHEAD",
+        "eligible_after_external_reconciliation": false,
+        "event_durable": false,
+        "receipt_durable": true,
+        "witness_advanced": true
+      },
+      {
+        "classification": "PENDING_UNANCHORED",
+        "eligible_after_external_reconciliation": false,
+        "event_durable": true,
+        "receipt_durable": false,
+        "witness_advanced": false
+      },
+      {
+        "classification": "RECOVER_RECEIPT_FROM_WITNESS",
+        "eligible_after_external_reconciliation": true,
+        "event_durable": true,
+        "receipt_durable": false,
+        "witness_advanced": true
+      },
+      {
+        "classification": "COMMITTED",
+        "eligible_after_external_reconciliation": true,
+        "event_durable": true,
+        "receipt_durable": true,
+        "witness_advanced": true
+      }
+    ],
+    "fork": {
+      "first_branch": {
+        "epoch": 1,
+        "head": "7f12e86f1f8494c44d7567e9a914941b3e50376b4fea187023b6ea534e5f5107",
+        "ok": true,
+        "seq": 4
+      },
+      "second_branch": {
+        "latest_head": "7f12e86f1f8494c44d7567e9a914941b3e50376b4fea187023b6ea534e5f5107",
+        "latest_seq": 4,
+        "ok": false,
+        "reason": "NON_APPEND_OR_FORK"
+      }
+    },
+    "replay_after_rollback": {
+      "latest_head": "045a713a70934733df27ddd1f6ac0c87e5ad42b2227c74046a4e372d8fb257f0",
+      "latest_seq": 4,
+      "ok": false,
+      "reason": "NON_APPEND_OR_FORK"
+    },
+    "valid_prefix_rollback": [
+      {
+        "external_grade": "ROLLBACK_OR_STALE_PREFIX",
+        "local_valid": true,
+        "prefix_len": 0
+      },
+      {
+        "external_grade": "ROLLBACK_OR_STALE_PREFIX",
+        "local_valid": true,
+        "prefix_len": 1
+      },
+      {
+        "external_grade": "ROLLBACK_OR_STALE_PREFIX",
+        "local_valid": true,
+        "prefix_len": 2
+      },
+      {
+        "external_grade": "ROLLBACK_OR_STALE_PREFIX",
+        "local_valid": true,
+        "prefix_len": 3
+      },
+      {
+        "external_grade": "ROLLBACK_OR_STALE_PREFIX",
+        "local_valid": true,
+        "prefix_len": 4
+      },
+      {
+        "external_grade": "ROLLBACK_OR_STALE_PREFIX",
+        "local_valid": true,
+        "prefix_len": 5
+      }
+    ]
+  },
+  "checks": {
+    "all_stale_prefixes_rejected_by_external_freshness": true,
+    "all_valid_prefix_rollbacks_pass_local_verifier": true,
+    "canonical_external_freshness": true,
+    "canonical_local_chain_valid": true,
+    "clock_or_timestamp_alone_cannot_detect_valid_prefix_rollback": true,
+    "content_tamper_detected_locally": true,
+    "crash_state_machine_complete": true,
+    "external_monotonic_counter_detects_snapshot_regression": true,
+    "external_state_detects_same_snapshot_rollback": true,
+    "external_trial_registry_rejects_rollback_replay": true,
+    "fork_branches_both_locally_valid": true,
+    "old_signed_checkpoint_still_authentic": true,
+    "rollback_then_replay_is_locally_valid": true,
+    "same_snapshot_local_counter_cannot_detect_rollback": true,
+    "signature_alone_does_not_establish_freshness": true,
+    "single_external_head_rejects_second_fork": true,
+    "unanchored_or_external_ahead_never_auto_promoted": true
+  },
+  "checks_passed": 17,
+  "checks_total": 17,
+  "physical_boundary": "The lab establishes protocol/computer-science requirements only. It does not observe retrocausality, FTL, a CTC or future information.",
+  "protocol_rule": {
+    "name": "JANUS Temporal Continuity Gate",
+    "requirements": [
+      "Every PRE_RETURN freeze and target assignment must be bound to an append-only sequence and content hash.",
+      "At least one freshness root must live outside the rollback domain of the experiment host.",
+      "Old valid signatures are authenticity evidence, not freshness evidence.",
+      "Unanchored events remain PENDING and cannot become anomaly evidence.",
+      "If an external witness is ahead of local durable state after a crash, recovery must reconcile explicitly; the run is never silently accepted.",
+      "Trial identifiers/nonces must be replay-checked outside the rollback domain.",
+      "Forks/equivocation require an external single-head rule, consistency proof, gossip, or equivalent independent comparison.",
+      "Coordinate timestamps are not anti-rollback evidence."
+    ]
+  },
+  "schema": "JANUS/temporal-continuity-rollback-replay-lab/v0.1.0",
+  "status": "PASS",
+  "theorem": {
+    "name": "Temporal Snapshot Indistinguishability / External Freshness Requirement",
+    "novelty_boundary": "This is a standard rollback/secure-logging principle, not claimed as new computer-science mathematics. JANUS uses it as a mandatory real-world causal-evidence gate.",
+    "proof": [
+      "Let snapshot S be a state previously accepted by local verifier V.",
+      "A rollback adversary later restores exactly the same byte state S, including all local counters, keys, logs and metadata in the rollback domain.",
+      "V receives the same input state S as before; with fresh internal randomness its output distribution is the same function of S and those fresh coins, independent of the erased external history.",
+      "Therefore no purely local predicate over S can distinguish 'genuine old state' from 'rolled back to old state'.",
+      "Rollback detection requires freshness information outside the rollback domain: for example a non-rollbackable monotonic state, independent external witness/transparency log, or equivalent externally rooted continuity evidence."
+    ],
+    "statement": "If a verifier's complete trusted state is contained in a rollbackable snapshot, restoring a previously valid snapshot is locally indistinguishable from genuinely being at that earlier valid state. Hash chains and signatures can detect modification of a presented history but cannot, by themselves, prove that a newer valid suffix once existed and was later erased."
+  }
+}
