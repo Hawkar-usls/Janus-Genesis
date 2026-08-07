@@ -1,0 +1,92 @@
+{
+  "all_pass": true,
+  "cases": {
+    "backdated_coordinate_timestamp": {
+      "classification": "REJECTED_BY_PROTOCOL",
+      "correct": true,
+      "expected": "REJECTED_BY_PROTOCOL",
+      "failures": [
+        "ordinary_acquisition_order",
+        "receipt:pre_return_binding"
+      ],
+      "independent_future_candidate": false,
+      "recomputed_J_ns": -1200,
+      "recomputed_P_gamma_ns": 10000,
+      "structural_candidate": false,
+      "trust_admissible": false,
+      "trust_profile": {
+        "external_entropy_audit": false,
+        "externally_anchored_pre_return": false,
+        "separate_host_or_hardware": false,
+        "separate_process": true
+      }
+    },
+    "compromised_authority_private_state": {
+      "classification": "UNRESOLVED_TRUST_BOUNDARY",
+      "correct": true,
+      "detectable_from_transcript_alone": false,
+      "required_mitigation": "organizational/hardware separation, audited entropy source, external append-only anchoring, independent replication",
+      "structurally_indistinguishable_from_valid_signed_transcript": true
+    },
+    "honest_independent_forward_null": {
+      "classification": "REJECTED_BY_PROTOCOL",
+      "correct": true,
+      "expected": "REJECTED_BY_PROTOCOL because independent future bytes do not match by construction",
+      "failures": [
+        "exact_bundle_identity"
+      ],
+      "independent_future_candidate": false,
+      "recomputed_J_ns": -1200,
+      "recomputed_P_gamma_ns": 10000,
+      "structural_candidate": false,
+      "trust_admissible": false,
+      "trust_profile": {
+        "external_entropy_audit": false,
+        "externally_anchored_pre_return": false,
+        "separate_host_or_hardware": false,
+        "separate_process": true
+      }
+    },
+    "simulator_foreknowledge_with_valid_signature": {
+      "classification": "STRUCTURAL_MATCH_ONLY_ENTROPY_INDEPENDENCE_NOT_ESTABLISHED",
+      "correct": true,
+      "expected": "STRUCTURAL_MATCH_ONLY; must NOT promote to independent-future evidence",
+      "failures": [],
+      "independent_future_candidate": false,
+      "recomputed_J_ns": -1200,
+      "recomputed_P_gamma_ns": 10000,
+      "structural_candidate": true,
+      "trust_admissible": false,
+      "trust_profile": {
+        "external_entropy_audit": false,
+        "externally_anchored_pre_return": false,
+        "separate_host_or_hardware": false,
+        "separate_process": true
+      }
+    },
+    "synthetic_gate_logic_with_hypothetical_external_trust": {
+      "classification": "INDEPENDENT_FUTURE_CANDIDATE_REQUIRES_PHYSICAL_REPLICATION",
+      "correct": true,
+      "epistemic_warning": "This is a truth-table/self-test of the gate, not physical evidence and not evidence that the synthetic authority was unpredictable.",
+      "expected": "logic reaches candidate only when the external trust premises are asserted",
+      "failures": [],
+      "independent_future_candidate": true,
+      "recomputed_J_ns": -1200,
+      "recomputed_P_gamma_ns": 10000,
+      "structural_candidate": true,
+      "trust_admissible": true,
+      "trust_profile": {
+        "external_entropy_audit": true,
+        "externally_anchored_pre_return": true,
+        "separate_host_or_hardware": true,
+        "separate_process": true
+      }
+    }
+  },
+  "cases_correct": 5,
+  "cases_total": 5,
+  "core_correction": "A signed receipt is a provenance primitive, not a proof of future unpredictability. Genesis therefore uses a two-tier verdict: structural candidate vs independent-future candidate.",
+  "physical_boundary": "No transcript generated inside Genesis can by itself establish physical FTL/retrocausality; the independent-future grade requires external physical trust premises and then independent replication.",
+  "schema": "JANUS/genesis-independent-future-gate/v0.4.0",
+  "status": "PASS"
+}
