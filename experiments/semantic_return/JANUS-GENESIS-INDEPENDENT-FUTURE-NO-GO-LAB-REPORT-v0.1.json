@@ -1,0 +1,129 @@
+{
+  "admission": {
+    "BOOTSTRAP_EXACT_MATCH_POSSIBLE": true,
+    "CONDITIONAL_FREEZE_VIEW_NO_GO_MACHINE_CHECK": "PASS",
+    "EXACT_MATCH_AND_POSITIVE_INDEPENDENT_FUTURE_ENTROPY_COMPATIBLE": false,
+    "MIN_ENTROPY_GUESSING_BOUND_MACHINE_CHECK": "PASS",
+    "PHYSICAL_RETROCAUSALITY_PROVED": false,
+    "PROJECTION_OBSTRUCTION_MACHINE_CHECK": "PASS",
+    "SCIENTIFIC_NOVELTY_PROVED": false
+  },
+  "all_pass": true,
+  "epistemic_boundary": "This proves finite/exact mathematical checks and an elementary classical no-go lemma. It does not demonstrate a physical backward-time channel. A physical exact match would instead falsify at least one admitted forward-causal/entropy premise and would require independent replication.",
+  "schema": "JANUS/genesis-independent-future-no-go-lab/v0.1.0",
+  "sections": {
+    "bootstrap_and_leakage": {
+      "bootstrap": {
+        "B_uniform": true,
+        "T_defined_as_B": true,
+        "conditional_min_entropy_T_given_B_bits": 0.0,
+        "exact_match_probability": 1.0,
+        "interpretation": "Exact bootstrap copy is possible because the future target is dependent on the earlier state."
+      },
+      "independent_uniform_256_symbol_match_probability": 0.00390625,
+      "partial_leakage_channel": [
+        {
+          "bound_is_tight": true,
+          "conditional_min_entropy_bits": 8.0,
+          "leak_probability": 0.0,
+          "match_probability": 0.00390625
+        },
+        {
+          "bound_is_tight": true,
+          "conditional_min_entropy_bits": 6.17218097538268,
+          "leak_probability": 0.01,
+          "match_probability": 0.0138671875
+        },
+        {
+          "bound_is_tight": true,
+          "conditional_min_entropy_bits": 3.272079545436801,
+          "leak_probability": 0.1,
+          "match_probability": 0.103515625
+        },
+        {
+          "bound_is_tight": true,
+          "conditional_min_entropy_bits": 0.9943754508061219,
+          "leak_probability": 0.5,
+          "match_probability": 0.501953125
+        },
+        {
+          "bound_is_tight": true,
+          "conditional_min_entropy_bits": -0.0,
+          "leak_probability": 1.0,
+          "match_probability": 1.0
+        }
+      ],
+      "statement": "The min-entropy witness is tight: hidden leakage raises exact-match probability precisely by lowering conditional min-entropy relative to the freeze-time view.",
+      "pass": true
+    },
+    "conditional_freeze_view": {
+      "bound_violations": 0,
+      "cases_checked": 500,
+      "exact_match_with_positive_conditional_entropy_cases": 0,
+      "pass": true,
+      "statement": "If PRE_RETURN B_R is measurable from freeze-time view V_R, then Pr[B_R=T] <= p_guess(T|V_R). Hence if H_inf(T|V_R)>=h, Pr[B_R=T]<=2^-h. If B_R=T almost surely, then p_guess=1 and H_inf(T|V_R)=0."
+    },
+    "formal_lemma": {
+      "corollary": "Any non-degenerate exact pre-target/future identity must break statistical independence, invalidate the claimed freeze-time information boundary, or reject at least one forward-causal assumption.",
+      "name": "JANUS Exact-Match / Independent-Future Incompatibility Lemma",
+      "novelty_boundary": "Elementary probability/information-theory consequence; not claimed as a new theorem of mathematics. JANUS contribution is its explicit role as a gate separating bootstrap consistency from independent-future evidence.",
+      "proof": [
+        "Let p_x=Pr[B=x] and q_x=Pr[T=x]. Independence gives Pr[B=x,T=x]=p_x q_x.",
+        "Because Pr[B=T]=1, all probability lies on the diagonal and sum_x p_x q_x=1.",
+        "But sum_x p_x q_x <= max_x q_x * sum_x p_x = max_x q_x <= 1.",
+        "Equality requires max_x q_x=1, so T is deterministic. Diagonal equality then forces B to be the same deterministic value.",
+        "Equivalently, if B=T almost surely then I(B;T)=H(T), while independence gives I(B;T)=0, hence H(T)=0."
+      ],
+      "statement": "For discrete classical B,T: if B and T are statistically independent and Pr[B=T]=1, then H(T)=H(B)=0; both are the same deterministic point mass."
+    },
+    "independent_exact_match": {
+      "pass": true,
+      "statement": "For independent B,T, Pr[B=T]=sum_b P(B=b)P(T=b) <= max_t P(T=t)=2^{-H_inf(T)}. Equality 1 implies both variables are the same point mass.",
+      "suites": [
+        {
+          "alphabet": 2,
+          "distributions": 9,
+          "exact_match_non_degenerate_cases": 0,
+          "grid_denominator": 8,
+          "guessing_bound_violations": 0,
+          "independent_pairs_checked": 81
+        },
+        {
+          "alphabet": 3,
+          "distributions": 28,
+          "exact_match_non_degenerate_cases": 0,
+          "grid_denominator": 6,
+          "guessing_bound_violations": 0,
+          "independent_pairs_checked": 784
+        },
+        {
+          "alphabet": 4,
+          "distributions": 56,
+          "exact_match_non_degenerate_cases": 0,
+          "grid_denominator": 5,
+          "guessing_bound_violations": 0,
+          "independent_pairs_checked": 3136
+        }
+      ]
+    },
+    "projection_obstruction": {
+      "assumption_necessity_counterexample_without_intertwining": {
+        "F": [0, 0, 0],
+        "FixF": [0],
+        "FixG": [],
+        "G": [1, 0],
+        "q": [0, 0, 0]
+      },
+      "domain_sizes": {
+        "X": 3,
+        "Y": 2
+      },
+      "intertwining_triples": 198,
+      "intertwining_with_empty_FixG": 12,
+      "map_triples_checked": 864,
+      "pass": true,
+      "theorem_violations": 0
+    }
+  },
+  "status": "PASS"
+}
