@@ -1,0 +1,157 @@
+{
+  "all_pass": true,
+  "cases": {
+    "clean_null_no_hit": {
+      "admissible_forward_null_test": true,
+      "anytime_p_upper": 1.0,
+      "e_value": 0.0,
+      "failures": [],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "colluding_same_failure_domain_witnesses": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "FAILURE_DOMAINS_NOT_INDEPENDENT"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "entropy_self_attested": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "ENTROPY_EVIDENCE_NOT_EXTERNAL"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "forced_256bit_exact_hit_all_gates": {
+      "admissible_forward_null_test": true,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [],
+      "forward_null_incompatibility_candidate": true,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "four_candidate_multiplicity": {
+      "admissible_forward_null_test": true,
+      "anytime_p_upper": 3.454467422037778e-77,
+      "e_value": 2.894802230932905e+76,
+      "failures": [],
+      "forward_null_incompatibility_candidate": true,
+      "hit_cap": 3.454467422037778e-77,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "postselection": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "POSTSELECTION_PRESENT"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "prng_pregeneration": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "TARGET_NOT_GENERATED_AFTER_FREEZE"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "rollbackable_local_only_log": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "FRESHNESS_NOT_EXTERNAL"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "shared_seed_or_latent_common_cause": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "CAUSAL_ISOLATION_NOT_ESTABLISHED"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "target_derived_commitment_before_freeze": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "TARGET_DERIVED_SIDEINFO_PRESENT"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    },
+    "unsafe_2_of_4_quorum": {
+      "admissible_forward_null_test": false,
+      "anytime_p_upper": 8.636168555094445e-78,
+      "e_value": 1.157920892373162e+77,
+      "failures": [
+        "UNSAFE_WITNESS_QUORUM"
+      ],
+      "forward_null_incompatibility_candidate": false,
+      "hit_cap": 8.636168555094445e-78,
+      "physical_retrocausality_proved": false,
+      "quorum_min": 3
+    }
+  },
+  "checks": {
+    "all_256_evidence_gate_assignments_fail_closed": true,
+    "all_single_gate_failures_fail_closed": true,
+    "candidate_multiplicity_counted": true,
+    "clean_null_admitted": true,
+    "forced_exact_hit_is_forward_null_incompatibility_candidate": true,
+    "forced_exact_hit_is_not_physical_proof": true,
+    "quorum_formula_exhaustive": true,
+    "unsafe_quorum_rejected": true
+  },
+  "exhaustive": {
+    "evidence_gate_assignment_admission_violations": 0,
+    "evidence_gate_assignments": 256,
+    "quorum_classification_violations": 0,
+    "quorum_configurations": 204,
+    "single_gate_admission_violations": 0,
+    "single_gate_fail_closed_checks": 8
+  },
+  "schema": "AIFC/end-to-end-soundness-lab/v0.1.0",
+  "status": "PASS",
+  "theorem": {
+    "interpretation": "A threshold crossing rejects the specified forward-causal null-or-an-evidence-premise at level alpha. It is not by itself proof of retrocausality, FTL, a CTC, or a mechanism.",
+    "name": "Auditable Independent-Future Challenge Soundness Theorem",
+    "novelty_boundary": "The component mathematics (conditional guessing bounds, d-separation, e-processes/Ville, secure logging and quorum intersection) is established. Candidate novelty is the end-to-end operational composition for auditable tests of pre-existing information about certified post-freeze random targets.",
+    "statement": "Let F_{i-1} be the complete pre-target information. Let C_i be fixed from F_{i-1}, |C_i|<=K_i, and let a_i=min(1,K_i p_i), where max_t P(T_i=t|F_{i-1})<=p_i under the admitted forward-causal null. If the evidence stack establishes post-freeze target generation, causal isolation, external entropy provenance, anti-rollback freshness, safe witness quorum, and no postselection, then any nonnegative test-supermartingale/e-process built from the hit indicators X_i=1[T_i in C_i] retains anytime-valid type-I control: P_0(sup_n E_n>=1/alpha)<=alpha."
+  }
+}
