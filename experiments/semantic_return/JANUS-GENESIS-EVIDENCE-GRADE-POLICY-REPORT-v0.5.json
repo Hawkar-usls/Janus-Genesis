@@ -1,0 +1,64 @@
+{
+  "all_pass": true,
+  "cases": {
+    "all_externality_booleans_asserted_inside_genesis": {
+      "correct": true,
+      "grade": "SANDBOX_EXTERNALITY_ASSERTED_NOT_VERIFIABLE_HERE",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "freeze_failure": {
+      "correct": true,
+      "grade": "REJECTED_BY_PROTOCOL",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "identity_failure": {
+      "correct": true,
+      "grade": "REJECTED_BY_PROTOCOL",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "order_failure": {
+      "correct": true,
+      "grade": "REJECTED_BY_PROTOCOL",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "positive_entropy_exact_match_is_null_incompatibility_not_physical_proof": {
+      "correct": true,
+      "physical_retrocausality_proved": false,
+      "statement": "Exact identity plus externally valid positive H_inf(T|V_R) is incompatible with the admitted forward-null model; at least one premise must fail.",
+      "triggered": true
+    },
+    "provenance_failure": {
+      "correct": true,
+      "grade": "REJECTED_BY_PROTOCOL",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "simulator_foreknowledge_exact_match": {
+      "correct": true,
+      "grade": "STRUCTURAL_MATCH_ONLY_SIMULATOR_CAN_HAVE_FOREKNOWLEDGE",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "structural_failure": {
+      "correct": true,
+      "grade": "REJECTED_BY_PROTOCOL",
+      "independent_future_claim": false,
+      "physical_claim": false
+    },
+    "zero_entropy_bootstrap_not_anomaly": {
+      "correct": true,
+      "triggered": false
+    }
+  },
+  "cases_correct": 9,
+  "cases_total": 9,
+  "execution_context": "GENESIS_SANDBOX",
+  "external_bench_boundary": "A separate frozen verifier build must ingest evidence rooted outside Genesis. Even then, a surviving exact-match event is an anomaly candidate requiring independent replication, not automatic proof of retrocausality.",
+  "sandbox_invariant": "No data or boolean assertion generated inside Genesis may elevate a transcript to independent-future or physical-retrocausality evidence.",
+  "schema": "JANUS/genesis-evidence-grade-policy/v0.5.0",
+  "status": "PASS"
+}
