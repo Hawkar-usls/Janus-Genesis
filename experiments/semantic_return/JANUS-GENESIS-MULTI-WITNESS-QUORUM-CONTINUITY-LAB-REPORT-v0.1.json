@@ -1,0 +1,94 @@
+{
+  "all_pass": true,
+  "cases": {
+    "availability": {
+      "condition": "q_min=floor((n+f)/2)+1 <= n-offline",
+      "configurations_checked": 1120,
+      "violations": 0
+    },
+    "classic_family": [
+      {"f": 0, "intersection_lower_bound": 1, "n": 1, "q": 1, "secure": true},
+      {"f": 1, "intersection_lower_bound": 2, "n": 4, "q": 3, "secure": true},
+      {"f": 2, "intersection_lower_bound": 3, "n": 7, "q": 5, "secure": true},
+      {"f": 3, "intersection_lower_bound": 4, "n": 10, "q": 7, "secure": true},
+      {"f": 4, "intersection_lower_bound": 5, "n": 13, "q": 9, "secure": true},
+      {"f": 5, "intersection_lower_bound": 6, "n": 16, "q": 11, "secure": true},
+      {"f": 6, "intersection_lower_bound": 7, "n": 19, "q": 13, "secure": true},
+      {"f": 7, "intersection_lower_bound": 8, "n": 22, "q": 15, "secure": true}
+    ],
+    "exhaustive_small_n": {
+      "classification_violations": 0,
+      "configurations_checked": 204,
+      "counterexample_witnesses_found_for_insecure_configs": 134,
+      "insecure_configurations": 134,
+      "secure_configurations": 70
+    },
+    "failure_domain_warning": {
+      "statement": "Replicas/witnesses that can be rolled back, snapshotted or controlled together count as one failure domain for the independence claim; nominal node count alone is not fault tolerance."
+    },
+    "n4_f1": {
+      "q2_conflicting_certificates_possible": true,
+      "q2_counterexample": {
+        "byzantine": [0],
+        "cert_A": [0, 1],
+        "cert_B": [0, 2],
+        "intersection": [0]
+      },
+      "q3_conflicting_certificates_possible": false
+    },
+    "n7_f2": {
+      "q4_conflicting_certificates_possible": true,
+      "q4_counterexample": {
+        "byzantine": [0, 1],
+        "cert_A": [0, 1, 2, 3],
+        "cert_B": [0, 1, 4, 5],
+        "intersection": [0, 1]
+      },
+      "q5_conflicting_certificates_possible": false
+    }
+  },
+  "checks": {
+    "all_local_mirrors_share_failure_domain": true,
+    "classic_3f1_2f1_family_secure": true,
+    "majority_is_not_always_enough": true,
+    "minimum_safe_quorum_formula": true,
+    "n4_f1_q2_is_unsafe": true,
+    "n4_f1_q3_is_safe": true,
+    "n7_f2_q4_is_unsafe": true,
+    "n7_f2_q5_is_safe": true,
+    "quorum_intersection_theorem_exhaustive": true,
+    "safety_liveness_feasibility_formula": true,
+    "same_quorum_rule_blocks_certified_rollback_and_fork": true
+  },
+  "checks_passed": 11,
+  "checks_total": 11,
+  "liveness": {
+    "boundary": "Availability assumptions are operational and must be declared separately from Byzantine-fault assumptions.",
+    "statement": "If up to a witnesses may be offline, progress additionally requires q <= n-a. Safety and liveness are simultaneously feasible iff floor((n+f)/2)+1 <= n-a."
+  },
+  "physical_boundary": "This is a distributed-systems safety theorem/test. It does not establish retrocausality or any new physical channel.",
+  "protocol_upgrade": {
+    "recommended_baseline": "For a simple f=1 external bench, n=4 independent witness failure domains and q=3 signatures/receipts give honest intersection; q=2 does not.",
+    "requirements": [
+      "Witness independence is defined by failure domain, not process count.",
+      "Honest witnesses must keep latest-state memory outside the experiment rollback domain.",
+      "Conflicting head certification by one honest witness is forbidden.",
+      "Certificates bind run_id, sequence, parent/head hash, witness identity and protocol version.",
+      "Witness outages yield PENDING, not relaxed quorum.",
+      "Cross-witness head comparison/gossip is retained for diagnosis and equivocation evidence."
+    ]
+  },
+  "schema": "JANUS/multi-witness-quorum-continuity-lab/v0.1.0",
+  "status": "PASS",
+  "theorem": {
+    "name": "JANUS Witness Quorum Intersection Gate",
+    "novelty_boundary": "Quorum-intersection/BFT reasoning is established distributed-systems mathematics. JANUS does not claim this theorem as new. Its role is to remove a single trusted witness from the real-world independent-future evidence chain.",
+    "proof": [
+      "Any two q-subsets A,B of an n-element witness set satisfy |A∩B| >= 2q-n.",
+      "If 2q-n > f, the intersection contains at least one honest witness, which cannot certify both conflicting heads; therefore two conflicting certificates cannot both exist.",
+      "Conversely, if 2q-n <= f, choose two q-subsets whose intersection has size at most f and designate that intersection Byzantine; Byzantine witnesses sign both while honest witnesses sign only their branch, producing two conflicting certificates."
+    ],
+    "rollback_corollary": "The same intersection condition prevents an older/conflicting certified head from being accepted by a fresh q-witness quorum after a newer q-certified head, provided honest witnesses retain non-rollbackable latest-state memory.",
+    "statement": "Suppose n witnesses certify log heads, at most f are Byzantine and may certify conflicting heads, while each honest witness certifies at most one conflicting head at a given position. Two conflicting q-witness certificates are impossible exactly when 2q > n+f. Equivalently q >= floor((n+f)/2)+1."
+  }
+}
