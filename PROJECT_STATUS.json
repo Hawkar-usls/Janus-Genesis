@@ -1,0 +1,33 @@
+{
+  "schema_id": "hawkar.project-status.v1",
+  "project": "Janus Genesis",
+  "repository": "https://github.com/Hawkar-usls/Janus_Genesis",
+  "portfolio_class": "creative_technology",
+  "last_reviewed": "2026-08-09",
+  "summary": "Local-first interactive-world and AI-assisted game experiment with portable saves, explicit player/character agency rules and optional local or user-selected model endpoints.",
+  "implemented_scope": [
+    "local Python gameplay runtime",
+    "portable JSON save format",
+    "free-form action handling",
+    "optional Ollama and OpenAI-compatible model adapters",
+    "reference authenticated gameplay/network services",
+    "machine-readable chat-play entry"
+  ],
+  "design_invariants": [
+    "external AI suggestions are non-authoritative",
+    "state changes are validated by the local game runtime",
+    "simulated characters may refuse, leave or change goals",
+    "silence is not treated as consent",
+    "good actions do not purchase relationships"
+  ],
+  "not_claimed": [
+    "machine consciousness or sentience",
+    "artificial general intelligence",
+    "physical prediction, precognition or retrocausality",
+    "theological or metaphysical authority",
+    "real-world moral authority over people"
+  ],
+  "play_entry": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/PLAY_GENESIS_IN_ANY_AI_CHAT.md",
+  "machine_entry": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json",
+  "public_positioning": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/PUBLIC_POSITIONING.md"
+}
