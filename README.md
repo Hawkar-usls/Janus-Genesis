@@ -3,13 +3,22 @@
 # Janus Genesis
 ### Local-first interactive world & AI-assisted game
 
+![Status](https://img.shields.io/badge/status-active%20creative%20technology-2f81f7)
+![Class](https://img.shields.io/badge/class-interactive%20systems-6e7681)
+
 `portable saves` · `free-form actions` · `optional local AI` · `character agency`
 
 </div>
 
-Janus Genesis is a **creative-technology project**: a persistent interactive world that can run locally, move between chats through portable saves, and optionally use local or user-selected language models for suggestions.
+## Status
 
-Its mythological, moral and theological vocabulary belongs to the fictional/game system. It is not a scientific evidence line.
+**Active Creative Technology.** Genesis is a playable/evolving interactive-systems project. Game rules, narrative content, provider integrations, and interfaces may continue to change.
+
+## Abstract
+
+Janus Genesis is a persistent interactive world that can run locally, move between chats through portable saves, and optionally use local or user-selected language models for suggestions.
+
+Its mythological, moral, and theological vocabulary belongs to the fictional/game system. It is not a scientific evidence line.
 
 ## Play / inspect
 
@@ -17,6 +26,7 @@ Its mythological, moral and theological vocabulary belongs to the fictional/game
 - **Machine entry:** [`ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json`](ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json)
 - **Machine-readable project status:** [`PROJECT_STATUS.json`](PROJECT_STATUS.json)
 - **Public positioning / claim boundary:** [`PUBLIC_POSITIONING.md`](PUBLIC_POSITIONING.md)
+- **Portfolio maturity/visibility:** [`portfolio-visibility.json`](https://github.com/Hawkar-usls/Janus/blob/main/portfolio-visibility.json)
 
 If an AI chat can read public GitHub files, you can ask it to open the chat-play guide. Local Python remains the authoritative runtime when used.
 
@@ -46,9 +56,10 @@ External models may propose actions or narration. State changes remain subject t
 - public-event sharing as an explicit opt-in path;
 - reproducible world/chronicle data structures.
 
-## What is not claimed
+## Boundary
 
 ```text
+MATURITY = ACTIVE_CREATIVE_TECHNOLOGY
 MACHINE_CONSCIOUSNESS = NOT_CLAIMED
 AGI = NOT_CLAIMED
 PRECOGNITION_OR_RETROCAUSALITY = NOT_CLAIMED
@@ -57,7 +68,7 @@ REAL_WORLD_MORAL_AUTHORITY = NOT_CLAIMED
 PUBLIC_PRODUCTION_NETWORK = NOT_CLAIMED
 ```
 
-Terms such as `God Mode` are defined **game mechanics / narrative vocabulary**. They do not imply authority over real people, theology or physical reality.
+Terms such as `God Mode` are defined **game mechanics / narrative vocabulary**. They do not imply authority over real people, theology, or physical reality.
 
 ## Run locally
 
@@ -94,3 +105,5 @@ Schema: [`schemas/genesis_portable_save_v1.schema.json`](schemas/genesis_portabl
 - [Public positioning](PUBLIC_POSITIONING.md)
 
 Historical versions and longer narrative canon remain in the repository for continuity, but the files above are the preferred reviewer entry points.
+
+Presentation follows the account's [public repository standard](https://github.com/Hawkar-usls/Janus/blob/main/docs/PUBLIC_REPOSITORY_PRESENTATION_STANDARD.md). No affiliation with MIT is implied by the presentation style.
