@@ -4,6 +4,8 @@
   "repository": "https://github.com/Hawkar-usls/Janus_Genesis",
   "portfolio_class": "creative_technology",
   "last_reviewed": "2026-08-09",
+  "maturity": "ACTIVE_CREATIVE_TECHNOLOGY",
+  "completion_status": "ONGOING_DEVELOPMENT",
   "summary": "Local-first interactive-world and AI-assisted game experiment with portable saves, explicit player/character agency rules and optional local or user-selected model endpoints.",
   "implemented_scope": [
     "local Python gameplay runtime",
@@ -29,5 +31,6 @@
   ],
   "play_entry": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/PLAY_GENESIS_IN_ANY_AI_CHAT.md",
   "machine_entry": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json",
-  "public_positioning": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/PUBLIC_POSITIONING.md"
+  "public_positioning": "https://github.com/Hawkar-usls/Janus_Genesis/blob/main/PUBLIC_POSITIONING.md",
+  "visibility_policy": "https://github.com/Hawkar-usls/Janus/blob/main/portfolio-visibility.json"
 }
