@@ -1,0 +1,13 @@
+{
+  "schema": "janus.cosmos.hst_source_manifest.v0.1",
+  "status": "SOURCE_CONFIRMED_MANIFEST",
+  "source": "MAST/Hubble public archive",
+  "purpose": "Frozen source manifest for the first real Janus Cosmos image-level run.",
+  "selection": "Small source-confirmed HST multi-filter pilot before scaling up.",
+  "provenance_rule": "Every image must retain archive identifier, instrument, filter, observation date and source URL/identifier in the run receipt.",
+  "semantic_analysis": false,
+  "face_search": false,
+  "ocr": false,
+  "candidate_semantics": false,
+  "next_step": "Ingest source-confirmed HST cutouts into the runner and emit per-object multiscale/null statistics."
+}
