@@ -35,11 +35,23 @@ jobs:
           --trajectory-manifest experiments/janus_cristal_fractalgpt/sources.json
           --out artifacts/janus-cristal-spectral-replication
 
+      - name: Positive-control-aware admission
+        run: >-
+          python experiments/janus_cristal_fractalgpt/spectral_replication_admission.py
+          --raw artifacts/janus-cristal-spectral-replication/GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-result.json
+          --out artifacts/janus-cristal-spectral-replication/GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-admission.json
+
       - name: Publish summary
         if: always()
         run: |
           if [ -f artifacts/janus-cristal-spectral-replication/SPECTRAL_REPLICATION_SUMMARY.md ]; then
             cat artifacts/janus-cristal-spectral-replication/SPECTRAL_REPLICATION_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f artifacts/janus-cristal-spectral-replication/GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-admission.json ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo '```json' >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/janus-cristal-spectral-replication/GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-admission.json >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload receipt
