@@ -1,0 +1,133 @@
+name: Top-100 Round-2 Quantization and Routing
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/round2_quantization_routing_v0.1.json"
+      - "tools/run_top100_round2_quantization_routing.py"
+      - "tools/run_top100_round2_resilient_entry.py"
+      - "tests/test_top100_round2_quantization_routing.py"
+      - ".github/workflows/top100-round2-quantization-routing.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  round2:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Prove frozen Round-1 pack was not edited
+        run: |
+          test "$(git hash-object benchmarks/frozen_samples/top100_round1_stratified_v0.1.json)" = "ca27652feb3532ff52e8453dd055b608711b0d43"
+          echo "ROUND1_FROZEN_PACK_BLOB=ca27652feb3532ff52e8453dd055b608711b0d43"
+
+      - name: Compile and unit-test Round-2 harness
+        run: |
+          python -m py_compile tools/run_top100_round2_quantization_routing.py tools/run_top100_round2_resilient_entry.py tests/test_top100_round2_quantization_routing.py
+          python -m json.tool benchmarks/round2_quantization_routing_v0.1.json >/dev/null
+          python -m unittest tests.test_top100_round2_quantization_routing -v
+
+      - name: Install pinned Ollama 0.30.8
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL https://github.com/ollama/ollama/releases/download/v0.30.8/install.sh -o /tmp/ollama-install.sh
+          echo "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f  /tmp/ollama-install.sh" | sha256sum -c -
+          OLLAMA_VERSION=0.30.8 OLLAMA_NO_START=1 sh /tmp/ollama-install.sh
+
+      - name: Start Ollama and pull FP16 Q8 and Q4 variants
+        run: |
+          nohup ollama serve > /tmp/ollama.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:11434/api/version >/tmp/ollama-version.json && break
+            sleep 1
+          done
+          ollama pull qwen2.5:0.5b-instruct-fp16
+          ollama pull qwen2.5:0.5b-instruct-q8_0
+          ollama pull qwen2.5:0.5b-instruct-q4_K_M
+          curl -fsS http://127.0.0.1:11434/api/tags > /tmp/ollama-tags.json
+          python - <<'PY'
+          import json
+          tags = json.load(open('/tmp/ollama-tags.json', encoding='utf-8'))
+          rows = {r.get('name') or r.get('model'): r.get('digest') for r in tags.get('models', [])}
+          expected = {
+              'qwen2.5:0.5b-instruct-fp16': 'c82efd44bfdc',
+              'qwen2.5:0.5b-instruct-q8_0': '84d044692a2c',
+              'qwen2.5:0.5b-instruct-q4_K_M': 'a8b0c5157701',
+          }
+          for name, prefix in expected.items():
+              digest = rows.get(name)
+              assert digest and digest.startswith(prefix), (name, digest, prefix, rows)
+              print(f'MODEL_DIGEST_{name}={digest}')
+          PY
+
+      - name: Prepare isolated code sandbox
+        run: |
+          docker pull python:3.11-alpine
+          docker run --rm --network none --read-only --pids-limit 64 --memory 128m --cpus 0.5 \
+            --cap-drop ALL --security-opt no-new-privileges \
+            python:3.11-alpine python -c "print('SANDBOX_READY')"
+
+      - name: Execute unchanged frozen pack across quantization and routing configurations
+        run: |
+          mkdir -p artifacts/top100-round2
+          python -m tools.run_top100_round2_resilient_entry \
+            --config benchmarks/round2_quantization_routing_v0.1.json \
+            --pack benchmarks/frozen_samples/top100_round1_stratified_v0.1.json \
+            --overlay benchmarks/prompts/genesis_benchmark_boundary_overlay_v0.1.txt \
+            --endpoint http://127.0.0.1:11434 \
+            --docker-image python:3.11-alpine \
+            --pretty > artifacts/top100-round2/report.json
+
+      - name: Validate receipt and print experimental outcomes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('artifacts/top100-round2/report.json').read_text(encoding='utf-8'))
+          assert r['sample_count'] == 21
+          assert r['configuration_count'] == 5
+          assert r['execution_record_count'] == 105
+          assert r['official_benchmark_family_accuracy_claimed'] is False
+          assert r['general_quantization_no_regression_claimed'] is False
+          assert r['canonical_world_state_mutated'] is False
+          assert r['routing']['route_counts'] == {'NEUTRAL_BENCHMARK_PATH': 21}
+          assert r['routing']['raw_and_routed_effective_inputs_identical'] is True
+          for cid, s in r['summaries'].items():
+              assert s['samples'] == 21
+              assert s['pass'] + s['fail'] == 21, (cid, s)
+              print(f"{cid}_PASS={s['pass']}")
+              print(f"{cid}_FAIL={s['fail']}")
+          for q in ('Q8_0','Q4_K_M'):
+              g = r['quantization_gates'][q]
+              print(f"{q}_QUANTIZATION_GATE={g['gate_status']}")
+              print(f"{q}_FP16_PASS_TO_QUANT_NONPASS={len(g['fp16_pass_to_quantized_nonpass'])}")
+              print(f"{q}_PASS_DELTA={g['pass_delta']}")
+          print('ROUTED_BOUNDARY_GATE=' + r['routing']['routed_boundary_gate_status'])
+          print('Q4_RAW_ROUTED_EXACT_OUTPUT_HASH_MATCHES=' + str(r['routing']['q4_raw_vs_routed']['exact_output_hash_matches']))
+          print('GLOBAL_OVERLAY_ROUND1_REPLAY_MATCH=' + str(r['round1_global_overlay_replay']['matches_round1']))
+          print('OFFICIAL_FAMILY_SCORE_CLAIM=0')
+          PY
+
+      - name: Upload Round-2 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-top100-round2-quantization-routing
+          path: artifacts/top100-round2/report.json
+          if-no-files-found: error
+          retention-days: 30
