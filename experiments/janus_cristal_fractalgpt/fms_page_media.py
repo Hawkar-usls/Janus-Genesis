@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Resolve labeled FMDB specimen images without persisting their media bytes.
 
-The scientific identity boundary is the single FMDB specimen record. This helper
-only resolves which full-resolution image URL belongs to a caption such as
-"Normal light" or "Fluorescence under shortwave UV light". It does not infer
-specimen identity across separate records.
+The resolver deliberately trusts only label metadata attached to the image tag
+itself for primary selection. Broad neighboring page text is diagnostic only.
+This avoids cross-associating adjacent Normal/LW/SW figures on specimen pages.
 """
 from __future__ import annotations
 
@@ -12,7 +11,7 @@ import re
 import urllib.request
 from html import unescape
 
-UA = "Janus-Cristal-FMS-resolver/0.1 (+https://github.com/Hawkar-usls/Janus_Genesis)"
+UA = "Janus-Cristal-FMS-resolver/0.2 (+https://github.com/Hawkar-usls/Janus_Genesis)"
 
 
 def _fetch_text(url: str) -> str:
@@ -55,76 +54,83 @@ def _strip_html(s: str) -> str:
     return re.sub(r"\s+", " ", unescape(s)).strip()
 
 
+def _norm(s: str) -> str:
+    return re.sub(r"\s+", " ", s.strip().lower().rstrip("."))
+
+
 def media_candidates(page_url: str) -> list[dict]:
     html = _fetch_text(page_url)
     out = []
     for m in re.finditer(r"<img\b[^>]*>", html, flags=re.I | re.S):
         tag = m.group(0)
-        start, end = m.span()
-        # Full-resolution WordPress images are often linked from an enclosing <a>.
-        pre = html[max(0, start - 1800):start]
-        post = html[end:min(len(html), end + 1800)]
-        a_open = list(re.finditer(r"<a\b[^>]*>", pre, flags=re.I | re.S))
-        full_url = None
-        if a_open:
-            candidate_tag = a_open[-1].group(0)
-            href = _attr(candidate_tag, "href")
-            # Only use the parent href if no closing </a> occurs after that opener before the img.
-            tail = pre[a_open[-1].end():]
-            if "</a" not in tail.lower() and href and re.search(r"\.(?:jpe?g|png|webp)(?:\?|$)", href, re.I):
-                full_url = href
-        src = full_url or _largest_src_from_tag(tag)
+        src = _largest_src_from_tag(tag)
         if not src or src.startswith("data:"):
             continue
-        context = _strip_html(pre[-900:] + " " + tag + " " + post[:900])
+        start, end = m.span()
+        pre = html[max(0, start - 500):start]
+        post = html[end:min(len(html), end + 500)]
         out.append({
             "url": src,
             "alt": _attr(tag, "alt") or "",
             "title": _attr(tag, "title") or "",
-            "context": context[:1200],
+            "context": _strip_html(pre + " " + post)[:700],
         })
-    # Preserve order while removing duplicate URLs caused by responsive markup.
     seen = set()
     unique = []
     for item in out:
-        if item["url"] not in seen:
-            seen.add(item["url"])
+        key = (item["url"], item["alt"], item["title"])
+        if key not in seen:
+            seen.add(key)
             unique.append(item)
     return unique
 
 
 def resolve_labeled_media(page_url: str, label: str) -> dict:
-    label_norm = re.sub(r"\s+", " ", label.strip().lower().rstrip("."))
+    label_norm = _norm(label)
     rows = media_candidates(page_url)
-    scored = []
+
+    exact = []
     for i, row in enumerate(rows):
-        hay = " ".join([row["alt"], row["title"], row["context"]]).lower()
-        hay = re.sub(r"\s+", " ", hay)
-        score = 0
-        if label_norm in hay:
-            score += 100
-        words = [w for w in re.findall(r"[a-z0-9]+", label_norm) if len(w) >= 3]
-        score += sum(4 for w in words if w in hay)
-        if "shortwave" in label_norm and ("shortwave" in hay or "254" in hay):
-            score += 40
-        if "normal" in label_norm and ("normal light" in hay or "natural light" in hay):
-            score += 40
-        scored.append((score, -i, row))
-    scored.sort(reverse=True, key=lambda x: (x[0], x[1]))
-    if not scored or scored[0][0] < 20:
-        raise RuntimeError(f"Could not resolve FMDB label {label!r}; candidates={len(rows)}")
-    best_score = scored[0][0]
-    tied = [x for x in scored if x[0] == best_score]
-    # If exact text context yields a tie, prefer the earlier page image but expose ambiguity.
-    best = tied[0][2]
+        own_labels = [_norm(row["alt"]), _norm(row["title"])]
+        if label_norm in own_labels:
+            exact.append((i, row))
+    if len(exact) == 1:
+        i, best = exact[0]
+        return {
+            "label": label,
+            "url": best["url"],
+            "resolution_rule": "EXACT_IMAGE_OWN_ALT_OR_TITLE_MATCH",
+            "candidate_count": len(rows),
+            "exact_match_count": 1,
+            "alt": best["alt"],
+            "title": best["title"],
+            "context_excerpt": best["context"][:500],
+            "status": "RESOLVED_EXACT_IMAGE_OWN_LABEL",
+        }
+    if len(exact) > 1:
+        raise RuntimeError(f"Ambiguous exact FMDB image-own label {label!r}: {len(exact)} matches")
+
+    # Strict fallback: own alt/title must contain all meaningful label words.
+    words = [w for w in re.findall(r"[a-z0-9]+", label_norm) if len(w) >= 3]
+    fallback = []
+    for i, row in enumerate(rows):
+        own = _norm(" ".join([row["alt"], row["title"]]))
+        if words and all(w in own for w in words):
+            fallback.append((i, row))
+    if len(fallback) != 1:
+        raise RuntimeError(
+            f"Could not uniquely resolve FMDB label from image-own metadata {label!r}; "
+            f"exact={len(exact)} fallback={len(fallback)} candidates={len(rows)}"
+        )
+    _, best = fallback[0]
     return {
         "label": label,
         "url": best["url"],
-        "score": best_score,
+        "resolution_rule": "ALL_LABEL_WORDS_IN_IMAGE_OWN_ALT_OR_TITLE",
         "candidate_count": len(rows),
-        "top_score_tie_count": len(tied),
+        "exact_match_count": 0,
         "alt": best["alt"],
         "title": best["title"],
         "context_excerpt": best["context"][:500],
-        "status": "RESOLVED" if len(tied) == 1 else "RESOLVED_WITH_TOP_SCORE_TIE_EARLIEST_PAGE_ORDER",
+        "status": "RESOLVED_STRICT_IMAGE_OWN_LABEL_FALLBACK",
     }
