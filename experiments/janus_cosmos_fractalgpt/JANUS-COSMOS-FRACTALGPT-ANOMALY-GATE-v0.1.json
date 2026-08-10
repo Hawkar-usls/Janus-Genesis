@@ -1,0 +1,48 @@
+{
+  "schema": "janus.cosmos.fractalgpt.anomaly_gate.v0.1",
+  "artifact_id": "JANUS-COSMOS-FRACTALGPT-ANOMALY-GATE-v0.1",
+  "status": "PREREGISTERED_SEARCH_NOT_YET_POSITIVE",
+  "purpose": "Blind multiscale search for reproducible astrophysical structure and anomalies in public multi-band imagery, extending the Janus Cristal methodology.",
+  "data_sources": {
+    "primary": ["Hubble/MAST", "JWST/MAST"],
+    "future": ["Chandra/HEASARC", "WISE/IRSA", "Euclid archive"]
+  },
+  "analysis_modes": [
+    "multiscale morphology",
+    "spectral-band persistence",
+    "cross-band structural trajectories",
+    "temporal persistence where repeated observations exist",
+    "matched spatial-null comparison",
+    "cross-object replication"
+  ],
+  "fractalgpt_role": {
+    "mode": "BLIND_PLANNER",
+    "allowed": ["propose scale/orientation/trajectory families before outcome inspection"],
+    "forbidden": ["post-hoc region selection", "semantic decoding", "OCR", "face search", "cipher search", "claiming discovery from planner enrichment alone"]
+  },
+  "primary_endpoints": {
+    "endpoint_1": "reproducible morphology anomaly score",
+    "endpoint_2": "cross-band structural persistence",
+    "endpoint_3": "cross-object replication",
+    "endpoint_4": "null-model rejection"
+  },
+  "null_models": [
+    "matched spatial permutation",
+    "orientation randomization",
+    "scale-preserving randomization",
+    "cross-object negative controls"
+  ],
+  "prediction_before_search": {
+    "expected": "Most high-scoring structures will be ordinary astrophysical morphology, instrumental artifacts, processing artifacts, or known object classes.",
+    "scientifically_interesting": "A small number of anomalies may survive multiple bands, null models, and independent objects.",
+    "hidden_message_probability_assumption": "No semantic or extraterrestrial-message hypothesis is admitted by this gate."
+  },
+  "candidate_admission": {
+    "minimum": "candidate must survive preregistered null test and independent re-evaluation",
+    "strong": "candidate must replicate on an independent object or observation",
+    "semantic_gate": "closed until physical/morphological replication is established"
+  },
+  "success_definition": "Discovery of a reproducible, previously under-characterized astrophysical or imaging structure; not merely visual resemblance.",
+  "failure_definition": "Planner enrichment that fails null/replication gates is closed as non-discovery.",
+  "claim_ceiling": "This manifest can establish only reproducible image/data-level anomalies. It cannot establish extraterrestrial intelligence, hidden messages, or unknown physics without independent domain-specific evidence."
+}

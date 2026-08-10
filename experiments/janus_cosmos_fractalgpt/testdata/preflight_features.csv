@@ -1,0 +1,9 @@
+object_id,band,x,y,signal
+preflight_A,F606W,-1.20,-0.70,1.0
+preflight_A,F814W,-1.15,-0.68,0.9
+preflight_B,F606W,-0.75,-0.30,0.8
+preflight_B,F814W,-0.70,-0.28,0.7
+preflight_C,F606W,0.20,0.85,0.6
+preflight_C,F814W,0.24,0.82,0.5
+preflight_D,F606W,0.85,1.10,0.7
+preflight_D,F814W,0.88,1.08,0.8
