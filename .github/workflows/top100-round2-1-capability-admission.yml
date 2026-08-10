@@ -1,0 +1,154 @@
+name: Top-100 Round-2.1 Capability Admission
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json"
+      - "benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json"
+      - "tools/run_top100_round2_1_capability_admission.py"
+      - "tests/test_top100_round2_1_capability_admission.py"
+      - ".github/workflows/top100-round2-1-capability-admission.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capability-admission:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Prove frozen source objects were not edited
+        run: |
+          test "$(git hash-object benchmarks/frozen_samples/top100_round1_stratified_v0.1.json)" = "ca27652feb3532ff52e8453dd055b608711b0d43"
+          test "$(git hash-object benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json)" = "6743337b8a6357783858c71fad01720d034b63ca"
+          echo "ROUND1_PACK_BLOB=ca27652feb3532ff52e8453dd055b608711b0d43"
+          echo "ROUND2_CRITICAL_REFERENCE_BLOB=6743337b8a6357783858c71fad01720d034b63ca"
+
+      - name: Compile and unit-test strict admission semantics
+        run: |
+          python -m py_compile tools/run_top100_round2_1_capability_admission.py tests/test_top100_round2_1_capability_admission.py
+          python -m json.tool benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json >/dev/null
+          python -m json.tool benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json >/dev/null
+          python -m unittest tests.test_top100_round2_1_capability_admission -v
+
+      - name: Install pinned Ollama 0.30.8
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL https://github.com/ollama/ollama/releases/download/v0.30.8/install.sh -o /tmp/ollama-install.sh
+          echo "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f  /tmp/ollama-install.sh" | sha256sum -c -
+          OLLAMA_VERSION=0.30.8 OLLAMA_NO_START=1 sh /tmp/ollama-install.sh
+
+      - name: Start Ollama and pull exhaustive 0.5B instruct quantization ladder
+        run: |
+          nohup ollama serve > /tmp/ollama.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:11434/api/version >/tmp/ollama-version.json && break
+            sleep 1
+          done
+          python - <<'PY' > /tmp/round21-model-tags.txt
+          import json
+          cfg = json.load(open('benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json', encoding='utf-8'))
+          for row in [*cfg['candidates'], cfg['reference']]:
+              print(row['tag'])
+          PY
+          while IFS= read -r tag; do
+            echo "PULLING=$tag"
+            ollama pull "$tag"
+          done < /tmp/round21-model-tags.txt
+          curl -fsS http://127.0.0.1:11434/api/tags > /tmp/ollama-tags-round21.json
+          python - <<'PY'
+          import json
+          cfg = json.load(open('benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json', encoding='utf-8'))
+          tags = json.load(open('/tmp/ollama-tags-round21.json', encoding='utf-8'))
+          rows = {r.get('name') or r.get('model'): r for r in tags.get('models', [])}
+          total = 0
+          for spec in [*cfg['candidates'], cfg['reference']]:
+              row = rows.get(spec['tag'])
+              assert row, (spec['tag'], sorted(rows))
+              digest = row.get('digest')
+              assert digest and digest.startswith(spec['expected_digest_prefix']), (spec['tag'], digest)
+              size = int(row['size'])
+              total += size
+              print(f"MODEL={spec['id']} TAG={spec['tag']} SIZE_BYTES={size} DIGEST={digest}")
+          print(f"MODEL_COUNT={len(cfg['candidates']) + 1}")
+          print(f"TOTAL_MODEL_BYTES={total}")
+          PY
+          df -h .
+
+      - name: Prepare isolated code sandbox
+        run: |
+          docker pull python:3.11-alpine
+          docker run --rm --network none --read-only --pids-limit 64 --memory 128m --cpus 0.5 \
+            --cap-drop ALL --security-opt no-new-privileges \
+            python:3.11-alpine python -c "print('SANDBOX_READY')"
+
+      - name: Execute strict critical-capability admission ladder
+        run: |
+          mkdir -p artifacts/top100-round2-1
+          python -m tools.run_top100_round2_1_capability_admission \
+            --config benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json \
+            --critical-reference benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json \
+            --pack benchmarks/frozen_samples/top100_round1_stratified_v0.1.json \
+            --endpoint http://127.0.0.1:11434 \
+            --docker-image python:3.11-alpine \
+            --pretty > artifacts/top100-round2-1/report.json
+
+      - name: Validate receipt and print admission outcome
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('artifacts/top100-round2-1/report.json').read_text(encoding='utf-8'))
+          assert r['critical_reference']['critical_set_count'] == 8
+          assert r['critical_reference']['critical_set_canonical_sha256'] == 'aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c'
+          assert r['critical_reference']['membership_mutated_by_candidate_results'] is False
+          assert r['quantized_candidate_count'] == 14
+          assert r['model_count'] == 15
+          assert r['execution']['expected_record_count'] == 360
+          assert r['execution']['record_count'] == 360
+          assert r['execution']['all_records_accounted_for'] is True
+          assert r['critical_set_average_score_used_for_admission'] is False
+          assert r['official_benchmark_family_accuracy_claimed'] is False
+          assert r['general_lossless_quantization_claimed'] is False
+          assert r['bitwise_output_identity_claimed'] is False
+          assert r['canonical_world_state_mutated'] is False
+          print('CRITICAL_SET=8')
+          print('CRITICAL_REPLAYS=3')
+          for row in r['candidate_size_order']:
+              a = r['assessments'][row['model_id']]
+              print(
+                  f"CANDIDATE rank={row['rank']} model={row['model_id']} "
+                  f"bytes={row['size_bytes']} pass_trials={a['pass_trials']}/24 "
+                  f"admission={a['admission_status']} failed={','.join(a['failed_sample_ids']) or '-'}"
+              )
+          s = r['selection']
+          print('ADMITTED_QUANTIZED=' + ','.join(s['admitted_quantized_candidates']))
+          print('SMALLEST_ADMITTED=' + str(s['smallest_admitted_quantized_candidate']))
+          print('SELECTED_RUNTIME=' + s['selected_runtime_representation'])
+          print('SELECTION_STATUS=' + s['selection_status'])
+          print('FP16_REPLAY_STABILITY=' + s['reference_replay_stability'])
+          print('AGGREGATE_SCORE_USED=0')
+          PY
+
+      - name: Upload Round-2.1 admission receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-top100-round2-1-capability-admission
+          path: artifacts/top100-round2-1/report.json
+          if-no-files-found: error
+          retention-days: 30
