@@ -1,0 +1,46 @@
+{
+  "schema": "janus.genesis.round2_1_capability_preserving_quantization_admission.v1",
+  "campaign": "JANUS_TOP100_ROUND2_1_CAPABILITY_PRESERVING_QUANTIZATION_ADMISSION_v0.1",
+  "round1_pack": "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
+  "round1_pack_git_blob_sha1": "ca27652feb3532ff52e8453dd055b608711b0d43",
+  "critical_reference": "benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json",
+  "critical_reference_git_blob_sha1": "6743337b8a6357783858c71fad01720d034b63ca",
+  "critical_set_canonical_sha256": "aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c",
+  "reference": {
+    "id": "FP16",
+    "tag": "qwen2.5:0.5b-instruct-fp16",
+    "expected_digest_prefix": "c82efd44bfdc",
+    "quantization": "F16"
+  },
+  "candidates": [
+    {"id":"Q2_K","tag":"qwen2.5:0.5b-instruct-q2_K","expected_digest_prefix":"fa66a85e7fe2"},
+    {"id":"Q3_K_S","tag":"qwen2.5:0.5b-instruct-q3_K_S","expected_digest_prefix":"2b61ae1bb74f"},
+    {"id":"Q3_K_M","tag":"qwen2.5:0.5b-instruct-q3_K_M","expected_digest_prefix":"a1b962ae1ffb"},
+    {"id":"Q3_K_L","tag":"qwen2.5:0.5b-instruct-q3_K_L","expected_digest_prefix":"2ea07e2fd539"},
+    {"id":"Q4_0","tag":"qwen2.5:0.5b-instruct-q4_0","expected_digest_prefix":"44deb286b008"},
+    {"id":"Q4_1","tag":"qwen2.5:0.5b-instruct-q4_1","expected_digest_prefix":"61378941e31f"},
+    {"id":"Q4_K_S","tag":"qwen2.5:0.5b-instruct-q4_K_S","expected_digest_prefix":"6f4611e3bd35"},
+    {"id":"Q4_K_M","tag":"qwen2.5:0.5b-instruct-q4_K_M","expected_digest_prefix":"a8b0c5157701"},
+    {"id":"Q5_0","tag":"qwen2.5:0.5b-instruct-q5_0","expected_digest_prefix":"4a8f6fc82b6e"},
+    {"id":"Q5_1","tag":"qwen2.5:0.5b-instruct-q5_1","expected_digest_prefix":"95b03700b65c"},
+    {"id":"Q5_K_S","tag":"qwen2.5:0.5b-instruct-q5_K_S","expected_digest_prefix":"5830fc2c0193"},
+    {"id":"Q5_K_M","tag":"qwen2.5:0.5b-instruct-q5_K_M","expected_digest_prefix":"0762ec590a8c"},
+    {"id":"Q6_K","tag":"qwen2.5:0.5b-instruct-q6_K","expected_digest_prefix":"ac75f8387539"},
+    {"id":"Q8_0","tag":"qwen2.5:0.5b-instruct-q8_0","expected_digest_prefix":"84d044692a2c"}
+  ],
+  "inference": {
+    "temperature": 0.0,
+    "seed": 1138,
+    "num_predict": 512,
+    "critical_replays_per_model": 3
+  },
+  "admission_rule": {
+    "membership": "CriticalFrozenSet is immutable and derived only from prior Round-2 FP16_RAW PASS records.",
+    "candidate_requirement": "For every x in CriticalFrozenSet and every configured replay, candidate(x) must grade PASS.",
+    "selection": "Among admitted quantized candidates choose the one with the smallest actual Ollama model size in bytes; ties break by tag lexicographically.",
+    "fallback": "If no quantized candidate is admitted, FP16 remains the authoritative runtime representation for this gate.",
+    "aggregate_score_used_for_admission": false,
+    "noncritical_improvements_can_compensate_for_critical_failure": false
+  },
+  "claim_ceiling": "Admission means capability preservation only on the frozen eight-sample critical set under the exact tested runtime and replay policy. It does not establish bitwise output identity, universal semantic identity, official benchmark accuracy, or lossless quantization in general."
+}

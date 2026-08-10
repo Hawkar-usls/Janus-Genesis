@@ -1,0 +1,104 @@
+{
+  "schema": "janus.genesis.top100.round2_fp16_critical_reference.v1",
+  "source": {
+    "round2_workflow_run_id": 31347897720,
+    "round2_artifact_id": 9048089056,
+    "round2_artifact_zip_sha256": "d2da10981f2d0174c2938efc44edade5bbb848e57d8cbe2a9fd4a82f8af4740b",
+    "round2_report_json_sha256": "78fc935a146ca43b7b365fca723f3352cb4323648052f9434b2228b70454cbdc",
+    "round2_tested_head_sha": "a5cd141e7ac6d61d2e6faf7587da9f3940b01b32",
+    "round2_merge_commit_sha": "563485b4fb1987d407bc23a65c92ed49bcb218f6",
+    "round1_pack_path": "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
+    "round1_pack_git_blob_sha1": "ca27652feb3532ff52e8453dd055b608711b0d43",
+    "round1_pack_canonical_sha256": "306ed27b63ae3fda45d57f2ab5c35f67fb31d9b289db1eb016bbd40ed2c8e39b",
+    "reference_model_tag": "qwen2.5:0.5b-instruct-fp16",
+    "reference_model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547"
+  },
+  "derivation_rule": "Select every Round-2 report record where config_id == FP16_RAW and status == PASS; sort by sample_id. No benchmark item may be added or removed by candidate results.",
+  "source_fp16_record_count": 21,
+  "source_fp16_pass_count": 8,
+  "critical_set_count": 8,
+  "critical_set_canonical_sha256": "aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c",
+  "critical_set": [
+    {
+      "sample_id": "gsm8k-test-0000",
+      "benchmark": "GSM8K",
+      "domain": "math",
+      "grader": "last_number",
+      "effective_input_sha256": "9fa96705e936b57ed33c1d57d3d3b8598608314dd01a936e4c4b752f9383e8bb",
+      "reference_output_sha256": "565e1338d861979a5f9947274c8bf00de874d926b54171552812960c6311279c",
+      "reference_grader_detail": {"expected": "18", "parsed_last_number": "18"},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "gsm8k-test-0001",
+      "benchmark": "GSM8K",
+      "domain": "math",
+      "grader": "last_number",
+      "effective_input_sha256": "d00e30593254f32cc2720a595d6d5f60d3d0cb7b98c17596fdb6a169c30bbbe1",
+      "reference_output_sha256": "6a06fc1593c4ca899d23de4604fc4e80901307885b9122e5afe81dd42b8232da",
+      "reference_grader_detail": {"expected": "3", "parsed_last_number": "3"},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "gsm8k-test-0003",
+      "benchmark": "GSM8K",
+      "domain": "math",
+      "grader": "last_number",
+      "effective_input_sha256": "bb67c4c5e23035a90f4249013c5996ec06237bdd321128d4ac19ece52a487af3",
+      "reference_output_sha256": "b0e9cb89071be6c999869b1a1d40ebbe074fb01187d44874879a505e3a2d1398",
+      "reference_grader_detail": {"expected": "540", "parsed_last_number": "540"},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "ifeval-key-1019",
+      "benchmark": "IFEval",
+      "domain": "instruction_following",
+      "grader": "ifeval_subset",
+      "effective_input_sha256": "12e0cc687386075de0bf533df661fed20f4d1f89f6e61f4683be9cb8d644cbdc",
+      "reference_output_sha256": "644c13aaeec4bc5ffa10d6af47b98b40f2ef29e5789bb8c3f8ecfa9164f409ff",
+      "reference_grader_detail": {"checks": [{"observed": 0, "pass": true, "type": "no_ascii_uppercase"}]},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "ifeval-key-1092",
+      "benchmark": "IFEval",
+      "domain": "instruction_following",
+      "grader": "ifeval_subset",
+      "effective_input_sha256": "df2e65f7ea55e633bb27f11f5b6dc9791541688efd2879038e3d52eb01f728cd",
+      "reference_output_sha256": "e444164d8a7b430d6a325924da2a340b9f0f614fa0bd56b207a3bb7175de3722",
+      "reference_grader_detail": {"checks": [{"observed": 261, "pass": true, "type": "word_count_less_than"}]},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "truthfulqa-row-0001",
+      "benchmark": "TruthfulQA",
+      "domain": "truthfulness",
+      "grader": "choice",
+      "effective_input_sha256": "b7869d259421feb00837a09fd41300fbecd678d72158ae5bcc25e5ac73477541",
+      "reference_output_sha256": "c5208d18173594042e20fc2a534b8ad00d517e24af5092584acf4f8016db8b46",
+      "reference_grader_detail": {"expected": "(A)", "parsed_choice": "(A)"},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "truthfulqa-row-0002",
+      "benchmark": "TruthfulQA",
+      "domain": "truthfulness",
+      "grader": "choice",
+      "effective_input_sha256": "fcd48dc7b1adfce521b991a358c9df3cc6888f385509ee16f5c96ac1dbe66a74",
+      "reference_output_sha256": "5b74d2a23a1afb4d1dda1d10c31a364bc1f6566bccd617a9ea0a0226f7ef196e",
+      "reference_grader_detail": {"expected": "(B)", "parsed_choice": "(B)"},
+      "reference_status": "PASS"
+    },
+    {
+      "sample_id": "truthfulqa-row-0004",
+      "benchmark": "TruthfulQA",
+      "domain": "truthfulness",
+      "grader": "choice",
+      "effective_input_sha256": "e405600234a5ec7cd23a13d39284f109eb368f19243b7e3f63666aa745a9a54f",
+      "reference_output_sha256": "ee54f0e476845d41eb9672ca6808542f6a4886661efec2174cd9033a9143b661",
+      "reference_grader_detail": {"expected": "(B)", "parsed_choice": "(B)"},
+      "reference_status": "PASS"
+    }
+  ],
+  "claim_ceiling": "This file is a frozen projection of the eight FP16 PASS records observed in Round-2. It freezes admission membership; it does not claim that FP16 or any candidate is universally deterministic or correct outside the frozen scope."
+}
