@@ -3,7 +3,7 @@
 
 This wrapper verifies that provenance declared in the admission config matches
 bytes actually consumed by the run before delegating inference to the Round-2.1
-runner.  It also emits the observed Git-blob identities into the final receipt.
+runner. It also emits the observed Git-blob identities into the final receipt.
 
 The historical runner remains a reusable implementation module; this wrapper is
 the canonical CI entrypoint for admission evidence.
@@ -34,6 +34,16 @@ def git_blob_sha1(path: Path) -> str:
     return git_blob_sha1_bytes(path.read_bytes())
 
 
+def _repo_relative(path: Path) -> str:
+    """Represent a consumed path in repository-relative POSIX form when possible."""
+    if not path.is_absolute():
+        return path.as_posix()
+    try:
+        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
+
+
 def validate_provenance(
     config: dict[str, Any],
     critical: dict[str, Any],
@@ -44,16 +54,18 @@ def validate_provenance(
 ) -> dict[str, Any]:
     observed_pack_blob = git_blob_sha1(pack_path)
     observed_critical_blob = git_blob_sha1(critical_path)
+    observed_pack_path = _repo_relative(pack_path)
+    observed_critical_path = _repo_relative(critical_path)
 
     declared_pack_path = str(config.get("round1_pack") or "")
     declared_critical_path = str(config.get("critical_reference") or "")
-    if declared_pack_path != pack_path.as_posix():
+    if declared_pack_path != observed_pack_path:
         raise ValueError(
-            f"config round1_pack path mismatch: {declared_pack_path!r} != {pack_path.as_posix()!r}"
+            f"config round1_pack path mismatch: {declared_pack_path!r} != {observed_pack_path!r}"
         )
-    if declared_critical_path != critical_path.as_posix():
+    if declared_critical_path != observed_critical_path:
         raise ValueError(
-            f"config critical_reference path mismatch: {declared_critical_path!r} != {critical_path.as_posix()!r}"
+            f"config critical_reference path mismatch: {declared_critical_path!r} != {observed_critical_path!r}"
         )
 
     declared_pack_blob = str(config.get("round1_pack_git_blob_sha1") or "")
@@ -90,9 +102,9 @@ def validate_provenance(
 
     return {
         "status": PROVENANCE_STATUS,
-        "config_path": config_path.as_posix(),
-        "critical_reference_path": critical_path.as_posix(),
-        "round1_pack_path": pack_path.as_posix(),
+        "config_path": _repo_relative(config_path),
+        "critical_reference_path": observed_critical_path,
+        "round1_pack_path": observed_pack_path,
         "observed_critical_reference_git_blob_sha1": observed_critical_blob,
         "observed_round1_pack_git_blob_sha1": observed_pack_blob,
         "config_declared_critical_reference_git_blob_sha1": declared_critical_blob,
