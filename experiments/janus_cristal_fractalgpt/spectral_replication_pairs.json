@@ -39,7 +39,7 @@
       "role": "INDEPENDENT_REPLICATION_CANDIDATE",
       "material": "rock_crystal_quartz_with_three_phase_hydrocarbon_inclusion",
       "same_specimen_status": "PROBABLE_NOT_EXPLICITLY_CONFIRMED_BY_COMMONS_TEXT",
-      "provenance_reason": "Both open CC BY-SA 4.0 files are by LucasFassari, describe a distinctive three-phase rock-crystal quartz inclusion consisting of bituminous solid, petroleum liquid and methane gas, and were published on consecutive dates. The Commons text does not explicitly state that the two photographs are the identical physical specimen, so v1 requires image-geometry admission and still reports provenance uncertainty.",
+      "provenance_reason": "Both open CC BY-SA 4.0 files are by LucasFassari, describe a distinctive three-phase rock-crystal quartz inclusion consisting of bituminous solid, petroleum liquid and methane gas, and were published on consecutive dates. The Commons text does not explicitly state that the two photographs are the identical physical specimen, so provenance remains uncertain.",
       "visible": {
         "id": "lucas_three_phase_visible",
         "page_url": "https://commons.wikimedia.org/wiki/File:Three_Phase_in_Rock_Crystal_Quartz,_Pakistan.jpg",
@@ -55,6 +55,30 @@
         "author": "LucasFassari",
         "license": "CC BY-SA 4.0"
       }
+    },
+    {
+      "id": "FMS_1226_PAKISTAN_QUARTZ_NORMAL_LW365",
+      "role": "INDEPENDENT_CONFIRMED_SAME_SPECIMEN_REPLICATION_CANDIDATE",
+      "material": "single_double_terminated_quartz_crystal_with_petroleum_inclusions",
+      "same_specimen_status": "CONFIRMED_BY_SINGLE_FMS_SPECIMEN_RECORD_1226",
+      "provenance_reason": "The Fluorescent Mineral Society FMDB record 1226 describes one single 26 mm quartz specimen and presents shortwave, longwave and normal-light photographs within that same specimen record. The record explicitly gives longwave as 365 nm LED and shortwave as 254 nm lamp/mercury.",
+      "source_record_url": "https://uvminerals.org/fmdb/specimen/1226/",
+      "media_policy": "REMOTE_TRANSIENT_ANALYSIS_ONLY_NO_REPUBLICATION_IN_REPOSITORY_OR_ARTIFACT",
+      "visible": {
+        "id": "fms_1226_normal",
+        "page_url": "https://uvminerals.org/fmdb/specimen/1226/",
+        "download_url": "https://media.uvminerals.org/2024/11/29140559/fmdb-1226-4586.jpg",
+        "author": "Chris Clemens / Fluorescent Mineral Society FMDB",
+        "license": "SOURCE_COPYRIGHT_RETAINED; TRANSIENT_ANALYSIS_ONLY"
+      },
+      "uv": {
+        "id": "fms_1226_lw365",
+        "modality": "LONGWAVE_UV_365_NM_LED_RECORDED",
+        "page_url": "https://uvminerals.org/fmdb/specimen/1226/",
+        "download_url": "https://media.uvminerals.org/2024/11/29140446/fmdb-1226-4585.jpg",
+        "author": "Chris Clemens / Fluorescent Mineral Society FMDB",
+        "license": "SOURCE_COPYRIGHT_RETAINED; TRANSIENT_ANALYSIS_ONLY"
+      }
     }
   ],
   "admission_rules": [
@@ -62,6 +86,8 @@
     "PAIR_MUST_HAVE_USABLE_IMAGE_REGISTRATION_BEFORE_DIFFERENCE_FIELD_COUNTS",
     "DISCOVERY_ANCHOR_DOES_NOT_COUNT_AS_CROSS_SPECIMEN_REPLICATION",
     "PROBABLE_SAME_SPECIMEN_PROVENANCE_MUST_REMAIN_EXPLICITLY_UNCERTAIN",
+    "CONFIRMED_SAME_SPECIMEN_SOURCE_RECORD_MAY_OPEN_FORMAL_IMAGE_LEVEL_REPLICATION_GATE",
+    "REMOTE_COPYRIGHTED_MEDIA_MUST_NOT_BE_REPUBLISHED_IN_GIT_OR_ACTION_ARTIFACTS",
     "REGISTERED_MODALITY_DIFFERENCE != CHEMICAL_IDENTITY",
     "REGISTERED_MODALITY_DIFFERENCE != MESSAGE",
     "FRACTALGPT_TRAJECTORY != MATERIAL_DISCOVERY",
