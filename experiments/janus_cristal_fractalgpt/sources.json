@@ -1,5 +1,5 @@
 {
-  "schema": "genesis.janus_cristal_fractalgpt.sources.v1",
+  "schema": "genesis.janus_cristal_fractalgpt.sources.v2",
   "sources": [
     {
       "id": "petroleum_quartz_visible",
@@ -30,16 +30,26 @@
     }
   ],
   "trajectory": {
-    "algorithm": "coupled_logistic_map_multiscale",
-    "seed": "JANUS-CRISTAL-FRACTALGPT-v0.1",
-    "window_count": 48,
-    "scale_ladder": [0.55, 0.40, 0.30, 0.22, 0.16]
+    "algorithm": "RECOVERED_FRACTALGPT_MULTI_PLANNER_PLUS_LOGISTIC_BASELINE",
+    "seed": "JANUS-CRISTAL-FRACTALGPT-v0.2",
+    "window_count": 20,
+    "scale_ladder": [0.55, 0.40, 0.30, 0.22, 0.16],
+    "planners": [
+      "logistic_baseline",
+      "fractalgpt_koch",
+      "fractalgpt_sierpinski",
+      "fractalgpt_fbm",
+      "fractalgpt_model"
+    ]
   },
   "rules": [
     "THE_SAME_TRAJECTORY_MUST_BE_USED_ON_REAL_AND_SHUFFLED_CONTROL",
+    "ALL_SEARCH_PATHS_MUST_BE_CONTENT_INDEPENDENT",
     "NO_HUMAN_SELECTED_REGIONS",
     "NO_POST_HOC_CIPHER_SEARCH",
     "OCR_CANDIDATE_MUST_BE_AT_LEAST_3_CHARACTERS_TO_ESCALATE",
+    "CROSS_PLANNER_REPLICATION_IS_STRONGER_THAN_SINGLE_PLANNER_PERSISTENCE",
+    "CROSS_MODALITY_REPLICATION_IS_STRONGER_THAN_CROSS_PLANNER_REPLICATION",
     "ESCALATION_IS_NOT_MESSAGE_ADMISSION"
   ]
 }
