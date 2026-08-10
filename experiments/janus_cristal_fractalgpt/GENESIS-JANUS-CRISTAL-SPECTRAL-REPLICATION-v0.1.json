@@ -9,11 +9,7 @@
     "parent": "GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1",
     "registration": "EDGE_ECC_TRANSLATION_TO_EUCLIDEAN_TO_AFFINE_WITH_IDENTITY_GUARD",
     "difference_field": "0.40*CLAHE_luminance_absdiff + 0.40*RGB_chromaticity_distance/sqrt(2) + 0.20*normalized_edge_absdiff",
-    "weights": {
-      "luminance": 0.40,
-      "chromaticity": 0.40,
-      "edge": 0.20
-    },
+    "weights": {"luminance": 0.40, "chromaticity": 0.40, "edge": 0.20},
     "hotspot_quantile": 0.95,
     "gamma_self_control": 0.72,
     "planner_null_trajectories_per_planner": 2048,
@@ -29,11 +25,9 @@
     "artifact_name": "janus-cristal-spectral-replication-receipt",
     "artifact_id": 9063837561,
     "artifact_sha256": "8efac7dabe886660e9fb2b6da6dc4c52757eadd5ba31a3b7ef44de85319c70b6",
-    "files": [
-      "GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-result.json",
-      "GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-admission.json",
-      "SPECTRAL_REPLICATION_SUMMARY.md"
-    ]
+    "raw_result": "GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-result.json",
+    "final_admission": "GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-admission.json",
+    "summary_note": "SPECTRAL_REPLICATION_SUMMARY.md is the raw pre-admission summary. The admission JSON is authoritative for final candidate classification because it evaluates the geometry validator against the confirmed positive control."
   },
   "positive_control": {
     "pair_id": "ALATAY_ANCHOR_VISIBLE_UV405",
@@ -114,7 +108,8 @@
       "keypoints_uv": 91,
       "good_matches": 6
     },
-    "final_admission": "IMAGE_LEVEL_MODALITY_DIFFERENCE_REPLICATION_CANDIDATE_PROVENANCE_UNCONFIRMED"
+    "raw_pre_admission_classification": "MODALITY_DIFFERENCE_CANDIDATE_IDENTITY_NOT_CORROBORATED",
+    "final_positive_control_aware_admission": "IMAGE_LEVEL_MODALITY_DIFFERENCE_REPLICATION_CANDIDATE_PROVENANCE_UNCONFIRMED"
   },
   "validator_self_audit": {
     "validator": "AKAZE_RATIO_MATCH_PLUS_RANSAC_HOMOGRAPHY",
@@ -124,6 +119,7 @@
     "effect": "The same failure on the LucasFassari candidate cannot be used to reject or promote specimen identity. Provenance remains the controlling identity boundary."
   },
   "admission": {
+    "authoritative_layer": "POSITIVE_CONTROL_AWARE_ADMISSION_JSON",
     "formal_independent_replication_count": 0,
     "provenance_unconfirmed_image_level_candidate_count": 1,
     "candidate": "LUCASFASSARI_THREE_PHASE_VISIBLE_LWUVR",
