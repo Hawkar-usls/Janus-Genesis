@@ -1,0 +1,51 @@
+{
+  "schema": "genesis.janus_cristal_fractalgpt.experiment.v1",
+  "artifact_id": "GENESIS-JANUS-CRISTAL-FRACTALGPT-v0.1",
+  "title": "Janus Cristal × FractalGPT Sandbox Gate",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "status": "CI_EMPIRICAL_RUN_PENDING",
+  "sandbox_only": true,
+  "authoritative_genesis_runtime_modified": false,
+  "lineage": {
+    "fractal_gpt_recovered_concept": "Generate deterministic fractal trajectories/path-selection guidance while leaving the underlying measurement algorithm conventional and independently verifiable.",
+    "janus_cristal_parent": "Hawkar-usls/janus-meta-registry/registry/crystal/JANUS-CRISTAL-v1.0.json"
+  },
+  "question": "Does a content-independent fractal multiscale search find semantic-looking or geometric candidates in crystal imagery at a rate that survives matched shuffled controls and cross-modality checks?",
+  "method": {
+    "path_selector": "SHA-256-seeded coupled logistic map",
+    "window_count": 48,
+    "human_selected_regions": false,
+    "fixed_measurements": [
+      "Tesseract OCR with restricted alphabet and confidence threshold",
+      "Canny edge density",
+      "probabilistic Hough line count",
+      "left-right mirror correlation"
+    ],
+    "negative_control": "same fractal windows applied to deterministic 48-pixel block-shuffled image",
+    "semantic_escalation": "token length >=3; >=2 real-window hits; absent from matched shuffled control; word/formula/code-like class",
+    "semantic_admission": "never admitted as intentional message in v0.1"
+  },
+  "sources": [
+    "same petroleum-quartz specimen visible",
+    "same petroleum-quartz specimen UV 405 nm",
+    "USGS visible quartz control"
+  ],
+  "formal_rules": [
+    "FRACTAL_PATH != DISCOVERY",
+    "OCR_TOKEN != MESSAGE",
+    "FORMULA_LIKE != FORMULA",
+    "CODE_LIKE != ALGORITHM",
+    "REAL_OVER_CONTROL_ENRICHMENT != INTENTIONAL_ENCODING",
+    "CROSS_MODALITY_CANDIDATE != MESSAGE",
+    "NO_POST_HOC_CIPHER_SEARCH"
+  ],
+  "result_binding": {
+    "ci_status": "PENDING",
+    "head_sha": null,
+    "workflow_run": null,
+    "artifact_id": null,
+    "artifact_sha256": null,
+    "cross_modality_escalation_count": null
+  },
+  "claim_ceiling": "This sandbox can compare deterministic search strategies and detector behavior. It cannot establish hidden intelligence, intentional encoding, messages, formulas, code, algorithms, or supernatural causes."
+}
