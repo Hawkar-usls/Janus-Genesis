@@ -204,6 +204,48 @@ class Round21ProvenanceHardeningTests(unittest.TestCase):
         )
         self.assertTrue(receipt["repository_root_independent_of_process_cwd"])
 
+    def test_main_repo_relative_cli_inputs_are_stable_outside_repository_cwd(self) -> None:
+        argv = [
+            "--config", "benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json",
+            "--critical-reference", "benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json",
+            "--pack", "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
+            "--endpoint", "http://127.0.0.1:11434",
+            "--docker-image", "python:3.11-alpine",
+            "--timeout", "1",
+        ]
+        fake_report = {"schema": "unit-test-report"}
+        old_cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                os.chdir(tmp)
+                with mock.patch.object(
+                    hard.gate,
+                    "main",
+                    side_effect=AssertionError("historical CLI must not be called"),
+                ) as old_main, mock.patch.object(
+                    hard.gate,
+                    "execute",
+                    return_value=fake_report.copy(),
+                ) as execute, io.StringIO() as out, contextlib.redirect_stdout(out):
+                    rc = hard.main(argv)
+                    payload = json.loads(out.getvalue())
+            finally:
+                os.chdir(old_cwd)
+
+        self.assertEqual(0, rc)
+        old_main.assert_not_called()
+        execute.assert_called_once()
+        p = payload["provenance_verification"]
+        self.assertEqual(
+            "benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json",
+            p["config_path"],
+        )
+        self.assertEqual(self.config["critical_reference"], p["critical_reference_path"])
+        self.assertEqual(self.config["round1_pack"], p["round1_pack_path"])
+        self.assertTrue(p["repository_root_independent_of_process_cwd"])
+        self.assertTrue(p["single_snapshot_consumption"])
+        self.assertTrue(p["verified_bytes_are_execution_bytes"])
+
     def test_main_uses_direct_execute_not_historical_rereading_cli(self) -> None:
         argv = [
             "--config", str(CONFIG),
