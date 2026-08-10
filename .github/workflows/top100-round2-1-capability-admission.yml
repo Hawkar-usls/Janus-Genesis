@@ -158,6 +158,7 @@ jobs:
           assert p['receipt_fields_derived_from_verified_declarations'] is True
           assert p['single_snapshot_consumption'] is True
           assert p['verified_bytes_are_execution_bytes'] is True
+          assert p['repository_root_independent_of_process_cwd'] is True
           assert r['quantized_candidate_count'] == 14
           assert r['model_count'] == 15
           assert r['execution']['expected_record_count'] == 360
@@ -171,6 +172,7 @@ jobs:
           print('PROVENANCE_VERIFICATION=' + p['status'])
           print('SINGLE_SNAPSHOT_CONSUMPTION=PASS')
           print('VERIFIED_BYTES_ARE_EXECUTION_BYTES=PASS')
+          print('REPOSITORY_ROOT_INDEPENDENT_OF_PROCESS_CWD=PASS')
           print('CRITICAL_SET=8')
           print('CRITICAL_REPLAYS=3')
           for row in r['candidate_size_order']:
