@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """Registered same-specimen visible/UV difference mapping for Janus Cristal.
 
-This is deliberately NONSEMANTIC. The visible and UV405 photographs of the same
-petroleum-quartz specimen are registered first. A fixed difference field is then
-constructed from luminance, chromaticity and edge changes. Only after the field
-exists do content-independent FractalGPT/baseline trajectories sample it.
-
-No OCR, glyph search, cipher search, or post-hoc region selection occurs here.
+NONSEMANTIC gate. Registration is performed first. A fixed-scale difference
+field is then constructed from luminance, chromaticity and edge changes. Only
+after that field exists do content-independent FractalGPT/baseline trajectories
+sample it. No OCR, glyph search, cipher search or post-hoc region selection.
 """
 from __future__ import annotations
 
@@ -32,21 +30,6 @@ NULL_TRAJECTORY_COUNT = 2048
 FAMILYWISE_ALPHA = 0.01
 
 
-def robust01(arr: np.ndarray, mask: np.ndarray, lo_q: float = 0.01, hi_q: float = 0.99) -> np.ndarray:
-    vals = arr[mask > 0]
-    if vals.size == 0:
-        return np.zeros_like(arr, dtype=np.float32)
-    lo = float(np.quantile(vals, lo_q))
-    hi = float(np.quantile(vals, hi_q))
-    if hi <= lo + 1e-12:
-        out = np.zeros_like(arr, dtype=np.float32)
-    else:
-        out = ((arr.astype(np.float32) - lo) / (hi - lo)).astype(np.float32)
-    out = np.clip(out, 0.0, 1.0)
-    out[mask == 0] = 0.0
-    return out
-
-
 def gray_clahe(image: np.ndarray) -> np.ndarray:
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return cv2.createCLAHE(clipLimit=1.8, tileGridSize=(8, 8)).apply(gray).astype(np.float32) / 255.0
@@ -57,8 +40,8 @@ def edge_map(image: np.ndarray) -> np.ndarray:
     sx = cv2.Sobel(gray, cv2.CV_32F, 1, 0, ksize=3)
     sy = cv2.Sobel(gray, cv2.CV_32F, 0, 1, ksize=3)
     mag = cv2.magnitude(sx, sy)
-    p = float(np.quantile(mag, 0.99))
-    return np.clip(mag / max(p, 1e-6), 0.0, 1.0)
+    p99 = float(np.quantile(mag, 0.99))
+    return np.clip(mag / max(p99, 1e-6), 0.0, 1.0)
 
 
 def corr_masked(a: np.ndarray, b: np.ndarray, mask: np.ndarray) -> float:
@@ -83,7 +66,6 @@ def resize_pair(a: np.ndarray, b: np.ndarray, max_dim: int = 1200) -> tuple[np.n
 
 
 def register_uv_to_visible(visible: np.ndarray, uv: np.ndarray) -> tuple[np.ndarray, np.ndarray, dict]:
-    """Deterministic edge-based ECC cascade with an identity fallback."""
     h, w = visible.shape[:2]
     template = edge_map(visible).astype(np.float32)
     moving = edge_map(uv).astype(np.float32)
@@ -96,17 +78,13 @@ def register_uv_to_visible(visible: np.ndarray, uv: np.ndarray) -> tuple[np.ndar
     selected_motion = "IDENTITY"
     criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 150, 1e-6)
 
-    for motion, name in ((cv2.MOTION_TRANSLATION, "TRANSLATION"), (cv2.MOTION_EUCLIDEAN, "EUCLIDEAN"), (cv2.MOTION_AFFINE, "AFFINE")):
+    for motion, name in (
+        (cv2.MOTION_TRANSLATION, "TRANSLATION"),
+        (cv2.MOTION_EUCLIDEAN, "EUCLIDEAN"),
+        (cv2.MOTION_AFFINE, "AFFINE"),
+    ):
         try:
-            cc, candidate = cv2.findTransformECC(
-                template,
-                moving,
-                warp.copy(),
-                motion,
-                criteria,
-                None,
-                5,
-            )
+            cc, candidate = cv2.findTransformECC(template, moving, warp.copy(), motion, criteria, None, 5)
             if np.all(np.isfinite(candidate)):
                 warp = candidate.astype(np.float32)
                 selected_cc = float(cc)
@@ -117,44 +95,31 @@ def register_uv_to_visible(visible: np.ndarray, uv: np.ndarray) -> tuple[np.ndar
         except cv2.error as exc:
             attempts.append({"motion": name, "status": "ERROR", "message": str(exc).split("\n")[0][:180]})
 
-    registered = cv2.warpAffine(
-        uv,
-        warp,
-        (w, h),
-        flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP,
-        borderMode=cv2.BORDER_CONSTANT,
-        borderValue=0,
-    )
-    mask = cv2.warpAffine(
-        np.ones((h, w), dtype=np.uint8),
-        warp,
-        (w, h),
-        flags=cv2.INTER_NEAREST | cv2.WARP_INVERSE_MAP,
-        borderMode=cv2.BORDER_CONSTANT,
-        borderValue=0,
-    )
-    # Remove a small border where interpolation/warping is least reliable.
-    mask[:4, :] = 0
-    mask[-4:, :] = 0
-    mask[:, :4] = 0
-    mask[:, -4:] = 0
+    def apply(candidate: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        registered = cv2.warpAffine(
+            uv, candidate, (w, h), flags=cv2.INTER_LINEAR | cv2.WARP_INVERSE_MAP,
+            borderMode=cv2.BORDER_CONSTANT, borderValue=0,
+        )
+        mask = cv2.warpAffine(
+            np.ones((h, w), dtype=np.uint8), candidate, (w, h),
+            flags=cv2.INTER_NEAREST | cv2.WARP_INVERSE_MAP,
+            borderMode=cv2.BORDER_CONSTANT, borderValue=0,
+        )
+        mask[:4, :] = mask[-4:, :] = 0
+        mask[:, :4] = mask[:, -4:] = 0
+        return registered, mask
 
+    registered, mask = apply(warp)
     after = corr_masked(template, edge_map(registered), mask)
     overlap = float((mask > 0).mean())
     a = warp[:, :2].astype(np.float64)
     det = float(np.linalg.det(a))
-    tx, ty = float(warp[0, 2]), float(warp[1, 2])
-    translation_px = float(math.hypot(tx, ty))
-    identity_score = before
-
-    # Guard against a mathematically converged but geometrically implausible warp.
+    translation_px = float(math.hypot(float(warp[0, 2]), float(warp[1, 2])))
     plausible = 0.70 <= abs(det) <= 1.35 and overlap >= 0.72 and translation_px <= 0.30 * max(h, w)
-    if not plausible or after < identity_score - 0.03:
+
+    if not plausible or after < before - 0.03:
         warp = np.eye(2, 3, dtype=np.float32)
-        registered = uv.copy()
-        mask = np.ones((h, w), dtype=np.uint8)
-        mask[:4, :] = mask[-4:, :] = 0
-        mask[:, :4] = mask[:, -4:] = 0
+        registered, mask = apply(warp)
         after = corr_masked(template, edge_map(registered), mask)
         overlap = float((mask > 0).mean())
         selected_motion = "IDENTITY_FALLBACK"
@@ -162,7 +127,8 @@ def register_uv_to_visible(visible: np.ndarray, uv: np.ndarray) -> tuple[np.ndar
         det = 1.0
         translation_px = 0.0
 
-    receipt = {
+    quality = "USABLE_IMAGE_REGISTRATION" if overlap >= 0.85 and after >= 0.10 else "WEAK_REGISTRATION_USE_CAUTION"
+    return registered, mask, {
         "method": "EDGE_ECC_TRANSLATION_TO_EUCLIDEAN_TO_AFFINE_WITH_IDENTITY_GUARD",
         "attempts": attempts,
         "selected_motion": selected_motion,
@@ -174,39 +140,35 @@ def register_uv_to_visible(visible: np.ndarray, uv: np.ndarray) -> tuple[np.ndar
         "overlap_fraction": round(overlap, 8),
         "affine_determinant": round(det, 8),
         "translation_pixels_resized_frame": round(translation_px, 6),
-        "quality_class": "USABLE_IMAGE_REGISTRATION" if overlap >= 0.85 and after >= 0.10 else "WEAK_REGISTRATION_USE_CAUTION",
+        "quality_class": quality,
     }
-    return registered, mask, receipt
 
 
-def difference_channels(visible: np.ndarray, uv_registered: np.ndarray, mask: np.ndarray) -> dict[str, np.ndarray]:
-    luma_a = gray_clahe(visible)
-    luma_b = gray_clahe(uv_registered)
-    luminance = robust01(np.abs(luma_a - luma_b), mask)
+def difference_channels(visible: np.ndarray, other: np.ndarray, mask: np.ndarray) -> dict[str, np.ndarray]:
+    """Fixed physical image-space scales, so pair and self-control are comparable."""
+    luminance = np.abs(gray_clahe(visible) - gray_clahe(other)).astype(np.float32)
 
     a = visible.astype(np.float32)[:, :, ::-1] / 255.0
-    b = uv_registered.astype(np.float32)[:, :, ::-1] / 255.0
+    b = other.astype(np.float32)[:, :, ::-1] / 255.0
     ca = a / np.maximum(a.sum(axis=2, keepdims=True), 1e-5)
     cb = b / np.maximum(b.sum(axis=2, keepdims=True), 1e-5)
-    chromaticity = robust01(np.linalg.norm(ca - cb, axis=2), mask)
+    chromaticity = np.clip(np.linalg.norm(ca - cb, axis=2) / math.sqrt(2.0), 0.0, 1.0).astype(np.float32)
 
-    ea = edge_map(visible)
-    eb = edge_map(uv_registered)
-    edge = robust01(np.abs(ea - eb), mask)
-
+    edge = np.abs(edge_map(visible) - edge_map(other)).astype(np.float32)
     composite = (
         WEIGHTS["luminance"] * luminance
         + WEIGHTS["chromaticity"] * chromaticity
         + WEIGHTS["edge"] * edge
     ).astype(np.float32)
-    composite[mask == 0] = 0.0
+
+    for field in (luminance, chromaticity, edge, composite):
+        field[mask == 0] = 0.0
     return {"luminance": luminance, "chromaticity": chromaticity, "edge": edge, "composite": composite}
 
 
 def gamma_control(image: np.ndarray, gamma: float = 0.72) -> np.ndarray:
     x = image.astype(np.float32) / 255.0
-    y = np.power(np.clip(x, 0.0, 1.0), gamma)
-    return np.clip(y * 255.0, 0, 255).astype(np.uint8)
+    return np.clip(np.power(np.clip(x, 0.0, 1.0), gamma) * 255.0, 0, 255).astype(np.uint8)
 
 
 def summarize_field(field: np.ndarray, mask: np.ndarray) -> dict:
@@ -274,15 +236,14 @@ def sample_trajectory(fields: dict[str, np.ndarray], hotspot_binary: np.ndarray,
     per_window = []
     for window in trajectory:
         b = window_bounds(shape, window)
-        row = {
+        per_window.append({
             "window": window,
             "composite_mean": rect_mean(ints["composite"], b),
             "luminance_mean": rect_mean(ints["luminance"], b),
             "chromaticity_mean": rect_mean(ints["chromaticity"], b),
             "edge_mean": rect_mean(ints["edge"], b),
             "hotspot_fraction": rect_mean(hotspot_ii, b),
-        }
-        per_window.append(row)
+        })
     return {
         "median_composite": round(float(median(r["composite_mean"] for r in per_window)), 8),
         "median_hotspot_fraction": round(float(median(r["hotspot_fraction"] for r in per_window)), 8),
@@ -296,15 +257,15 @@ def sample_trajectory(fields: dict[str, np.ndarray], hotspot_binary: np.ndarray,
 def matched_random_trajectory(seed: str, template: list[dict]) -> list[dict]:
     raw = hashlib.sha256(seed.encode("utf-8")).digest()
     rng = np.random.default_rng(int.from_bytes(raw[:8], "big"))
-    out = []
-    for i, row in enumerate(template):
-        out.append({
+    return [
+        {
             "index": i,
             "cx": round(float(rng.uniform(0.04, 0.96)), 8),
             "cy": round(float(rng.uniform(0.04, 0.96)), 8),
             "scale": float(row["scale"]),
-        })
-    return out
+        }
+        for i, row in enumerate(template)
+    ]
 
 
 def planner_null_test(fields: dict[str, np.ndarray], hotspot_binary: np.ndarray, planners: dict[str, list[dict]], seed: str) -> dict:
@@ -313,8 +274,7 @@ def planner_null_test(fields: dict[str, np.ndarray], hotspot_binary: np.ndarray,
     hotspot_ii = integral(hotspot_binary.astype(np.float32))
 
     def stats(traj: list[dict]) -> tuple[float, float]:
-        comp = []
-        hot = []
+        comp, hot = [], []
         for row in traj:
             b = window_bounds(shape, row)
             comp.append(rect_mean(composite_ii, b))
@@ -325,11 +285,9 @@ def planner_null_test(fields: dict[str, np.ndarray], hotspot_binary: np.ndarray,
     alpha = FAMILYWISE_ALPHA / max(1, len(planners))
     for name, traj in planners.items():
         observed_comp, observed_hot = stats(traj)
-        null_comp = []
-        null_hot = []
+        null_comp, null_hot = [], []
         for i in range(NULL_TRAJECTORY_COUNT):
-            null = matched_random_trajectory(f"{seed}::{name}::{i}", traj)
-            c, h = stats(null)
+            c, h = stats(matched_random_trajectory(f"{seed}::{name}::{i}", traj))
             null_comp.append(c)
             null_hot.append(h)
         p_comp = (1 + sum(v >= observed_comp for v in null_comp)) / (NULL_TRAJECTORY_COUNT + 1)
@@ -356,8 +314,7 @@ def main() -> int:
 
     manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
     source_map = {s["id"]: s for s in manifest["sources"]}
-    visible_meta = source_map[VISIBLE_ID]
-    uv_meta = source_map[UV_ID]
+    visible_meta, uv_meta = source_map[VISIBLE_ID], source_map[UV_ID]
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
@@ -366,6 +323,7 @@ def main() -> int:
         "artifact_id": "GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1",
         "pair": {"visible": VISIBLE_ID, "uv405": UV_ID, "same_specimen_group": "ALATAY"},
         "semantic_analysis": "DISABLED_BY_DESIGN",
+        "difference_field_definition": "0.40*CLAHE_luminance_absdiff + 0.40*RGB_chromaticity_distance/sqrt(2) + 0.20*normalized_edge_absdiff",
         "difference_field_weights": WEIGHTS,
         "hotspot_quantile": HOTSPOT_QUANTILE,
         "null_trajectory_count_per_planner": NULL_TRAJECTORY_COUNT,
@@ -374,8 +332,7 @@ def main() -> int:
 
     with tempfile.TemporaryDirectory(prefix="janus-spectral-diff-") as td:
         td = Path(td)
-        vp = td / "visible.img"
-        up = td / "uv.img"
+        vp, up = td / "visible.img", td / "uv.img"
         fcp.fetch(visible_meta["download_url"], vp)
         fcp.fetch(uv_meta["download_url"], up)
         visible = cv2.imread(str(vp), cv2.IMREAD_COLOR)
@@ -387,7 +344,6 @@ def main() -> int:
             VISIBLE_ID: {"sha256": fcp.sha256_file(vp), "original_dimensions": [visible.shape[1], visible.shape[0]]},
             UV_ID: {"sha256": fcp.sha256_file(up), "original_dimensions": [uv.shape[1], uv.shape[0]]},
         }
-
         visible, uv = resize_pair(visible, uv, max_dim=1200)
         registered_uv, mask, reg = register_uv_to_visible(visible, uv)
         report["resized_dimensions"] = [visible.shape[1], visible.shape[0]]
@@ -396,13 +352,12 @@ def main() -> int:
         fields = difference_channels(visible, registered_uv, mask)
         report["field_summary"] = {k: summarize_field(v, mask) for k, v in fields.items()}
 
-        # Exposure/gamma self-control: same visible image under deterministic monotonic luminance transform.
         gamma_img = gamma_control(visible)
         gamma_fields = difference_channels(visible, gamma_img, mask)
         report["visible_gamma_self_control"] = {
             "gamma": 0.72,
             "field_summary": {k: summarize_field(v, mask) for k, v in gamma_fields.items()},
-            "purpose": "Verify that the fixed field is not merely a raw brightness-difference detector."
+            "purpose": "Fixed-scale control for a strong monotonic exposure-like transform."
         }
 
         hotspot_binary, hotspot_rows, threshold = hotspots(fields["composite"], mask)
@@ -426,22 +381,14 @@ def main() -> int:
         report["trajectory_receipt"] = {
             "planner_count": len(planners),
             "recovered_fractalgpt": recovered_receipt,
-            "planner_hashes": {
-                k: hashlib.sha256(json.dumps(v, sort_keys=True).encode()).hexdigest()
-                for k, v in planners.items()
-            },
+            "planner_hashes": {k: hashlib.sha256(json.dumps(v, sort_keys=True).encode()).hexdigest() for k, v in planners.items()},
         }
-        report["planner_samples"] = {
-            name: sample_trajectory(fields, hotspot_binary, traj)
-            for name, traj in planners.items()
-        }
+        report["planner_samples"] = {name: sample_trajectory(fields, hotspot_binary, traj) for name, traj in planners.items()}
         report["planner_random_null_tests"] = planner_null_test(fields, hotspot_binary, planners, seed)
 
-        enriched = [
-            name for name, r in report["planner_random_null_tests"].items()
-            if r["composite_enrichment_gate"] == "PASS_SINGLE_PAIR_CANDIDATE"
-            or r["hotspot_enrichment_gate"] == "PASS_SINGLE_PAIR_CANDIDATE"
-        ]
+        enriched = [name for name, r in report["planner_random_null_tests"].items()
+                    if r["composite_enrichment_gate"] == "PASS_SINGLE_PAIR_CANDIDATE"
+                    or r["hotspot_enrichment_gate"] == "PASS_SINGLE_PAIR_CANDIDATE"]
         report["planner_enrichment_summary"] = {
             "enriched_planners": enriched,
             "enriched_planner_count": len(enriched),
@@ -457,16 +404,13 @@ def main() -> int:
             "gamma_self_control_composite_median": ctrl_median,
             "pair_to_gamma_control_median_ratio": round(float(ratio), 8),
             "registration_quality": reg["quality_class"],
-            "status": (
-                "REGISTERED_VISIBLE_UV_DIFFERENCE_FIELD_OBSERVED"
-                if reg["quality_class"] == "USABLE_IMAGE_REGISTRATION" and ratio > 1.15
-                else "DIFFERENCE_FIELD_OBSERVED_WITH_LIMITATIONS"
-            )
+            "status": "REGISTERED_VISIBLE_UV_DIFFERENCE_FIELD_OBSERVED" if reg["quality_class"] == "USABLE_IMAGE_REGISTRATION" and ratio > 1.15 else "DIFFERENCE_FIELD_OBSERVED_WITH_LIMITATIONS"
         }
 
     report["formal_rules"] = [
         "REGISTRATION_PRECEDES_DIFFERENCE_FIELD",
         "DIFFERENCE_FIELD_PRECEDES_FRACTAL_SAMPLING",
+        "FIXED_CHANNEL_SCALES_USED_FOR_PAIR_AND_SELF_CONTROL",
         "NO_OCR_OR_SEMANTIC_SEARCH_IN_SPECTRAL_GATE",
         "FRACTALGPT_TRAJECTORY != MATERIAL_DISCOVERY",
         "SINGLE_PAIR_ENRICHMENT != GENERAL_QUARTZ_PROPERTY",
@@ -477,9 +421,7 @@ def main() -> int:
         "It cannot establish a universal quartz property, chemical identity without spectroscopy, hidden semantics, intelligence, or a supernatural cause."
     )
 
-    result = out_dir / "GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-result.json"
-    result.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
+    (out_dir / "GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-result.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     lines = [
         "# Registered visible ↔ UV405 same-specimen gate",
         "",
