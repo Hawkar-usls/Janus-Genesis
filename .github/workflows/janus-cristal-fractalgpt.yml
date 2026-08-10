@@ -50,12 +50,19 @@ jobs:
           --manifest experiments/janus_cristal_fractalgpt/sources.json
           --out artifacts/janus-cristal-fractalgpt
 
-      - name: Run frozen cross-specimen replication gate
-        run: >-
-          python experiments/janus_cristal_fractalgpt/spectral_replication_probe.py
-          --pairs experiments/janus_cristal_fractalgpt/spectral_replication_pairs.json
-          --trajectory-manifest experiments/janus_cristal_fractalgpt/sources.json
-          --out artifacts/janus-cristal-fractalgpt
+      - name: Replication ownership receipt
+        run: |
+          mkdir -p artifacts/janus-cristal-fractalgpt
+          cat > artifacts/janus-cristal-fractalgpt/SPECTRAL_REPLICATION_OWNERSHIP.md <<'EOF'
+          # Cross-specimen replication ownership
+
+          Network-heavy cross-specimen replay is intentionally executed only by
+          `.github/workflows/janus-cristal-spectral-replication.yml`.
+
+          This prevents duplicate full-resolution Wikimedia downloads from the
+          general sandbox workflow and keeps transport/rate-limit behavior from
+          contaminating the scientific measurement result.
+          EOF
 
       - name: Publish summary
         if: always()
@@ -68,9 +75,9 @@ jobs:
             echo "" >> "$GITHUB_STEP_SUMMARY"
             cat artifacts/janus-cristal-fractalgpt/SPECTRAL_DIFFERENCE_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
           fi
-          if [ -f artifacts/janus-cristal-fractalgpt/SPECTRAL_REPLICATION_SUMMARY.md ]; then
+          if [ -f artifacts/janus-cristal-fractalgpt/SPECTRAL_REPLICATION_OWNERSHIP.md ]; then
             echo "" >> "$GITHUB_STEP_SUMMARY"
-            cat artifacts/janus-cristal-fractalgpt/SPECTRAL_REPLICATION_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/janus-cristal-fractalgpt/SPECTRAL_REPLICATION_OWNERSHIP.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload receipt
