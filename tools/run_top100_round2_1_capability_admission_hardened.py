@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 """Hardened canonical entrypoint for the Round-2.1 capability admission gate.
 
-This wrapper verifies that provenance declared in the admission config matches
-bytes actually consumed by the run before delegating inference to the Round-2.1
-runner. It also emits the observed Git-blob identities into the final receipt.
-
-The historical runner remains a reusable implementation module; this wrapper is
-the canonical CI entrypoint for admission evidence.
+The canonical entrypoint reads config, critical reference, and frozen pack into
+one byte snapshot, verifies provenance against those exact bytes, parses that
+same snapshot, and passes the parsed objects directly to the admission engine.
+No second file read is delegated to the historical CLI entrypoint.
 """
 from __future__ import annotations
 
 import argparse
-import contextlib
 import hashlib
-import io
 import json
 import sys
 from pathlib import Path
@@ -51,9 +47,25 @@ def validate_provenance(
     config_path: Path,
     critical_path: Path,
     pack_path: Path,
+    config_bytes: bytes | None = None,
+    critical_bytes: bytes | None = None,
+    pack_bytes: bytes | None = None,
 ) -> dict[str, Any]:
-    observed_pack_blob = git_blob_sha1(pack_path)
-    observed_critical_blob = git_blob_sha1(critical_path)
+    """Validate declarations against the exact byte snapshot used by execution.
+
+    Callers that already hold a snapshot pass the byte buffers explicitly. The
+    optional fallback reads are retained only for focused unit-level validation.
+    """
+    if config_bytes is None:
+        config_bytes = config_path.read_bytes()
+    if critical_bytes is None:
+        critical_bytes = critical_path.read_bytes()
+    if pack_bytes is None:
+        pack_bytes = pack_path.read_bytes()
+
+    observed_config_blob = git_blob_sha1_bytes(config_bytes)
+    observed_pack_blob = git_blob_sha1_bytes(pack_bytes)
+    observed_critical_blob = git_blob_sha1_bytes(critical_bytes)
     observed_pack_path = _repo_relative(pack_path)
     observed_critical_path = _repo_relative(critical_path)
 
@@ -105,6 +117,7 @@ def validate_provenance(
         "config_path": _repo_relative(config_path),
         "critical_reference_path": observed_critical_path,
         "round1_pack_path": observed_pack_path,
+        "observed_config_git_blob_sha1": observed_config_blob,
         "observed_critical_reference_git_blob_sha1": observed_critical_blob,
         "observed_round1_pack_git_blob_sha1": observed_pack_blob,
         "config_declared_critical_reference_git_blob_sha1": declared_critical_blob,
@@ -112,44 +125,61 @@ def validate_provenance(
         "critical_source_round1_pack_git_blob_sha1": source_pack_blob,
         "critical_set_canonical_sha256": source_critical_set_hash,
         "receipt_fields_derived_from_verified_declarations": True,
+        "single_snapshot_consumption": True,
+        "verified_bytes_are_execution_bytes": True,
     }
 
 
-def _paths_from_argv(argv: list[str]) -> tuple[argparse.Namespace, list[str]]:
-    parser = argparse.ArgumentParser(add_help=False)
+def _parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--critical-reference", type=Path, required=True)
     parser.add_argument("--pack", type=Path, required=True)
-    known, rest = parser.parse_known_args(argv)
-    return known, rest
+    parser.add_argument("--endpoint", default="http://127.0.0.1:11434")
+    parser.add_argument("--docker-image", default="python:3.11-alpine")
+    parser.add_argument("--timeout", type=float, default=180.0)
+    parser.add_argument("--pretty", action="store_true")
+    return parser
 
 
 def main(argv: list[str] | None = None) -> int:
-    raw_argv = list(sys.argv[1:] if argv is None else argv)
-    paths, _ = _paths_from_argv(raw_argv)
-    config = json.loads(paths.config.read_text(encoding="utf-8"))
-    critical = json.loads(paths.critical_reference.read_text(encoding="utf-8"))
+    args = _parser().parse_args(sys.argv[1:] if argv is None else argv)
+
+    # One read per consumed input. The exact same byte buffers are used both for
+    # provenance identities and for the parsed objects handed to gate.execute().
+    config_bytes = args.config.read_bytes()
+    critical_bytes = args.critical_reference.read_bytes()
+    pack_bytes = args.pack.read_bytes()
+
+    config = json.loads(config_bytes.decode("utf-8"))
+    critical = json.loads(critical_bytes.decode("utf-8"))
+    pack = json.loads(pack_bytes.decode("utf-8"))
+
     provenance = validate_provenance(
         config,
         critical,
-        config_path=paths.config,
-        critical_path=paths.critical_reference,
-        pack_path=paths.pack,
+        config_path=args.config,
+        critical_path=args.critical_reference,
+        pack_path=args.pack,
+        config_bytes=config_bytes,
+        critical_bytes=critical_bytes,
+        pack_bytes=pack_bytes,
     )
 
-    capture = io.StringIO()
-    with contextlib.redirect_stdout(capture):
-        rc = gate.main(raw_argv)
-    if rc != 0:
-        return rc
-    report = json.loads(capture.getvalue())
+    report = gate.execute(
+        config,
+        critical,
+        pack,
+        endpoint=args.endpoint,
+        docker_image=args.docker_image,
+        timeout=args.timeout,
+    )
     report["provenance_verification"] = provenance
-    pretty = "--pretty" in raw_argv
     print(json.dumps(
         report,
         ensure_ascii=False,
-        sort_keys=pretty,
-        indent=2 if pretty else None,
+        sort_keys=args.pretty,
+        indent=2 if args.pretty else None,
     ))
     return 0
 
