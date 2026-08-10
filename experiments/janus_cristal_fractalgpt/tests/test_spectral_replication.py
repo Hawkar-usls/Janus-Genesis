@@ -45,6 +45,19 @@ class SpectralReplicationTests(unittest.TestCase):
         self.assertNotEqual(status, "CONFIRMED_SAME_SPECIMEN")
         self.assertIn("NOT_EXPLICITLY_CONFIRMED", status)
 
+    def test_fms_primary_is_confirmed_same_specimen_before_measurement(self):
+        manifest = json.loads((EXP / "spectral_replication_pairs.json").read_text(encoding="utf-8"))
+        pair = next(p for p in manifest["pairs"] if p["id"] == "FMS_1226_PAKISTAN_QUARTZ_NORMAL_LW365")
+        self.assertTrue(pair["same_specimen_status"].startswith("CONFIRMED"))
+        self.assertEqual(pair["role"], "PRIMARY_INDEPENDENT_CONFIRMED_SAME_SPECIMEN_REPLICATION_CANDIDATE")
+        self.assertEqual(pair["uv"]["modality"], "LONGWAVE_UV_365_NM_LED_RECORDED")
+
+    def test_fms_shortwave_is_confirmatory_not_second_independent_specimen(self):
+        manifest = json.loads((EXP / "spectral_replication_pairs.json").read_text(encoding="utf-8"))
+        pair = next(p for p in manifest["pairs"] if p["id"] == "FMS_1226_PAKISTAN_QUARTZ_NORMAL_SW254")
+        self.assertEqual(pair["role"], adm.CONFIRMATORY_ROLE)
+        self.assertEqual(pair["uv"]["modality"], "SHORTWAVE_UV_254_NM_MERCURY_LAMP_RECORDED")
+
     def test_anchor_is_explicitly_not_replication(self):
         manifest = json.loads((EXP / "spectral_replication_pairs.json").read_text(encoding="utf-8"))
         anchor = next(p for p in manifest["pairs"] if p["id"].startswith("ALATAY"))
@@ -86,6 +99,38 @@ class SpectralReplicationTests(unittest.TestCase):
         self.assertEqual(r["candidate_count"], 1)
         self.assertEqual(r["formal_independent_replication_count"], 0)
         self.assertEqual(r["cross_specimen_replication_gate"], "OPEN_NOT_ESTABLISHED")
+
+    def test_confirmatory_same_specimen_pair_does_not_double_count_formal_replication(self):
+        raw = {"pairs": [
+            {
+                "pair_id": "anchor",
+                "role": "FROZEN_DISCOVERY_ANCHOR_NOT_REPLICATION",
+                "same_specimen_status": "CONFIRMED_BY_SOURCE",
+                "geometry_corroboration": {"status": "INSUFFICIENT_MATCHES"},
+                "image_level_gate": {"status": "REGISTERED_MODALITY_DIFFERENCE_OBSERVED"},
+                "planner_enrichment": {"status": "NO_PLANNER_ENRICHMENT"},
+            },
+            {
+                "pair_id": "fms-lw",
+                "role": "PRIMARY_INDEPENDENT_CONFIRMED_SAME_SPECIMEN_REPLICATION_CANDIDATE",
+                "same_specimen_status": "CONFIRMED_BY_SINGLE_RECORD",
+                "geometry_corroboration": {"status": "INSUFFICIENT_MATCHES"},
+                "image_level_gate": {"status": "REGISTERED_MODALITY_DIFFERENCE_OBSERVED"},
+                "planner_enrichment": {"status": "NO_PLANNER_ENRICHMENT"},
+            },
+            {
+                "pair_id": "fms-sw",
+                "role": adm.CONFIRMATORY_ROLE,
+                "same_specimen_status": "CONFIRMED_BY_SINGLE_RECORD",
+                "geometry_corroboration": {"status": "INSUFFICIENT_MATCHES"},
+                "image_level_gate": {"status": "REGISTERED_MODALITY_DIFFERENCE_OBSERVED"},
+                "planner_enrichment": {"status": "NO_PLANNER_ENRICHMENT"},
+            },
+        ]}
+        r = adm.admit(raw)
+        self.assertEqual(r["formal_independent_replication_count"], 1)
+        self.assertEqual(r["confirmatory_modality_count"], 1)
+        self.assertEqual(r["cross_specimen_replication_gate"], "PASS")
 
 
 if __name__ == "__main__":
