@@ -18,12 +18,19 @@ import spectral_replication_probe as frozen_replay
 TARGET_PLANNER = "fractalgpt_sierpinski"
 EXPECTED_ALPHA = 0.00166667
 EXPECTED_NULLS = 2048
-EXPECTED_WINDOWS = 48
+EXPECTED_WINDOWS = 20
+ALLOWED_PREREG_STATUSES = {
+    "PREREGISTERED_BEFORE_OUTCOME",
+    "PREREGISTERED_BEFORE_OUTCOME_WITH_PRE_OUTCOME_PROTOCOL_CORRECTION",
+}
 
 
 def assert_preregistered(manifest: dict, trajectory_manifest: dict) -> None:
-    if manifest.get("status") != "PREREGISTERED_BEFORE_OUTCOME":
+    if manifest.get("status") not in ALLOWED_PREREG_STATUSES:
         raise AssertionError("replication manifest must be preregistered")
+    correction = manifest.get("pre_outcome_correction")
+    if correction is not None and correction.get("outcome_seen_before_correction") is not False:
+        raise AssertionError("protocol correction is only admissible before outcome acquisition")
     cfg = manifest["frozen_measurement"]
     if cfg["planner"] != TARGET_PLANNER:
         raise AssertionError("target planner moved")
@@ -35,8 +42,8 @@ def assert_preregistered(manifest: dict, trajectory_manifest: dict) -> None:
         raise AssertionError("replication alpha moved")
     if cfg.get("retuning_allowed") is not False:
         raise AssertionError("retuning must remain forbidden")
-    if trajectory_manifest["trajectory"]["window_count"] != EXPECTED_WINDOWS:
-        raise AssertionError("trajectory window count no longer matches preregistration")
+    if int(trajectory_manifest["trajectory"]["window_count"]) != EXPECTED_WINDOWS:
+        raise AssertionError("trajectory window count no longer matches corrected preregistration")
 
 
 def build_pair(manifest: dict) -> tuple[dict, dict]:
@@ -128,6 +135,7 @@ def main() -> int:
         "schema": "genesis.janus_cristal.sierpinski_sw254_independent_replication.v1",
         "artifact_id": "GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-REPLICATION-v0.1",
         "preregistered_manifest": manifest["artifact_id"],
+        "pre_outcome_correction": manifest.get("pre_outcome_correction"),
         "resolver_receipt": resolver,
         "measurement": entry,
         "decision": decision,
@@ -145,6 +153,7 @@ def main() -> int:
         "# Sierpinski SW254 independent-specimen replication",
         "",
         f"Specimen: `{pair['id']}`",
+        f"Windows: **{EXPECTED_WINDOWS}**",
         f"Registration: **{entry['registration']['quality_class']}**",
         f"Pair/gamma-control median ratio: **{entry['pair_to_gamma_control_median_ratio']}**",
         f"Sierpinski p(composite): **{decision['p_composite']}**",
