@@ -1,8 +1,17 @@
 {
   "schema": "genesis.janus_cristal.sierpinski_sw254_replication_manifest.v1",
   "artifact_id": "GENESIS-JANUS-CRISTAL-SIERPINSKI-SW254-REPLICATION-MANIFEST-v0.1",
-  "status": "PREREGISTERED_BEFORE_OUTCOME",
+  "status": "PREREGISTERED_BEFORE_OUTCOME_WITH_PRE_OUTCOME_PROTOCOL_CORRECTION",
   "candidate_parent": "GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-CANDIDATE-v0.1",
+  "pre_outcome_correction": {
+    "trigger": "CI unit test failed before any independent-specimen image download or measurement step executed",
+    "failed_workflow_run": 31394118753,
+    "finding": "The initial manifest said 48 windows, but the parent recovered-FractalGPT protocol actually uses 20 windows in sources.json.",
+    "correction": "window_count 48 -> 20",
+    "scientific_reason": "Replication must preserve the parent protocol rather than accidentally increase sampling density.",
+    "outcome_seen_before_correction": false,
+    "other_fields_changed": false
+  },
   "independent_specimen": {
     "id": "FMS_1235_CAVE_IN_ROCK_QUARTZ_NORMAL_SW254",
     "source_record_url": "https://uvminerals.org/fmdb/specimen/1235/",
@@ -24,7 +33,7 @@
     "hotspot_quantile": 0.95,
     "planner": "fractalgpt_sierpinski",
     "planner_construction": "recovered_FractalGPT_sierpinski_adapter_unchanged",
-    "window_count": 48,
+    "window_count": 20,
     "matched_random_trajectories": 2048,
     "replication_alpha": 0.00166667,
     "required_endpoints": ["composite", "hotspot"],
@@ -37,6 +46,7 @@
     "purpose": "Report only; do not use to rewrite the preregistered independent-replication rule after outcome."
   },
   "formal_rules": [
+    "PRE_OUTCOME_PROTOCOL_MISMATCH_MAY_BE_CORRECTED_ONLY_IF_MEASUREMENT_STEP_DID_NOT_RUN",
     "SPECIMEN_AND_PASS_RULE_FROZEN_BEFORE_RESULT",
     "SAME_SOURCE_RECORD_NORMAL_AND_SW254_REQUIRED",
     "NO_REGION_SCALE_PLANNER_THRESHOLD_OR_REGISTRATION_RETUNING",
