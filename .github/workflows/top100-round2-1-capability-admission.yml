@@ -143,7 +143,22 @@ jobs:
           PY
           while IFS= read -r tag; do
             echo "PULLING=$tag"
-            ollama pull "$tag"
+            pulled=0
+            for attempt in 1 2 3 4; do
+              if ollama pull "$tag"; then
+                pulled=1
+                echo "MODEL_PULL_SUCCESS tag=$tag attempt=$attempt"
+                break
+              fi
+              echo "MODEL_PULL_RETRY tag=$tag attempt=$attempt/4"
+              if [ "$attempt" -lt 4 ]; then
+                sleep 3
+              fi
+            done
+            if [ "$pulled" -ne 1 ]; then
+              echo "MODEL_PULL_EXHAUSTED tag=$tag attempts=4" >&2
+              exit 1
+            fi
           done < /tmp/round21-model-tags.txt
           curl -fsS http://127.0.0.1:11434/api/tags > /tmp/ollama-tags-round21.json
           python - <<'PY'
