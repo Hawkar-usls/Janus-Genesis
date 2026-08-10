@@ -27,8 +27,6 @@ FractalGPT has no semantic authority.
 
 Five crystal images and six planners were tested against block-shuffle and Fourier phase-scramble nulls. No word, formula, code or algorithm was admitted. An earlier mirror-symmetry lead was falsified as quartz-specific because calcite and fluorite controls produced comparable or stronger behavior.
 
-Frozen result: `GENESIS-JANUS-CRISTAL-FRACTALGPT-v0.3.json`.
-
 ## v0.4 — registered Alatay visible ↔ UV405 difference
 
 The same petroleum-quartz specimen was registered before defining any difference region. Frozen nonsemantic field:
@@ -41,17 +39,11 @@ The same petroleum-quartz specimen was registered before defining any difference
 
 The registered pair produced a composite median near `0.23847`; fixed gamma=0.72 self-control near `0.03823`, ratio near `6.24`. Six planners were then compared with 2048 matched random trajectories each, familywise α=0.01. No planner was enriched.
 
-```text
-REGISTERED_MODALITY_DIFFERENCE = OBSERVED
-FRACTALGPT_PLANNER_ENRICHMENT  = NOT_OBSERVED
-SEMANTIC_CONTENT               = DISABLED_BY_DESIGN
-```
+## v0.5 — provenance and validator hardening
 
-## v0.5 — cross-specimen hardening
+The frozen protocol produced a strong registered image-level visible/LWUVR difference on a LucasFassari quartz pair, but public metadata did not explicitly establish identical physical-specimen identity. It remained provenance-limited.
 
-The frozen protocol was replayed on the LucasFassari visible/LWUVR pair. It showed a strong registered image-level difference, but public metadata did not explicitly establish that the two images were the exact same physical specimen. It therefore remained a provenance-limited candidate.
-
-A separate AKAZE/RANSAC identity heuristic returned `INSUFFICIENT_MATCHES` on Lucas and also on the **confirmed same-specimen Alatay positive control**. The heuristic was consequently invalidated as a necessary identity gate rather than being allowed to reject the candidate.
+An AKAZE/RANSAC identity heuristic returned `INSUFFICIENT_MATCHES` on Lucas **and on the confirmed same-specimen Alatay positive control**, so it was invalidated as a necessary identity gate:
 
 ```text
 A_VALIDATOR_THAT_FAILS_THE_POSITIVE_CONTROL
@@ -60,21 +52,20 @@ A_VALIDATOR_THAT_FAILS_THE_POSITIVE_CONTROL
 
 ## v0.6 — formal independent same-specimen replication
 
-A new public FMS specimen record, `FMDB 1226`, explicitly describes one 26 mm petroleum-included quartz specimen and supplies normal-light, longwave 365 nm, and shortwave 254 nm photographs from that one record.
+FMDB specimen 1226 describes one 26 mm petroleum-included quartz specimen and provides normal-light, 365 nm longwave and 254 nm shortwave photographs within the same record.
 
-The **primary modality was frozen as normal ↔ LW365 before outcome inspection**. The existing protocol was replayed without pair-specific retuning:
+The **primary normal ↔ LW365 pair was frozen before outcome inspection**. Existing protocol, no pair-specific retuning:
 
 ```text
-pair                                  = FMS_1226_PAKISTAN_QUARTZ_NORMAL_LW365
-registration                          = USABLE_IMAGE_REGISTRATION
-composite median                      = 0.25711361
-gamma self-control median             = 0.04156784
-pair / gamma-control median ratio     = 6.18539741
-FractalGPT/baseline planner enrichment = 0 / 6
-final admission                       = FORMAL_INDEPENDENT_SAME_SPECIMEN_IMAGE_LEVEL_REPLICATION
+registration                             = USABLE_IMAGE_REGISTRATION
+composite median                         = 0.25711361
+gamma self-control median                = 0.04156784
+pair / gamma-control median ratio        = 6.18539741
+FractalGPT/baseline planner enrichment   = 0 / 6
+final admission                          = FORMAL_INDEPENDENT_SAME_SPECIMEN_IMAGE_LEVEL_REPLICATION
 ```
 
-Authoritative CI receipt:
+Authoritative receipt:
 
 ```text
 workflow run     = 31392997858
@@ -84,57 +75,105 @@ artifact sha256  = b2d62365fb93f330413a4ed8e60ec95c0604edbc98464c8ff7221d7284fd8
 conclusion       = SUCCESS
 ```
 
-Therefore the narrow frozen image-level gate is now:
+So the narrow image-level material branch reached:
 
 ```text
 FORMAL_INDEPENDENT_REPLICATIONS = 1
 CROSS_SPECIMEN_REPLICATION_GATE = PASS
+SEMANTIC_CONTENT_ADMITTED       = 0
 ```
 
-This does not establish a universal quartz law or chemistry from pixels. It establishes one independent confirmed same-specimen replication of the registered visible/UV image-difference protocol.
+This is not a universal quartz law and not chemistry inferred from pixels.
 
-## v0.6 confirmatory SW254 — new FractalGPT lead
+## v0.6c — Sierpinski/SW254 single-pair candidate
 
-The same FMS specimen 1226 had its **254 nm shortwave modality preregistered as confirmatory**, so it cannot count as a second independent specimen.
-
-Its registered image-level difference also passed, with pair/gamma-control median ratio `5.32528732`.
-
-Five of six planners were null. The exception was the recovered FractalGPT Sierpinski planner:
+The same FMS 1226 specimen had its 254 nm mode preregistered as **confirmatory**, so it could not count as a second independent specimen. Five planners were null; recovered FractalGPT Sierpinski produced:
 
 ```text
-planner                            = fractalgpt_sierpinski
-observed median composite          = 0.24602730
-matched-random median composite    = 0.23252131
-p(composite)                       = 0.00146413
-observed median hotspot fraction   = 0.11693349
-matched-random median hotspot      = 0.05410556
-p(hotspot)                         = 0.00048804
-frozen per-planner threshold       = 0.00166667
-single-pair status                 = PASS_SINGLE_PAIR_CANDIDATE
+observed median composite        = 0.24602730
+matched-random median composite  = 0.23252131
+p(composite)                     = 0.00146413
+observed hotspot fraction        = 0.11693349
+matched-random hotspot fraction  = 0.05410556
+p(hotspot)                       = 0.00048804
+frozen per-planner threshold     = 0.00166667
+single-pair status               = PASS_SINGLE_PAIR_CANDIDATE
 ```
 
-This is deliberately **not** called a FractalGPT effect yet. It did not occur on the primary LW365 pair, Alatay UV405, or Lucas LWUVR. A non-authoritative sensitivity check across 12 planner×modality tests gives threshold `0.00083333`: the hotspot endpoint still passes, while the composite endpoint does not.
+The result was frozen as a **candidate only** because Sierpinski was not enriched on FMS 1226 LW365, Alatay UV405 or Lucas LWUVR.
 
-Frozen candidate:
-`GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-CANDIDATE-v0.1.json`.
+## v0.7 — independent Sierpinski/SW254 replication: NEGATIVE
 
-## v0.7 — independent Sierpinski/SW254 replication
+An independent specimen was chosen before its outcome: FMDB 1235, `Quartz - Cave-In-Rock, Illinois`, one record with normal, SW254 and LW365 views.
 
-The next specimen and pass rule were committed **before** its outcome:
+The initial preregistration accidentally said 48 windows. CI caught that **before image download or measurement** because the parent FractalGPT protocol actually uses 20. The manifest was corrected `48 → 20` before outcome acquisition; every statistical threshold and endpoint remained unchanged.
 
-- FMDB specimen 1235, `Quartz - Cave-In-Rock, Illinois`;
-- one specimen record with normal light plus shortwave 254 nm and longwave 365 nm views;
-- target planner fixed to `fractalgpt_sierpinski`;
-- 48 windows;
-- 2048 matched-random trajectories;
-- replication α = `0.00166667`;
-- both composite and hotspot endpoints must pass;
-- no registration, region, scale, planner, field-weight or threshold retuning.
+The first executable run after that correction was then invalidated because its resolver receipt proved a source-mapping bug: requested Normal was paired with an image whose own alt label said Shortwave, while requested Shortwave was paired with Longwave. That run is explicitly `INVALID_SOURCE_MAPPING_NOT_SCIENTIFIC_OUTCOME`.
 
-Manifest: `sierpinski_sw254_replication.json`.
-Dedicated CI: `.github/workflows/janus-cristal-sierpinski-sw254-replication.yml`.
+The resolver was hardened to require an **exact image-own alt/title label**. No statistical rule was changed. The authoritative rerun resolved:
 
-Remote FMS image bytes are transient analysis inputs only and are explicitly forbidden from GitHub artifacts.
+```text
+Normal   = fmdb-1235-4627.jpg | alt = "Normal light."
+SW254    = fmdb-1235-4626.jpg | alt = "Fluorescence under shortwave UV light."
+```
+
+Authoritative replication receipt:
+
+```text
+workflow run     = 31394703911
+head             = 5c21b7e46596b4c31483c3e67650247a4db07a30
+artifact id      = 9065114486
+artifact sha256  = 2f343fc75672290c90bb034134ac466fc82ca42976ebb074b1cdcf9fa173e521
+conclusion       = SUCCESS
+```
+
+The physical image-level modality difference **did** survive on the independent specimen:
+
+```text
+registration                         = USABLE_IMAGE_REGISTRATION
+pair / gamma-control median ratio   = 1.90204387
+registered modality difference      = OBSERVED
+```
+
+But the Sierpinski planner effect did not:
+
+```text
+observed median composite        = 0.08376963
+matched-random median composite  = 0.08732847
+p(composite)                     = 0.85846755
+observed hotspot fraction        = 0.04310470
+matched-random hotspot fraction  = 0.05351494
+p(hotspot)                       = 0.91410444
+replication alpha                = 0.00166667
+replication gate                 = FAIL_TO_REPLICATE
+```
+
+Therefore:
+
+```text
+FRACTALGPT_SIERPINSKI_SW254_EFFECT = NOT_ESTABLISHED
+CANDIDATE_STATUS                   = REJECTED_IN_TESTED_REPLICATION_SCOPE
+INDEPENDENT_SW254_MODALITY_EFFECT  = OBSERVED
+SEMANTIC_CONTENT                   = NOT_ADMITTED
+```
+
+This is exactly why the candidate/replication separation exists: the interesting single-pair Sierpinski signal was allowed to fail cleanly instead of being rescued by threshold or region tuning.
+
+Frozen closeout:
+
+- `GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-CANDIDATE-v0.1.json`
+- `GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-REPLICATION-v0.1.json`
+
+## Current direction
+
+The FractalGPT planner-effect branch is **closed negative in this tested scope**. The stronger surviving branch is ordinary multispectral material imaging:
+
+- confirmed Alatay visible↔UV405 difference;
+- independent confirmed FMS 1226 normal↔LW365 replication;
+- independent confirmed FMS 1235 normal↔SW254 modality difference;
+- no admitted hidden message, formula, code or algorithm.
+
+The next useful gate is wavelength-specific material replication on additional confirmed same-specimen quartz records, with FractalGPT retained as a controlled planner rather than promoted to a discovery mechanism.
 
 ## Claim ceiling
 
@@ -142,23 +181,7 @@ Remote FMS image bytes are transient analysis inputs only and are explicitly for
 FORMAL_IMAGE_LEVEL_REPLICATION != UNIVERSAL_QUARTZ_LAW
 REGISTERED_MODALITY_DIFFERENCE != CHEMICAL_IDENTITY
 REGISTERED_MODALITY_DIFFERENCE != HIDDEN_MESSAGE
-SINGLE_CONFIRMATORY_PAIR_PLANNER_ENRICHMENT != REPLICATED_FRACTALGPT_EFFECT
+FAILED_PLANNER_REPLICATION != FAILED_PHYSICAL_MODALITY_EFFECT
 FRACTALGPT_TRAJECTORY != MATERIAL_DISCOVERY
-CONFIRMATORY_MODALITY != SECOND_INDEPENDENT_SPECIMEN
 NO_POST_HOC_REGION_OR_CIPHER_SEARCH
 ```
-
-## Main files
-
-- `recovered/FractalGPT.py`
-- `fractalgpt_adapter.py`
-- `fractal_crystal_probe.py`
-- `spectral_difference_probe.py`
-- `spectral_replication_pairs.json`
-- `spectral_replication_probe.py`
-- `spectral_replication_admission.py`
-- `GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-v0.1.json`
-- `GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-CANDIDATE-v0.1.json`
-- `sierpinski_sw254_replication.json`
-- `sierpinski_sw254_replication_probe.py`
-- `fms_page_media.py`
