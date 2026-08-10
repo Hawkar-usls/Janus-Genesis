@@ -56,12 +56,7 @@
       "status": "REGISTERED_MODALITY_DIFFERENCE_OBSERVED"
     },
     "planner_enrichment": "NO_PLANNER_ENRICHMENT",
-    "geometry_validator_raw": {
-      "status": "INSUFFICIENT_MATCHES",
-      "keypoints_visible": 708,
-      "keypoints_uv": 704,
-      "good_matches": 5
-    }
+    "geometry_validator_raw": {"status": "INSUFFICIENT_MATCHES", "keypoints_visible": 708, "keypoints_uv": 704, "good_matches": 5}
   },
   "independent_candidate": {
     "pair_id": "LUCASFASSARI_THREE_PHASE_VISIBLE_LWUVR",
@@ -107,12 +102,7 @@
       "fractalgpt_model": {"p_composite": 0.02049780, "p_hotspot": 0.06393363}
     },
     "planner_enrichment": "NO_PLANNER_ENRICHMENT",
-    "geometry_validator_raw": {
-      "status": "INSUFFICIENT_MATCHES",
-      "keypoints_visible": 1340,
-      "keypoints_uv": 91,
-      "good_matches": 6
-    },
+    "geometry_validator_raw": {"status": "INSUFFICIENT_MATCHES", "keypoints_visible": 1340, "keypoints_uv": 91, "good_matches": 6},
     "raw_pre_admission_classification": "MODALITY_DIFFERENCE_CANDIDATE_IDENTITY_NOT_CORROBORATED",
     "final_positive_control_aware_admission": "IMAGE_LEVEL_MODALITY_DIFFERENCE_REPLICATION_CANDIDATE_PROVENANCE_UNCONFIRMED"
   },
