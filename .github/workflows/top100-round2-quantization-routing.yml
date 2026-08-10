@@ -6,6 +6,7 @@ on:
     paths:
       - "benchmarks/round2_quantization_routing_v0.1.json"
       - "tools/run_top100_round2_quantization_routing.py"
+      - "tools/run_top100_round2_resilient_entry.py"
       - "tests/test_top100_round2_quantization_routing.py"
       - ".github/workflows/top100-round2-quantization-routing.yml"
   workflow_dispatch:
@@ -37,7 +38,7 @@ jobs:
 
       - name: Compile and unit-test Round-2 harness
         run: |
-          python -m py_compile tools/run_top100_round2_quantization_routing.py tests/test_top100_round2_quantization_routing.py
+          python -m py_compile tools/run_top100_round2_quantization_routing.py tools/run_top100_round2_resilient_entry.py tests/test_top100_round2_quantization_routing.py
           python -m json.tool benchmarks/round2_quantization_routing_v0.1.json >/dev/null
           python -m unittest tests.test_top100_round2_quantization_routing -v
 
@@ -85,7 +86,7 @@ jobs:
       - name: Execute unchanged frozen pack across quantization and routing configurations
         run: |
           mkdir -p artifacts/top100-round2
-          python -m tools.run_top100_round2_quantization_routing \
+          python -m tools.run_top100_round2_resilient_entry \
             --config benchmarks/round2_quantization_routing_v0.1.json \
             --pack benchmarks/frozen_samples/top100_round1_stratified_v0.1.json \
             --overlay benchmarks/prompts/genesis_benchmark_boundary_overlay_v0.1.txt \
