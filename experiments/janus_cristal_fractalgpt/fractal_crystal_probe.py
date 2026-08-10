@@ -3,7 +3,7 @@
 
 FractalGPT chooses WHERE / AT WHAT SCALE to inspect. Conventional OCR/CV
 measurements decide WHAT is present. Every trajectory is content-independent
-and is replayed unchanged against a matched shuffled negative control.
+and is replayed unchanged against matched null controls.
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ import numpy as np
 
 import fractalgpt_adapter as fga
 
-UA = "Janus-Genesis-FractalGPT-Crystal/0.2"
+UA = "Janus-Genesis-FractalGPT-Crystal/0.3"
 TOKEN_RE = re.compile(r"[A-Z0-9][A-Z0-9_+\-*/=^<>()[\]{}.:]{2,23}")
 FORMULA_RE = re.compile(r"(?=.*\d)(?=.*[=+\-*/^])[A-Z0-9_+\-*/=^<>()[\]{}.:]{3,24}")
 CODE_HINTS = ("IF", "FOR", "WHILE", "DEF", "INT", "HEX", "0X", "==", "->", "::", "{}", "[]")
@@ -66,7 +66,6 @@ def classify_token(token: str) -> str:
 
 
 def logistic_trajectory(seed: str, count: int, scales: list[float]) -> list[dict]:
-    """Legacy deterministic baseline from v0.1; retained as a non-model comparator."""
     b = sha256_bytes(seed)
     x = (int.from_bytes(b[0:8], "big") + 1) / (2**64 + 2)
     y = (int.from_bytes(b[8:16], "big") + 1) / (2**64 + 2)
@@ -87,6 +86,21 @@ def logistic_trajectory(seed: str, count: int, scales: list[float]) -> list[dict
         x, y = step(x, y)
         selector = int((x * 997 + y * 991 + i * 17) * 1_000_003) % len(scales)
         out.append({"index": i, "cx": round(x, 8), "cy": round(y, 8), "scale": float(scales[selector])})
+    return out
+
+
+def uniform_random_trajectory(seed: str, count: int, scales: list[float]) -> list[dict]:
+    """Deterministic uniform spatial baseline matched to the same scale ladder."""
+    raw = sha256_bytes(seed)
+    rng = np.random.default_rng(int.from_bytes(raw[:8], "big"))
+    out = []
+    for i in range(count):
+        out.append({
+            "index": i,
+            "cx": round(float(rng.uniform(0.04, 0.96)), 8),
+            "cy": round(float(rng.uniform(0.04, 0.96)), 8),
+            "scale": float(scales[int(rng.integers(0, len(scales)))]),
+        })
     return out
 
 
@@ -122,6 +136,25 @@ def block_shuffle(image: np.ndarray, seed: str, block: int = 48) -> np.ndarray:
             out[y:y + block, x:x + block] = tiles[k]
             k += 1
     return out[:h, :w]
+
+
+def phase_scramble(image: np.ndarray, seed: str) -> np.ndarray:
+    """Fourier-amplitude-preserving grayscale null with randomized spatial phase."""
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY).astype(np.float64)
+    spec = np.fft.rfft2(gray)
+    amp = np.abs(spec)
+    raw = sha256_bytes(seed)
+    rng = np.random.default_rng(int.from_bytes(raw[:8], "big"))
+    phases = rng.uniform(-math.pi, math.pi, size=spec.shape)
+    randomized = amp * np.exp(1j * phases)
+    randomized[0, 0] = spec[0, 0]
+    out = np.fft.irfft2(randomized, s=gray.shape).real
+    old_mean, old_std = float(gray.mean()), float(gray.std())
+    new_mean, new_std = float(out.mean()), float(out.std())
+    if new_std > 1e-12:
+        out = (out - new_mean) * (old_std / new_std) + old_mean
+    out = np.clip(out, 0, 255).astype(np.uint8)
+    return cv2.cvtColor(out, cv2.COLOR_GRAY2BGR)
 
 
 def resize_max(image: np.ndarray, max_dim: int = 1400) -> np.ndarray:
@@ -191,12 +224,25 @@ def structure_metrics(crop: np.ndarray) -> dict:
     }
 
 
-def analyze_trajectory(image: np.ndarray, control: np.ndarray, trajectory: list[dict], min_conf: float) -> dict:
-    result = {"real": [], "control": []}
-    token_counts = {"real": Counter(), "control": Counter()}
-    token_best_conf = {"real": defaultdict(float), "control": defaultdict(float)}
+def _summarize(rows: list[dict]) -> dict:
+    return {
+        key: round(float(median([r["metrics"][key] for r in rows])), 6)
+        for key in ("edge_density", "line_count", "mirror_symmetry")
+    }
 
-    for label, source in (("real", image), ("control", control)):
+
+def analyze_trajectory(
+    image: np.ndarray,
+    block_control: np.ndarray,
+    phase_control: np.ndarray,
+    trajectory: list[dict],
+    min_conf: float,
+) -> dict:
+    result = {"real": [], "block_control": [], "phase_control": []}
+    token_counts = {"real": Counter(), "block_control": Counter()}
+    token_best_conf = {"real": defaultdict(float), "block_control": defaultdict(float)}
+
+    for label, source in (("real", image), ("block_control", block_control)):
         for window in trajectory:
             crop = crop_window(source, window)
             metrics = structure_metrics(crop)
@@ -206,8 +252,14 @@ def analyze_trajectory(image: np.ndarray, control: np.ndarray, trajectory: list[
                 token_best_conf[label][t["token"]] = max(token_best_conf[label][t["token"]], t["confidence"])
             result[label].append({"window": window, "metrics": metrics, "tokens": tokens})
 
+    # Phase null is for image structure only; excluding OCR keeps semantic and
+    # structural null hypotheses separate and avoids creating a second OCR fishing path.
+    for window in trajectory:
+        crop = crop_window(phase_control, window)
+        result["phase_control"].append({"window": window, "metrics": structure_metrics(crop)})
+
     real_counts = token_counts["real"]
-    ctrl_counts = token_counts["control"]
+    ctrl_counts = token_counts["block_control"]
     escalated = []
     for token, count in real_counts.items():
         if len(token) < 3 or count < 2 or ctrl_counts[token] > 0:
@@ -219,49 +271,51 @@ def analyze_trajectory(image: np.ndarray, control: np.ndarray, trajectory: list[
             "token": token,
             "class": cls,
             "real_window_hits": count,
-            "control_window_hits": 0,
+            "block_control_window_hits": 0,
             "best_confidence": round(token_best_conf["real"][token], 2),
             "status": "PLANNER_LOCAL_ESCALATION_ONLY_NOT_MESSAGE",
         })
     escalated.sort(key=lambda x: (-x["real_window_hits"], -x["best_confidence"], x["token"]))
 
-    def summarize(rows: list[dict]) -> dict:
-        return {
-            key: round(float(median([r["metrics"][key] for r in rows])), 6)
-            for key in ("edge_density", "line_count", "mirror_symmetry")
-        }
-
-    real_summary = summarize(result["real"])
-    ctrl_summary = summarize(result["control"])
-    delta = {key: round(float(real_summary[key]) - float(ctrl_summary[key]), 6) for key in real_summary}
+    real_summary = _summarize(result["real"])
+    block_summary = _summarize(result["block_control"])
+    phase_summary = _summarize(result["phase_control"])
+    delta_block = {key: round(real_summary[key] - block_summary[key], 6) for key in real_summary}
+    delta_phase = {key: round(real_summary[key] - phase_summary[key], 6) for key in real_summary}
 
     return {
         "window_count": len(trajectory),
         "real_token_counts": dict(real_counts),
-        "control_token_counts": dict(ctrl_counts),
+        "block_control_token_counts": dict(ctrl_counts),
         "planner_local_escalations": escalated,
         "planner_local_escalation_count": len(escalated),
         "median_structure_real": real_summary,
-        "median_structure_control": ctrl_summary,
-        "real_minus_control_structure": delta,
+        "median_structure_block_control": block_summary,
+        "median_structure_phase_control": phase_summary,
+        "real_minus_block_control_structure": delta_block,
+        "real_minus_phase_control_structure": delta_phase,
+        "mirror_positive_against_both_nulls": bool(
+            delta_block["mirror_symmetry"] > 0 and delta_phase["mirror_symmetry"] > 0
+        ),
         "window_receipts": result,
     }
 
 
 def analyze_image(image: np.ndarray, planners: dict[str, list[dict]], min_conf: float, control_seed: str) -> dict:
     image = resize_max(image)
-    control = block_shuffle(image, control_seed)
+    block_control = block_shuffle(image, control_seed + "::block")
+    phase_control = phase_scramble(image, control_seed + "::phase")
     by_planner = {}
     candidate_planners = defaultdict(set)
     raw_real_planners = defaultdict(set)
     raw_control_planners = defaultdict(set)
 
     for name, trajectory in planners.items():
-        r = analyze_trajectory(image, control, trajectory, min_conf)
+        r = analyze_trajectory(image, block_control, phase_control, trajectory, min_conf)
         by_planner[name] = r
         for token in r["real_token_counts"]:
             raw_real_planners[token].add(name)
-        for token in r["control_token_counts"]:
+        for token in r["block_control_token_counts"]:
             raw_control_planners[token].add(name)
         for c in r["planner_local_escalations"]:
             candidate_planners[c["token"]].add(name)
@@ -288,6 +342,7 @@ def analyze_image(image: np.ndarray, planners: dict[str, list[dict]], min_conf: 
                 "status": "RAW_CROSS_PLANNER_OCR_ONLY",
             })
 
+    mirror_both = [name for name, r in by_planner.items() if r["mirror_positive_against_both_nulls"]]
     return {
         "planner_count": len(planners),
         "planners": by_planner,
@@ -295,6 +350,8 @@ def analyze_image(image: np.ndarray, planners: dict[str, list[dict]], min_conf: 
         "raw_cross_planner_ocr_count": len(raw_cross_planner),
         "cross_planner_escalation_candidates": cross_planner,
         "cross_planner_escalation_count": len(cross_planner),
+        "mirror_positive_against_both_nulls_planners": sorted(mirror_both),
+        "mirror_positive_against_both_nulls_count": len(mirror_both),
     }
 
 
@@ -314,6 +371,7 @@ def main() -> int:
     recovered, recovered_receipt = fga.all_trajectories(seed, count, scales)
     planners = {
         "logistic_baseline": logistic_trajectory(seed + "::logistic", count, scales),
+        "uniform_random_baseline": uniform_random_trajectory(seed + "::uniform", count, scales),
         **recovered,
     }
     planner_hashes = {
@@ -322,13 +380,17 @@ def main() -> int:
     }
 
     report = {
-        "schema": "genesis.janus_cristal_fractalgpt.result.v2",
+        "schema": "genesis.janus_cristal_fractalgpt.result.v3",
         "trajectory_system": {
             **cfg,
             "planner_count": len(planners),
             "planner_hashes": planner_hashes,
             "content_independent": True,
             "recovered_fractalgpt": recovered_receipt,
+        },
+        "null_models": {
+            "semantic_and_structure": "DETERMINISTIC_48PX_BLOCK_SHUFFLE",
+            "structure_only": "FOURIER_AMPLITUDE_PRESERVING_PHASE_SCRAMBLE"
         },
         "sources": [],
         "cross_modality_escalation_candidates": [],
@@ -357,7 +419,7 @@ def main() -> int:
                     image,
                     planners,
                     args.min_ocr_confidence,
-                    control_seed=f"{seed}::{source['id']}::shuffle",
+                    control_seed=f"{seed}::{source['id']}",
                 )
                 for c in entry["analysis"]["cross_planner_escalation_candidates"]:
                     per_source_candidates[c["token"]].add(source["id"])
@@ -382,7 +444,22 @@ def main() -> int:
     report["cross_modality_escalation_candidates"] = cross
     report["cross_modality_escalation_count"] = len(cross)
 
-    # Same-specimen visible/UV structural contrast, aggregated across planners.
+    mirror_consensus = []
+    for source in report["sources"]:
+        if source.get("status") != "ANALYZED":
+            continue
+        a = source["analysis"]
+        count_pos = a["mirror_positive_against_both_nulls_count"]
+        mirror_consensus.append({
+            "source_id": source["id"],
+            "material": source.get("material"),
+            "role": source.get("role"),
+            "positive_planners": count_pos,
+            "planner_count": len(planners),
+            "all_planners_positive": count_pos == len(planners),
+        })
+    report["mirror_structure_dual_null_consensus"] = mirror_consensus
+
     groups = defaultdict(list)
     for source in report["sources"]:
         if source.get("same_specimen_group") and source.get("status") == "ANALYZED":
@@ -395,18 +472,20 @@ def main() -> int:
         for planner in planners:
             vals = []
             for src in rows:
+                pr = src["analysis"]["planners"][planner]
                 vals.append({
                     "source_id": src["id"],
                     "modality": src["modality"],
-                    "real_minus_control": src["analysis"]["planners"][planner]["real_minus_control_structure"],
+                    "real_minus_block": pr["real_minus_block_control_structure"],
+                    "real_minus_phase": pr["real_minus_phase_control_structure"],
                 })
             planner_rows.append({"planner": planner, "modalities": vals})
         structural_pairs.append({"same_specimen_group": group, "planner_deltas": planner_rows})
     report["same_specimen_structural_comparisons"] = structural_pairs
 
     report["claim_ceiling"] = (
-        "Recovered FractalGPT and baseline planners can choose deterministic search paths; conventional detectors can compare real images with matched controls. "
-        "No result establishes intentional encoding, a message, formula, code, algorithm, intelligence, or supernatural cause."
+        "Recovered FractalGPT and baseline planners can choose deterministic search paths; conventional detectors can compare real images with two matched nulls. "
+        "No result establishes intentional encoding, a message, formula, code, algorithm, intelligence, supernatural cause, or intrinsic crystal material property."
     )
 
     result_path = out_dir / "GENESIS-JANUS-CRISTAL-FRACTALGPT-result.json"
@@ -417,16 +496,17 @@ def main() -> int:
         "",
         f"Sources: {len(report['sources']) - errors}/{len(report['sources'])} analyzed; errors={errors}",
         f"Planners: {len(planners)} × {count} windows each",
-        f"Recovered FractalGPT SHA-256: `{fga.RECOVERED_SHA256}`",
+        f"Original-library FractalGPT SHA-256: `{fga.ORIGINAL_LIBRARY_SHA256}`",
+        f"Executed vendored FractalGPT SHA-256: `{fga.VENDORED_SOURCE_SHA256}`",
         f"Recovered model initial/final eval MSE: `{recovered_receipt['model_receipt']['initial_eval_mse']}` → `{recovered_receipt['model_receipt']['final_eval_mse']}`",
         "",
-        "| source | modality | raw cross-planner OCR | strict cross-planner escalations |",
-        "|---|---|---:|---:|",
+        "| source | modality | raw cross-planner OCR | strict cross-planner escalations | mirror + vs both nulls |",
+        "|---|---|---:|---:|---:|",
     ]
     for s in report["sources"]:
         a = s.get("analysis", {})
         lines.append(
-            f"| {s['id']} | {s.get('modality')} | {a.get('raw_cross_planner_ocr_count', 'error')} | {a.get('cross_planner_escalation_count', 'error')} |"
+            f"| {s['id']} | {s.get('modality')} | {a.get('raw_cross_planner_ocr_count', 'error')} | {a.get('cross_planner_escalation_count', 'error')} | {a.get('mirror_positive_against_both_nulls_count', 'error')}/{len(planners)} |"
         )
     lines += [
         "",
