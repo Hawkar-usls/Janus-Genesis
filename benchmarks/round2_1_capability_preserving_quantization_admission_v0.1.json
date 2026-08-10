@@ -4,6 +4,7 @@
   "round1_pack": "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
   "round1_pack_git_blob_sha1": "ca27652feb3532ff52e8453dd055b608711b0d43",
   "round2_source_report_encoded": "benchmarks/frozen_receipts/top100_round2_quantization_routing_report_v0.1.json.gz.b64",
+  "round2_source_report_storage_semantics": "The repository object is a deterministic gzip(mtime=0) + base64 text envelope whose decompressed payload must equal the exact prior Round-2 report.json bytes.",
   "round2_source_report_encoding": "base64_gzip_mtime0",
   "round2_source_report_encoded_git_blob_sha1": "c8e5b2f07dfaa7d7e86d10794bba4543417c22d6",
   "round2_source_report_gzip_sha256": "7761fef86b88501559d67286de95654302ee84abfba8f1209315e4f363a08788",
