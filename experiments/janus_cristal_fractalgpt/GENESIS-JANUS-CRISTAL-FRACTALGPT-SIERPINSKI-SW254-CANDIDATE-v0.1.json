@@ -1,81 +1,50 @@
 {
-  "schema": "genesis.janus_cristal.fractalgpt_planner_candidate.v1",
+  "schema": "genesis.janus_cristal.fractalgpt_planner_candidate.v2",
   "artifact_id": "GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-CANDIDATE-v0.1",
-  "status": "SINGLE_CONFIRMATORY_PAIR_CANDIDATE_REPLICATION_REQUIRED",
-  "source_measurement": {
-    "workflow_run": 31392997858,
-    "head_sha": "4d50e06e1c6df2f33abe02fac0a8c3b05893ed57",
-    "artifact_id": 9064508226,
-    "artifact_sha256": "b2d62365fb93f330413a4ed8e60ec95c0604edbc98464c8ff7221d7284fd8cb2"
+  "status": "CLOSED_NEGATIVE_FAILED_INDEPENDENT_REPLICATION",
+  "original_candidate": {
+    "pair": "FMS_1226_PAKISTAN_QUARTZ_NORMAL_SW254",
+    "same_specimen": "CONFIRMED_BY_SINGLE_FMS_SPECIMEN_RECORD_1226",
+    "planner": "fractalgpt_sierpinski",
+    "p_composite": 0.00146413,
+    "p_hotspot": 0.00048804,
+    "frozen_per_planner_threshold": 0.00166667,
+    "single_pair_gate": "PASS_SINGLE_PAIR_CANDIDATE"
   },
-  "pair": {
-    "id": "FMS_1226_PAKISTAN_QUARTZ_NORMAL_SW254",
-    "source_record": "https://uvminerals.org/fmdb/specimen/1226/",
-    "same_specimen_status": "CONFIRMED_BY_SINGLE_FMS_SPECIMEN_RECORD_1226",
-    "role": "CONFIRMATORY_MODALITY_SAME_SPECIMEN_NOT_INDEPENDENT_REPLICATION_COUNT",
-    "uv_modality": "SHORTWAVE_UV_254_NM_MERCURY_LAMP_RECORDED"
+  "independent_replication": {
+    "result_artifact": "GENESIS-JANUS-CRISTAL-FRACTALGPT-SIERPINSKI-SW254-REPLICATION-v0.1.json",
+    "pair": "FMS_1235_CAVE_IN_ROCK_QUARTZ_NORMAL_SW254",
+    "same_specimen": "CONFIRMED_BY_SINGLE_FMS_SPECIMEN_RECORD_1235",
+    "workflow_run": 31394703911,
+    "head_sha": "5c21b7e46596b4c31483c3e67650247a4db07a30",
+    "artifact_id": 9065114486,
+    "artifact_sha256": "2f343fc75672290c90bb034134ac466fc82ca42976ebb074b1cdcf9fa173e521",
+    "registration": "USABLE_IMAGE_REGISTRATION",
+    "registered_modality_difference": "OBSERVED",
+    "pair_to_gamma_control_median_ratio": 1.90204387,
+    "sierpinski_p_composite": 0.85846755,
+    "sierpinski_p_hotspot": 0.91410444,
+    "replication_gate": "FAIL_TO_REPLICATE"
   },
-  "planner": {
-    "name": "fractalgpt_sierpinski",
-    "origin": "recovered user FractalGPT",
-    "role": "CONTENT_INDEPENDENT_WHERE_AND_SCALE_PLANNER",
-    "semantic_authority": false
-  },
-  "frozen_null_test": {
-    "matched_random_trajectories": 2048,
-    "familywise_alpha": 0.01,
-    "familywise_alpha_per_planner": 0.00166667,
-    "composite": {
-      "observed_median": 0.24602730,
-      "null_median": 0.23252131,
-      "one_sided_empirical_p": 0.00146413,
-      "single_pair_gate": "PASS_SINGLE_PAIR_CANDIDATE"
-    },
-    "hotspot": {
-      "observed_median_fraction": 0.11693349,
-      "null_median_fraction": 0.05410556,
-      "one_sided_empirical_p": 0.00048804,
-      "single_pair_gate": "PASS_SINGLE_PAIR_CANDIDATE"
-    }
-  },
-  "multiplicity_sensitivity": {
-    "purpose": "Non-authoritative robustness check only; does not rewrite the preregistered gate after observing the result.",
-    "bonferroni_over_12_planner_by_modality_tests": {
-      "threshold": 0.00083333,
-      "composite_pass": false,
-      "hotspot_pass": true
-    }
-  },
-  "negative_context": {
-    "same_planner_on_primary_fms_lw365": "NOT_ENRICHED",
-    "same_planner_on_alatay_uv405": "NOT_ENRICHED",
-    "same_planner_on_lucas_lwuvr": "NOT_ENRICHED",
-    "other_five_planners_on_fms_sw254": "NOT_ENRICHED"
+  "invalid_run_excluded": {
+    "workflow_run": 31394465033,
+    "reason": "FMDB media resolver cross-associated adjacent image labels; receipt itself showed selected alt labels did not match requested modalities.",
+    "status": "INVALID_SOURCE_MAPPING_NOT_SCIENTIFIC_OUTCOME"
   },
   "admission": {
-    "fractalgpt_effect_established": false,
-    "material_discovery_established": false,
+    "fractalgpt_sierpinski_effect_established": false,
+    "material_discovery_capability_established": false,
     "semantic_content_established": false,
-    "status": "INTERESTING_SINGLE_PAIR_CANDIDATE_ONLY"
+    "candidate_status": "REJECTED_IN_TESTED_REPLICATION_SCOPE"
   },
-  "next_gate": {
-    "name": "FRACTALGPT_SIERPINSKI_SW254_INDEPENDENT_SPECIMEN_REPLICATION",
-    "requirements": [
-      "new independent physical quartz specimen",
-      "explicit same-specimen normal-light and 254 nm shortwave source provenance",
-      "same frozen Sierpinski trajectory construction",
-      "same frozen registered difference field",
-      "same 2048 matched-random null procedure",
-      "no region, scale, threshold or planner retuning after outcome inspection",
-      "semantic analysis remains disabled"
-    ]
-  },
+  "interpretation": "The original FMS 1226 Sierpinski/SW254 enrichment was a real single-pair detector result under its frozen null test, but it did not reproduce on an independent confirmed same-specimen FMS 1235 SW254 pair. The planner-effect hypothesis is therefore closed negative in the tested scope.",
   "formal_rules": [
+    "FAIL_TO_REPLICATE_IS_A_VALID_RESULT",
+    "INVALID_SOURCE_MAPPING_RUN != SCIENTIFIC_OUTCOME",
     "SINGLE_PAIR_ENRICHMENT != REPLICATED_PLANNER_EFFECT",
-    "CONFIRMATORY_MODALITY != SECOND_INDEPENDENT_SPECIMEN",
+    "INDEPENDENT_SW254_MODALITY_DIFFERENCE != SIERPINSKI_PLANNER_EFFECT",
     "PLANNER_ENRICHMENT != HIDDEN_MESSAGE",
-    "PLANNER_ENRICHMENT != MATERIAL_DISCOVERY_CAPABILITY",
     "NO_POST_HOC_REGION_OR_CIPHER_SEARCH"
   ],
-  "claim_ceiling": "One preregistered confirmatory SW254 pair produced Sierpinski-planner enrichment against the existing matched-random null. The effect is not established until it reproduces on an independent confirmed same-specimen SW254 quartz pair."
+  "claim_ceiling": "No replicated FractalGPT Sierpinski effect is established. The independent specimen did show an ordinary registered normal-vs-SW254 image-level modality difference, which belongs to the physical imaging branch rather than the planner-effect branch."
 }
