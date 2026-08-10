@@ -57,20 +57,20 @@ Frozen result: `GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1.json`.
 
 ## v0.5 — frozen cross-specimen replay
 
-The v0.4 registration, field weights, hotspot quantile and gamma control were then replayed **without pair-specific retuning**.
+The v0.4 registration, field weights, hotspot quantile and gamma control were replayed **without pair-specific retuning**.
 
 An independent open rock-crystal quartz candidate by LucasFassari contains a visible three-phase hydrocarbon-inclusion photograph and an LWUVR photograph describing a three-phase rock-crystal quartz inclusion. The public metadata strongly links the subject matter, but it does **not explicitly state** that both images show the identical physical specimen. That uncertainty is preserved rather than inferred away.
 
 Frozen replay result for the LucasFassari pair:
 
 ```text
-registration quality                  = USABLE_IMAGE_REGISTRATION
-composite difference median           = 0.21239217
-composite difference p95              = 0.42024102
-gamma self-control median             = 0.02748128
-pair / gamma-control median ratio     = 7.72861271
+registration quality                   = USABLE_IMAGE_REGISTRATION
+composite difference median            = 0.21239217
+composite difference p95               = 0.42024102
+gamma self-control median              = 0.02748128
+pair / gamma-control median ratio      = 7.72861271
 FractalGPT/baseline planner enrichment = 0 / 6
-semantic analysis                     = DISABLED_BY_DESIGN
+semantic analysis                      = DISABLED_BY_DESIGN
 ```
 
 The FractalGPT model planner's smallest raw composite p-value was `0.02049780`, but the fixed familywise per-planner threshold is `0.00166667`, so it is **not enriched**.
@@ -86,16 +86,18 @@ A_VALIDATOR_THAT_FAILS_THE_POSITIVE_CONTROL
 = NOT_ADMISSIBLE_AS_A_NECESSARY_GATE
 ```
 
+The raw replay receipt therefore remains a **pre-admission** measurement object. `GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-admission.json` is authoritative for the final replication classification.
+
 This does not promote Lucas to formal replication. Exact physical-specimen provenance is still not confirmed by the source text.
 
 Final admission:
 
 ```text
-FORMAL_INDEPENDENT_REPLICATIONS       = 0
-IMAGE_LEVEL_REPLICATION_CANDIDATES    = 1
-CANDIDATE                             = LUCASFASSARI_THREE_PHASE_VISIBLE_LWUVR
-CROSS_SPECIMEN_REPLICATION_GATE       = OPEN_NOT_ESTABLISHED
-SEMANTIC_CONTENT_ADMITTED             = 0
+FORMAL_INDEPENDENT_REPLICATIONS        = 0
+IMAGE_LEVEL_REPLICATION_CANDIDATES     = 1
+CANDIDATE                              = LUCASFASSARI_THREE_PHASE_VISIBLE_LWUVR
+CROSS_SPECIMEN_REPLICATION_GATE        = OPEN_NOT_ESTABLISHED
+SEMANTIC_CONTENT_ADMITTED              = 0
 ```
 
 Frozen binding: `GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-v0.1.json`.
