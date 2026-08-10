@@ -5,15 +5,11 @@ on:
   pull_request:
     paths:
       - "experiments/janus_cristal_fractalgpt/**"
-      - "tests/test_janus_cristal_fractalgpt.py"
-      - "tests/test_janus_cristal_spectral_difference.py"
       - ".github/workflows/janus-cristal-fractalgpt.yml"
   push:
     branches: [main]
     paths:
       - "experiments/janus_cristal_fractalgpt/**"
-      - "tests/test_janus_cristal_fractalgpt.py"
-      - "tests/test_janus_cristal_spectral_difference.py"
       - ".github/workflows/janus-cristal-fractalgpt.yml"
 
 permissions:
@@ -37,8 +33,8 @@ jobs:
 
       - name: Unit tests
         run: |
-          python tests/test_janus_cristal_fractalgpt.py -v
-          python tests/test_janus_cristal_spectral_difference.py -v
+          python experiments/janus_cristal_fractalgpt/tests/test_fractalgpt.py -v
+          python experiments/janus_cristal_fractalgpt/tests/test_spectral_difference.py -v
 
       - name: Run FractalGPT crystal search
         run: >-
