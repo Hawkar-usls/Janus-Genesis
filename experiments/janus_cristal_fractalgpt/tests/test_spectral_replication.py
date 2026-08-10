@@ -35,8 +35,10 @@ class SpectralReplicationTests(unittest.TestCase):
     def test_candidate_provenance_is_not_silently_confirmed(self):
         manifest = json.loads((EXP / "spectral_replication_pairs.json").read_text(encoding="utf-8"))
         pair = next(p for p in manifest["pairs"] if p["id"].startswith("LUCASFASSARI"))
-        self.assertTrue(pair["same_specimen_status"].startswith("PROBABLE"))
-        self.assertNotIn("CONFIRMED", pair["same_specimen_status"])
+        status = pair["same_specimen_status"]
+        self.assertTrue(status.startswith("PROBABLE"))
+        self.assertNotEqual(status, "CONFIRMED_SAME_SPECIMEN")
+        self.assertIn("NOT_EXPLICITLY_CONFIRMED", status)
 
     def test_anchor_is_explicitly_not_replication(self):
         manifest = json.loads((EXP / "spectral_replication_pairs.json").read_text(encoding="utf-8"))
