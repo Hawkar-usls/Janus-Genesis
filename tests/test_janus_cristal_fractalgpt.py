@@ -20,10 +20,12 @@ import fractalgpt_adapter as fga
 
 
 class FractalCrystalTests(unittest.TestCase):
-    def test_recovered_fractalgpt_exact_hash(self):
+    def test_recovered_fractalgpt_provenance_is_explicit(self):
         got = hashlib.sha256((EXP / "recovered" / "FractalGPT.py").read_bytes()).hexdigest()
-        self.assertEqual(got, fga.RECOVERED_SHA256)
-        self.assertEqual(got, "11e6c97ae7169a0fae4e0ad17f2fb7fb23b10265b04b4b057e3c968d6d0a3662")
+        self.assertEqual(got, fga.VENDORED_SOURCE_SHA256)
+        self.assertEqual(got, "1dfc5bb1dabcb256d569de30dbe4431f6901c8dcddbe15fb76634fd57d9146e8")
+        self.assertEqual(fga.ORIGINAL_LIBRARY_SHA256, "11e6c97ae7169a0fae4e0ad17f2fb7fb23b10265b04b4b057e3c968d6d0a3662")
+        self.assertNotEqual(fga.ORIGINAL_LIBRARY_SHA256, fga.VENDORED_SOURCE_SHA256)
 
     def test_logistic_baseline_deterministic(self):
         a = m.logistic_trajectory("seed", 20, [0.5, 0.3, 0.2])
@@ -60,6 +62,7 @@ class FractalCrystalTests(unittest.TestCase):
         self.assertGreater(receipt["generated_state_count"], 8)
         self.assertTrue(np.isfinite(receipt["initial_eval_mse"]))
         self.assertTrue(np.isfinite(receipt["final_eval_mse"]))
+        self.assertEqual(receipt["executed_vendored_sha256"], fga.VENDORED_SOURCE_SHA256)
 
     def test_crop_window_stays_valid_for_every_planner(self):
         img = np.zeros((100, 160, 3), dtype=np.uint8)
