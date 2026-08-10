@@ -5,6 +5,11 @@
   "repository": "Hawkar-usls/Janus_Genesis",
   "status": "IMAGE_LEVEL_REPLICATION_CANDIDATE_PROVENANCE_UNCONFIRMED",
   "semantic_content_admitted": 0,
+  "registry_handoff": {
+    "target_repository": "Hawkar-usls/janus-meta-registry",
+    "suggested_path": "registry/crystal/JANUS-CRISTAL-GENESIS-FRACTALGPT-SPECTRAL-REPLICATION-v0.1.json",
+    "policy": "Sandbox performs measurement; meta-registry stores the compact provenance-bound scientific status."
+  },
   "protocol": {
     "parent": "GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1",
     "registration": "EDGE_ECC_TRANSLATION_TO_EUCLIDEAN_TO_AFFINE_WITH_IDENTITY_GUARD",
