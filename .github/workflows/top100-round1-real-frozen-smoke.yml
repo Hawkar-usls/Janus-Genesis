@@ -1,0 +1,136 @@
+name: Top-100 Round-1 Real Frozen Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json"
+      - "benchmarks/prompts/genesis_benchmark_boundary_overlay_v0.1.txt"
+      - "tools/run_top100_round1_stratified.py"
+      - "tests/test_top100_round1_stratified.py"
+      - ".github/workflows/top100-round1-real-frozen-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  execute-round1:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile and unit-test Round-1 harness
+        run: |
+          python -m py_compile tools/run_top100_round1_stratified.py tests/test_top100_round1_stratified.py
+          python -m json.tool benchmarks/frozen_samples/top100_round1_stratified_v0.1.json >/dev/null
+          python -m unittest tests.test_top100_round1_stratified -v
+
+      - name: Install pinned Ollama 0.30.8
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL \
+            https://github.com/ollama/ollama/releases/download/v0.30.8/install.sh \
+            -o /tmp/ollama-install.sh
+          echo "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f  /tmp/ollama-install.sh" | sha256sum -c -
+          OLLAMA_VERSION=0.30.8 OLLAMA_NO_START=1 sh /tmp/ollama-install.sh
+          ollama --version
+
+      - name: Start Ollama and pull pinned reference model tag
+        run: |
+          nohup ollama serve > /tmp/ollama.log 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/version >/tmp/ollama-version.json; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/version
+          ollama pull qwen2.5:0.5b
+          curl -fsS http://127.0.0.1:11434/api/tags > /tmp/ollama-tags.json
+          python - <<'PY'
+          import json
+          tags = json.load(open('/tmp/ollama-tags.json', encoding='utf-8'))
+          rows = tags.get('models', [])
+          assert any((r.get('name') == 'qwen2.5:0.5b' or r.get('model') == 'qwen2.5:0.5b') for r in rows), rows
+          print("REFERENCE_MODEL_PRESENT=qwen2.5:0.5b")
+          PY
+
+      - name: Prepare isolated HumanEval-style sandbox
+        run: |
+          docker pull python:3.11-alpine
+          docker run --rm --network none --read-only \
+            --pids-limit 64 --memory 128m --cpus 0.5 \
+            --cap-drop ALL --security-opt no-new-privileges \
+            python:3.11-alpine python -c "print('SANDBOX_READY')"
+
+      - name: Execute 21 frozen samples in two modes
+        run: |
+          mkdir -p artifacts/top100-round1
+          python -m tools.run_top100_round1_stratified \
+            --pack benchmarks/frozen_samples/top100_round1_stratified_v0.1.json \
+            --overlay benchmarks/prompts/genesis_benchmark_boundary_overlay_v0.1.txt \
+            --endpoint http://127.0.0.1:11434 \
+            --model qwen2.5:0.5b \
+            --seed 1138 \
+            --temperature 0 \
+            --num-predict 512 \
+            --docker-image python:3.11-alpine \
+            --pretty \
+            > artifacts/top100-round1/report.json
+
+      - name: Validate execution receipt without requiring subject PASS
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("artifacts/top100-round1/report.json")
+          r = json.loads(p.read_text(encoding="utf-8"))
+          assert r["sample_count"] == 21
+          assert r["execution_record_count"] == 42
+          assert r["provider"]["model_tag"] == "qwen2.5:0.5b"
+          assert r["provider"]["model_digest"]
+          assert r["provider"]["ollama_version"]
+          assert r["official_benchmark_family_accuracy_claimed"] is False
+          assert r["human_eval_official_164_task_accuracy_claimed"] is False
+          assert r["ifeval_official_aggregate_claimed"] is False
+          assert r["canonical_world_state_mutated"] is False
+          assert r["score_label"] == "ROUND1_FROZEN_SMOKE_ONLY"
+          assert set(r["summary"]) == {"RAW_PROVIDER", "GENESIS_BOUNDARY_OVERLAY"}
+          blocked = [x for x in r["records"] if str(x["status"]).startswith("BLOCKED_")]
+          assert not blocked, blocked
+          for mode in ("RAW_PROVIDER", "GENESIS_BOUNDARY_OVERLAY"):
+              s = r["summary"][mode]
+              assert s["samples"] == 21
+              assert s["pass"] + s["fail"] == 21
+          print("ROUND1_FROZEN_SAMPLE_COUNT=21")
+          print("ROUND1_EXECUTION_RECORD_COUNT=42")
+          print("REFERENCE_PROVIDER_DIGEST=" + r["provider"]["model_digest"])
+          print("OLLAMA_VERSION=" + str(r["provider"]["ollama_version"]))
+          for mode in ("RAW_PROVIDER", "GENESIS_BOUNDARY_OVERLAY"):
+              s = r["summary"][mode]
+              print(f"{mode}_PASS={s['pass']}")
+              print(f"{mode}_FAIL={s['fail']}")
+          print("OFFICIAL_FAMILY_SCORE_CLAIM=0")
+          print("CANONICAL_WORLD_STATE_MUTATION=0")
+          PY
+
+      - name: Upload Round-1 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-top100-round1-real-frozen-smoke
+          path: artifacts/top100-round1/report.json
+          if-no-files-found: error
+          retention-days: 30
