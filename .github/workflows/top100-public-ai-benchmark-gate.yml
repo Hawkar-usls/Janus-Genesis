@@ -33,7 +33,7 @@ jobs:
       - name: Emit no-provider readiness receipt
         run: |
           mkdir -p artifacts/top100-benchmark-gate
-          python tools/run_top100_benchmark_gate.py --pretty \
+          python -m tools.run_top100_benchmark_gate --pretty \
             > artifacts/top100-benchmark-gate/readiness-no-provider.json
           python - <<'PY'
           import json
