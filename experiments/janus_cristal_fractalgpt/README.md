@@ -107,6 +107,10 @@ Frozen result: `GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1.json`.
 
 The frozen registration and difference-field definition should now be replayed without retuning on additional matched visible/UV images of the same quartz specimens. The goal is to separate inclusion/fluorescence effects from generic image, crystal and acquisition differences.
 
+## Dependency isolation
+
+OpenCV and NumPy are experiment-only dependencies. The two specialized test modules live under this experiment and run only in the dedicated `Janus Cristal FractalGPT sandbox` workflow, which installs those optional dependencies. They are intentionally outside Genesis core `tests/` discovery so this sandbox does not enlarge the authoritative Genesis runtime requirements.
+
 ## Claim ceiling
 
 ```text
@@ -128,8 +132,8 @@ NO_POST_HOC_CIPHER_SEARCH
 - `sources.json` — public source registry and planner/null configuration
 - `fractal_crystal_probe.py` — multi-planner OCR/structure gate
 - `spectral_difference_probe.py` — registered nonsemantic visible/UV difference gate
-- `../../tests/test_janus_cristal_fractalgpt.py` — deterministic/adversarial tests
-- `../../tests/test_janus_cristal_spectral_difference.py` — registration/difference-field tests
-- `../../.github/workflows/janus-cristal-fractalgpt.yml` — CI
+- `tests/test_fractalgpt.py` — deterministic/adversarial experiment tests
+- `tests/test_spectral_difference.py` — registration/difference-field experiment tests
+- `../../.github/workflows/janus-cristal-fractalgpt.yml` — dedicated optional-dependency CI
 - `GENESIS-JANUS-CRISTAL-FRACTALGPT-v0.3.json` — v0.3 falsification result
 - `GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1.json` — current spectral-difference result
