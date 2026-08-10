@@ -4,15 +4,21 @@ This experiment uses **Janus Genesis only as an isolated creative-technology san
 
 ## Recovered FractalGPT
 
-The user's prior `FractalGPT(12).py` was recovered from the file library and vendored unchanged into this sandbox as:
-
-`recovered/FractalGPT.py`
-
-Exact recovered source SHA-256:
+The user's prior `FractalGPT(12).py` was recovered from the file library. Its original raw-file SHA-256 is:
 
 `11e6c97ae7169a0fae4e0ad17f2fb7fb23b10265b04b4b057e3c968d6d0a3662`
 
-The recovered source is a small autoregressive model whose state is approximately `[x, y, angle, scale, iteration]`. It also contains native generators for a Koch curve, a Sierpinski triangle and fractal Brownian motion. The sandbox uses those actual components rather than merely borrowing the name.
+A connector-serialized text mirror is stored in this sandbox as:
+
+`recovered/FractalGPT.py`
+
+The exact bytes executed by GitHub CI have SHA-256:
+
+`1dfc5bb1dabcb256d569de30dbe4431f6901c8dcddbe15fb76634fd57d9146e8`
+
+These identities are deliberately **not conflated**. The original library object and the CI text mirror have separate hashes; the adapter verifies the mirror actually executed by CI while preserving the original-library hash as provenance.
+
+The recovered source is a small autoregressive model whose state is approximately `[x, y, angle, scale, iteration]`. It also contains native generators for a Koch curve, a Sierpinski triangle and fractal Brownian motion. The sandbox uses those components directly rather than merely borrowing the FractalGPT name.
 
 For this experiment:
 
@@ -58,6 +64,12 @@ A raw OCR token can appear once and is recorded only as detector behavior. A pla
 
 A **cross-planner escalation** requires the same admissible token to survive at least two independent planner families. A **cross-modality escalation** requires that stronger candidate to repeat across recorded modalities. Even that still opens only an independent replication gate.
 
+## v0.2 measured result
+
+The first exact-FractalGPT multi-planner measurement run found **zero strict semantic escalations** at planner, cross-planner and cross-modality levels. However, a nonsemantic image-structure effect survived every planner: the petroleum-quartz visible and UV images had positive real-minus-shuffled local mirror-symmetry deltas in all 5/5 planners, while the ordinary USGS quartz control had negative deltas in all 5/5 planners.
+
+This is classified only as `IMAGE_LEVEL_MIRROR_STRUCTURE_ENRICHMENT_CANDIDATE`. It may reflect specimen geometry, photographic framing, lighting or other acquisition choices; it is **not admitted as an intrinsic quartz property** without matched acquisition controls.
+
 ## Semantic ceiling
 
 ```text
@@ -68,14 +80,15 @@ CODE_LIKE != ALGORITHM
 REAL_OVER_CONTROL_ENRICHMENT != INTENTIONAL_ENCODING
 CROSS_PLANNER_REPLICATION != MESSAGE
 CROSS_MODALITY_REPLICATION != MESSAGE
+IMAGE_SYMMETRY != MATERIAL_PROPERTY
 UV_DIFFERENCE != SEMANTIC_CONTENT
 NO_POST_HOC_CIPHER_SEARCH
 ```
 
 ## Files
 
-- `recovered/FractalGPT.py` — exact recovered user source
-- `fractalgpt_adapter.py` — deterministic adapter and tiny-model trajectory runner
+- `recovered/FractalGPT.py` — CI text mirror of the recovered user source
+- `fractalgpt_adapter.py` — provenance checks, deterministic adapters and tiny-model trajectory runner
 - `sources.json` — public source registry and planner configuration
 - `fractal_crystal_probe.py` — multi-planner measurement + controls
 - `../../tests/test_janus_cristal_fractalgpt.py` — deterministic/adversarial tests
