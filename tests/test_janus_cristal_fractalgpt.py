@@ -32,6 +32,12 @@ class FractalCrystalTests(unittest.TestCase):
         b = m.logistic_trajectory("seed", 20, [0.5, 0.3, 0.2])
         self.assertEqual(a, b)
 
+    def test_uniform_baseline_deterministic(self):
+        a = m.uniform_random_trajectory("seed", 20, [0.5, 0.3, 0.2])
+        b = m.uniform_random_trajectory("seed", 20, [0.5, 0.3, 0.2])
+        self.assertEqual(a, b)
+        self.assertNotEqual(a, m.logistic_trajectory("seed", 20, [0.5, 0.3, 0.2]))
+
     def test_recovered_planners_are_deterministic(self):
         a, ra = fga.all_trajectories("seed", 10, [0.5, 0.3, 0.2])
         b, rb = fga.all_trajectories("seed", 10, [0.5, 0.3, 0.2])
@@ -40,12 +46,14 @@ class FractalCrystalTests(unittest.TestCase):
         self.assertEqual(ra["model_receipt"], rb["model_receipt"])
         self.assertEqual(set(a), {"fractalgpt_koch", "fractalgpt_sierpinski", "fractalgpt_fbm", "fractalgpt_model"})
 
-    def test_all_planners_are_bounded(self):
+    def test_all_six_planners_are_bounded(self):
         recovered, _ = fga.all_trajectories("bounded", 12, [0.55, 0.4, 0.2])
         planners = {
             "logistic": m.logistic_trajectory("bounded", 12, [0.55, 0.4, 0.2]),
+            "uniform": m.uniform_random_trajectory("bounded", 12, [0.55, 0.4, 0.2]),
             **recovered,
         }
+        self.assertEqual(len(planners), 6)
         for name, rows in planners.items():
             self.assertEqual(len(rows), 12, name)
             for r in rows:
@@ -67,7 +75,11 @@ class FractalCrystalTests(unittest.TestCase):
     def test_crop_window_stays_valid_for_every_planner(self):
         img = np.zeros((100, 160, 3), dtype=np.uint8)
         recovered, _ = fga.all_trajectories("crop", 8, [0.55, 0.2])
-        planners = {"logistic": m.logistic_trajectory("crop", 8, [0.55, 0.2]), **recovered}
+        planners = {
+            "logistic": m.logistic_trajectory("crop", 8, [0.55, 0.2]),
+            "uniform": m.uniform_random_trajectory("crop", 8, [0.55, 0.2]),
+            **recovered,
+        }
         for name, rows in planners.items():
             for row in rows:
                 crop = m.crop_window(img, row)
@@ -75,10 +87,19 @@ class FractalCrystalTests(unittest.TestCase):
                 self.assertLessEqual(crop.shape[0], 100, name)
                 self.assertLessEqual(crop.shape[1], 160, name)
 
-    def test_shuffle_is_deterministic_but_changes_layout(self):
+    def test_block_shuffle_is_deterministic_but_changes_layout(self):
         img = np.arange(128 * 128 * 3, dtype=np.uint8).reshape(128, 128, 3)
         a = m.block_shuffle(img, "x", block=32)
         b = m.block_shuffle(img, "x", block=32)
+        self.assertTrue(np.array_equal(a, b))
+        self.assertFalse(np.array_equal(a, img))
+
+    def test_phase_scramble_is_deterministic_and_shape_preserving(self):
+        rng = np.random.default_rng(1138)
+        img = rng.integers(0, 256, size=(96, 128, 3), dtype=np.uint8)
+        a = m.phase_scramble(img, "phase")
+        b = m.phase_scramble(img, "phase")
+        self.assertEqual(a.shape, img.shape)
         self.assertTrue(np.array_equal(a, b))
         self.assertFalse(np.array_equal(a, img))
 
@@ -88,13 +109,16 @@ class FractalCrystalTests(unittest.TestCase):
         self.assertEqual(m.classify_token("IF(X)"), "CODE_LIKE")
         self.assertEqual(m.classify_token("A3"), "SYMBOL_SEQUENCE")
 
-    def test_same_windows_reused_for_control(self):
+    def test_same_windows_reused_for_controls(self):
         rows = fga.koch_trajectory("same", 10, [0.5, 0.25])
         img = np.zeros((120, 120, 3), dtype=np.uint8)
-        ctrl = m.block_shuffle(img, "ctrl", block=24)
+        block = m.block_shuffle(img, "ctrl", block=24)
+        phase = m.phase_scramble(img, "phase")
         shapes_real = [m.crop_window(img, r).shape for r in rows]
-        shapes_ctrl = [m.crop_window(ctrl, r).shape for r in rows]
-        self.assertEqual(shapes_real, shapes_ctrl)
+        shapes_block = [m.crop_window(block, r).shape for r in rows]
+        shapes_phase = [m.crop_window(phase, r).shape for r in rows]
+        self.assertEqual(shapes_real, shapes_block)
+        self.assertEqual(shapes_real, shapes_phase)
 
 
 if __name__ == "__main__":
