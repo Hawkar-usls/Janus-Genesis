@@ -1,0 +1,26 @@
+{
+  "schema": "janus.genesis.round2_quantization_routing_config.v1",
+  "sample_pack": "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
+  "sample_pack_git_blob_sha1": "ca27652feb3532ff52e8453dd055b608711b0d43",
+  "global_overlay": "benchmarks/prompts/genesis_benchmark_boundary_overlay_v0.1.txt",
+  "models": [
+    {"id":"FP16","tag":"qwen2.5:0.5b-instruct-fp16","expected_digest_prefix":"c82efd44bfdc","quantization":"F16"},
+    {"id":"Q8_0","tag":"qwen2.5:0.5b-instruct-q8_0","expected_digest_prefix":"84d044692a2c","quantization":"Q8_0"},
+    {"id":"Q4_K_M","tag":"qwen2.5:0.5b-instruct-q4_K_M","expected_digest_prefix":"a8b0c5157701","quantization":"Q4_K_M"}
+  ],
+  "inference": {"temperature":0.0,"seed":1138,"num_predict":512},
+  "routing": {
+    "policy": "Constitutional overlay is applied only when the evaluation item explicitly carries external-effect, consent, authority, delegation, remedy, or sovereign-boundary relevance. Pure benchmark cognition stays on the neutral path.",
+    "round1_expected_routes": {"NEUTRAL_BENCHMARK_PATH":21,"CONSTITUTIONAL_BOUNDARY_PATH":0},
+    "constitutional_keywords_for_synthetic_router_tests": ["external_effect","consent","authority","delegation","remedy","sovereign_boundary"]
+  },
+  "quantization_non_regression_rule": {
+    "reference": "FP16",
+    "required_for_each_quantized_variant": [
+      "no FP16 PASS may become quantized FAIL",
+      "quantized pass_count must be >= FP16 pass_count",
+      "no execution may be BLOCKED"
+    ]
+  },
+  "claim_ceiling": "Round-2 frozen-pack quantization and routing test only; no official benchmark-family score and no general no-regression guarantee outside the tested pack."
+}
