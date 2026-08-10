@@ -35,20 +35,7 @@ Frozen result: `GENESIS-JANUS-CRISTAL-FRACTALGPT-v0.3.json`.
 
 ## v0.4 — registered same-specimen visible ↔ UV405 difference
 
-The next gate was executed rather than left as a proposal.
-
-The two 3614×2520 photographs of the **same petroleum-quartz specimen** were resized into one analysis frame and registered before any difference regions were defined. Edge-based ECC selected a near-identity affine transform:
-
-```text
-edge correlation before = 0.30700636
-edge correlation after  = 0.32065283
-overlap                 = 0.98156113
-affine determinant      = 0.99916162
-translation             = 6.832 px in resized frame
-registration            = USABLE_IMAGE_REGISTRATION
-```
-
-A fixed nonsemantic difference field was then frozen as:
+The two 3614×2520 photographs of the **same petroleum-quartz specimen** were registered before any difference regions were defined. The fixed nonsemantic field was frozen as:
 
 ```text
 0.40 × CLAHE luminance absolute difference
@@ -56,60 +43,86 @@ A fixed nonsemantic difference field was then frozen as:
 + 0.20 × normalized edge absolute difference
 ```
 
-The field uses fixed channel scales, so it can be compared with a monotonic exposure-like self-control. The registered visible↔UV pair produced:
+The registered visible↔UV pair produced a composite median near `0.23847`; the visible-image gamma=0.72 self-control produced about `0.03823`, a ratio near `6.24`.
+
+Only after the field was frozen did the six planners sample it. Each planner was compared with **2048 matched random trajectories** preserving its scale sequence, under familywise α=0.01. No planner was enriched.
 
 ```text
-luminance median       = 0.19215687
-chromaticity median    = 0.28856058
-edge median            = 0.05296119
-composite median       = 0.23846602
-composite p95          = 0.39166408
+REGISTERED_MODALITY_DIFFERENCE = OBSERVED
+FRACTALGPT_PLANNER_ENRICHMENT  = NOT_OBSERVED
+SEMANTIC_CONTENT               = DISABLED_BY_DESIGN
 ```
-
-The visible-image gamma=0.72 self-control produced a composite median of `0.03822943`. The pair/control median ratio is therefore `6.23776028`.
-
-This passes only the narrow image-level claim:
-
-`REGISTERED_VISIBLE_UV_DIFFERENCE_FIELD_OBSERVED`
-
-It does **not** identify chemistry from the image alone and does not establish a universal quartz property.
-
-### What did FractalGPT add here?
-
-Only after the difference field was frozen, the six planners sampled it. Each planner was compared with **2048 matched random trajectories** that preserve its scale sequence. Familywise α was fixed at 0.01.
-
-No planner was enriched for either the composite difference or the 95th-percentile hotspot field:
-
-```text
-logistic baseline     p(composite)=0.99121523  p(hotspot)=0.98291850
-uniform random        p(composite)=0.81649585  p(hotspot)=0.73304051
-FractalGPT Koch       p(composite)=0.29575403  p(hotspot)=0.21669107
-FractalGPT Sierpinski p(composite)=0.61981454  p(hotspot)=0.68423621
-FractalGPT fBM        p(composite)=0.76720351  p(hotspot)=0.84675451
-FractalGPT model      p(composite)=0.79648609  p(hotspot)=0.43777452
-```
-
-So the current result is intentionally two-part:
-
-```text
-PHYSICAL/IMAGE MODALITY DIFFERENCE = OBSERVED IN THIS MATCHED PAIR
-FRACTALGPT PREFERENTIAL DISCOVERY  = NOT OBSERVED
-SEMANTIC CONTENT                    = NOT TESTED IN THIS GATE / DISABLED BY DESIGN
-```
-
-This matters because a genuine UV-visible image difference does not automatically become evidence that a fractal model has discovered a hidden region or code.
 
 Frozen result: `GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1.json`.
 
+## v0.5 — frozen cross-specimen replay
+
+The v0.4 registration, field weights, hotspot quantile and gamma control were then replayed **without pair-specific retuning**.
+
+An independent open rock-crystal quartz candidate by LucasFassari contains a visible three-phase hydrocarbon-inclusion photograph and an LWUVR photograph describing a three-phase rock-crystal quartz inclusion. The public metadata strongly links the subject matter, but it does **not explicitly state** that both images show the identical physical specimen. That uncertainty is preserved rather than inferred away.
+
+Frozen replay result for the LucasFassari pair:
+
+```text
+registration quality                  = USABLE_IMAGE_REGISTRATION
+composite difference median           = 0.21239217
+composite difference p95              = 0.42024102
+gamma self-control median             = 0.02748128
+pair / gamma-control median ratio     = 7.72861271
+FractalGPT/baseline planner enrichment = 0 / 6
+semantic analysis                     = DISABLED_BY_DESIGN
+```
+
+The FractalGPT model planner's smallest raw composite p-value was `0.02049780`, but the fixed familywise per-planner threshold is `0.00166667`, so it is **not enriched**.
+
+### Positive-control validator self-audit
+
+A separate AKAZE/RANSAC scene-geometry corroborator returned `INSUFFICIENT_MATCHES` for the Lucas candidate. Critically, the same validator also returned `INSUFFICIENT_MATCHES` for the **confirmed same-specimen Alatay positive control**.
+
+Therefore the geometry heuristic failed its own necessary positive-control test and was invalidated as an admission requirement:
+
+```text
+A_VALIDATOR_THAT_FAILS_THE_POSITIVE_CONTROL
+= NOT_ADMISSIBLE_AS_A_NECESSARY_GATE
+```
+
+This does not promote Lucas to formal replication. Exact physical-specimen provenance is still not confirmed by the source text.
+
+Final admission:
+
+```text
+FORMAL_INDEPENDENT_REPLICATIONS       = 0
+IMAGE_LEVEL_REPLICATION_CANDIDATES    = 1
+CANDIDATE                             = LUCASFASSARI_THREE_PHASE_VISIBLE_LWUVR
+CROSS_SPECIMEN_REPLICATION_GATE       = OPEN_NOT_ESTABLISHED
+SEMANTIC_CONTENT_ADMITTED             = 0
+```
+
+Frozen binding: `GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-v0.1.json`.
+
+Verified dedicated replication measurement:
+
+```text
+workflow run     = 31391351531
+measurement head = d4ccf2b5adb60b78926f4983b1eb7798dccd1ac3
+artifact id      = 9063837561
+artifact sha256  = 8efac7dabe886660e9fb2b6da6dc4c52757eadd5ba31a3b7ef44de85319c70b6
+conclusion       = SUCCESS
+```
+
+## CI ownership
+
+OpenCV and NumPy remain experiment-only dependencies. Network-heavy cross-specimen replay is isolated in:
+
+`.github/workflows/janus-cristal-spectral-replication.yml`
+
+The general sandbox workflow no longer duplicates those full-resolution replication downloads. This keeps Wikimedia transport/rate-limit behavior separate from the measurement result.
+
 ## Current next gate
 
-`SPECTRAL_DIFFERENCE_CROSS_SPECIMEN_REPLICATION`
+`SPECTRAL_DIFFERENCE_CONFIRMED_SAME_SPECIMEN_REPLICATION`
 
-The frozen registration and difference-field definition should now be replayed without retuning on additional matched visible/UV images of the same quartz specimens. The goal is to separate inclusion/fluorescence effects from generic image, crystal and acquisition differences.
-
-## Dependency isolation
-
-OpenCV and NumPy are experiment-only dependencies. The two specialized test modules live under this experiment and run only in the dedicated `Janus Cristal FractalGPT sandbox` workflow, which installs those optional dependencies. They are intentionally outside Genesis core `tests/` discovery so this sandbox does not enlarge the authoritative Genesis runtime requirements.
+Find an independent open quartz visible/UV pair whose primary source explicitly states that both recordings show the identical physical specimen, then replay the same frozen protocol without retuning.
 
 ## Claim ceiling
 
@@ -118,11 +131,12 @@ FRACTAL_PATH != DISCOVERY
 OCR_TOKEN != MESSAGE
 FORMULA_LIKE != FORMULA
 CODE_LIKE != ALGORITHM
-VISIBLE_UV_DIFFERENCE != HIDDEN_MESSAGE
+REGISTERED_MODALITY_DIFFERENCE != CHEMICAL_IDENTITY
+REGISTERED_MODALITY_DIFFERENCE != HIDDEN_MESSAGE
 FRACTALGPT_TRAJECTORY != MATERIAL_DISCOVERY
 NO_PLANNER_ENRICHMENT != NO_PHYSICAL_MODALITY_EFFECT
-SINGLE_SPECIMEN_DIFFERENCE != GENERAL_QUARTZ_PROPERTY
-NO_POST_HOC_CIPHER_SEARCH
+PROBABLE_SAME_SPECIMEN != CONFIRMED_SAME_SPECIMEN
+NO_POST_HOC_REGION_OR_CIPHER_SEARCH
 ```
 
 ## Files
@@ -132,8 +146,13 @@ NO_POST_HOC_CIPHER_SEARCH
 - `sources.json` — public source registry and planner/null configuration
 - `fractal_crystal_probe.py` — multi-planner OCR/structure gate
 - `spectral_difference_probe.py` — registered nonsemantic visible/UV difference gate
-- `tests/test_fractalgpt.py` — deterministic/adversarial experiment tests
-- `tests/test_spectral_difference.py` — registration/difference-field experiment tests
-- `../../.github/workflows/janus-cristal-fractalgpt.yml` — dedicated optional-dependency CI
+- `spectral_replication_pairs.json` — frozen replication corpus and provenance status
+- `spectral_replication_probe.py` — raw frozen cross-specimen replay
+- `spectral_replication_admission.py` — positive-control-aware final admission
+- `spectral_replication_runner.py` — transport-only rate-limit wrapper
+- `tests/` — isolated deterministic/adversarial experiment tests
+- `../../.github/workflows/janus-cristal-fractalgpt.yml` — general sandbox CI
+- `../../.github/workflows/janus-cristal-spectral-replication.yml` — authoritative cross-specimen replay CI
 - `GENESIS-JANUS-CRISTAL-FRACTALGPT-v0.3.json` — v0.3 falsification result
-- `GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1.json` — current spectral-difference result
+- `GENESIS-JANUS-CRISTAL-SPECTRAL-DIFFERENCE-v0.1.json` — same-specimen spectral-difference result
+- `GENESIS-JANUS-CRISTAL-SPECTRAL-REPLICATION-v0.1.json` — current cross-specimen binding
