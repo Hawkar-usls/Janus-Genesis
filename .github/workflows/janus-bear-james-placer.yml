@@ -43,8 +43,12 @@ jobs:
           python -m py_compile tools/evaluate_janus_bear_james_placer.py tests/test_janus_bear_james_placer.py
           python -m json.tool experiments/janus_bear/james_placer_hypothesis_v0.1.json >/dev/null
 
-      - name: Run falsification tests
-        run: python -m unittest tests.test_janus_bear_james_placer -v
+      - name: Run exactly five falsification tests
+        run: |
+          set -o pipefail
+          python -m unittest tests.test_janus_bear_james_placer -v 2>&1 | tee /tmp/janus-bear-james-tests.log
+          grep -F "Ran 5 tests" /tmp/janus-bear-james-tests.log
+          grep -Fx "OK" /tmp/janus-bear-james-tests.log
 
       - name: Verify claim ceiling strings
         run: |
