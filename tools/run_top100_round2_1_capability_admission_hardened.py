@@ -19,6 +19,7 @@ from tools import run_top100_round2_1_capability_admission as gate
 
 
 PROVENANCE_STATUS = "VERIFIED_AGAINST_ACTUAL_CONSUMED_BYTES"
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 
 
 def git_blob_sha1_bytes(data: bytes) -> str:
@@ -31,13 +32,12 @@ def git_blob_sha1(path: Path) -> str:
 
 
 def _repo_relative(path: Path) -> str:
-    """Represent a consumed path in repository-relative POSIX form when possible."""
-    if not path.is_absolute():
-        return path.as_posix()
+    """Represent a consumed path relative to this repository, independent of cwd."""
+    resolved = path.resolve()
     try:
-        return path.resolve().relative_to(Path.cwd().resolve()).as_posix()
+        return resolved.relative_to(REPOSITORY_ROOT).as_posix()
     except ValueError:
-        return path.resolve().as_posix()
+        return resolved.as_posix()
 
 
 def validate_provenance(
@@ -114,6 +114,7 @@ def validate_provenance(
 
     return {
         "status": PROVENANCE_STATUS,
+        "repository_root": REPOSITORY_ROOT.as_posix(),
         "config_path": _repo_relative(config_path),
         "critical_reference_path": observed_critical_path,
         "round1_pack_path": observed_pack_path,
@@ -127,6 +128,7 @@ def validate_provenance(
         "receipt_fields_derived_from_verified_declarations": True,
         "single_snapshot_consumption": True,
         "verified_bytes_are_execution_bytes": True,
+        "repository_root_independent_of_process_cwd": True,
     }
 
 
