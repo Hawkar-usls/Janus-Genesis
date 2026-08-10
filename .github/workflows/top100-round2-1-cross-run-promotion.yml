@@ -1,0 +1,114 @@
+name: Top-100 Round-2.1 Cross-Run Promotion
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/frozen_receipts/top100_round2_1_cross_run_evidence_v0.1.json"
+      - "benchmarks/round2_1_cross_run_promotion_gate_v0.1.json"
+      - "tools/run_top100_round2_1_cross_run_promotion_gate.py"
+      - "tests/test_top100_round2_1_cross_run_promotion_gate.py"
+      - ".github/workflows/top100-round2-1-cross-run-promotion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cross-run-promotion:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Freeze cross-run gate inputs
+        run: |
+          test "$(git hash-object benchmarks/frozen_receipts/top100_round2_1_cross_run_evidence_v0.1.json)" = "14a40f44797602862f80b9f9de8226f5beddd6fe"
+          test "$(git hash-object benchmarks/round2_1_cross_run_promotion_gate_v0.1.json)" = "d2362cbc63dc246dcb79151e7d593c41157cfcb1"
+          test "$(git hash-object tools/run_top100_round2_1_cross_run_promotion_gate.py)" = "54c73b248b8539a9ec0410df53e0a89afdcf3b5d"
+          test "$(git hash-object tests/test_top100_round2_1_cross_run_promotion_gate.py)" = "29637e160e7d2b731fe996a7ff4776430e6c8a10"
+          echo "CROSS_RUN_EVIDENCE_BLOB=14a40f44797602862f80b9f9de8226f5beddd6fe"
+          echo "CROSS_RUN_CONFIG_BLOB=d2362cbc63dc246dcb79151e7d593c41157cfcb1"
+          echo "CROSS_RUN_GATE_BLOB=54c73b248b8539a9ec0410df53e0a89afdcf3b5d"
+          echo "CROSS_RUN_TEST_BLOB=29637e160e7d2b731fe996a7ff4776430e6c8a10"
+
+      - name: Compile and unit-test cross-run semantics
+        run: |
+          python -m py_compile \
+            tools/run_top100_round2_1_cross_run_promotion_gate.py \
+            tests/test_top100_round2_1_cross_run_promotion_gate.py
+          python -m json.tool benchmarks/frozen_receipts/top100_round2_1_cross_run_evidence_v0.1.json >/dev/null
+          python -m json.tool benchmarks/round2_1_cross_run_promotion_gate_v0.1.json >/dev/null
+          python -m unittest tests.test_top100_round2_1_cross_run_promotion_gate
+
+      - name: Execute cross-run promotion gate
+        run: |
+          mkdir -p artifacts/top100_round2_1_cross_run_promotion
+          python -m tools.run_top100_round2_1_cross_run_promotion_gate \
+            --config benchmarks/round2_1_cross_run_promotion_gate_v0.1.json \
+            --pretty \
+            > artifacts/top100_round2_1_cross_run_promotion/report.json
+
+      - name: Validate fail-closed promotion receipt
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = Path('artifacts/top100_round2_1_cross_run_promotion/report.json')
+          r = json.loads(p.read_text(encoding='utf-8'))
+          assert r['schema'] == 'janus.genesis.top100.round2_1_cross_run_promotion_receipt.v1'
+          assert r['experimental_spec_fingerprint_sha256'] == '28173fb94cff1b2e0b741fc9e3bf1f529abc57818a965d4cc182842805f54657'
+          assert r['receipt_count'] == 2
+          assert r['independent_workflow_run_count'] == 2
+          assert r['independent_head_count'] == 2
+          assert r['all_receipts_exact_spec_conforming'] is True
+          assert r['reference_model_passed_every_receipt'] is True
+          assert r['candidate_positive_receipt_count'] == 1
+          assert r['candidate_negative_receipt_count'] == 1
+          assert r['candidate_any_historical_negative'] is True
+          assert r['cross_run_status_divergence_observed'] is True
+          assert r['cross_run_output_divergence_observed'] is True
+          by_run = {row['workflow_run_id']: row for row in r['receipts']}
+          old = by_run[31349156794]
+          fresh = by_run[31352475058]
+          assert old['head_sha'] == '81898c0f4ee09d1b530e3cc1c38ecdd993d4d9c9'
+          assert old['artifact_id'] == 9048707870
+          assert old['artifact_digest'] == 'sha256:1561a538076b8907326353f71a0e644987d77484e11f760f114fa029062daff6'
+          assert old['report_json_sha256'] == '32954cbe3dbadde7e2e6489882eb3c111249d08f7c52dc9c143817d8a48db6aa'
+          assert old['candidate_pass_trials'] == 20 and old['candidate_nonpass_trials'] == 4
+          assert fresh['head_sha'] == '692f88dd2bccf211487e9c675a981fc530d81095'
+          assert fresh['artifact_id'] == 9049984941
+          assert fresh['artifact_digest'] == 'sha256:0f85f51a0114ca7f2dd8d14f0244db63c63e3e7bc23b10aae79baf60da631213'
+          assert fresh['report_json_sha256'] == 'e4c33f4b113e4cf3267f73f77824af6708194aaa9cf21177932de977e937f67d'
+          assert fresh['candidate_pass_trials'] == 24 and fresh['candidate_nonpass_trials'] == 0
+          assert old['candidate_model_digest'] == fresh['candidate_model_digest'] == '84d044692a2ce0a5a063d3177ca7a69fb189fd81b3139a7a3ead74ccf42a51dc'
+          assert old['candidate_size_bytes'] == fresh['candidate_size_bytes'] == 531081605
+          promotion = r['promotion']
+          assert promotion['authoritative_runtime_promoted'] is False
+          assert promotion['selected_runtime_representation'] == 'FP16'
+          assert promotion['decision'] == 'BLOCKED_BY_HISTORICAL_NEGATIVE_EVIDENCE'
+          assert promotion['historical_negative_is_veto'] is True
+          assert promotion['fresh_positive_compensates_historical_negative'] is False
+          print('CROSS_RUN_EXACT_SPEC_RECEIPTS=2')
+          print('Q8_0_HISTORICAL=20_OF_24')
+          print('Q8_0_FRESH=24_OF_24')
+          print('CROSS_RUN_STATUS_DIVERGENCE=OBSERVED')
+          print('CROSS_RUN_OUTPUT_DIVERGENCE=OBSERVED')
+          print('AUTHORITATIVE_RUNTIME_PROMOTED=FALSE')
+          print('AUTHORITATIVE_RUNTIME=FP16')
+          print('PROMOTION_DECISION=BLOCKED_BY_HISTORICAL_NEGATIVE_EVIDENCE')
+          PY
+
+      - name: Upload cross-run promotion receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-top100-round2-1-cross-run-promotion
+          path: artifacts/top100_round2_1_cross_run_promotion/report.json
+          if-no-files-found: error
