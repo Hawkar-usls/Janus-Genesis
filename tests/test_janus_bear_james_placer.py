@@ -9,13 +9,15 @@ mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 
 
-def scene(scene_id, loc, *tags, explicit=False):
-    return {
+def scene(scene_id, loc, *tags, explicit=False, **extra):
+    row = {
         "scene_id": scene_id,
         "location_key": loc,
         "tags": list(tags),
         "explicit_james_placement_edge": explicit,
     }
+    row.update(extra)
+    return row
 
 
 class JanusBearJamesPlacerTests(unittest.TestCase):
@@ -56,6 +58,51 @@ class JanusBearJamesPlacerTests(unittest.TestCase):
         r = mod.evaluate(scenes, ["CELL1"])
         self.assertEqual(r["missing_location_key_count"], 1)
         self.assertEqual(r["james_a_route_overlap_count"], 0)
+
+    def test_pre_james_b_observable_without_lifecycle_is_candidate_not_falsification(self):
+        scenes = [scene("ZETA_TABLEAU", "ZETA", mod.PRE_JAMES_B_OBSERVABLE)]
+        r = mod.evaluate(scenes, [])
+        self.assertEqual(r["temporal_falsifier_candidate_count"], 1)
+        self.assertEqual(r["source_bound_temporal_falsifier_count"], 0)
+        self.assertEqual(
+            r["hypothesis_status"]["H2_JAMES_B_ALL"],
+            "TEMPORAL_FALSIFIER_CANDIDATE_PENDING_EXACT_REFR_LIFECYCLE_BINDING",
+        )
+
+    def test_source_bound_static_pre_james_b_scene_falsifies_james_b_all(self):
+        scenes = [
+            scene(
+                "ZETA_TABLEAU",
+                "ZETA",
+                mod.PRE_JAMES_B_OBSERVABLE,
+                mod.EXACT_REFR_BOUND,
+                mod.LIFECYCLE_BOUND,
+            )
+        ]
+        r = mod.evaluate(scenes, [])
+        self.assertEqual(r["source_bound_temporal_falsifier_count"], 1)
+        self.assertEqual(
+            r["hypothesis_status"]["H2_JAMES_B_ALL"],
+            "TEMPORALLY_FALSIFIED_IN_SOURCE_BOUND_TESTED_SCENES",
+        )
+        self.assertFalse(r["claim_ceiling"]["retrocausality_allowed"])
+
+    def test_dynamic_after_james_b_edge_defeats_static_preexistence_inference(self):
+        scenes = [
+            scene(
+                "DYNAMIC_TABLEAU",
+                "CELL1",
+                mod.PRE_JAMES_B_OBSERVABLE,
+                mod.EXACT_REFR_BOUND,
+                mod.LIFECYCLE_BOUND,
+                mod.DYNAMIC_AFTER_JAMES_B,
+            )
+        ]
+        r = mod.evaluate(scenes, [])
+        self.assertEqual(r["pre_james_b_observable_scene_count"], 1)
+        self.assertEqual(r["dynamic_after_james_b_scene_count"], 1)
+        self.assertEqual(r["temporal_falsifier_candidate_count"], 0)
+        self.assertEqual(r["source_bound_temporal_falsifier_count"], 0)
 
 
 if __name__ == "__main__":
