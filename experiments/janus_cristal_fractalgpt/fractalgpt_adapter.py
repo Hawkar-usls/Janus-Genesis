@@ -5,6 +5,12 @@ The recovered FractalGPT is not used as a semantic oracle. It only proposes
 content-independent multiscale image coordinates. Conventional OCR/CV metrics
 then measure those windows, and the exact same windows are applied to matched
 negative controls.
+
+Two byte identities are kept deliberately separate:
+- ORIGINAL_LIBRARY_SHA256 binds the original prior file recovered from the user's library.
+- VENDORED_SOURCE_SHA256 binds the GitHub text mirror used by CI.
+The connector text serialization produced a different byte stream, so CI never
+pretends the mirror is byte-identical to the original library object.
 """
 from __future__ import annotations
 
@@ -19,7 +25,10 @@ import numpy as np
 
 HERE = Path(__file__).resolve().parent
 RECOVERED_PATH = HERE / "recovered" / "FractalGPT.py"
-RECOVERED_SHA256 = "11e6c97ae7169a0fae4e0ad17f2fb7fb23b10265b04b4b057e3c968d6d0a3662"
+ORIGINAL_LIBRARY_SHA256 = "11e6c97ae7169a0fae4e0ad17f2fb7fb23b10265b04b4b057e3c968d6d0a3662"
+VENDORED_SOURCE_SHA256 = "1dfc5bb1dabcb256d569de30dbe4431f6901c8dcddbe15fb76634fd57d9146e8"
+# Compatibility name now always refers to the bytes actually executed in CI.
+RECOVERED_SHA256 = VENDORED_SOURCE_SHA256
 
 
 def _sha256_file(path: Path) -> str:
@@ -32,8 +41,8 @@ def _sha256_file(path: Path) -> str:
 
 def load_recovered_module():
     got = _sha256_file(RECOVERED_PATH)
-    if got != RECOVERED_SHA256:
-        raise RuntimeError(f"Recovered FractalGPT SHA-256 mismatch: {got}")
+    if got != VENDORED_SOURCE_SHA256:
+        raise RuntimeError(f"Vendored FractalGPT SHA-256 mismatch: {got}")
     spec = importlib.util.spec_from_file_location("recovered_fractalgpt", RECOVERED_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError("Cannot load recovered FractalGPT")
@@ -141,7 +150,8 @@ def model_trajectory(seed: str, count: int, scales: List[float]) -> tuple[list[d
     trajectory = _normalize_states(generated, count, scales)
     receipt = {
         "implementation": "RECOVERED_FRACTALGPT_MICRO_AUTOREGRESSIVE_MODEL",
-        "source_sha256": RECOVERED_SHA256,
+        "original_library_sha256": ORIGINAL_LIBRARY_SHA256,
+        "executed_vendored_sha256": VENDORED_SOURCE_SHA256,
         "python_seed": py_seed,
         "numpy_seed": np_seed,
         "train_sequence_count": len(train),
@@ -167,7 +177,8 @@ def all_trajectories(seed: str, count: int, scales: List[float]) -> tuple[dict[s
         for name, rows in trajectories.items()
     }
     return trajectories, {
-        "recovered_source_sha256": RECOVERED_SHA256,
+        "original_library_sha256": ORIGINAL_LIBRARY_SHA256,
+        "executed_vendored_sha256": VENDORED_SOURCE_SHA256,
         "trajectory_hashes": hashes,
         "model_receipt": model_receipt,
     }
