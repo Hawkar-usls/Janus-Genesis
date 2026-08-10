@@ -1,0 +1,1410 @@
+{
+  "campaign": "JANUS_TOP100_ROUND2_QUANTIZATION_AND_ROUTED_BOUNDARY_v0.1",
+  "canonical_world_state_mutated": false,
+  "claim_ceiling": "Real Round-2 result on the unchanged 21-sample frozen Round-1 pack. Quantization conclusions apply only to the tested tags/digests/prompts/seed/runtime. Routing conclusions apply only to this frozen pack and explicit relevance policy.",
+  "configuration_count": 5,
+  "execution_record_count": 105,
+  "general_quantization_no_regression_claimed": false,
+  "inference": {
+    "num_predict": 512,
+    "seed": 1138,
+    "temperature": 0.0
+  },
+  "models": {
+    "FP16": {
+      "digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "tag": "qwen2.5:0.5b-instruct-fp16"
+    },
+    "Q4_K_M": {
+      "digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "tag": "qwen2.5:0.5b-instruct-q4_K_M"
+    },
+    "Q8_0": {
+      "digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "tag": "qwen2.5:0.5b-instruct-q8_0"
+    }
+  },
+  "official_benchmark_family_accuracy_claimed": false,
+  "ollama_version": "0.30.8",
+  "quantization_gates": {
+    "Q4_K_M": {
+      "all_reference_passes_preserved": false,
+      "blocked_count": 0,
+      "gate_status": "REGRESSION_OBSERVED",
+      "new_failures_from_reference_pass": [
+        "gsm8k-test-0000",
+        "gsm8k-test-0003",
+        "ifeval-key-1019"
+      ],
+      "pass_count": 7,
+      "pass_count_not_lower_than_reference": false,
+      "reference_pass_count": 8,
+      "strict_no_regression": false
+    },
+    "Q8_0": {
+      "all_reference_passes_preserved": false,
+      "blocked_count": 0,
+      "gate_status": "REGRESSION_OBSERVED",
+      "new_failures_from_reference_pass": [
+        "gsm8k-test-0000"
+      ],
+      "pass_count": 9,
+      "pass_count_not_lower_than_reference": true,
+      "reference_pass_count": 8,
+      "strict_no_regression": false
+    }
+  },
+  "records": [
+    {
+      "benchmark": "GSM8K",
+      "config_id": "FP16_RAW",
+      "domain": "math",
+      "effective_input_sha256": "9fa96705e936b57ed33c1d57d3d3b8598608314dd01a936e4c4b752f9383e8bb",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "18",
+        "parsed_last_number": "18"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "565e1338d861979a5f9947274c8bf00de874d926b54171552812960c6311279c",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0000",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "FP16_RAW",
+      "domain": "math",
+      "effective_input_sha256": "d00e30593254f32cc2720a595d6d5f60d3d0cb7b98c17596fdb6a169c30bbbe1",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "3",
+        "parsed_last_number": "3"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "6a06fc1593c4ca899d23de4604fc4e80901307885b9122e5afe81dd42b8232da",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0001",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "FP16_RAW",
+      "domain": "math",
+      "effective_input_sha256": "4a5d8b9e39554f9d27f6fa474523e64ecf3c44a3d8be75a3b978ee5f3e2d9050",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "70000",
+        "parsed_last_number": "230000"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "572485f5098734da1c9dc7c692414468f7c967a4af7feb01fd0b979cab01c22e",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0002",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "FP16_RAW",
+      "domain": "math",
+      "effective_input_sha256": "bb67c4c5e23035a90f4249013c5996ec06237bdd321128d4ac19ece52a487af3",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "540",
+        "parsed_last_number": "540"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "b0e9cb89071be6c999869b1a1d40ebbe074fb01187d44874879a505e3a2d1398",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0003",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "FP16_RAW",
+      "domain": "math",
+      "effective_input_sha256": "77ab7c8f59b8f9d06d573320b008b354672f11e2f4d4a6712bc9b7830c2c0cea",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "20",
+        "parsed_last_number": "80"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "ecce108708ef818240ba85dc61e0cc79ae8a3e6484d8f221f55c13ff8cce30ef",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0004",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "FP16_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "9981c71efc3ab8e2696f5112984f093e7bf52adb9139fae7bbf23d7d36d632cf",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": null
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "ea3dd8bc0bcc7c39a9966f16acf9f3af8581375725c59c13bcc53e79b76baad7",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "FP16_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "b7869d259421feb00837a09fd41300fbecd678d72158ae5bcc25e5ac73477541",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "c5208d18173594042e20fc2a534b8ad00d517e24af5092584acf4f8016db8b46",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0001",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "FP16_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "fcd48dc7b1adfce521b991a358c9df3cc6888f385509ee16f5c96ac1dbe66a74",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "5b74d2a23a1afb4d1dda1d10c31a364bc1f6566bccd617a9ea0a0226f7ef196e",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0002",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "FP16_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "643c5e58b991f2b43cc83b922ebf5b2d5767d41b9278185962f87ff0af50dfb2",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "01df7f5e9c6471d6602405691f76282118606a43c2f7005a9208c54235e49a50",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "FP16_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "e405600234a5ec7cd23a13d39284f109eb368f19243b7e3f63666aa745a9a54f",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "ee54f0e476845d41eb9672ca6808542f6a4886661efec2174cd9033a9143b661",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0004",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "FP16_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "19f70317d12bc21c0dc701298ee6ee760c689dd6d4d29f52b85496940c89ce23",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "3dc81fc877121ba24f39de2e68e648530fce07d3ab3ccf613ed2f187e6412305",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "FP16_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "cb65c1268116e9c77bba53c5ad07c818058a36550632712e708e744adfd87b4d",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "040671c0a21a1b242cd8ba6ff985592cb182f4d39a00e110c190712fab8ee5ae",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0001",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "FP16_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "13126b3a2deaf96c57568393210b7d9f83eff79e3ae5bb9f6bdcc2d889b341a9",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(C)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "df7942916323651f8d7f211be0cfcfd4cf3039e1643f86282ef9744c169f553a",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0002",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "FP16_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "67690f896db4c21c159a82b8ae06207416308f09f0e39a8be8fb47d704e4b9ae",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "86c2e099f6de0331b58e6a4aa5e8eecb37cb6a1fdbac683660613c50b06880b0",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "FP16_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "a525e2ef4a55c922d0136e84ab001c15533750aef967bbcf4a2a0789619c1c36",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(E)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "e6459ae2b570df634506b6002567b42e651f1e0a6798c1450ef7af45ca90bd3e",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0004",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "FP16_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "c2c19d23b8bb4259a8a504a6412295d80a59911c04da30a729725de63b44ac53",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 1,
+            "pass": false,
+            "type": "keywords_forbidden"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "5fbc549f598dd2fc0617194968fa9fe202687827a9ed86405a0481330b16037af",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1243",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "FP16_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "12e0cc687386075de0bf533df661fed20f4d1f89f6e61f4683be9cb8d644cbdc",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 0,
+            "pass": true,
+            "type": "no_ascii_uppercase"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "644c13aaeec4bc5ffa10d6af47b98b40f2ef29e5789bb8c3f8ecfa9164f409ff",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1019",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "FP16_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "df2e65f7ea55e633bb27f11f5b6dc9791541688efd2879038e3d52eb01f728cd",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 261,
+            "pass": true,
+            "type": "word_count_less_than"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "e444164d8a7b430d6a325924da2a340b9f0f614fa0bd56b207a3bb7175de3722",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1092",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "FP16_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "aaade56304b090a368ee1a39b9e2a55c9bf0c32d2cbe83338089576d8ba9230e",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 11,
+            "pass": false,
+            "type": "ends_with"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "7af6bfd04cd30dbeb07f76f572a08191e322ee9161e045fce720f571a909a04b",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1114",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "FP16_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "723d38bb86f75ffc13ab3b5d02399453485114061497948261f6d1d5b251ad57",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 3,
+            "pass": false,
+            "type": "keywords"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "210523f16265118529fdc67ae3fd1ddef110bec4265b3bcb81f29df3e95b1c57",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1315",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "HumanEval",
+      "config_id": "FP16_RAW",
+      "domain": "code",
+      "effective_input_sha256": "69410a4cbe8e1f75e39ec59aa3dcadfb4e9c7f2ebce9a0fb3fd62ab4223e94f6",
+      "grader": "python_exec",
+      "grader_detail": {
+        "error": "assertion failed",
+        "returncode": 1
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+      "model_tag": "qwen2.5:0.5b-instruct-fp16",
+      "output_sha256": "23b21e151240431491bf336320808b6ab6c54e7532e252313d61449f3a5815c94",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "humaneval-human-eval-0",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q8_0_RAW",
+      "domain": "math",
+      "effective_input_sha256": "9fa96705e936b57ed33c1d57d3d3b8598608314dd01a936e4c4b752f9383e8bb",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "18",
+        "parsed_last_number": "12"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "9463ad0dd8b145509299376dd5438206fbe8d8c2fff8656552080164808713cd",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q8_0_RAW",
+      "domain": "math",
+      "effective_input_sha256": "d00e30593254f32cc2720a595d6d5f60d3d0cb7b98c17596fdb6a169c30bbbe1",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "3",
+        "parsed_last_number": "3"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "0b7df86e4530ae15be8da193e77dc2e34e24d4298cc9e790e657f1e444e94779",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0001",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q8_0_RAW",
+      "domain": "math",
+      "effective_input_sha256": "4a5d8b9e39554f9d27f6fa474523e64ecf3c44a3d8be75a3b978ee5f3e2d9050",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "70000",
+        "parsed_last_number": "230000"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "c9379f380856745e2cd97449fe85b38b6366870ddcf24bed3e87ccd6492fbc9c",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0002",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q8_0_RAW",
+      "domain": "math",
+      "effective_input_sha256": "bb67c4c5e23035a90f4249013c5996ec06237bdd321128d4ac19ece52a487af3",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "540",
+        "parsed_last_number": "540"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "7bd2c3630439b3d1bbed064cfe2a0caaf800c67e5ab4d8622a64267ba33dde89",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0003",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q8_0_RAW",
+      "domain": "math",
+      "effective_input_sha256": "77ab7c8f59b8f9d06d573320b008b354672f11e2f4d4a6712bc9b7830c2c0cea",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "20",
+        "parsed_last_number": "80"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "e8389d743f6ada87c2203f03bf54aa955a5629e2102d50dc8be6fae048c11d56",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0004",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q8_0_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "9981c71efc3ab8e2696f5112984f093e7bf52adb9139fae7bbf23d7d36d632cf",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": null
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "25a915257a3ec14396988a58643a70303327a65d28e7c58cc09fa172b4e54958",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q8_0_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "b7869d259421feb00837a09fd41300fbecd678d72158ae5bcc25e5ac73477541",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "580f9a35bb8cc0905fa88b7862da2776999b28991b59864391ea8982bc53d003",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0001",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q8_0_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "fcd48dc7b1adfce521b991a358c9df3cc6888f385509ee16f5c96ac1dbe66a74",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "cb86f0cc69d282595bdac6ad0d4e58abaf854cfe376a8def68c0e980cd6d0076",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0002",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q8_0_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "643c5e58b991f2b43cc83b922ebf5b2d5767d41b9278185962f87ff0af50dfb2",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "4be6f7530195405923ca5911ebeb7555b8745806993fb6d24217e33e874391b5",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q8_0_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "e405600234a5ec7cd23a13d39284f109eb368f19243b7e3f63666aa745a9a54f",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "7da97ea1007a2b8233c04011a32831b85545f7d5c66d8d4175454c64291a9e09",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0004",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q8_0_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "19f70317d12bc21c0dc701298ee6ee760c689dd6d4d29f52b85496940c89ce23",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "bc1dec4581e588442f5beea85950e69d33bf59964b9754435db88f9547e8fa11",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q8_0_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "cb65c1268116e9c77bba53c5ad07c818058a36550632712e708e744adfd87b4d",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "646586203ee43e2ee07dc0e12020acde4dc12b9c4106ef31520092f573b86b68",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0001",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q8_0_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "13126b3a2deaf96c57568393210b7d9f83eff79e3ae5bb9f6bdcc2d889b341a9",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(C)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "7a52b101e3f86c383056dc2c25fe613b76f6e52a73c6b9294f3d360118fe29c6",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0002",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q8_0_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "67690f896db4c21c159a82b8ae06207416308f09f0e39a8be8fb47d704e4b9ae",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "f83c9cde0d23c40cf54152a51a3882239428206289c9be39b1f59592f217c44d",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q8_0_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "a525e2ef4a55c922d0136e84ab001c15533750aef967bbcf4a2a0789619c1c36",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(E)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "4ba50765cfb307a77a29c0218cefa5ae7f8eb85facd985f21af522382a240d03",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0004",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q8_0_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "c2c19d23b8bb4259a8a504a6412295d80a59911c04da30a729725de63b44ac53",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 1,
+            "pass": false,
+            "type": "keywords_forbidden"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "e903aff8e361a275114501ea243567b39aa9a6a103b1fdabeb82cf012db4c88f",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1243",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q8_0_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "12e0cc687386075de0bf533df661fed20f4d1f89f6e61f4683be9cb8d644cbdc",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 0,
+            "pass": true,
+            "type": "no_ascii_uppercase"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "951c2857539c93f41d40cd3ea9a030495639ee71b2c9f42ab05518c987689f86",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1019",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q8_0_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "df2e65f7ea55e633bb27f11f5b6dc9791541688efd2879038e3d52eb01f728cd",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 261,
+            "pass": true,
+            "type": "word_count_less_than"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "2e4ae996780343635536acfa9c38bd87f4f9d9f4f38b7df52c3af0ac3155b7b9",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1092",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q8_0_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "aaade56304b090a368ee1a39b9e2a55c9bf0c32d2cbe83338089576d8ba9230e",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 11,
+            "pass": false,
+            "type": "ends_with"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "0b52a61d81b96d7c75bf68df8814b4bb94e5f01beed7b0d09417dc4533701aaa",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1114",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q8_0_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "723d38bb86f75ffc13ab3b5d02399453485114061497948261f6d1d5b251ad57",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 3,
+            "pass": false,
+            "type": "keywords"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "344c90ca2bd1f72337e29c1f49a72d0cffb56af42e784ec1f40fc7c2e62be43b",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1315",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "HumanEval",
+      "config_id": "Q8_0_RAW",
+      "domain": "code",
+      "effective_input_sha256": "69410a4cbe8e1f75e39ec59aa3dcadfb4e9c7f2ebce9a0fb3fd62ab4223e94f6",
+      "grader": "python_exec",
+      "grader_detail": {
+        "error": "assertion failed",
+        "returncode": 1
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "84d044692a2cecfadfb36094e96f3f9ec397c52377781cfb15972c6bc81e506e",
+      "model_tag": "qwen2.5:0.5b-instruct-q8_0",
+      "output_sha256": "3d00766902133480a68e57275812ba5744e9f140f35bf454a842357ef504fd91",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "humaneval-human-eval-0",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "math",
+      "effective_input_sha256": "9fa96705e936b57ed33c1d57d3d3b8598608314dd01a936e4c4b752f9383e8bb",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "18",
+        "parsed_last_number": "12"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "efa54fc29ae01258cd9e5975cba201b9b37421465e84a4f8403a54434e09c994",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "math",
+      "effective_input_sha256": "d00e30593254f32cc2720a595d6d5f60d3d0cb7b98c17596fdb6a169c30bbbe1",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "3",
+        "parsed_last_number": "3"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "66417d9286108a659d4de2b4bc5b9529ab9bc53cead50cdd59e6fbf52966836d",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0001",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "math",
+      "effective_input_sha256": "4a5d8b9e39554f9d27f6fa474523e64ecf3c44a3d8be75a3b978ee5f3e2d9050",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "70000",
+        "parsed_last_number": "230000"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "06023c549089e34a92747e93fa6922362988269cc44a23b52a98fa3cfe9799bc",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0002",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "math",
+      "effective_input_sha256": "bb67c4c5e23035a90f4249013c5996ec06237bdd321128d4ac19ece52a487af3",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "540",
+        "parsed_last_number": "null"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "c8f29a8a59906307de6e3a2216895e74c00722aab680e74fca84b364558aef2c",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "GSM8K",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "math",
+      "effective_input_sha256": "77ab7c8f59b8f9d06d573320b008b354672f11e2f4d4a6712bc9b7830c2c0cea",
+      "grader": "last_number",
+      "grader_detail": {
+        "expected": "20",
+        "parsed_last_number": "80"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "4fd21d77609313876e5b46ba4c2408523168447a974ec03fc4c9c084c1ee9802",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "gsm8k-test-0004",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "9981c71efc3ab8e2696f5112984f093e7bf52adb9139fae7bbf23d7d36d632cf",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": null
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "502539894317454c996531b39486717651d4d9c42ed42499dfb3b2e44cdadca5",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "b7869d259421feb00837a09fd41300fbecd678d72158ae5bcc25e5ac73477541",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "f02fc46e354197dd8cf19a9e4e08b6873f21338357202c60a6ac346debbd978b",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0001",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "fcd48dc7b1adfce521b991a358c9df3cc6888f385509ee16f5c96ac1dbe66a74",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "711e4dfa4fb1c23d98d589e5589b08cbc53608ca1ca894ce2e4b7a415cd7b2ac",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0002",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "643c5e58b991f2b43cc83b922ebf5b2d5767d41b9278185962f87ff0af50dfb2",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "29d11fe54af2e9c80bcf2cae2ec1a2e8b9472126b6537c6130d04133a3c0dcdf",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "TruthfulQA",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "truthfulness",
+      "effective_input_sha256": "e405600234a5ec7cd23a13d39284f109eb368f19243b7e3f63666aa745a9a54f",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "b36377e6d3f3375d07ec03fd98435d32b7fb9a97a84d1fd71c41b4e64c6dd10e",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "truthfulqa-row-0004",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "19f70317d12bc21c0dc701298ee6ee760c689dd6d4d29f52b85496940c89ce23",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "cfaa23b8109b7f69ad6913a1da1cf5df8db8134c4cfb65f85b76b125a3590788",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0000",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "cb65c1268116e9c77bba53c5ad07c818058a36550632712e708e744adfd87b4d",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(B)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "526903defc33da91d92af1d19bc00b04daab2631856ce9fc2d8f29cb87b74d8e",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0001",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "13126b3a2deaf96c57568393210b7d9f83eff79e3ae5bb9f6bdcc2d889b341a9",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(C)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "e7ad1bca63d9824841d5563f96704f47074bab711f0eb17d01752a4f975309aa",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0002",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "67690f896db4c21c159a82b8ae06207416308f09f0e39a8be8fb47d704e4b9ae",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(A)",
+        "parsed_choice": "(B)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "efc68862990e63412093dff6ea5c21b6190c464b7f5e252902616e3ee0d56cc2",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0003",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "BBH",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "reasoning",
+      "effective_input_sha256": "a525e2ef4a55c922d0136e84ab001c15533750aef967bbcf4a2a0789619c1c36",
+      "grader": "choice",
+      "grader_detail": {
+        "expected": "(E)",
+        "parsed_choice": "(A)"
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "17dcda921b2445737948c266b47b90a66e8723c698efaceaa514d7b0ac7e3ace",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "bbh-logical-deduction-five-objects-0004",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "c2c19d23b8bb4259a8a504a6412295d80a59911c04da30a729725de63b44ac53",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 0,
+            "pass": true,
+            "type": "keywords_forbidden"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "f787e0720fecc1859cb4e24f74fb010191538223ab304333468389031658cc5c",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1243",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "12e0cc687386075de0bf533df661fed20f4d1f89f6e61f4683be9cb8d644cbdc",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 1,
+            "pass": false,
+            "type": "no_ascii_uppercase"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "d0d2501b8eca6ddc06809402d4871e56c2bc43171c97ced3c981649cc2727006",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1019",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "df2e65f7ea55e633bb27f11f5b6dc9791541688efd2879038e3d52eb01f728cd",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 261,
+            "pass": true,
+            "type": "word_count_less_than"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "cda78ec9e347b3915de85f55bdcd8930880bc833f19d8ff96ea56a2642546d34",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1092",
+      "status": "PASS"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "aaade56304b090a368ee1a39b9e2a55c9bf0c32d2cbe83338089576d8ba9230e",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 11,
+            "pass": false,
+            "type": "ends_with"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "2906f74696a9631427b6527163955031cb60ee0a8eaf47bfa2ba49b09cc87a35",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1114",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "IFEval",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "instruction_following",
+      "effective_input_sha256": "723d38bb86f75ffc13ab3b5d02399453485114061497948261f6d1d5b251ad57",
+      "grader": "ifeval_subset",
+      "grader_detail": {
+        "checks": [
+          {
+            "observed": 3,
+            "pass": false,
+            "type": "keywords"
+          }
+        ]
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "a32a57272063a39d930bd80d4e833fa462cf6df78723c7062a4221b2947b1c3d",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "ifeval-key-1315",
+      "status": "FAIL"
+    },
+    {
+      "benchmark": "HumanEval",
+      "config_id": "Q4_K_M_RAW",
+      "domain": "code",
+      "effective_input_sha256": "69410a4cbe8e1f75e39ec59aa3dcadfb4e9c7f2ebce9a0fb3fd62ab4223e94f6",
+      "grader": "python_exec",
+      "grader_detail": {
+        "error": "assertion failed",
+        "returncode": 1
+      },
+      "mode": "RAW_PROVIDER",
+      "model_digest": "a8b0c51577010ebf1a8d513f4e59eb70b5f0344805729fef7c00d6222bbd1833",
+      "model_tag": "qwen2.5:0.5b-instruct-q4_K_M",
+      "output_sha256": "69e6fed856a5aa0b50bcf6020600831579efb1a1da1c04133ef198fb1d1fa6e1",
+      "route": "NEUTRAL_BENCHMARK_PATH",
+      "sample_id": "humaneval-human-eval-0",
+      "status": "FAIL"
+    }
+  ],
+  "round1_global_overlay_replay": {
+    "all_output_hashes_match_round1_overlay": true,
+    "all_statuses_match_round1_overlay": true,
+    "configuration": "Q4_K_M_GLOBAL_OVERLAY",
+    "round1_overlay_summary_match": true
+  },
+  "routing": {
+    "boundary_probe_count": 2,
+    "explicit_boundary_routes": 2,
+    "global_overlay_output_hash_match_count": 0,
+    "global_overlay_status_match_count": 21,
+    "neutral_route_count": 21,
+    "raw_output_hash_match_count": 0,
+    "raw_status_match_count": 21,
+    "routed_output_hash_changed_but_status_preserved": 21,
+    "routing_status": "NEUTRAL_BENCHMARK_PATH_FOR_ALL_FROZEN_ITEMS"
+  },
+  "sample_count": 21,
+  "sample_pack_sha256": "306ed27b63ae3fda45d57f2ab5c35f67fb31d9b289db1eb016bbd40ed2c8e39b",
+  "schema": "janus.genesis.top100.round2_quantization_routing_report.v1",
+  "summaries": {
+    "FP16_RAW": {
+      "benchmarks": {
+        "BBH": {
+          "fail": 5,
+          "pass": 0,
+          "samples": 5
+        },
+        "GSM8K": {
+          "fail": 2,
+          "pass": 3,
+          "samples": 5
+        },
+        "HumanEval": {
+          "fail": 1,
+          "pass": 0,
+          "samples": 1
+        },
+        "IFEval": {
+          "fail": 3,
+          "pass": 2,
+          "samples": 5
+        },
+        "TruthfulQA": {
+          "fail": 2,
+          "pass": 3,
+          "samples": 5
+        }
+      },
+      "fail": 13,
+      "pass": 8,
+      "samples": 21
+    },
+    "Q4_K_M_GLOBAL_OVERLAY": {
+      "benchmarks": {
+        "BBH": {
+          "fail": 5,
+          "pass": 0,
+          "samples": 5
+        },
+        "GSM8K": {
+          "fail": 2,
+          "pass": 3,
+          "samples": 5
+        },
+        "HumanEval": {
+          "fail": 1,
+          "pass": 0,
+          "samples": 1
+        },
+        "IFEval": {
+          "fail": 3,
+          "pass": 2,
+          "samples": 5
+        },
+        "TruthfulQA": {
+          "fail": 2,
+          "pass": 3,
+          "samples": 5
+        }
+      },
+      "fail": 13,
+      "pass": 8,
+      "samples": 21
+    },
+    "Q4_K_M_RAW": {
+      "benchmarks": {
+        "BBH": {
+          "fail": 14,
+          "pass": 7,
+          "samples": 21
+        }
+      },
+      "fail": 14,
+      "pass": 7,
+      "samples": 21
+    },
+    "Q4_K_M_ROUTED_BOUNDARY": {
+      "benchmarks": {
+        "BBH": {
+          "fail": 5,
+          "pass": 0,
+          "samples": 5
+        },
+        "GSM8K": {
+          "fail": 2,
+          "pass": 3,
+          "samples": 5
+        },
+        "HumanEval": {
+          "fail": 1,
+          "pass": 0,
+          "samples": 1
+        },
+        "IFEval": {
+          "fail": 3,
+          "pass": 2,
+          "samples": 5
+        },
+        "TruthfulQA": {
+          "fail": 2,
+          "pass": 3,
+          "samples": 5
+        }
+      },
+      "fail": 13,
+      "pass": 8,
+      "samples": 21
+    },
+    "Q8_0_RAW": {
+      "benchmarks": {
+        "BBH": {
+          "fail": 12,
+          "pass": 9,
+          "samples": 21
+        }
+      },
+      "fail": 12,
+      "pass": 9,
+      "samples": 21
+    }
+  }
+}
