@@ -17,6 +17,11 @@ spec = importlib.util.spec_from_file_location("srp", P)
 m = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(m)
 
+A = EXP / "spectral_replication_admission.py"
+aspec = importlib.util.spec_from_file_location("sra", A)
+adm = importlib.util.module_from_spec(aspec)
+aspec.loader.exec_module(adm)
+
 
 class SpectralReplicationTests(unittest.TestCase):
     def test_frozen_manifest_matches_runtime(self):
@@ -55,6 +60,32 @@ class SpectralReplicationTests(unittest.TestCase):
         r = m.geometry_corroboration(img, img.copy())
         self.assertEqual(r["status"], "IMAGE_GEOMETRY_SUPPORTS_SAME_SCENE")
         self.assertGreaterEqual(r["homography_inliers"], 12)
+
+    def test_failed_positive_control_invalidates_geometry_as_necessary_gate(self):
+        raw = {"pairs": [
+            {
+                "pair_id": "anchor",
+                "role": "FROZEN_DISCOVERY_ANCHOR_NOT_REPLICATION",
+                "same_specimen_status": "CONFIRMED_BY_SOURCE",
+                "geometry_corroboration": {"status": "INSUFFICIENT_MATCHES"},
+                "image_level_gate": {"status": "REGISTERED_MODALITY_DIFFERENCE_OBSERVED"},
+                "planner_enrichment": {"status": "NO_PLANNER_ENRICHMENT"},
+            },
+            {
+                "pair_id": "candidate",
+                "role": "INDEPENDENT_REPLICATION_CANDIDATE",
+                "same_specimen_status": "PROBABLE_NOT_EXPLICITLY_CONFIRMED_BY_SOURCE",
+                "geometry_corroboration": {"status": "INSUFFICIENT_MATCHES"},
+                "image_level_gate": {"status": "REGISTERED_MODALITY_DIFFERENCE_OBSERVED"},
+                "planner_enrichment": {"status": "NO_PLANNER_ENRICHMENT"},
+            },
+        ]}
+        r = adm.admit(raw)
+        self.assertFalse(r["geometry_validator"]["usable_for_admission"])
+        self.assertIn("INVALIDATED_FALSE_NEGATIVE", r["geometry_validator"]["status"])
+        self.assertEqual(r["candidate_count"], 1)
+        self.assertEqual(r["formal_independent_replication_count"], 0)
+        self.assertEqual(r["cross_specimen_replication_gate"], "OPEN_NOT_ESTABLISHED")
 
 
 if __name__ == "__main__":
