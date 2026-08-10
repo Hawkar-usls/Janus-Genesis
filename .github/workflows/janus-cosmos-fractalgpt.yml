@@ -1,0 +1,29 @@
+name: Janus Cosmos FractalGPT
+on:
+  push:
+    paths:
+      - 'experiments/janus_cosmos_fractalgpt/**'
+      - '.github/workflows/janus-cosmos-fractalgpt.yml'
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run deterministic planner preflight
+        run: python experiments/janus_cosmos_fractalgpt/run_search.py experiments/janus_cosmos_fractalgpt/testdata/preflight_features.csv | tee janus-cosmos-preflight.json
+      - name: Validate receipt
+        run: python - <<'PY'
+import json
+r=json.load(open('janus-cosmos-preflight.json'))
+assert r['semantic_analysis'] is False
+assert r['windows'] == [8,16,32]
+assert r['nulls'] == 256
+print('JANUS COSMOS PREFLIGHT PASS')
+PY
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-cosmos-preflight
+          path: janus-cosmos-preflight.json
