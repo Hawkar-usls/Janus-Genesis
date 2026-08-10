@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import contextlib
 import copy
+import io
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from tools import run_top100_round2_1_capability_admission_hardened as hard
 
@@ -34,12 +37,15 @@ class Round21ProvenanceHardeningTests(unittest.TestCase):
         receipt = hard.validate_provenance(
             self.config,
             self.critical,
-            config_path=Path(self.config.get("campaign", "config")),
-            critical_path=Path(self.config["critical_reference"]),
-            pack_path=Path(self.config["round1_pack"]),
+            config_path=CONFIG,
+            critical_path=CRITICAL,
+            pack_path=PACK,
         )
         self.assertEqual(hard.PROVENANCE_STATUS, receipt["status"])
         self.assertTrue(receipt["receipt_fields_derived_from_verified_declarations"])
+        self.assertTrue(receipt["single_snapshot_consumption"])
+        self.assertTrue(receipt["verified_bytes_are_execution_bytes"])
+        self.assertEqual(hard.git_blob_sha1(CONFIG), receipt["observed_config_git_blob_sha1"])
 
     def test_tampered_config_critical_blob_is_rejected(self) -> None:
         bad = copy.deepcopy(self.config)
@@ -88,6 +94,38 @@ class Round21ProvenanceHardeningTests(unittest.TestCase):
                 critical_path=CRITICAL,
                 pack_path=PACK,
             )
+
+    def test_main_uses_direct_execute_not_historical_rereading_cli(self) -> None:
+        argv = [
+            "--config", str(CONFIG),
+            "--critical-reference", str(CRITICAL),
+            "--pack", str(PACK),
+            "--endpoint", "http://127.0.0.1:11434",
+            "--docker-image", "python:3.11-alpine",
+            "--timeout", "1",
+        ]
+        fake_report = {"schema": "unit-test-report"}
+        with mock.patch.object(
+            hard.gate,
+            "main",
+            side_effect=AssertionError("historical CLI must not be called"),
+        ) as old_main, mock.patch.object(
+            hard.gate,
+            "execute",
+            return_value=fake_report.copy(),
+        ) as execute, io.StringIO() as out, contextlib.redirect_stdout(out):
+            rc = hard.main(argv)
+            payload = json.loads(out.getvalue())
+
+        self.assertEqual(0, rc)
+        old_main.assert_not_called()
+        execute.assert_called_once()
+        self.assertEqual(
+            hard.PROVENANCE_STATUS,
+            payload["provenance_verification"]["status"],
+        )
+        self.assertTrue(payload["provenance_verification"]["single_snapshot_consumption"])
+        self.assertTrue(payload["provenance_verification"]["verified_bytes_are_execution_bytes"])
 
 
 if __name__ == "__main__":
