@@ -1,0 +1,56 @@
+{
+  "schema": "janus.genesis.janus_bear.james_placer_hypothesis.v1",
+  "experiment_id": "JANUS_BEAR_JAMES_PLACER_v0.1",
+  "status": "FALSIFICATION_READY_REAL_ESM_SCENE_LEDGER_PENDING",
+  "hypotheses": {
+    "H0": "developer visual grammar plus multiple local diegetic histories",
+    "H1": "James_A placed all teddy/gnome tableaux",
+    "H2": "conditional James_B placed all teddy/gnome tableaux",
+    "H3": "James_A or James_B placed a bounded subset"
+  },
+  "actor_boundaries": {
+    "James_A": {
+      "evidence_class": "SHIPPED_ACTOR",
+      "route_source": "shipped-only quest/script/location evidence"
+    },
+    "James_B": {
+      "evidence_class": "EXPERIMENTAL_CONDITIONAL_ACTOR",
+      "route_source": "Genesis-authored experiment ledger only",
+      "must_not_backpropagate_into_vanilla_evidence": true
+    }
+  },
+  "required_inputs": {
+    "scene_ledger": "JSON array of exact teddy/gnome tableau scenes with canonical location_key and access tags",
+    "james_a_route": "JSON set/list of shipped-confirmed canonical location keys",
+    "james_b_route_optional": "JSON set/list of experimental Genesis location keys"
+  },
+  "hard_rules": [
+    "route_overlap alone never proves placement",
+    "semantic motif overlap alone never proves placement",
+    "James_B existence cannot be used as vanilla evidence",
+    "off-world access requires an explicit edge",
+    "cross-worldspace access requires an explicit edge",
+    "at least one explicit independent James placement edge is required before any bounded positive attribution",
+    "no explicit placement edge means single-placer attribution remains NOT_ESTABLISHED"
+  ],
+  "discriminator_tags": [
+    "MOTHERSHIP_ZETA_OFFWORLD",
+    "POINT_LOOKOUT_CROSS_WORLDSPACE",
+    "BROKEN_STEEL_QUEST_GATED",
+    "TRANQUILITY_LANE_SIMULATION",
+    "JAMES_A_CONFIRMED_ROUTE",
+    "EXPLICIT_JAMES_PLACEMENT_EDGE"
+  ],
+  "outputs": [
+    "scene_count",
+    "james_a_route_overlap_count",
+    "james_b_experimental_overlap_count",
+    "offworld_scene_count",
+    "cross_worldspace_scene_count",
+    "quest_gated_scene_count",
+    "explicit_james_placement_edge_count",
+    "single_placer_status",
+    "bounded_subset_status",
+    "claim_ceiling"
+  ]
+}
