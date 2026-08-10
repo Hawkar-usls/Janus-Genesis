@@ -57,6 +57,20 @@ def _repo_relative(path: Path) -> str:
         return resolved.as_posix()
 
 
+def _resolve_cli_input_path(path: Path) -> Path:
+    """Resolve repository-relative CLI input paths independently of process cwd."""
+    if path.is_absolute():
+        return path.resolve()
+    if ".." in path.parts:
+        raise ValueError("relative CLI input path must be repository-relative and non-traversing")
+    resolved = (REPOSITORY_ROOT / path).resolve()
+    try:
+        resolved.relative_to(REPOSITORY_ROOT)
+    except ValueError as exc:
+        raise ValueError("relative CLI input path escapes repository root") from exc
+    return resolved
+
+
 def _source_path_from_config(config: dict[str, Any]) -> Path:
     declared = str(config.get("round2_source_report_encoded") or "")
     if not declared:
@@ -346,12 +360,18 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(sys.argv[1:] if argv is None else argv)
 
+    # Resolve repository-relative CLI declarations against the repository root
+    # before the single immutable read snapshot. Absolute inputs remain valid.
+    config_path = _resolve_cli_input_path(args.config)
+    critical_path = _resolve_cli_input_path(args.critical_reference)
+    pack_path = _resolve_cli_input_path(args.pack)
+
     # One read per consumed repository input.  The exact same config/critical/
     # pack byte buffers are used for provenance and parsed execution objects.
     # The source receipt is also read once, then reconstructed entirely in-memory.
-    config_bytes = args.config.read_bytes()
-    critical_bytes = args.critical_reference.read_bytes()
-    pack_bytes = args.pack.read_bytes()
+    config_bytes = config_path.read_bytes()
+    critical_bytes = critical_path.read_bytes()
+    pack_bytes = pack_path.read_bytes()
 
     config = json.loads(config_bytes.decode("utf-8"))
     critical = json.loads(critical_bytes.decode("utf-8"))
@@ -363,9 +383,9 @@ def main(argv: list[str] | None = None) -> int:
     provenance = validate_provenance(
         config,
         critical,
-        config_path=args.config,
-        critical_path=args.critical_reference,
-        pack_path=args.pack,
+        config_path=config_path,
+        critical_path=critical_path,
+        pack_path=pack_path,
         source_path=source_path,
         config_bytes=config_bytes,
         critical_bytes=critical_bytes,
