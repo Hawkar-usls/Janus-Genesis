@@ -28,7 +28,7 @@ Its mythological, moral, and theological vocabulary belongs to the fictional/gam
 - **Public positioning / claim boundary:** [`PUBLIC_POSITIONING.md`](PUBLIC_POSITIONING.md)
 - **Portfolio maturity/visibility:** [`portfolio-visibility.json`](https://github.com/Hawkar-usls/Janus/blob/main/portfolio-visibility.json)
 
-If an AI chat can read public GitHub files, you can ask it to open the chat-play guide. Local Python remains the authoritative runtime when used.
+If an AI chat can read public GitHub files, you can ask it to open the chat-play guide. Chat-only play is explicitly labeled `UNIVERSAL_CHAT_RUNTIME`; local Python remains the authoritative runtime when used.
 
 ## Current design
 

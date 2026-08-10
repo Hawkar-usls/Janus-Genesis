@@ -1,0 +1,64 @@
+name: Top-100 Public AI Benchmark Gate
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "benchmarks/**"
+      - "tools/run_top100_benchmark_gate.py"
+      - "tests/test_top100_benchmark_gate.py"
+      - ".github/workflows/top100-public-ai-benchmark-gate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  manifest-and-runner:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Compile benchmark runner
+        run: python -m py_compile tools/run_top100_benchmark_gate.py tests/test_top100_benchmark_gate.py
+      - name: Validate 100-benchmark manifest
+        run: python -m json.tool benchmarks/top100_public_ai_benchmarks_v0.1.json >/dev/null
+      - name: Run benchmark gate unit tests
+        run: python -m unittest tests.test_top100_benchmark_gate -v
+      - name: Emit no-provider readiness receipt
+        run: |
+          mkdir -p artifacts/top100-benchmark-gate
+          python -m tools.run_top100_benchmark_gate --pretty \
+            > artifacts/top100-benchmark-gate/readiness-no-provider.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('artifacts/top100-benchmark-gate/readiness-no-provider.json')
+          r = json.loads(p.read_text())
+          assert r['manifest']['valid'] is True
+          assert r['manifest']['benchmark_count'] == 100
+          assert r['status_counts'] == {
+              'BLOCKED_NO_COMPOSITE_EXECUTOR': 16,
+              'BLOCKED_NO_EXTERNAL_ENV': 16,
+              'BLOCKED_NO_PROVIDER': 68,
+          }
+          assert r['official_dataset_accuracy_claimed'] is False
+          assert r['canonical_world_state_mutated'] is False
+          print('TOP100_MANIFEST_COUNT=100')
+          print('PROVIDER_DOMINANT_BLOCKED_NO_PROVIDER=68')
+          print('SYSTEM_PLUS_PROVIDER_BLOCKED_NO_COMPOSITE_EXECUTOR=16')
+          print('EXTERNAL_ENV_BLOCKED_NO_EXTERNAL_ENV=16')
+          print('FALSE_SCORE_CLAIM=0')
+          PY
+      - name: Upload benchmark gate receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-top100-public-ai-benchmark-gate
+          path: artifacts/top100-benchmark-gate
+          if-no-files-found: error
+          retention-days: 30
