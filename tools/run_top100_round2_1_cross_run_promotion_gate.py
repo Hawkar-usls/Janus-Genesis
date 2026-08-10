@@ -10,6 +10,8 @@ cannot average away or overwrite that counterexample.
 from __future__ import annotations
 
 import argparse
+import base64
+import gzip
 import hashlib
 import json
 import sys
@@ -19,6 +21,8 @@ from typing import Any
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_SCHEMA = "janus.genesis.top100.round2_1_cross_run_promotion_gate.v1"
 EVIDENCE_SCHEMA = "janus.genesis.top100.round2_1_cross_run_evidence.v1"
+ADMISSION_REPORT_SCHEMA = "janus.genesis.top100.round2_1_capability_admission_report.v1"
+EXPERIMENTAL_SPEC_SCHEMA = "janus.genesis.top100.round2_1_cross_run_experimental_spec.v1"
 GENESIS_NEGATIVE_ANCHOR = {
     "workflow_run_id": 31349156794,
     "head_sha": "81898c0f4ee09d1b530e3cc1c38ecdd993d4d9c9",
@@ -71,6 +75,175 @@ def load_evidence(config: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any
     }
 
 
+def _project_model_identity(model: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "digest": model["digest"],
+        "expected_digest_prefix": model["expected_digest_prefix"],
+        "id": model["id"],
+        "is_reference": bool(model["is_reference"]),
+        "size_bytes": int(model["size_bytes"]),
+        "tag": model["tag"],
+    }
+
+
+def _derive_experimental_spec(report: dict[str, Any]) -> dict[str, Any]:
+    if report.get("schema") != ADMISSION_REPORT_SCHEMA:
+        raise ValueError("source admission report schema mismatch")
+    execution = report.get("execution")
+    models = report.get("model_receipts")
+    selection = report.get("selection")
+    if not isinstance(execution, dict) or not isinstance(models, dict) or not isinstance(selection, dict):
+        raise ValueError("source admission report is missing spec-bearing objects")
+    order = execution.get("execution_order")
+    if not isinstance(order, list):
+        raise ValueError("source admission execution order missing")
+    try:
+        model_identities = [_project_model_identity(models[str(model_id)]) for model_id in order]
+    except KeyError as exc:
+        raise ValueError("source admission model receipt missing from execution order") from exc
+    return {
+        "admission_rule": {
+            "aggregate_score_used": bool(selection["aggregate_score_used"]),
+            "critical_set_average_score_used_for_admission": bool(
+                report["critical_set_average_score_used_for_admission"]
+            ),
+            "noncritical_compensation_allowed": bool(selection["noncritical_compensation_allowed"]),
+            "reference_model": selection["reference_model"],
+            "rule": selection["rule"],
+        },
+        "campaign": report["campaign"],
+        "critical_reference": report["critical_reference"],
+        "execution_order": order,
+        "frozen_pack": report["frozen_pack"],
+        "inference": report["inference"],
+        "model_count": int(report["model_count"]),
+        "model_identities": model_identities,
+        "ollama_version": report["ollama_version"],
+        "quantized_candidate_count": int(report["quantized_candidate_count"]),
+        "schema": EXPERIMENTAL_SPEC_SCHEMA,
+    }
+
+
+def _project_assessment(assessment: dict[str, Any], *, include_failure_evidence: bool) -> dict[str, Any]:
+    out = {
+        "admission_status": assessment["admission_status"],
+        "failed_sample_ids": assessment.get("failed_sample_ids") or [],
+        "nonpass_trials": int(assessment["nonpass_trials"]),
+        "pass_trials": int(assessment["pass_trials"]),
+        "required_trials": int(assessment["required_trials"]),
+        "strict_capability_preservation": bool(assessment["strict_capability_preservation"]),
+        "within_model_status_instability": assessment.get("within_model_status_instability") or {},
+    }
+    if include_failure_evidence:
+        out["failure_evidence"] = assessment.get("failure_evidence") or []
+    return out
+
+
+def _derive_evidence_receipt(
+    report: dict[str, Any],
+    source_config: dict[str, Any],
+    expected_spec: str,
+) -> dict[str, Any]:
+    spec = _derive_experimental_spec(report)
+    observed_spec = canonical_sha256(spec)
+    if observed_spec != expected_spec:
+        raise ValueError("source admission report experimental spec fingerprint mismatch")
+    models = report["model_receipts"]
+    assessments = report["assessments"]
+    candidate_id = "Q8_0"
+    reference_id = "FP16"
+    candidate_records = [
+        {
+            "output_sha256": row["output_sha256"],
+            "replay": int(row["replay"]),
+            "sample_id": row["sample_id"],
+            "status": row["status"],
+        }
+        for row in report["records"]
+        if row.get("model_id") == candidate_id
+    ]
+    candidate_records.sort(key=lambda row: (row["sample_id"], row["replay"]))
+    execution = report["execution"]
+    return {
+        "candidate_assessment": _project_assessment(assessments[candidate_id], include_failure_evidence=True),
+        "candidate_model": _project_model_identity(models[candidate_id]),
+        "candidate_records": candidate_records,
+        "execution": {
+            "all_records_accounted_for": bool(execution["all_records_accounted_for"]),
+            "expected_record_count": int(execution["expected_record_count"]),
+            "record_count": int(execution["record_count"]),
+        },
+        "experimental_spec_fingerprint_sha256": observed_spec,
+        "reference_assessment": _project_assessment(assessments[reference_id], include_failure_evidence=False),
+        "reference_model": _project_model_identity(models[reference_id]),
+        "source": {
+            "artifact_digest": source_config["artifact_digest"],
+            "artifact_id": int(source_config["artifact_id"]),
+            "artifact_name": source_config["artifact_name"],
+            "head_sha": source_config["head_sha"],
+            "report_json_sha256": source_config["report_json_sha256"],
+            "report_raw_git_blob_sha1": source_config["report_raw_git_blob_sha1"],
+            "report_schema": report["schema"],
+            "workflow_run_id": int(source_config["workflow_run_id"]),
+        },
+    }
+
+
+def load_source_reports(
+    config: dict[str, Any],
+    expected_spec: str,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    source_configs = config.get("source_reports")
+    if not isinstance(source_configs, list) or len(source_configs) < 2:
+        raise ValueError("at least two frozen source reports are required")
+    derived: list[dict[str, Any]] = []
+    provenance: list[dict[str, Any]] = []
+    for source in source_configs:
+        if not isinstance(source, dict):
+            raise ValueError("source report config must be an object")
+        path = _repo_path(str(source.get("encoded_path") or ""))
+        encoded = path.read_bytes()
+        observed_encoded_blob = git_blob_sha1_bytes(encoded)
+        observed_encoded_sha256 = hashlib.sha256(encoded).hexdigest()
+        if observed_encoded_blob != source.get("encoded_git_blob_sha1"):
+            raise ValueError("frozen source report encoded Git blob mismatch")
+        if observed_encoded_sha256 != source.get("encoded_sha256"):
+            raise ValueError("frozen source report encoded SHA-256 mismatch")
+        try:
+            compressed = base64.b64decode(encoded.strip(), validate=True)
+        except Exception as exc:
+            raise ValueError("frozen source report base64 decode failed") from exc
+        observed_gzip_sha256 = hashlib.sha256(compressed).hexdigest()
+        if observed_gzip_sha256 != source.get("gzip_sha256"):
+            raise ValueError("frozen source report gzip SHA-256 mismatch")
+        try:
+            raw = gzip.decompress(compressed)
+        except Exception as exc:
+            raise ValueError("frozen source report gzip decompression failed") from exc
+        observed_raw_sha256 = hashlib.sha256(raw).hexdigest()
+        observed_raw_blob = git_blob_sha1_bytes(raw)
+        if observed_raw_sha256 != source.get("report_json_sha256"):
+            raise ValueError("frozen source report raw SHA-256 mismatch")
+        if observed_raw_blob != source.get("report_raw_git_blob_sha1"):
+            raise ValueError("frozen source report raw Git blob mismatch")
+        report = json.loads(raw.decode("utf-8"))
+        receipt = _derive_evidence_receipt(report, source, expected_spec)
+        derived.append(receipt)
+        provenance.append({
+            "workflow_run_id": int(source["workflow_run_id"]),
+            "encoded_path": source["encoded_path"],
+            "observed_encoded_git_blob_sha1": observed_encoded_blob,
+            "observed_encoded_sha256": observed_encoded_sha256,
+            "observed_gzip_sha256": observed_gzip_sha256,
+            "observed_report_json_sha256": observed_raw_sha256,
+            "observed_report_raw_git_blob_sha1": observed_raw_blob,
+            "raw_report_byte_count": len(raw),
+            "identity_channels_verified": 5,
+            "derived_from_exact_report_bytes": True,
+        })
+    return derived, provenance
+
+
 def decide_promotion(
     *,
     negative_receipt_count: int,
@@ -110,6 +283,7 @@ def evaluate(config: dict[str, Any]) -> dict[str, Any]:
 
     evidence, evidence_provenance = load_evidence(config)
     expected_spec = str(config["expected_experimental_spec_fingerprint_sha256"])
+    derived_receipts, source_report_provenance = load_source_reports(config, expected_spec)
     if evidence.get("experimental_spec_fingerprint_sha256") != expected_spec:
         raise ValueError("evidence experimental spec fingerprint mismatch")
     if canonical_sha256(evidence.get("experimental_spec")) != expected_spec:
@@ -132,6 +306,16 @@ def evaluate(config: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("genesis negative receipt cannot be forgotten")
     if len(receipts) < 2:
         raise ValueError("at least two independent receipts are required")
+    raw_run_ids = [int(receipt["source"]["workflow_run_id"]) for receipt in receipts]
+    raw_heads = [str(receipt["source"]["head_sha"]) for receipt in receipts]
+    if len(set(raw_run_ids)) != len(raw_run_ids):
+        raise ValueError("workflow run IDs must be independent/distinct")
+    if len(set(raw_heads)) != len(raw_heads):
+        raise ValueError("head SHAs must be independent/distinct")
+    evidence_sorted = sorted(receipts, key=lambda row: int(row["source"]["workflow_run_id"]))
+    derived_sorted = sorted(derived_receipts, key=lambda row: int(row["source"]["workflow_run_id"]))
+    if derived_sorted != evidence_sorted:
+        raise ValueError("compact cross-run evidence does not equal projection derived from exact source reports")
 
     required_trials = int(config["required_trials_per_receipt"])
     candidate_id = str(config["candidate_model_id"])
@@ -240,6 +424,8 @@ def evaluate(config: dict[str, Any]) -> dict[str, Any]:
         "reference_model_id": reference_id,
         "experimental_spec_fingerprint_sha256": expected_spec,
         "evidence_provenance": evidence_provenance,
+        "source_report_provenance": source_report_provenance,
+        "compact_evidence_rederived_from_exact_source_reports": True,
         "receipt_count": len(rows),
         "independent_workflow_run_count": len(set(run_ids)),
         "independent_head_count": len(set(heads)),
