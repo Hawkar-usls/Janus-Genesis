@@ -68,6 +68,38 @@ class CrossRunPromotionGateTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Git blob mismatch"):
                 gate.evaluate(cfg)
 
+    def test_source_report_encoded_tamper_fails_closed(self):
+        cfg = load_config()
+        source = cfg["source_reports"][0]
+        path = gate._repo_path(source["encoded_path"])
+        raw = bytearray(path.read_bytes())
+        raw[10] = ord("A") if raw[10] != ord("A") else ord("B")
+        with tempfile.TemporaryDirectory(dir=gate.REPOSITORY_ROOT / "benchmarks/frozen_receipts") as tmp:
+            tampered = Path(tmp) / "tampered-source.json.gz.b64"
+            tampered.write_bytes(raw)
+            source["encoded_path"] = tampered.relative_to(gate.REPOSITORY_ROOT).as_posix()
+            with self.assertRaisesRegex(ValueError, "encoded Git blob mismatch"):
+                gate.evaluate(cfg)
+
+    def test_rebound_compact_fabrication_is_rejected_by_exact_source_derivation(self):
+        cfg = load_config()
+        evidence, _ = gate.load_evidence(cfg)
+        evidence = copy.deepcopy(evidence)
+        historical = next(r for r in evidence["receipts"] if r["source"]["workflow_run_id"] == 31349156794)
+        historical["candidate_records"][1]["status"] = "PASS"
+        historical["candidate_assessment"]["pass_trials"] = 21
+        historical["candidate_assessment"]["nonpass_trials"] = 3
+        with tempfile.TemporaryDirectory(dir=gate.REPOSITORY_ROOT / "benchmarks/frozen_receipts") as tmp:
+            path = Path(tmp) / "fabricated-but-rebound.json"
+            raw = json.dumps(evidence, sort_keys=True, separators=(",", ":")).encode()
+            path.write_bytes(raw)
+            cfg["evidence_path"] = path.relative_to(gate.REPOSITORY_ROOT).as_posix()
+            cfg["evidence_git_blob_sha1"] = gate.git_blob_sha1_bytes(raw)
+            import hashlib
+            cfg["evidence_sha256"] = hashlib.sha256(raw).hexdigest()
+            with self.assertRaisesRegex(ValueError, "does not equal projection derived from exact source reports"):
+                gate.evaluate(cfg)
+
     def test_different_spec_fingerprint_is_rejected(self):
         cfg = load_config()
         evidence, _ = gate.load_evidence(cfg)
