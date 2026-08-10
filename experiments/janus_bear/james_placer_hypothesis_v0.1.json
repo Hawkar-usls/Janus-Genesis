@@ -1,0 +1,88 @@
+{
+  "schema": "janus.genesis.janus_bear.james_placer_hypothesis.v2",
+  "experiment_id": "JANUS_BEAR_JAMES_PLACER_v0.2",
+  "status": "FALSIFICATION_READY_REAL_ESM_SCENE_LIFECYCLE_LEDGER_PENDING",
+  "hypotheses": {
+    "H0": "developer visual grammar plus multiple local diegetic histories",
+    "H1": "James_A placed all teddy/gnome tableaux",
+    "H2": "conditional James_B placed all teddy/gnome tableaux",
+    "H3": "James_A or James_B placed a bounded subset"
+  },
+  "actor_boundaries": {
+    "James_A": {
+      "evidence_class": "SHIPPED_ACTOR",
+      "route_source": "shipped-only quest/script/location evidence"
+    },
+    "James_B": {
+      "evidence_class": "EXPERIMENTAL_CONDITIONAL_ACTOR",
+      "earliest_possible_origin": "pre-exit Vault 112 live-state capture in 2277 under the SAVE JAMES conditional reconstruction",
+      "route_source": "Genesis-authored experiment ledger only",
+      "must_not_backpropagate_into_vanilla_evidence": true,
+      "retrocausality_allowed": false
+    }
+  },
+  "new_temporal_discriminator": {
+    "question": "Can a teddy/gnome scene be observed in a vanilla-compatible play order before the earliest possible James_B creation point?",
+    "candidate_example": "Mothership Zeta Robot Assembly teddy+miniature-gnome TV tableau",
+    "supporting_boundary": "The Zeta abduction path is proximity-triggered after the player is out of Vault 101 and has no MQ04/James dependency in the reviewed DLC05MZ1QuestScript, while James_B requires the later conditional Vault 112 capture protocol.",
+    "promotion_rule": "PRE_JAMES_B_OBSERVABLE becomes a temporal falsifier of H2 only after the exact scene RefIDs are bound and their lifecycle shows no dynamic-after-James_B enable/spawn/replacement edge.",
+    "anti_overclaim": "Player-access chronology alone does not prove a static object's lifecycle; exact REFR enable-parent/script state is required."
+  },
+  "required_inputs": {
+    "scene_ledger": "JSON array of exact teddy/gnome tableau scenes with canonical location_key, exact RefIDs where available, access tags and lifecycle evidence",
+    "james_a_route": "JSON set/list of shipped-confirmed canonical location keys",
+    "james_b_route_optional": "JSON set/list of experimental Genesis location keys",
+    "scene_lifecycle_fields": [
+      "pre_james_b_observable",
+      "exact_refid_bound",
+      "lifecycle_bound",
+      "dynamic_after_james_b_edge"
+    ]
+  },
+  "hard_rules": [
+    "route_overlap alone never proves placement",
+    "semantic motif overlap alone never proves placement",
+    "James_B existence cannot be used as vanilla evidence",
+    "off-world access requires an explicit edge",
+    "cross-worldspace access requires an explicit edge",
+    "at least one explicit independent James placement edge is required before any bounded positive attribution",
+    "no explicit placement edge means single-placer attribution remains NOT_ESTABLISHED",
+    "pre-James_B observability alone does not prove static lifecycle",
+    "temporal falsification requires exact RefID plus lifecycle binding",
+    "a demonstrated dynamic-after-James_B enable/spawn edge defeats the static-preexistence inference for that scene",
+    "retrocausality is forbidden by the SAVE JAMES protocol"
+  ],
+  "discriminator_tags": [
+    "MOTHERSHIP_ZETA_OFFWORLD",
+    "POINT_LOOKOUT_CROSS_WORLDSPACE",
+    "BROKEN_STEEL_QUEST_GATED",
+    "TRANQUILITY_LANE_SIMULATION",
+    "JAMES_A_CONFIRMED_ROUTE",
+    "EXPLICIT_JAMES_PLACEMENT_EDGE",
+    "PRE_JAMES_B_OBSERVABLE",
+    "DYNAMIC_AFTER_JAMES_B_EDGE",
+    "EXACT_REFR_BOUND",
+    "REFR_LIFECYCLE_BOUND"
+  ],
+  "outputs": [
+    "scene_count",
+    "james_a_route_overlap_count",
+    "james_b_experimental_overlap_count",
+    "offworld_scene_count",
+    "cross_worldspace_scene_count",
+    "quest_gated_scene_count",
+    "explicit_james_placement_edge_count",
+    "pre_james_b_observable_scene_count",
+    "temporal_falsifier_candidate_count",
+    "source_bound_temporal_falsifier_count",
+    "single_placer_status",
+    "bounded_subset_status",
+    "claim_ceiling"
+  ],
+  "current_status": {
+    "H1_JAMES_A_ALL": "WEAK_NOT_SUPPORTED",
+    "H2_JAMES_B_ALL": "TEMPORAL_FALSIFIER_CANDIDATE_PENDING_EXACT_REFR_LIFECYCLE_BINDING",
+    "H3_JAMES_SUBSET": "OPEN",
+    "H0": "CURRENT_BEST_MODEL"
+  }
+}

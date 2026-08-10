@@ -1,0 +1,66 @@
+name: Janus Bear James Placer Falsification
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "experiments/janus_bear/james_placer_hypothesis_v0.1.json"
+      - "tools/evaluate_janus_bear_james_placer.py"
+      - "tests/test_janus_bear_james_placer.py"
+      - ".github/workflows/janus-bear-james-placer.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  falsification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Assert exact head
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          ACTUAL_HEAD="$(git rev-parse HEAD)"
+          echo "EXPECTED_HEAD=$EXPECTED_HEAD"
+          echo "ACTUAL_HEAD=$ACTUAL_HEAD"
+          test "$ACTUAL_HEAD" = "$EXPECTED_HEAD"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile and validate config
+        run: |
+          python -m py_compile tools/evaluate_janus_bear_james_placer.py tests/test_janus_bear_james_placer.py
+          python -m json.tool experiments/janus_bear/james_placer_hypothesis_v0.1.json >/dev/null
+
+      - name: Run exactly eight falsification tests
+        run: |
+          set -o pipefail
+          python -m unittest tests.test_janus_bear_james_placer -v 2>&1 | tee /tmp/janus-bear-james-tests.log
+          grep -F "Ran 8 tests" /tmp/janus-bear-james-tests.log
+          grep -Fx "OK" /tmp/janus-bear-james-tests.log
+
+      - name: Verify claim ceiling strings
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg = json.loads(Path('experiments/janus_bear/james_placer_hypothesis_v0.1.json').read_text())
+          rules = set(cfg['hard_rules'])
+          assert 'route_overlap alone never proves placement' in rules
+          assert 'James_B existence cannot be used as vanilla evidence' in rules
+          assert 'off-world access requires an explicit edge' in rules
+          assert 'temporal falsification requires exact RefID plus lifecycle binding' in rules
+          assert 'retrocausality is forbidden by the SAVE JAMES protocol' in rules
+          print('JANUS_BEAR_JAMES_PLACER_CLAIM_CEILING=PASS')
+          PY
