@@ -1,0 +1,45 @@
+{
+  "schema": "genesis.janus_cristal_fractalgpt.sources.v1",
+  "sources": [
+    {
+      "id": "petroleum_quartz_visible",
+      "modality": "VISIBLE_RECORDED",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Petroleum_quartz_from_Alatay.jpg",
+      "download_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Petroleum%20quartz%20from%20Alatay.jpg",
+      "author": "Boris Lobastov",
+      "license": "CC BY 4.0",
+      "same_specimen_group": "ALATAY"
+    },
+    {
+      "id": "petroleum_quartz_uv405",
+      "modality": "UV_405_NM_RECORDED",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Petroleum_quartz_from_Alatay_UV_405_nm.jpg",
+      "download_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Petroleum%20quartz%20from%20Alatay%20UV%20405%20nm.jpg",
+      "author": "Boris Lobastov",
+      "license": "CC BY 4.0",
+      "same_specimen_group": "ALATAY"
+    },
+    {
+      "id": "usgs_quartz_visible_control",
+      "modality": "VISIBLE_RECORDED_CONTROL",
+      "page_url": "https://commons.wikimedia.org/wiki/File:Quartz_Crystal.jpg",
+      "download_url": "https://commons.wikimedia.org/wiki/Special:Redirect/file/Quartz_Crystal.jpg",
+      "author": "United States Geological Survey",
+      "license": "Public domain (U.S. federal work)",
+      "same_specimen_group": null
+    }
+  ],
+  "trajectory": {
+    "algorithm": "coupled_logistic_map_multiscale",
+    "seed": "JANUS-CRISTAL-FRACTALGPT-v0.1",
+    "window_count": 48,
+    "scale_ladder": [0.55, 0.40, 0.30, 0.22, 0.16]
+  },
+  "rules": [
+    "THE_SAME_TRAJECTORY_MUST_BE_USED_ON_REAL_AND_SHUFFLED_CONTROL",
+    "NO_HUMAN_SELECTED_REGIONS",
+    "NO_POST_HOC_CIPHER_SEARCH",
+    "OCR_CANDIDATE_MUST_BE_AT_LEAST_3_CHARACTERS_TO_ESCALATE",
+    "ESCALATION_IS_NOT_MESSAGE_ADMISSION"
+  ]
+}
