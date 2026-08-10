@@ -1,0 +1,9 @@
+{
+  "schema":"janus.cosmos.hst.targets.v0.1",
+  "source_basis":"Public Hubble/MAST positions cross-checked against ESA/Hubble object records.",
+  "targets":[
+    {"object_id":"M51","ra":202.4680833,"dec":47.213175,"size_px":96,"expected_context":"spiral/interacting galaxy; multi-filter HST records exist"},
+    {"object_id":"ANTENNAE","ra":180.4760417,"dec":-18.898061,"size_px":96,"expected_context":"interacting galaxies with tidal tails; multi-filter HST records exist"},
+    {"object_id":"M87","ra":187.70525,"dec":12.391128,"size_px":96,"expected_context":"elliptical galaxy with jet; HST UV/optical records exist"}
+  ]
+}
