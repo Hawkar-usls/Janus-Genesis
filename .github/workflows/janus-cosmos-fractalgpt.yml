@@ -4,6 +4,10 @@ on:
     paths:
       - 'experiments/janus_cosmos_fractalgpt/**'
       - '.github/workflows/janus-cosmos-fractalgpt.yml'
+  pull_request:
+    paths:
+      - 'experiments/janus_cosmos_fractalgpt/**'
+      - '.github/workflows/janus-cosmos-fractalgpt.yml'
   workflow_dispatch:
 
 jobs:
