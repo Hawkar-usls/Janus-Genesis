@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""FractalGPT-inspired search planner for Janus Cristal.
+"""Janus Cristal × recovered FractalGPT multi-planner probe.
 
-Fractal trajectory chooses WHERE to inspect. Conventional measurements decide
-WHAT is present. No post-hoc cipher or semantic decoding is performed.
+FractalGPT chooses WHERE / AT WHAT SCALE to inspect. Conventional OCR/CV
+measurements decide WHAT is present. Every trajectory is content-independent
+and is replayed unchanged against a matched shuffled negative control.
 """
 from __future__ import annotations
 
@@ -22,7 +23,9 @@ from statistics import median
 import cv2
 import numpy as np
 
-UA = "Janus-Genesis-FractalGPT-Crystal/0.1"
+import fractalgpt_adapter as fga
+
+UA = "Janus-Genesis-FractalGPT-Crystal/0.2"
 TOKEN_RE = re.compile(r"[A-Z0-9][A-Z0-9_+\-*/=^<>()[\]{}.:]{2,23}")
 FORMULA_RE = re.compile(r"(?=.*\d)(?=.*[=+\-*/^])[A-Z0-9_+\-*/=^<>()[\]{}.:]{3,24}")
 CODE_HINTS = ("IF", "FOR", "WHILE", "DEF", "INT", "HEX", "0X", "==", "->", "::", "{}", "[]")
@@ -62,8 +65,8 @@ def classify_token(token: str) -> str:
     return "SYMBOL_SEQUENCE"
 
 
-def fractal_trajectory(seed: str, count: int, scales: list[float]) -> list[dict]:
-    """Content-independent multiscale path from a SHA-256-seeded coupled map."""
+def logistic_trajectory(seed: str, count: int, scales: list[float]) -> list[dict]:
+    """Legacy deterministic baseline from v0.1; retained as a non-model comparator."""
     b = sha256_bytes(seed)
     x = (int.from_bytes(b[0:8], "big") + 1) / (2**64 + 2)
     y = (int.from_bytes(b[8:16], "big") + 1) / (2**64 + 2)
@@ -83,18 +86,14 @@ def fractal_trajectory(seed: str, count: int, scales: list[float]) -> list[dict]
     for i in range(count):
         x, y = step(x, y)
         selector = int((x * 997 + y * 991 + i * 17) * 1_000_003) % len(scales)
-        out.append({
-            "index": i,
-            "cx": round(x, 8),
-            "cy": round(y, 8),
-            "scale": float(scales[selector]),
-        })
+        out.append({"index": i, "cx": round(x, 8), "cy": round(y, 8), "scale": float(scales[selector])})
     return out
 
 
 def crop_window(image: np.ndarray, window: dict) -> np.ndarray:
     h, w = image.shape[:2]
     side = max(32, int(round(min(h, w) * float(window["scale"]))))
+    side = min(side, h, w)
     cx = int(round(float(window["cx"]) * (w - 1)))
     cy = int(round(float(window["cy"]) * (h - 1)))
     x0 = max(0, min(w - side, cx - side // 2))
@@ -149,9 +148,8 @@ def ocr_crop(crop: np.ndarray, min_conf: float) -> list[dict]:
         r = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, timeout=20)
         if r.returncode != 0:
             return []
-        rows = r.stdout.splitlines()[1:]
         out = []
-        for row in rows:
+        for row in r.stdout.splitlines()[1:]:
             c = row.split("\t")
             if len(c) < 12:
                 continue
@@ -175,10 +173,13 @@ def structure_metrics(crop: np.ndarray) -> dict:
         gray = cv2.resize(gray, (max(1, round(gray.shape[1] * s)), max(1, round(gray.shape[0] * s))))
     edges = cv2.Canny(gray, 70, 150)
     edge_density = float((edges > 0).mean())
-    lines = cv2.HoughLinesP(edges, 1, np.pi / 180.0, threshold=35, minLineLength=max(12, min(gray.shape) // 8), maxLineGap=6)
+    lines = cv2.HoughLinesP(
+        edges, 1, np.pi / 180.0, threshold=35,
+        minLineLength=max(12, min(gray.shape) // 8), maxLineGap=6,
+    )
     line_count = 0 if lines is None else len(lines)
     left = gray[:, : gray.shape[1] // 2]
-    right = gray[:, gray.shape[1] - left.shape[1] :]
+    right = gray[:, gray.shape[1] - left.shape[1]:]
     right = np.fliplr(right)
     symmetry = 0.0
     if left.size and left.std() > 0 and right.std() > 0:
@@ -190,9 +191,7 @@ def structure_metrics(crop: np.ndarray) -> dict:
     }
 
 
-def analyze_image(image: np.ndarray, trajectory: list[dict], min_conf: float, control_seed: str) -> dict:
-    image = resize_max(image)
-    control = block_shuffle(image, control_seed)
+def analyze_trajectory(image: np.ndarray, control: np.ndarray, trajectory: list[dict], min_conf: float) -> dict:
     result = {"real": [], "control": []}
     token_counts = {"real": Counter(), "control": Counter()}
     token_best_conf = {"real": defaultdict(float), "control": defaultdict(float)}
@@ -222,33 +221,80 @@ def analyze_image(image: np.ndarray, trajectory: list[dict], min_conf: float, co
             "real_window_hits": count,
             "control_window_hits": 0,
             "best_confidence": round(token_best_conf["real"][token], 2),
-            "status": "SINGLE_SOURCE_ESCALATION_ONLY_NOT_MESSAGE",
+            "status": "PLANNER_LOCAL_ESCALATION_ONLY_NOT_MESSAGE",
         })
     escalated.sort(key=lambda x: (-x["real_window_hits"], -x["best_confidence"], x["token"]))
 
-    def summarize_metrics(rows: list[dict]) -> dict:
+    def summarize(rows: list[dict]) -> dict:
         return {
             key: round(float(median([r["metrics"][key] for r in rows])), 6)
             for key in ("edge_density", "line_count", "mirror_symmetry")
         }
 
-    real_summary = summarize_metrics(result["real"])
-    ctrl_summary = summarize_metrics(result["control"])
-    metric_ratios = {}
-    for key in real_summary:
-        c = float(ctrl_summary[key])
-        metric_ratios[key] = None if abs(c) < 1e-12 else round(float(real_summary[key]) / c, 6)
+    real_summary = summarize(result["real"])
+    ctrl_summary = summarize(result["control"])
+    delta = {key: round(float(real_summary[key]) - float(ctrl_summary[key]), 6) for key in real_summary}
 
     return {
         "window_count": len(trajectory),
         "real_token_counts": dict(real_counts),
         "control_token_counts": dict(ctrl_counts),
-        "single_source_escalation_candidates": escalated,
-        "single_source_escalation_count": len(escalated),
+        "planner_local_escalations": escalated,
+        "planner_local_escalation_count": len(escalated),
         "median_structure_real": real_summary,
         "median_structure_control": ctrl_summary,
-        "real_to_control_metric_ratio": metric_ratios,
+        "real_minus_control_structure": delta,
         "window_receipts": result,
+    }
+
+
+def analyze_image(image: np.ndarray, planners: dict[str, list[dict]], min_conf: float, control_seed: str) -> dict:
+    image = resize_max(image)
+    control = block_shuffle(image, control_seed)
+    by_planner = {}
+    candidate_planners = defaultdict(set)
+    raw_real_planners = defaultdict(set)
+    raw_control_planners = defaultdict(set)
+
+    for name, trajectory in planners.items():
+        r = analyze_trajectory(image, control, trajectory, min_conf)
+        by_planner[name] = r
+        for token in r["real_token_counts"]:
+            raw_real_planners[token].add(name)
+        for token in r["control_token_counts"]:
+            raw_control_planners[token].add(name)
+        for c in r["planner_local_escalations"]:
+            candidate_planners[c["token"]].add(name)
+
+    cross_planner = []
+    for token, names in sorted(candidate_planners.items()):
+        if len(names) >= 2 and token not in raw_control_planners:
+            cross_planner.append({
+                "token": token,
+                "class": classify_token(token),
+                "planners": sorted(names),
+                "planner_count": len(names),
+                "status": "CROSS_PLANNER_ESCALATION_ONLY_NOT_MESSAGE",
+            })
+
+    raw_cross_planner = []
+    for token, names in sorted(raw_real_planners.items()):
+        if len(names) >= 2 and token not in raw_control_planners:
+            raw_cross_planner.append({
+                "token": token,
+                "class": classify_token(token),
+                "planners": sorted(names),
+                "planner_count": len(names),
+                "status": "RAW_CROSS_PLANNER_OCR_ONLY",
+            })
+
+    return {
+        "planner_count": len(planners),
+        "planners": by_planner,
+        "raw_cross_planner_ocr": raw_cross_planner,
+        "raw_cross_planner_ocr_count": len(raw_cross_planner),
+        "cross_planner_escalation_candidates": cross_planner,
+        "cross_planner_escalation_count": len(cross_planner),
     }
 
 
@@ -261,14 +307,28 @@ def main() -> int:
 
     manifest = json.loads(Path(args.manifest).read_text(encoding="utf-8"))
     cfg = manifest["trajectory"]
-    trajectory = fractal_trajectory(cfg["seed"], int(cfg["window_count"]), [float(x) for x in cfg["scale_ladder"]])
+    count = int(cfg["window_count"])
+    scales = [float(x) for x in cfg["scale_ladder"]]
+    seed = cfg["seed"]
+
+    recovered, recovered_receipt = fga.all_trajectories(seed, count, scales)
+    planners = {
+        "logistic_baseline": logistic_trajectory(seed + "::logistic", count, scales),
+        **recovered,
+    }
+    planner_hashes = {
+        name: hashlib.sha256(json.dumps(rows, sort_keys=True).encode()).hexdigest()
+        for name, rows in planners.items()
+    }
+
     report = {
-        "schema": "genesis.janus_cristal_fractalgpt.result.v1",
-        "trajectory": {
+        "schema": "genesis.janus_cristal_fractalgpt.result.v2",
+        "trajectory_system": {
             **cfg,
-            "sha256": hashlib.sha256(json.dumps(trajectory, sort_keys=True).encode()).hexdigest(),
-            "windows": trajectory,
+            "planner_count": len(planners),
+            "planner_hashes": planner_hashes,
             "content_independent": True,
+            "recovered_fractalgpt": recovered_receipt,
         },
         "sources": [],
         "cross_modality_escalation_candidates": [],
@@ -278,8 +338,9 @@ def main() -> int:
     out_dir = Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
     per_source_candidates = defaultdict(set)
-
+    source_by_id = {}
     errors = 0
+
     with tempfile.TemporaryDirectory(prefix="genesis-fractal-crystal-") as td:
         td = Path(td)
         for i, source in enumerate(manifest["sources"]):
@@ -294,11 +355,11 @@ def main() -> int:
                 entry["dimensions"] = [int(image.shape[1]), int(image.shape[0])]
                 entry["analysis"] = analyze_image(
                     image,
-                    trajectory,
+                    planners,
                     args.min_ocr_confidence,
-                    control_seed=f"{cfg['seed']}::{source['id']}::shuffle",
+                    control_seed=f"{seed}::{source['id']}::shuffle",
                 )
-                for c in entry["analysis"]["single_source_escalation_candidates"]:
+                for c in entry["analysis"]["cross_planner_escalation_candidates"]:
                     per_source_candidates[c["token"]].add(source["id"])
                 entry["status"] = "ANALYZED"
             except Exception as exc:
@@ -306,8 +367,8 @@ def main() -> int:
                 entry["status"] = "ERROR"
                 entry["error"] = f"{type(exc).__name__}: {exc}"
             report["sources"].append(entry)
+            source_by_id[entry["id"]] = entry
 
-    source_by_id = {s["id"]: s for s in report["sources"]}
     cross = []
     for token, ids in sorted(per_source_candidates.items()):
         modalities = sorted({source_by_id[i].get("modality") for i in ids})
@@ -316,34 +377,60 @@ def main() -> int:
                 "token": token,
                 "source_ids": sorted(ids),
                 "modalities": modalities,
-                "status": "CROSS_MODALITY_ESCALATION_ONLY_REPLICATION_REQUIRED",
+                "status": "CROSS_MODALITY_AND_CROSS_PLANNER_ESCALATION_REPLICATION_REQUIRED",
             })
     report["cross_modality_escalation_candidates"] = cross
     report["cross_modality_escalation_count"] = len(cross)
+
+    # Same-specimen visible/UV structural contrast, aggregated across planners.
+    groups = defaultdict(list)
+    for source in report["sources"]:
+        if source.get("same_specimen_group") and source.get("status") == "ANALYZED":
+            groups[source["same_specimen_group"]].append(source)
+    structural_pairs = []
+    for group, rows in groups.items():
+        if len(rows) < 2:
+            continue
+        planner_rows = []
+        for planner in planners:
+            vals = []
+            for src in rows:
+                vals.append({
+                    "source_id": src["id"],
+                    "modality": src["modality"],
+                    "real_minus_control": src["analysis"]["planners"][planner]["real_minus_control_structure"],
+                })
+            planner_rows.append({"planner": planner, "modalities": vals})
+        structural_pairs.append({"same_specimen_group": group, "planner_deltas": planner_rows})
+    report["same_specimen_structural_comparisons"] = structural_pairs
+
     report["claim_ceiling"] = (
-        "Fractal path selection plus OCR/structure metrics can identify reproducible detector candidates. "
-        "It cannot establish intentional encoding, a message, formula, code, algorithm, intelligence, or supernatural cause."
+        "Recovered FractalGPT and baseline planners can choose deterministic search paths; conventional detectors can compare real images with matched controls. "
+        "No result establishes intentional encoding, a message, formula, code, algorithm, intelligence, or supernatural cause."
     )
 
     result_path = out_dir / "GENESIS-JANUS-CRISTAL-FRACTALGPT-result.json"
     result_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     lines = [
-        "# Janus Cristal × FractalGPT CI receipt",
+        "# Janus Cristal × recovered FractalGPT CI receipt",
         "",
         f"Sources: {len(report['sources']) - errors}/{len(report['sources'])} analyzed; errors={errors}",
-        f"Trajectory windows: {len(trajectory)}",
-        f"Trajectory SHA-256: `{report['trajectory']['sha256']}`",
+        f"Planners: {len(planners)} × {count} windows each",
+        f"Recovered FractalGPT SHA-256: `{fga.RECOVERED_SHA256}`",
+        f"Recovered model initial/final eval MSE: `{recovered_receipt['model_receipt']['initial_eval_mse']}` → `{recovered_receipt['model_receipt']['final_eval_mse']}`",
         "",
-        "| source | modality | single-source escalations |",
-        "|---|---|---:|",
+        "| source | modality | raw cross-planner OCR | strict cross-planner escalations |",
+        "|---|---|---:|---:|",
     ]
     for s in report["sources"]:
-        n = s.get("analysis", {}).get("single_source_escalation_count", "error")
-        lines.append(f"| {s['id']} | {s.get('modality')} | {n} |")
+        a = s.get("analysis", {})
+        lines.append(
+            f"| {s['id']} | {s.get('modality')} | {a.get('raw_cross_planner_ocr_count', 'error')} | {a.get('cross_planner_escalation_count', 'error')} |"
+        )
     lines += [
         "",
-        f"Cross-modality escalation candidates: **{len(cross)}**",
+        f"Cross-modality + cross-planner escalation candidates: **{len(cross)}**",
         "",
         "`NO_MESSAGE_FORMULA_CODE_OR_ALGORITHM_ADMITTED`",
     ]
