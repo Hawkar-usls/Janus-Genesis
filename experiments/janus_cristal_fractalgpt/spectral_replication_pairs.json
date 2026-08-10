@@ -58,10 +58,10 @@
     },
     {
       "id": "FMS_1226_PAKISTAN_QUARTZ_NORMAL_LW365",
-      "role": "INDEPENDENT_CONFIRMED_SAME_SPECIMEN_REPLICATION_CANDIDATE",
+      "role": "PRIMARY_INDEPENDENT_CONFIRMED_SAME_SPECIMEN_REPLICATION_CANDIDATE",
       "material": "single_double_terminated_quartz_crystal_with_petroleum_inclusions",
       "same_specimen_status": "CONFIRMED_BY_SINGLE_FMS_SPECIMEN_RECORD_1226",
-      "provenance_reason": "The Fluorescent Mineral Society FMDB record 1226 describes one single 26 mm quartz specimen and presents shortwave, longwave and normal-light photographs within that same specimen record. The record explicitly gives longwave as 365 nm LED and shortwave as 254 nm lamp/mercury.",
+      "provenance_reason": "The Fluorescent Mineral Society FMDB record 1226 describes one single 26 mm quartz specimen and presents shortwave, longwave and normal-light photographs within that same specimen record. Longwave 365 nm is designated the primary replication modality before outcome inspection because it parallels the prior LWUVR candidate and is a common longwave UV condition; 254 nm is pre-registered separately as confirmatory only.",
       "source_record_url": "https://uvminerals.org/fmdb/specimen/1226/",
       "media_policy": "REMOTE_TRANSIENT_ANALYSIS_ONLY_NO_REPUBLICATION_IN_REPOSITORY_OR_ARTIFACT",
       "visible": {
@@ -79,6 +79,30 @@
         "author": "Chris Clemens / Fluorescent Mineral Society FMDB",
         "license": "SOURCE_COPYRIGHT_RETAINED; TRANSIENT_ANALYSIS_ONLY"
       }
+    },
+    {
+      "id": "FMS_1226_PAKISTAN_QUARTZ_NORMAL_SW254",
+      "role": "CONFIRMATORY_MODALITY_SAME_SPECIMEN_NOT_INDEPENDENT_REPLICATION_COUNT",
+      "material": "single_double_terminated_quartz_crystal_with_petroleum_inclusions",
+      "same_specimen_status": "CONFIRMED_BY_SINGLE_FMS_SPECIMEN_RECORD_1226",
+      "provenance_reason": "Pre-registered before inspecting the FMS replication outcome. This is the same FMDB specimen 1226 as the longwave primary pair, so it can corroborate modality sensitivity but must not count as a second independent specimen replication.",
+      "source_record_url": "https://uvminerals.org/fmdb/specimen/1226/",
+      "media_policy": "REMOTE_TRANSIENT_ANALYSIS_ONLY_NO_REPUBLICATION_IN_REPOSITORY_OR_ARTIFACT",
+      "visible": {
+        "id": "fms_1226_normal",
+        "page_url": "https://uvminerals.org/fmdb/specimen/1226/",
+        "download_url": "https://media.uvminerals.org/2024/11/29140559/fmdb-1226-4586.jpg",
+        "author": "Chris Clemens / Fluorescent Mineral Society FMDB",
+        "license": "SOURCE_COPYRIGHT_RETAINED; TRANSIENT_ANALYSIS_ONLY"
+      },
+      "uv": {
+        "id": "fms_1226_sw254",
+        "modality": "SHORTWAVE_UV_254_NM_MERCURY_LAMP_RECORDED",
+        "page_url": "https://uvminerals.org/fmdb/specimen/1226/",
+        "download_url": "https://media.uvminerals.org/2024/11/29140341/fmdb-1226-4584.jpg",
+        "author": "Chris Clemens / Fluorescent Mineral Society FMDB",
+        "license": "SOURCE_COPYRIGHT_RETAINED; TRANSIENT_ANALYSIS_ONLY"
+      }
     }
   ],
   "admission_rules": [
@@ -87,6 +111,7 @@
     "DISCOVERY_ANCHOR_DOES_NOT_COUNT_AS_CROSS_SPECIMEN_REPLICATION",
     "PROBABLE_SAME_SPECIMEN_PROVENANCE_MUST_REMAIN_EXPLICITLY_UNCERTAIN",
     "CONFIRMED_SAME_SPECIMEN_SOURCE_RECORD_MAY_OPEN_FORMAL_IMAGE_LEVEL_REPLICATION_GATE",
+    "PRIMARY_AND_CONFIRMATORY_MODALITIES_FROM_ONE_PHYSICAL_SPECIMEN_COUNT_AS_AT_MOST_ONE_INDEPENDENT_REPLICATION",
     "REMOTE_COPYRIGHTED_MEDIA_MUST_NOT_BE_REPUBLISHED_IN_GIT_OR_ACTION_ARTIFACTS",
     "REGISTERED_MODALITY_DIFFERENCE != CHEMICAL_IDENTITY",
     "REGISTERED_MODALITY_DIFFERENCE != MESSAGE",
