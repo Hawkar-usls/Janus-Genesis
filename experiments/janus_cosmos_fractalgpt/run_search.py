@@ -1,10 +1,9 @@
-"""Lightweight, dependency-free Janus Cosmos v0.1 scaffold.
+"""Lightweight Janus Cosmos FractalGPT v0.1 preflight.
 
-The runner consumes pre-extracted numeric feature rows rather than downloading
-astronomical data itself. This keeps the GitHub test cheap and makes source
-provenance explicit. A row is expected to contain object_id, band, x, y, scale,
-orientation, and signal. The planner proposes deterministic multiscale
-trajectories; scoring is compared with spatially permuted nulls.
+This runner intentionally consumes pre-extracted feature rows. It does not
+claim to ingest or discover astronomical images by itself. The null model
+randomizes coordinates while preserving the observed per-row signal/band
+values, so the null can actually differ from the observed spatial arrangement.
 """
 from __future__ import annotations
 import csv
@@ -22,7 +21,6 @@ SEED = 20260810
 
 
 def planner(x: float, y: float, scale: int, orientation: int) -> float:
-    """Deterministic blind trajectory score; no outcome-dependent tuning."""
     a = math.radians(orientation)
     u = x * math.cos(a) + y * math.sin(a)
     v = -x * math.sin(a) + y * math.cos(a)
@@ -37,40 +35,52 @@ def score(rows):
         s = 0.0
         for scale in WINDOWS:
             for orientation in ORIENTATIONS:
-                s += abs(planner(r["x"], r["y"], scale, orientation))
+                s += abs(planner(r["x"], r["y"], scale, orientation)) * abs(r["signal"])
         values.append(s / (len(WINDOWS) * len(ORIENTATIONS)))
     return sum(values) / len(values)
 
 
 def main(path: str):
+    source = Path(path)
     rows = []
-    with open(path, newline="", encoding="utf-8") as f:
+    with source.open(newline="", encoding="utf-8") as f:
         for r in csv.DictReader(f):
-            rows.append({"object_id": r["object_id"], "band": r["band"],
-                         "x": float(r["x"]), "y": float(r["y"]),
-                         "signal": float(r.get("signal", 1.0))})
+            rows.append({
+                "object_id": r["object_id"],
+                "band": r["band"],
+                "x": float(r["x"]),
+                "y": float(r["y"]),
+                "signal": float(r.get("signal", 1.0)),
+            })
     observed = score(rows)
     rng = random.Random(SEED)
+    xs = [r["x"] for r in rows]
+    ys = [r["y"] for r in rows]
     null = []
     for _ in range(NULLS):
-        shuffled = rows[:]
-        rng.shuffle(shuffled)
-        null.append(score(shuffled))
+        shuffled_x = xs[:]
+        shuffled_y = ys[:]
+        rng.shuffle(shuffled_x)
+        rng.shuffle(shuffled_y)
+        randomized = [dict(r, x=x, y=y) for r, x, y in zip(rows, shuffled_x, shuffled_y)]
+        null.append(score(randomized))
     ge = sum(v >= observed for v in null)
     p = (ge + 1) / (NULLS + 1)
+    null_sorted = sorted(null)
     receipt = {
         "schema": "janus.cosmos.fractalgpt.receipt.v0.1",
         "status": "CANDIDATE_ONLY" if p < 0.05 else "NO_CANDIDATE",
         "observed_score": observed,
-        "null_median": sorted(null)[len(null)//2],
+        "null_median": null_sorted[len(null_sorted) // 2],
         "p_empirical": p,
-        "windows": WINDOWS,
-        "orientations": ORIENTATIONS,
+        "windows": list(WINDOWS),
+        "orientations": list(ORIENTATIONS),
         "nulls": NULLS,
         "seed": SEED,
         "semantic_analysis": False,
-        "source_sha256": hashlib.sha256(Path(path).read_bytes()).hexdigest(),
-        "claim_ceiling": "Planner enrichment is not a discovery; independent replication is required."
+        "null_model": "independent coordinate permutation preserving row signal and band",
+        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        "claim_ceiling": "Planner enrichment is not a discovery; independent replication is required.",
     }
     print(json.dumps(receipt, indent=2, sort_keys=True))
 
