@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - "benchmarks/frozen_receipts/top100_round2_1_cross_run_evidence_v0.1.json"
+      - "benchmarks/frozen_receipts/top100_round2_1_admission_run_31349156794_report_v0.1.json.gz.b64"
+      - "benchmarks/frozen_receipts/top100_round2_1_admission_run_31352475058_report_v0.1.json.gz.b64"
       - "benchmarks/round2_1_cross_run_promotion_gate_v0.1.json"
       - "tools/run_top100_round2_1_cross_run_promotion_gate.py"
       - "tests/test_top100_round2_1_cross_run_promotion_gate.py"
@@ -30,13 +32,17 @@ jobs:
       - name: Freeze cross-run gate inputs
         run: |
           test "$(git hash-object benchmarks/frozen_receipts/top100_round2_1_cross_run_evidence_v0.1.json)" = "14a40f44797602862f80b9f9de8226f5beddd6fe"
-          test "$(git hash-object benchmarks/round2_1_cross_run_promotion_gate_v0.1.json)" = "d2362cbc63dc246dcb79151e7d593c41157cfcb1"
-          test "$(git hash-object tools/run_top100_round2_1_cross_run_promotion_gate.py)" = "54c73b248b8539a9ec0410df53e0a89afdcf3b5d"
-          test "$(git hash-object tests/test_top100_round2_1_cross_run_promotion_gate.py)" = "29637e160e7d2b731fe996a7ff4776430e6c8a10"
+          test "$(git hash-object benchmarks/frozen_receipts/top100_round2_1_admission_run_31349156794_report_v0.1.json.gz.b64)" = "1b338d16cbc0fb4eb6e35b8e085d2d3820679216"
+          test "$(git hash-object benchmarks/frozen_receipts/top100_round2_1_admission_run_31352475058_report_v0.1.json.gz.b64)" = "0a6e4e3b9371d4bfec4097c8b431eb08d7d7cddb"
+          test "$(git hash-object benchmarks/round2_1_cross_run_promotion_gate_v0.1.json)" = "72f00299e13de6b17b70fa86f7bf551986e5622c"
+          test "$(git hash-object tools/run_top100_round2_1_cross_run_promotion_gate.py)" = "c0a0b153c969b3b5be5336b2b6b5a14e46f3ab00"
+          test "$(git hash-object tests/test_top100_round2_1_cross_run_promotion_gate.py)" = "e79ee473f7df85e8ffd07ed2279f9f2d7a33eff1"
           echo "CROSS_RUN_EVIDENCE_BLOB=14a40f44797602862f80b9f9de8226f5beddd6fe"
-          echo "CROSS_RUN_CONFIG_BLOB=d2362cbc63dc246dcb79151e7d593c41157cfcb1"
-          echo "CROSS_RUN_GATE_BLOB=54c73b248b8539a9ec0410df53e0a89afdcf3b5d"
-          echo "CROSS_RUN_TEST_BLOB=29637e160e7d2b731fe996a7ff4776430e6c8a10"
+          echo "HISTORICAL_SOURCE_REPORT_BLOB=1b338d16cbc0fb4eb6e35b8e085d2d3820679216"
+          echo "FRESH_SOURCE_REPORT_BLOB=0a6e4e3b9371d4bfec4097c8b431eb08d7d7cddb"
+          echo "CROSS_RUN_CONFIG_BLOB=72f00299e13de6b17b70fa86f7bf551986e5622c"
+          echo "CROSS_RUN_GATE_BLOB=c0a0b153c969b3b5be5336b2b6b5a14e46f3ab00"
+          echo "CROSS_RUN_TEST_BLOB=e79ee473f7df85e8ffd07ed2279f9f2d7a33eff1"
 
       - name: Compile and unit-test cross-run semantics
         run: |
@@ -69,6 +75,15 @@ jobs:
           assert r['independent_workflow_run_count'] == 2
           assert r['independent_head_count'] == 2
           assert r['all_receipts_exact_spec_conforming'] is True
+          assert r['compact_evidence_rederived_from_exact_source_reports'] is True
+          assert len(r['source_report_provenance']) == 2
+          source_by_run = {row['workflow_run_id']: row for row in r['source_report_provenance']}
+          assert source_by_run[31349156794]['identity_channels_verified'] == 5
+          assert source_by_run[31349156794]['derived_from_exact_report_bytes'] is True
+          assert source_by_run[31349156794]['observed_report_json_sha256'] == '32954cbe3dbadde7e2e6489882eb3c111249d08f7c52dc9c143817d8a48db6aa'
+          assert source_by_run[31352475058]['identity_channels_verified'] == 5
+          assert source_by_run[31352475058]['derived_from_exact_report_bytes'] is True
+          assert source_by_run[31352475058]['observed_report_json_sha256'] == 'e4c33f4b113e4cf3267f73f77824af6708194aaa9cf21177932de977e937f67d'
           assert r['reference_model_passed_every_receipt'] is True
           assert r['candidate_positive_receipt_count'] == 1
           assert r['candidate_negative_receipt_count'] == 1
@@ -97,6 +112,9 @@ jobs:
           assert promotion['historical_negative_is_veto'] is True
           assert promotion['fresh_positive_compensates_historical_negative'] is False
           print('CROSS_RUN_EXACT_SPEC_RECEIPTS=2')
+          print('SOURCE_REPORTS_RECONSTRUCTED=2_OF_2')
+          print('SOURCE_REPORT_IDENTITY_CHANNELS=5_EACH')
+          print('COMPACT_EVIDENCE_REDERIVATION=PASS')
           print('Q8_0_HISTORICAL=20_OF_24')
           print('Q8_0_FRESH=24_OF_24')
           print('CROSS_RUN_STATUS_DIVERGENCE=OBSERVED')
