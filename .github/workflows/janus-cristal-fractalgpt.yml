@@ -6,12 +6,14 @@ on:
     paths:
       - "experiments/janus_cristal_fractalgpt/**"
       - "tests/test_janus_cristal_fractalgpt.py"
+      - "tests/test_janus_cristal_spectral_difference.py"
       - ".github/workflows/janus-cristal-fractalgpt.yml"
   push:
     branches: [main]
     paths:
       - "experiments/janus_cristal_fractalgpt/**"
       - "tests/test_janus_cristal_fractalgpt.py"
+      - "tests/test_janus_cristal_spectral_difference.py"
       - ".github/workflows/janus-cristal-fractalgpt.yml"
 
 permissions:
@@ -20,7 +22,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -34,7 +36,9 @@ jobs:
           python -m pip install "opencv-python-headless==4.13.0.92"
 
       - name: Unit tests
-        run: python tests/test_janus_cristal_fractalgpt.py -v
+        run: |
+          python tests/test_janus_cristal_fractalgpt.py -v
+          python tests/test_janus_cristal_spectral_difference.py -v
 
       - name: Run FractalGPT crystal search
         run: >-
@@ -43,12 +47,22 @@ jobs:
           --out artifacts/janus-cristal-fractalgpt
           --min-ocr-confidence 55
 
+      - name: Run registered visible UV difference gate
+        run: >-
+          python experiments/janus_cristal_fractalgpt/spectral_difference_probe.py
+          --manifest experiments/janus_cristal_fractalgpt/sources.json
+          --out artifacts/janus-cristal-fractalgpt
+
       - name: Publish summary
         if: always()
         shell: bash
         run: |
           if [ -f artifacts/janus-cristal-fractalgpt/SUMMARY.md ]; then
             cat artifacts/janus-cristal-fractalgpt/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -f artifacts/janus-cristal-fractalgpt/SPECTRAL_DIFFERENCE_SUMMARY.md ]; then
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            cat artifacts/janus-cristal-fractalgpt/SPECTRAL_DIFFERENCE_SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
       - name: Upload receipt
