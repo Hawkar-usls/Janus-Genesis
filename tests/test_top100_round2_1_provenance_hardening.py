@@ -5,6 +5,8 @@ import contextlib
 import copy
 import io
 import json
+import os
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -45,6 +47,7 @@ class Round21ProvenanceHardeningTests(unittest.TestCase):
         self.assertTrue(receipt["receipt_fields_derived_from_verified_declarations"])
         self.assertTrue(receipt["single_snapshot_consumption"])
         self.assertTrue(receipt["verified_bytes_are_execution_bytes"])
+        self.assertTrue(receipt["repository_root_independent_of_process_cwd"])
         self.assertEqual(hard.git_blob_sha1(CONFIG), receipt["observed_config_git_blob_sha1"])
 
     def test_tampered_config_critical_blob_is_rejected(self) -> None:
@@ -95,6 +98,27 @@ class Round21ProvenanceHardeningTests(unittest.TestCase):
                 pack_path=PACK,
             )
 
+    def test_absolute_repository_inputs_are_stable_outside_repository_cwd(self) -> None:
+        old_cwd = Path.cwd()
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                os.chdir(tmp)
+                receipt = hard.validate_provenance(
+                    self.config,
+                    self.critical,
+                    config_path=CONFIG,
+                    critical_path=CRITICAL,
+                    pack_path=PACK,
+                )
+            finally:
+                os.chdir(old_cwd)
+        self.assertEqual(
+            self.config["critical_reference"],
+            receipt["critical_reference_path"],
+        )
+        self.assertEqual(self.config["round1_pack"], receipt["round1_pack_path"])
+        self.assertTrue(receipt["repository_root_independent_of_process_cwd"])
+
     def test_main_uses_direct_execute_not_historical_rereading_cli(self) -> None:
         argv = [
             "--config", str(CONFIG),
@@ -126,6 +150,7 @@ class Round21ProvenanceHardeningTests(unittest.TestCase):
         )
         self.assertTrue(payload["provenance_verification"]["single_snapshot_consumption"])
         self.assertTrue(payload["provenance_verification"]["verified_bytes_are_execution_bytes"])
+        self.assertTrue(payload["provenance_verification"]["repository_root_independent_of_process_cwd"])
 
 
 if __name__ == "__main__":
