@@ -1,0 +1,64 @@
+name: JANUS face recovery saga v6
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'genesis_v18_7_23_face_recovery_saga.py'
+      - 'genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_22_face_authority_epoch.py'
+      - 'tests/test_genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - '.github/workflows/janus-face-recovery-saga-v6.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'genesis_v18_7_23_face_recovery_saga.py'
+      - 'genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_22_face_authority_epoch.py'
+      - 'tests/test_genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - '.github/workflows/janus-face-recovery-saga-v6.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-recovery-saga-v6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile face control chain
+        run: |
+          python -m py_compile \
+            genesis_v18_7_21_face_microcontrol.py \
+            genesis_v18_7_22_face_authority_epoch.py \
+            genesis_v18_7_23_face_recovery_saga.py \
+            genesis_v18_7_24_face_recovery_saga_hardened.py
+
+      - name: Run v18.7.24 recovery saga tests
+        run: python -m unittest -v tests.test_genesis_v18_7_24_face_recovery_saga_hardened
+
+      - name: Re-run v18.7.22 authority epoch tests
+        run: python -m unittest -v tests.test_genesis_v18_7_22_face_authority_epoch
+
+      - name: Re-run v18.7.21 microcontrol tests
+        run: python -m unittest -v tests.test_genesis_v18_7_21_face_microcontrol
+
+      - name: Enforce v6 invariant strings
+        run: |
+          grep -F 'validated-but-unreceipted dispatch is UNDETERMINED' genesis_v18_7_23_face_recovery_saga.py
+          grep -F 'multi-effect work is a saga, not falsely claimed atomicity' genesis_v18_7_23_face_recovery_saga.py
+          grep -F 'bounded bypass prevents starvation' genesis_v18_7_23_face_recovery_saga.py
+          grep -F 'late authoritative receipt may still prove' genesis_v18_7_24_face_recovery_saga_hardened.py
