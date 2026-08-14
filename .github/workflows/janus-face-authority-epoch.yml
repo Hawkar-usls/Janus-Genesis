@@ -1,0 +1,41 @@
+name: JANUS face authority epoch and micro-review
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_22_face_authority_epoch.py'
+      - '.github/workflows/janus-face-authority-epoch.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_22_face_authority_epoch.py'
+      - '.github/workflows/janus-face-authority-epoch.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-authority-epoch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile face control modules
+        run: python -m py_compile genesis_v18_7_21_face_microcontrol.py genesis_v18_7_22_face_authority_epoch.py
+
+      - name: Run authority epoch and micro-review tests
+        run: python -m unittest discover -s tests -p 'test_genesis_v18_7_22_face_authority_epoch.py' -v
+
+      - name: Re-run base microcontrol tests for compatibility
+        run: python -m unittest discover -s tests -p 'test_genesis_v18_7_21_face_microcontrol.py' -v
