@@ -11,6 +11,7 @@ on:
       - 'tests/test_genesis_v18_7_31_real_runtime_integration.py'
       - 'tests/test_genesis_v18_7_32_durable_session_key_lifecycle.py'
       - 'tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py'
+      - 'tests/test_play_genesis_v6_5_controlled_cli.py'
       - 'play_genesis.py'
       - '.github/workflows/janus-client-control-v6-5.yml'
   pull_request:
@@ -23,6 +24,7 @@ on:
       - 'tests/test_genesis_v18_7_31_real_runtime_integration.py'
       - 'tests/test_genesis_v18_7_32_durable_session_key_lifecycle.py'
       - 'tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py'
+      - 'tests/test_play_genesis_v6_5_controlled_cli.py'
       - 'play_genesis.py'
       - '.github/workflows/janus-client-control-v6-5.yml'
   workflow_dispatch:
@@ -48,17 +50,19 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Compile v6.5 descendants
+      - name: Compile v6.5 descendants and default CLI
         run: >-
           python -m py_compile
           janus_portable_lock_v2.py
           genesis_v18_7_31_portable_receipt_runtime.py
           genesis_v18_7_32_durable_session_key_lifecycle.py
           genesis_v18_7_33_inflight_duplicate_reconciliation.py
+          play_genesis.py
           tests/test_janus_portable_lock_v2.py
           tests/test_genesis_v18_7_31_real_runtime_integration.py
           tests/test_genesis_v18_7_32_durable_session_key_lifecycle.py
           tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py
+          tests/test_play_genesis_v6_5_controlled_cli.py
 
       - name: Run isolated portable lock v2 gates
         run: python -m unittest -v tests.test_janus_portable_lock_v2
@@ -72,6 +76,9 @@ jobs:
       - name: Run v18.7.32 durable session and key lifecycle gates
         run: python -m unittest -v tests.test_genesis_v18_7_32_durable_session_key_lifecycle
 
+      - name: Run default CLI stable request receipt gates
+        run: python -m unittest -v tests.test_play_genesis_v6_5_controlled_cli
+
       - name: Enforce v6.5 claim and failure-memory boundaries
         shell: bash
         run: |
@@ -81,6 +88,7 @@ jobs:
           v31 = ' '.join(Path('genesis_v18_7_31_portable_receipt_runtime.py').read_text(encoding='utf-8').split()).lower()
           v32 = ' '.join(Path('genesis_v18_7_32_durable_session_key_lifecycle.py').read_text(encoding='utf-8').split()).lower()
           v33 = ' '.join(Path('genesis_v18_7_33_inflight_duplicate_reconciliation.py').read_text(encoding='utf-8').split()).lower()
+          cli = ' '.join(Path('play_genesis.py').read_text(encoding='utf-8').split()).lower()
           required = [
               ('lock', lock, 'process-global'),
               ('lock', lock, 'not multi-host consensus'),
@@ -93,6 +101,9 @@ jobs:
               ('v32', v32, 'neither proves objective genealogy nor the truth of an external provider-world statement'),
               ('v33', v33, 'first v18.7.31 cross-platform ci run exposed a useful boundary mistake'),
               ('v33', v33, 'post-lock durable state decides'),
+              ('cli', cli, 'normal ``process_action`` entries are routed through the v18.7.33'),
+              ('cli', cli, 'repeating identical text under a new request id remains a new intent'),
+              ('cli', cli, 'forced exit have their own semantics'),
           ]
           missing = [(where, text) for where, haystack, text in required if text not in haystack]
           if missing:
