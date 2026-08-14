@@ -61,4 +61,4 @@ jobs:
           grep -F 'validated-but-unreceipted dispatch is UNDETERMINED' genesis_v18_7_23_face_recovery_saga.py
           grep -F 'multi-effect work is a saga, not falsely claimed atomicity' genesis_v18_7_23_face_recovery_saga.py
           grep -F 'bounded bypass prevents starvation' genesis_v18_7_23_face_recovery_saga.py
-          grep -F 'late authoritative receipt may still prove' genesis_v18_7_24_face_recovery_saga_hardened.py
+          grep -F 'authoritative late receipt' genesis_v18_7_24_face_recovery_saga_hardened.py
