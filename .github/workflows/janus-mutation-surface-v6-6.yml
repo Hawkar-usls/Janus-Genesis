@@ -7,10 +7,12 @@ on:
       - 'genesis_v18_7_37_recovery_safe_save_import.py'
       - 'genesis_v18_7_38_durable_network_outbox.py'
       - 'genesis_v18_7_39_typed_mutation_authority.py'
+      - 'play_genesis.py'
       - 'tests/test_genesis_v18_7_36_validated_registration_binding.py'
       - 'tests/test_genesis_v18_7_37_recovery_safe_save_import.py'
       - 'tests/test_genesis_v18_7_38_durable_network_outbox.py'
       - 'tests/test_genesis_v18_7_39_typed_mutation_authority.py'
+      - 'tests/test_play_genesis_v6_6_mutation_surface.py'
       - 'requirements.txt'
       - '.github/workflows/janus-mutation-surface-v6-6.yml'
   pull_request:
@@ -19,10 +21,12 @@ on:
       - 'genesis_v18_7_37_recovery_safe_save_import.py'
       - 'genesis_v18_7_38_durable_network_outbox.py'
       - 'genesis_v18_7_39_typed_mutation_authority.py'
+      - 'play_genesis.py'
       - 'tests/test_genesis_v18_7_36_validated_registration_binding.py'
       - 'tests/test_genesis_v18_7_37_recovery_safe_save_import.py'
       - 'tests/test_genesis_v18_7_38_durable_network_outbox.py'
       - 'tests/test_genesis_v18_7_39_typed_mutation_authority.py'
+      - 'tests/test_play_genesis_v6_6_mutation_surface.py'
       - 'requirements.txt'
       - '.github/workflows/janus-mutation-surface-v6-6.yml'
   workflow_dispatch:
@@ -38,7 +42,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 22
+    timeout-minutes: 24
     steps:
       - name: Checkout Janus Genesis
         uses: actions/checkout@v4
@@ -51,17 +55,19 @@ jobs:
       - name: Install canonical runtime dependencies
         run: python -m pip install -r requirements.txt
 
-      - name: Compile v6.6 descendants
+      - name: Compile v6.6 descendants and default CLI
         run: >-
           python -m py_compile
           genesis_v18_7_36_validated_registration_binding.py
           genesis_v18_7_37_recovery_safe_save_import.py
           genesis_v18_7_38_durable_network_outbox.py
           genesis_v18_7_39_typed_mutation_authority.py
+          play_genesis.py
           tests/test_genesis_v18_7_36_validated_registration_binding.py
           tests/test_genesis_v18_7_37_recovery_safe_save_import.py
           tests/test_genesis_v18_7_38_durable_network_outbox.py
           tests/test_genesis_v18_7_39_typed_mutation_authority.py
+          tests/test_play_genesis_v6_6_mutation_surface.py
 
       - name: Run validate-before-bind registration gates
         run: python -m unittest -v tests.test_genesis_v18_7_36_validated_registration_binding
@@ -75,6 +81,9 @@ jobs:
       - name: Run typed auxiliary mutation authority gates
         run: python -m unittest -v tests.test_genesis_v18_7_39_typed_mutation_authority
 
+      - name: Run default CLI mutation-surface gates
+        run: python -m unittest -v tests.test_play_genesis_v6_6_mutation_surface
+
       - name: Enforce v6.6 claim boundaries
         shell: bash
         run: |
@@ -84,6 +93,7 @@ jobs:
           v37 = ' '.join(Path('genesis_v18_7_37_recovery_safe_save_import.py').read_text(encoding='utf-8').split()).lower()
           v38 = ' '.join(Path('genesis_v18_7_38_durable_network_outbox.py').read_text(encoding='utf-8').split()).lower()
           v39 = ' '.join(Path('genesis_v18_7_39_typed_mutation_authority.py').read_text(encoding='utf-8').split()).lower()
+          cli = ' '.join(Path('play_genesis.py').read_text(encoding='utf-8').split()).lower()
           required = [
               ('v36', v36, 'validation an explicit pre-binding gate'),
               ('v36', v36, 'no durable registration request row is created until'),
@@ -101,6 +111,11 @@ jobs:
               ('v39', v39, 'share the same canonical world lock path'),
               ('v39', v39, 'canonical *cooperating api construction path*, not a python security sandbox'),
               ('v39', v39, 'does not claim global world-authority sealing or multi-host consensus'),
+              ('cli', cli, 'distinct control semantics to distinct mutation classes'),
+              ('cli', cli, 'portable save import requires an explicit request id'),
+              ('cli', cli, 'network resend is blocked after an ambiguous send'),
+              ('cli', cli, 'cooperating api discipline, not global python authority sealing'),
+              ('cli', cli, 'main() owns the one typed name-mutation request'),
           ]
           missing = [(where, text) for where, haystack, text in required if text not in haystack]
           if missing:
