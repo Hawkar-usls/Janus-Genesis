@@ -84,7 +84,7 @@ jobs:
       - name: Run default CLI mutation-surface gates
         run: python -m unittest -v tests.test_play_genesis_v6_6_mutation_surface
 
-      - name: Enforce v6.6 claim boundaries
+      - name: Enforce canonical v6.6 claim boundaries
         shell: bash
         run: |
           python - <<'PY'
@@ -93,7 +93,9 @@ jobs:
           v37 = ' '.join(Path('genesis_v18_7_37_recovery_safe_save_import.py').read_text(encoding='utf-8').split()).lower()
           v38 = ' '.join(Path('genesis_v18_7_38_durable_network_outbox.py').read_text(encoding='utf-8').split()).lower()
           v39 = ' '.join(Path('genesis_v18_7_39_typed_mutation_authority.py').read_text(encoding='utf-8').split()).lower()
-          cli = ' '.join(Path('play_genesis.py').read_text(encoding='utf-8').split()).lower()
+          # CLI behavior is executable policy in tests.test_play_genesis_v6_6_mutation_surface.
+          # Non-behavioral authority ceilings are canonicalized in the stable
+          # descendant modules below instead of duplicated as brittle facade prose.
           required = [
               ('v36', v36, 'validation an explicit pre-binding gate'),
               ('v36', v36, 'no durable registration request row is created until'),
@@ -110,13 +112,8 @@ jobs:
               ('v39', v39, 'typed request/receipt contracts rather than pretending one generic action envelope'),
               ('v39', v39, 'share the same canonical world lock path'),
               ('v39', v39, 'canonical *cooperating api construction path*, not a python security sandbox'),
+              ('v39', v39, 'raw ``playablegenesisv187`` object'),
               ('v39', v39, 'does not claim global world-authority sealing or multi-host consensus'),
-              ('cli', cli, 'distinct control semantics to distinct mutation classes'),
-              ('cli', cli, 'save import requires an explicit request id'),
-              ('cli', cli, 'network resend is blocked after an ambiguous send'),
-              ('cli', cli, 'raw ``playablegenesisv187`` construction'),
-              ('cli', cli, 'remain separately scoped'),
-              ('cli', cli, 'main() owns the one typed name-mutation request'),
           ]
           missing = [(where, text) for where, haystack, text in required if text not in haystack]
           if missing:
