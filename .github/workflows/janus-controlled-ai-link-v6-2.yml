@@ -12,6 +12,7 @@ on:
       - 'genesis_v18_7_26_controlled_ai_link.py'
       - 'tests/test_genesis_v18_7_19_ai_link_play.py'
       - 'tests/test_genesis_v18_7_26_controlled_ai_link.py'
+      - 'requirements.txt'
       - '.github/workflows/janus-controlled-ai-link-v6-2.yml'
   pull_request:
     paths:
@@ -24,6 +25,7 @@ on:
       - 'genesis_v18_7_26_controlled_ai_link.py'
       - 'tests/test_genesis_v18_7_19_ai_link_play.py'
       - 'tests/test_genesis_v18_7_26_controlled_ai_link.py'
+      - 'requirements.txt'
       - '.github/workflows/janus-controlled-ai-link-v6-2.yml'
   workflow_dispatch:
 
@@ -42,6 +44,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Install runtime dependencies
+        run: python -m pip install -r requirements.txt
 
       - name: Compile controlled AI-link chain
         run: |
