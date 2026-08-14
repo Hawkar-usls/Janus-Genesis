@@ -1,0 +1,67 @@
+name: JANUS session review v6.3
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_19_ai_link_play.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'genesis_v18_7_26_controlled_ai_link.py'
+      - 'genesis_v18_7_27_session_review_reconciliation.py'
+      - 'tests/test_genesis_v18_7_26_controlled_ai_link.py'
+      - 'tests/test_genesis_v18_7_27_session_review_reconciliation.py'
+      - 'requirements.txt'
+      - '.github/workflows/janus-session-review-v6-3.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_19_ai_link_play.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'genesis_v18_7_26_controlled_ai_link.py'
+      - 'genesis_v18_7_27_session_review_reconciliation.py'
+      - 'tests/test_genesis_v18_7_26_controlled_ai_link.py'
+      - 'tests/test_genesis_v18_7_27_session_review_reconciliation.py'
+      - 'requirements.txt'
+      - '.github/workflows/janus-session-review-v6-3.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-session-review-v6-3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install runtime dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Compile v6.3 control chain
+        run: |
+          python -m py_compile \
+            genesis_v18_7_19_ai_link_play.py \
+            genesis_v18_7_25_durable_journal_fencing.py \
+            genesis_v18_7_26_controlled_ai_link.py \
+            genesis_v18_7_27_session_review_reconciliation.py
+
+      - name: Run v18.7.27 session review reconciliation tests
+        run: python -m unittest -v tests.test_genesis_v18_7_27_session_review_reconciliation
+
+      - name: Re-run v18.7.26 controlled AI-link tests
+        run: python -m unittest -v tests.test_genesis_v18_7_26_controlled_ai_link
+
+      - name: Re-run v18.7.25 durable control tests
+        run: python -m unittest -v tests.test_genesis_v18_7_25_durable_journal_fencing
+
+      - name: Enforce v6.3 constitutional strings
+        run: |
+          grep -F 'Review independence is' genesis_v18_7_27_session_review_reconciliation.py
+          grep -F 'counted by lineage root, never by raw face count' genesis_v18_7_27_session_review_reconciliation.py
+          grep -F 'not a multi-host consensus claim' genesis_v18_7_27_session_review_reconciliation.py
+          grep -F 'explicit contract boundary' genesis_v18_7_27_session_review_reconciliation.py
