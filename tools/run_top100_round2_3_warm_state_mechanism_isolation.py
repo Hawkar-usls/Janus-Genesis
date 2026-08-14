@@ -90,7 +90,7 @@ def validate_config(config: dict[str, Any]) -> tuple[dict[str, Any], dict[str, A
         raise ValueError("Round-2.3 changed Round-1 pack blob")
     if critical_ref["canonical_sha256"] != critical["critical_set_canonical_sha256"]:
         raise ValueError("Round-2.3 changed frozen critical-set hash")
-    if int(critical_ref["count"]) != int(critical["critical_set_count"]) != 8:
+    if int(critical_ref["count"]) != 8 or int(critical["critical_set_count"]) != 8:
         raise ValueError("Round-2.3 expects frozen critical set of eight")
 
     q8 = config["q8_0"]
@@ -215,13 +215,13 @@ def _mechanism_summary(config: dict[str, Any], assessments: dict[str, Any]) -> d
             row["pass_count"] == row["trial_count"] and row["unique_output_count"] == 1
             for row in cold.values()
         ),
-        "causal_internal_mechanism_established": false if False else False,
+        "causal_internal_mechanism_established": False,
         "interpretation": "The summary detects associations among identical-payload warm repetition, prompt order, and separator insertion. It does not name an internal causal mechanism."
     }
 
 
 def execute(config: dict[str, Any], *, endpoint: str, docker_image: str, timeout: float) -> dict[str, Any]:
-    parent22, critical, pack, provenance = validate_config(config)
+    _parent22, critical, pack, provenance = validate_config(config)
     for key, wanted in config["required_environment"].items():
         if os.environ.get(key) != str(wanted):
             raise RuntimeError(f"required environment mismatch {key}: {os.environ.get(key)!r} != {wanted!r}")
