@@ -1,0 +1,75 @@
+name: JANUS controlled AI-link v6.2
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_19_ai_link_play.py'
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'genesis_v18_7_23_face_recovery_saga.py'
+      - 'genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'genesis_v18_7_26_controlled_ai_link.py'
+      - 'tests/test_genesis_v18_7_19_ai_link_play.py'
+      - 'tests/test_genesis_v18_7_26_controlled_ai_link.py'
+      - '.github/workflows/janus-controlled-ai-link-v6-2.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_19_ai_link_play.py'
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'genesis_v18_7_23_face_recovery_saga.py'
+      - 'genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'genesis_v18_7_26_controlled_ai_link.py'
+      - 'tests/test_genesis_v18_7_19_ai_link_play.py'
+      - 'tests/test_genesis_v18_7_26_controlled_ai_link.py'
+      - '.github/workflows/janus-controlled-ai-link-v6-2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-controlled-ai-link-v6-2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile controlled AI-link chain
+        run: |
+          python -m py_compile \
+            genesis_v18_7_19_ai_link_play.py \
+            genesis_v18_7_21_face_microcontrol.py \
+            genesis_v18_7_22_face_authority_epoch.py \
+            genesis_v18_7_23_face_recovery_saga.py \
+            genesis_v18_7_24_face_recovery_saga_hardened.py \
+            genesis_v18_7_25_durable_journal_fencing.py \
+            genesis_v18_7_26_controlled_ai_link.py
+
+      - name: Run v18.7.26 controlled AI-link tests
+        run: python -m unittest -v tests.test_genesis_v18_7_26_controlled_ai_link
+
+      - name: Re-run v18.7.19 AI-link tests
+        run: python -m unittest -v tests.test_genesis_v18_7_19_ai_link_play
+
+      - name: Re-run v18.7.25 durable control tests
+        run: python -m unittest -v tests.test_genesis_v18_7_25_durable_journal_fencing
+
+      - name: Re-run v18.7.24 recovery saga tests
+        run: python -m unittest -v tests.test_genesis_v18_7_24_face_recovery_saga_hardened
+
+      - name: Enforce v6.2 claim-boundary strings
+        run: |
+          grep -F 'SHADOW mode observes the existing' genesis_v18_7_26_controlled_ai_link.py
+          grep -F 'RUNTIME_EFFECT_CALL_ENTERING' genesis_v18_7_26_controlled_ai_link.py
+          grep -F 'automatic replay is blocked' genesis_v18_7_26_controlled_ai_link.py
+          grep -F 'not multi-host' genesis_v18_7_26_controlled_ai_link.py
+          grep -F 'reference verifier contract' genesis_v18_7_26_controlled_ai_link.py
