@@ -13,6 +13,7 @@ on:
       - 'tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py'
       - 'tests/test_play_genesis_v6_5_controlled_cli.py'
       - 'play_genesis.py'
+      - 'requirements.txt'
       - '.github/workflows/janus-client-control-v6-5.yml'
   pull_request:
     paths:
@@ -26,6 +27,7 @@ on:
       - 'tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py'
       - 'tests/test_play_genesis_v6_5_controlled_cli.py'
       - 'play_genesis.py'
+      - 'requirements.txt'
       - '.github/workflows/janus-client-control-v6-5.yml'
   workflow_dispatch:
 
@@ -49,6 +51,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Install canonical runtime dependencies
+        run: python -m pip install -r requirements.txt
 
       - name: Compile v6.5 descendants and default CLI
         run: >-
