@@ -1,0 +1,114 @@
+{
+  "schema": "janus.genesis.round2_3_warm_state_mechanism_isolation.v1",
+  "campaign": "JANUS_TOP100_ROUND2_3_WARM_STATE_MECHANISM_ISOLATION_v0.1",
+  "parent_round2_2": {
+    "head_sha": "0df227c9acd86c147ca5d334411b48ad4c651bd5",
+    "config_path": "benchmarks/round2_2_nondeterminism_isolation_v0.1.json",
+    "config_git_blob_sha1": "652521df326080ad3666c3b3a77ebdc3474f3185",
+    "workflow_run_id": 31834021069,
+    "report_sha256": "a6a596898769fdba79572003f0c216f6f54431dc7d6ed35dfa5f790735049b6a",
+    "report_raw_git_blob_sha1": "9e5a28b878cf441c74f930e112ba46ddaecadace",
+    "warm_full_trace_sha256": "71b2ee5894e7312c939fbc932a0dc8847d0c797ad9772420f2c38774507640e4",
+    "cold_full_trace_sha256": "2196ba13a201aa8b8d2c7cdb96aa0a624ddbce04c3cd6dc15166d54c4b439f56"
+  },
+  "parent_round2_1_experimental_spec_fingerprint_sha256": "28173fb94cff1b2e0b741fc9e3bf1f529abc57818a965d4cc182842805f54657",
+  "critical_reference": {
+    "path": "benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json",
+    "git_blob_sha1": "6743337b8a6357783858c71fad01720d034b63ca",
+    "canonical_sha256": "aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c",
+    "count": 8
+  },
+  "round1_pack": {
+    "path": "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
+    "git_blob_sha1": "ca27652feb3532ff52e8453dd055b608711b0d43"
+  },
+  "q8_0": {
+    "id": "Q8_0",
+    "tag": "qwen2.5:0.5b-instruct-q8_0",
+    "expected_digest": "84d044692a2ce0a5a063d3177ca7a69fb189fd81b3139a7a3ead74ccf42a51dc",
+    "expected_size_bytes": 531081605
+  },
+  "inference": {
+    "temperature": 0.0,
+    "seed": 1138,
+    "num_predict": 512,
+    "backend_attempt_limit": 4
+  },
+  "required_environment": {
+    "OLLAMA_NUM_PARALLEL": "1",
+    "OLLAMA_MAX_LOADED_MODELS": "1"
+  },
+  "focal_samples": {
+    "GSM": "gsm8k-test-0000",
+    "TRUTH": "truthfulqa-row-0004",
+    "STABLE_SEPARATOR": "gsm8k-test-0001"
+  },
+  "phases": [
+    {
+      "id": "Q8_WARM_GSM_ALONE",
+      "cycles": 12,
+      "sequence": ["gsm8k-test-0000"],
+      "stop_before_each_request": false,
+      "purpose": "Repeat one identical GSM request payload consecutively inside one warm Q8 model process."
+    },
+    {
+      "id": "Q8_WARM_TRUTH_ALONE",
+      "cycles": 12,
+      "sequence": ["truthfulqa-row-0004"],
+      "stop_before_each_request": false,
+      "purpose": "Repeat one identical TruthfulQA request payload consecutively inside one warm Q8 model process."
+    },
+    {
+      "id": "Q8_WARM_PAIR_GSM_TRUTH",
+      "cycles": 12,
+      "sequence": ["gsm8k-test-0000", "truthfulqa-row-0004"],
+      "stop_before_each_request": false,
+      "purpose": "Reproduce the Round-2.2 focused ordering under a fresh phase-start load."
+    },
+    {
+      "id": "Q8_WARM_PAIR_TRUTH_GSM",
+      "cycles": 12,
+      "sequence": ["truthfulqa-row-0004", "gsm8k-test-0000"],
+      "stop_before_each_request": false,
+      "purpose": "Reverse focal prompt order while preserving all inference parameters and warm residency."
+    },
+    {
+      "id": "Q8_WARM_GSM_WITH_STABLE_SEPARATOR",
+      "cycles": 12,
+      "sequence": ["gsm8k-test-0000", "gsm8k-test-0001"],
+      "stop_before_each_request": false,
+      "purpose": "Insert a previously stable critical sample after each focal GSM request to test prior-request sequence sensitivity."
+    },
+    {
+      "id": "Q8_WARM_TRUTH_WITH_STABLE_SEPARATOR",
+      "cycles": 12,
+      "sequence": ["truthfulqa-row-0004", "gsm8k-test-0001"],
+      "stop_before_each_request": false,
+      "purpose": "Insert the same stable separator after each focal TruthfulQA request."
+    },
+    {
+      "id": "Q8_COLD_FOCUS_CONFIRM",
+      "cycles": 12,
+      "sequence": ["gsm8k-test-0000", "truthfulqa-row-0004"],
+      "stop_before_each_request": true,
+      "purpose": "Same-run cold control: unload Q8 before every focal request."
+    }
+  ],
+  "expected_accounting": {
+    "phase_count": 7,
+    "target_record_count": 144
+  },
+  "diagnostic_semantics": {
+    "critical_membership_changed": false,
+    "admission_rule_changed": false,
+    "promotion_rule_changed": false,
+    "model_identity_changed": false,
+    "seed_temperature_num_predict_changed": false,
+    "raw_output_text_persisted": false,
+    "request_payload_sha256_persisted": true,
+    "output_sha256_persisted": true,
+    "llama_server_process_identity_persisted": true,
+    "causal_mechanism_claimed": false
+  },
+  "claim_ceiling": "Round-2.3 can determine whether identical request payloads diverge within a continuously warm Q8_0 model process and whether focal traces are associated with prompt order or insertion of a stable separator. Process identity is recorded to distinguish same-process warm execution from forced reload execution. The experiment does not by itself prove the internal causal mechanism, universal nondeterminism, lossless quantization, official benchmark accuracy, or permission to promote Q8_0."
+}
