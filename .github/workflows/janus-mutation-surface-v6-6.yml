@@ -114,7 +114,8 @@ jobs:
               ('cli', cli, 'distinct control semantics to distinct mutation classes'),
               ('cli', cli, 'save import requires an explicit request id'),
               ('cli', cli, 'network resend is blocked after an ambiguous send'),
-              ('cli', cli, 'cooperating api discipline, not global python authority sealing'),
+              ('cli', cli, 'raw ``playablegenesisv187`` construction'),
+              ('cli', cli, 'remain separately scoped'),
               ('cli', cli, 'main() owns the one typed name-mutation request'),
           ]
           missing = [(where, text) for where, haystack, text in required if text not in haystack]
