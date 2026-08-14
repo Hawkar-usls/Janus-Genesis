@@ -1,0 +1,167 @@
+name: Top-100 Round-2.2 Nondeterminism Isolation
+
+on:
+  pull_request:
+    paths:
+      - "benchmarks/round2_2_nondeterminism_isolation_v0.1.json"
+      - "benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json"
+      - "benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json"
+      - "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json"
+      - "benchmarks/frozen_receipts/top100_round2_quantization_routing_report_v0.1.json.gz.b64"
+      - "tools/run_top100_round1_stratified.py"
+      - "tools/run_top100_round2_1_capability_admission.py"
+      - "tools/run_top100_round2_1_capability_admission_hardened.py"
+      - "tools/run_top100_round2_2_nondeterminism_isolation.py"
+      - "tests/test_top100_round2_2_nondeterminism_isolation.py"
+      - ".github/workflows/top100-round2-2-nondeterminism-isolation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nondeterminism-isolation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      OLLAMA_HOST: 127.0.0.1:11434
+      OLLAMA_NUM_PARALLEL: "1"
+      OLLAMA_MAX_LOADED_MODELS: "1"
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile and unit-test isolation semantics
+        run: |
+          python -m py_compile \
+            tools/run_top100_round2_2_nondeterminism_isolation.py \
+            tests/test_top100_round2_2_nondeterminism_isolation.py
+          python -m json.tool benchmarks/round2_2_nondeterminism_isolation_v0.1.json >/dev/null
+          python -m unittest tests.test_top100_round2_2_nondeterminism_isolation -v
+
+      - name: Verify frozen parent lineage before inference
+        run: |
+          test "$(git hash-object benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json)" = "a88952b4c71f86369512c94b618f27e63e5db447"
+          test "$(git hash-object benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json)" = "6743337b8a6357783858c71fad01720d034b63ca"
+          test "$(git hash-object benchmarks/frozen_samples/top100_round1_stratified_v0.1.json)" = "ca27652feb3532ff52e8453dd055b608711b0d43"
+          test "$(git hash-object benchmarks/frozen_receipts/top100_round2_quantization_routing_report_v0.1.json.gz.b64)" = "c8e5b2f07dfaa7d7e86d10794bba4543417c22d6"
+          echo "CRITICAL_SET_CANONICAL_SHA256=aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c"
+          echo "PARENT_EXPERIMENTAL_SPEC_FINGERPRINT=28173fb94cff1b2e0b741fc9e3bf1f529abc57818a965d4cc182842805f54657"
+
+      - name: Install pinned Ollama 0.30.8
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq zstd
+          curl -fsSL https://github.com/ollama/ollama/releases/download/v0.30.8/install.sh -o /tmp/ollama-install.sh
+          echo "25f64b810b947145095956533e1bdf56eacea2673c55a7e586be4515fc882c9f  /tmp/ollama-install.sh" | sha256sum -c -
+          OLLAMA_VERSION=0.30.8 OLLAMA_NO_START=1 sh /tmp/ollama-install.sh
+
+      - name: Start Ollama and pull exact Q8_0 and FP16 identities
+        run: |
+          nohup ollama serve > /tmp/ollama-round22.log 2>&1 &
+          for i in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:11434/api/version >/tmp/ollama-version.json && break
+            sleep 1
+          done
+          for tag in \
+            qwen2.5:0.5b-instruct-q8_0 \
+            qwen2.5:0.5b-instruct-fp16
+          do
+            pulled=0
+            for attempt in 1 2 3 4; do
+              if ollama pull "$tag"; then
+                pulled=1
+                echo "MODEL_PULL_SUCCESS tag=$tag attempt=$attempt"
+                break
+              fi
+              echo "MODEL_PULL_RETRY tag=$tag attempt=$attempt/4"
+              [ "$attempt" -eq 4 ] || sleep 3
+            done
+            [ "$pulled" -eq 1 ]
+          done
+          python - <<'PY'
+          import json
+          import urllib.request
+          value = json.load(urllib.request.urlopen("http://127.0.0.1:11434/api/tags"))
+          rows = {r.get("name") or r.get("model"): r for r in value["models"]}
+          expected = {
+              "qwen2.5:0.5b-instruct-q8_0":
+                  "84d044692a2ce0a5a063d3177ca7a69fb189fd81b3139a7a3ead74ccf42a51dc",
+              "qwen2.5:0.5b-instruct-fp16":
+                  "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547",
+          }
+          for tag, digest in expected.items():
+              row = rows[tag]
+              assert row["digest"] == digest, (tag, row["digest"], digest)
+              print(f"MODEL_IDENTITY_VERIFIED tag={tag} digest={digest} size={row['size']}")
+          PY
+          ollama ps
+
+      - name: Execute frozen nondeterminism isolation matrix
+        run: |
+          mkdir -p artifacts/top100-round2-2
+          python -m tools.run_top100_round2_2_nondeterminism_isolation \
+            --config benchmarks/round2_2_nondeterminism_isolation_v0.1.json \
+            --endpoint http://127.0.0.1:11434 \
+            --pretty > artifacts/top100-round2-2/report.json
+
+      - name: Validate report accounting and print localization
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          path = Path("artifacts/top100-round2-2/report.json")
+          raw = path.read_bytes()
+          r = json.loads(raw)
+
+          assert r["schema"] == "janus.genesis.top100.round2_2_nondeterminism_isolation_report.v1"
+          assert r["frozen_lineage"]["critical_set_count"] == 8
+          assert r["frozen_lineage"]["critical_set_canonical_sha256"] == "aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c"
+          assert r["parent_round2_1"]["experimental_spec_fingerprint_sha256"] == "28173fb94cff1b2e0b741fc9e3bf1f529abc57818a965d4cc182842805f54657"
+          assert r["models"]["Q8_0"]["digest"] == "84d044692a2ce0a5a063d3177ca7a69fb189fd81b3139a7a3ead74ccf42a51dc"
+          assert r["models"]["FP16"]["digest"] == "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547"
+          assert r["phase_count"] == 6
+          assert r["target_record_count"] == 144
+          assert r["primer_record_count"] == 24
+          assert r["actual_inference_call_count"] == 168
+          assert r["admission_decision_changed_by_this_diagnostic"] is False
+          assert r["authoritative_runtime_changed_by_this_diagnostic"] is False
+          assert r["causal_source_of_nondeterminism_claimed"] is False
+          assert r["bitwise_determinism_claimed"] is False
+          assert r["canonical_world_state_mutated"] is False
+
+          p = r["frozen_lineage"]["provenance_verification"]
+          assert p["status"] == "VERIFIED_AGAINST_ACTUAL_CONSUMED_BYTES"
+          assert p["critical_set_derivation"]["derived_pass_count"] == 8
+          assert p["critical_set_derivation"]["equals_frozen_critical_projection"] is True
+
+          print("REPORT_SHA256=" + hashlib.sha256(raw).hexdigest())
+          print("REPORT_BYTES=" + str(len(raw)))
+          print("ENVIRONMENT_FINGERPRINT=" + r["environment"]["environment_fingerprint_sha256"])
+          print("TARGET_BACKEND_ATTEMPTS=" + json.dumps(r["target_backend_attempt_distribution"], sort_keys=True))
+          print("PRIMER_BACKEND_ATTEMPTS=" + json.dumps(r["primer_backend_attempt_distribution"], sort_keys=True))
+          for phase_id, a in r["assessments"].items():
+              print(
+                  f"PHASE={phase_id} PASS={a['pass_count']}/{a['target_record_count']} "
+                  f"FAILED={','.join(a['failed_sample_ids']) or '-'} "
+                  f"STATUS_UNSTABLE={','.join(a['within_phase_status_instability']) or '-'} "
+                  f"OUTPUT_DIVERGENT={','.join(a['within_phase_output_divergence']) or '-'}"
+              )
+          print("LOCALIZATION=" + r["localization"]["classification"])
+          PY
+
+      - name: Upload Round-2.2 isolation receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-top100-round2-2-nondeterminism-isolation
+          path: artifacts/top100-round2-2/report.json
+          if-no-files-found: error
+          retention-days: 30
