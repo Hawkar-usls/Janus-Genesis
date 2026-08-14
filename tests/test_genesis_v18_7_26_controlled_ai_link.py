@@ -8,7 +8,6 @@ from genesis_v18_7_19_ai_link_play import (
     MODE_AUTHORITATIVE,
     ORIGIN_HUMAN,
     ROLE_HUMAN_THROUGH_AI,
-    GenesisAILinkGateway,
 )
 from genesis_v18_7_25_durable_journal_fencing import (
     DurableHashJournal,
@@ -29,6 +28,35 @@ from genesis_v18_7_26_controlled_ai_link import (
     RuntimeRequestConflict,
 )
 from genesis_v18_7_playable import PlayableGenesisV187
+
+
+class RecordingWorld:
+    """Transparent spy around one canonical world call.
+
+    Shadow transparency must be tested against the exact forwarded runtime call,
+    not by comparing two independent stochastic Genesis runs whose narrative
+    details are allowed to differ.
+    """
+
+    def __init__(self, world):
+        self.world = world
+        self.calls = []
+
+    def __getattr__(self, name):
+        return getattr(self.world, name)
+
+    def process_action(self, player_id, action):
+        result = self.world.process_action(player_id, action)
+        self.calls.append(
+            {
+                "player_id": player_id,
+                "action": action,
+                "result": result,
+                "result_public": result.to_dict(),
+                "result_internal": result.to_dict(internal=True),
+            }
+        )
+        return result
 
 
 class ControlledAILinkTests(unittest.TestCase):
@@ -54,41 +82,37 @@ class ControlledAILinkTests(unittest.TestCase):
             actor_id="mira",
         )
 
-    def test_shadow_mode_preserves_existing_authoritative_result_and_state(self):
+    def test_shadow_mode_forwards_exact_canonical_result_once_without_gating(self):
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            base_dir = root / "base"
-            shadow_dir = root / "shadow"
-            base_world = PlayableGenesisV187(base_dir)
-            shadow_world = PlayableGenesisV187(shadow_dir)
-            base_gateway = GenesisAILinkGateway(base_world, base_dir)
-            shadow_adapter = self._control(shadow_world, shadow_dir, mode=ControlMode.SHADOW)
+            world = PlayableGenesisV187(root)
+            recording_world = RecordingWorld(world)
+            shadow_adapter = self._control(recording_world, root, mode=ControlMode.SHADOW)
             shadow_gateway = ControlledGenesisAILinkGateway(
-                shadow_world,
-                shadow_dir,
+                recording_world,
+                root,
                 adapter=shadow_adapter,
             )
-            base_session = self._register(base_gateway)
-            shadow_session = self._register(shadow_gateway)
+            session = self._register(shadow_gateway)
             action = "построить мост и оставить право не переходить"
 
-            base_turn = base_gateway.process_turn(
-                base_session["session_id"],
-                action,
-                origin=ORIGIN_HUMAN,
-                human_confirmed=True,
-            )
             shadow_turn = shadow_gateway.process_turn(
-                shadow_session["session_id"],
+                session["session_id"],
                 action,
                 origin=ORIGIN_HUMAN,
                 human_confirmed=True,
             )
+
+            self.assertEqual(len(recording_world.calls), 1)
+            forwarded = recording_world.calls[0]
+            self.assertEqual(forwarded["player_id"], "mira")
+            self.assertEqual(forwarded["action"], action)
             self.assertEqual(
                 shadow_turn["result"]["runtime_result"],
-                base_turn["result"]["runtime_result"],
+                forwarded["result_public"],
             )
-            self.assertEqual(shadow_world.public_state("mira"), base_world.public_state("mira"))
+            self.assertTrue(shadow_turn["result"]["authoritative_runtime"])
+            self.assertTrue(shadow_turn["result"]["canonical_runtime_outcome_recorded"])
             events = shadow_adapter.journal.replay()
             self.assertEqual([e.event_type for e in events], ["SHADOW_RUNTIME_PRE", "SHADOW_RUNTIME_POST"])
 
