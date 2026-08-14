@@ -112,7 +112,7 @@ jobs:
               ('v39', v39, 'canonical *cooperating api construction path*, not a python security sandbox'),
               ('v39', v39, 'does not claim global world-authority sealing or multi-host consensus'),
               ('cli', cli, 'distinct control semantics to distinct mutation classes'),
-              ('cli', cli, 'portable save import requires an explicit request id'),
+              ('cli', cli, 'save import requires an explicit request id'),
               ('cli', cli, 'network resend is blocked after an ambiguous send'),
               ('cli', cli, 'cooperating api discipline, not global python authority sealing'),
               ('cli', cli, 'main() owns the one typed name-mutation request'),
