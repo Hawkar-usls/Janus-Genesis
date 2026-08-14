@@ -5,16 +5,24 @@ on:
     paths:
       - 'janus_portable_lock_v2.py'
       - 'genesis_v18_7_31_portable_receipt_runtime.py'
-      - 'tests/test_genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'genesis_v18_7_32_durable_session_key_lifecycle.py'
+      - 'genesis_v18_7_33_inflight_duplicate_reconciliation.py'
+      - 'tests/test_janus_portable_lock_v2.py'
       - 'tests/test_genesis_v18_7_31_real_runtime_integration.py'
+      - 'tests/test_genesis_v18_7_32_durable_session_key_lifecycle.py'
+      - 'tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py'
       - 'play_genesis.py'
       - '.github/workflows/janus-client-control-v6-5.yml'
   pull_request:
     paths:
       - 'janus_portable_lock_v2.py'
       - 'genesis_v18_7_31_portable_receipt_runtime.py'
-      - 'tests/test_genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'genesis_v18_7_32_durable_session_key_lifecycle.py'
+      - 'genesis_v18_7_33_inflight_duplicate_reconciliation.py'
+      - 'tests/test_janus_portable_lock_v2.py'
       - 'tests/test_genesis_v18_7_31_real_runtime_integration.py'
+      - 'tests/test_genesis_v18_7_32_durable_session_key_lifecycle.py'
+      - 'tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py'
       - 'play_genesis.py'
       - '.github/workflows/janus-client-control-v6-5.yml'
   workflow_dispatch:
@@ -30,7 +38,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 15
+    timeout-minutes: 18
     steps:
       - name: Checkout Janus Genesis
         uses: actions/checkout@v4
@@ -40,31 +48,53 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Compile v6.5 portable runtime
-        run: python -m py_compile janus_portable_lock_v2.py genesis_v18_7_31_portable_receipt_runtime.py tests/test_genesis_v18_7_31_portable_receipt_runtime.py tests/test_genesis_v18_7_31_real_runtime_integration.py
+      - name: Compile v6.5 descendants
+        run: >-
+          python -m py_compile
+          janus_portable_lock_v2.py
+          genesis_v18_7_31_portable_receipt_runtime.py
+          genesis_v18_7_32_durable_session_key_lifecycle.py
+          genesis_v18_7_33_inflight_duplicate_reconciliation.py
+          tests/test_janus_portable_lock_v2.py
+          tests/test_genesis_v18_7_31_real_runtime_integration.py
+          tests/test_genesis_v18_7_32_durable_session_key_lifecycle.py
+          tests/test_genesis_v18_7_33_inflight_duplicate_reconciliation.py
 
-      - name: Run v18.7.31 adversarial portable tests
-        run: python -m unittest -v tests.test_genesis_v18_7_31_portable_receipt_runtime
+      - name: Run isolated portable lock v2 gates
+        run: python -m unittest -v tests.test_janus_portable_lock_v2
 
-      - name: Run v18.7.31 real canonical integration
+      - name: Run v18.7.33 in-flight duplicate reconciliation gates
+        run: python -m unittest -v tests.test_genesis_v18_7_33_inflight_duplicate_reconciliation
+
+      - name: Run v18.7.31 real canonical crash/replay integration
         run: python -m unittest -v tests.test_genesis_v18_7_31_real_runtime_integration
 
-      - name: Enforce v6.5 portable claim boundaries
+      - name: Run v18.7.32 durable session and key lifecycle gates
+        run: python -m unittest -v tests.test_genesis_v18_7_32_durable_session_key_lifecycle
+
+      - name: Enforce v6.5 claim and failure-memory boundaries
         shell: bash
         run: |
           python - <<'PY'
           from pathlib import Path
           lock = ' '.join(Path('janus_portable_lock_v2.py').read_text(encoding='utf-8').split()).lower()
-          runtime = ' '.join(Path('genesis_v18_7_31_portable_receipt_runtime.py').read_text(encoding='utf-8').split()).lower()
+          v31 = ' '.join(Path('genesis_v18_7_31_portable_receipt_runtime.py').read_text(encoding='utf-8').split()).lower()
+          v32 = ' '.join(Path('genesis_v18_7_32_durable_session_key_lifecycle.py').read_text(encoding='utf-8').split()).lower()
+          v33 = ' '.join(Path('genesis_v18_7_33_inflight_duplicate_reconciliation.py').read_text(encoding='utf-8').split()).lower()
           required = [
               ('lock', lock, 'process-global'),
               ('lock', lock, 'not multi-host consensus'),
-              ('runtime', runtime, 'identical action text with a new request_id is a new intent'),
-              ('runtime', runtime, 'prefers false uncertainty to duplicate world execution'),
-              ('runtime', runtime, 'full canonical runtime result envelope'),
-              ('runtime', runtime, 'other mutating entry points need their own explicit request boundary'),
+              ('v31', v31, 'identical action text with a new request_id is a new intent'),
+              ('v31', v31, 'prefers false uncertainty to duplicate world execution'),
+              ('v31', v31, 'full canonical runtime result envelope'),
+              ('v31', v31, 'other mutating entry points need their own explicit request boundary'),
+              ('v32', v32, 'directory-entry power-loss durability is kept outside the claim ceiling'),
+              ('v32', v32, 'not a shared cross-store transaction'),
+              ('v32', v32, 'neither proves objective genealogy nor the truth of an external provider-world statement'),
+              ('v33', v33, 'first v18.7.31 cross-platform ci run exposed a useful boundary mistake'),
+              ('v33', v33, 'post-lock durable state decides'),
           ]
           missing = [(where, text) for where, haystack, text in required if text not in haystack]
           if missing:
-              raise SystemExit('missing v6.5 portable semantics: ' + repr(missing))
+              raise SystemExit('missing v6.5 semantics: ' + repr(missing))
           PY
