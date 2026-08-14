@@ -1,9 +1,20 @@
 # -*- coding: utf-8 -*-
-"""Primary playable CLI for Janus Genesis v18.7."""
+"""Primary playable CLI for Janus Genesis v18.7.
+
+Normal ``process_action`` entries are routed through the v18.7.33 portable
+stable-request receipt boundary. A logical retry must reuse its request ID;
+repeating identical text under a new request ID remains a new intent.
+
+This does not claim that every mutating utility in this file is transactionally
+covered. In particular save import/export, network publication and forced exit
+have their own semantics and must not inherit the process_action claim merely
+because the normal action path is protected.
+"""
 from __future__ import annotations
 
 import argparse
 import json
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -12,6 +23,17 @@ from genesis_v18_7_ai import AIProviderConfig, GenesisAIBridge, build_provider
 from genesis_v18_7_network import ALLOWED_EVENT_KINDS, GenesisNetworkClient
 from genesis_v18_7_playable import PLAYABLE_VERSION, PlayableGenesisV187
 from genesis_v18_7_portable import PortableSaveManager
+from genesis_v18_7_31_portable_receipt_runtime import (
+    PortableRequestConflict,
+    PortableRuntimeControlError,
+    PortableRuntimeOutcomeUndetermined,
+    PortableRuntimeReceiptIntegrityError,
+)
+from genesis_v18_7_33_inflight_duplicate_reconciliation import (
+    ReconciledPortableReceiptRuntimeAdapter,
+)
+
+CONTROL_CLIENT_ID = "play-genesis"
 
 
 def banner() -> None:
@@ -28,6 +50,44 @@ def print_result(result: WorldResult) -> None:
     for index, choice in enumerate(result.choices, 1):
         print(f"{index}. {choice}")
     print()
+
+
+def _new_request_id(prefix: str = "CLI") -> str:
+    return f"{prefix}-{uuid.uuid4().hex}"
+
+
+def _build_controlled_runtime(world: PlayableGenesisV187, data_dir: Path):
+    return ReconciledPortableReceiptRuntimeAdapter(world, data_dir)
+
+
+def _control_error_payload(runtime, request_id: str, exc: BaseException) -> dict[str, Any]:
+    return {
+        "status": "JANUS_CONTROL_BLOCKED",
+        "client_id": CONTROL_CLIENT_ID,
+        "request_id": request_id,
+        "error_type": type(exc).__name__,
+        "error": str(exc),
+        "request_state": runtime.request_state(
+            client_id=CONTROL_CLIENT_ID,
+            request_id=request_id,
+        ),
+        "automatic_reexecution_attempted": False,
+    }
+
+
+def _execute_controlled(
+    runtime,
+    *,
+    player_id: str,
+    action: str,
+    request_id: str,
+) -> WorldResult:
+    return runtime.execute(
+        client_id=CONTROL_CLIENT_ID,
+        request_id=request_id,
+        actor_id=player_id,
+        action=action,
+    )
 
 
 def _build_ai_bridge(args: argparse.Namespace) -> GenesisAIBridge | None:
@@ -89,6 +149,7 @@ def play(
     network: GenesisNetworkClient | None = None,
 ) -> int:
     world = PlayableGenesisV187(data_dir)
+    runtime = _build_controlled_runtime(world, data_dir)
     saves = PortableSaveManager(data_dir)
     if name:
         world.set_display_name(player_id, name)
@@ -109,8 +170,9 @@ def play(
         "Локальный JSON-save остаётся источником истины устройства; общий hub передаёт лишь явно публичные события.\n"
         "Молчание допустимо. Отсутствие ответа не является согласием, любовью, прощением или обещанием вернуться.\n"
         "Разрушительный поступок и выход требуют повторного подтверждения.\n"
+        "Каждое обычное действие получает request_id. Для логического повтора используй /retry REQUEST_ID ДЕЙСТВИЕ.\n"
     )
-    commands = ["/save PATH"]
+    commands = ["/save PATH", "/retry REQUEST_ID ДЕЙСТВИЕ", "/request REQUEST_ID"]
     if ai_bridge is not None:
         commands.append("/ai НАМЕРЕНИЕ")
     if network is not None:
@@ -122,12 +184,37 @@ def play(
             action = input("🌀 > ").strip() or "Осмотреться"
         except EOFError:
             print()
+            # Forced-exit persistence remains an explicitly separate mutation
+            # boundary; it is not silently attributed to the action receipt path.
             print_result(world.force_exit(player_id, reason="end_of_input"))
             return 0
         except KeyboardInterrupt:
             print()
             print_result(world.force_exit(player_id, reason="keyboard_interrupt"))
             return 0
+
+        explicit_request_id: str | None = None
+        if action.startswith("/retry "):
+            parts = action.split(" ", 2)
+            if len(parts) < 3 or not parts[1].strip() or not parts[2].strip():
+                print("Формат: /retry REQUEST_ID ДЕЙСТВИЕ")
+                continue
+            explicit_request_id = parts[1].strip()
+            action = parts[2].strip()
+
+        elif action.startswith("/request "):
+            request_id = action.split(" ", 1)[1].strip()
+            if not request_id:
+                print("Нужен REQUEST_ID.")
+                continue
+            print(
+                json.dumps(
+                    runtime.request_state(client_id=CONTROL_CLIENT_ID, request_id=request_id),
+                    ensure_ascii=False,
+                    indent=2,
+                )
+            )
+            continue
 
         if action.startswith("/save "):
             path = action.split(" ", 1)[1].strip()
@@ -198,7 +285,23 @@ def play(
                 print(f"Network queue error: {exc}")
             continue
 
-        result = world.process_action(player_id, action)
+        request_id = explicit_request_id or _new_request_id("TURN")
+        print(f"🔒 request_id: {request_id}")
+        try:
+            result = _execute_controlled(
+                runtime,
+                player_id=player_id,
+                action=action,
+                request_id=request_id,
+            )
+        except (
+            PortableRequestConflict,
+            PortableRuntimeOutcomeUndetermined,
+            PortableRuntimeReceiptIntegrityError,
+            PortableRuntimeControlError,
+        ) as exc:
+            print(json.dumps(_control_error_payload(runtime, request_id, exc), ensure_ascii=False, indent=2))
+            continue
         print_result(result)
         if result.status == "EXIT":
             return 0
@@ -209,7 +312,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--data-dir", type=Path, default=Path("data_v17"))
     parser.add_argument("--player", default="traveler")
     parser.add_argument("--name", default=None)
-    parser.add_argument("--action", help="Process one action, print safe JSON and exit.")
+    parser.add_argument("--action", help="Process one controlled action, print safe JSON and exit.")
+    parser.add_argument(
+        "--request-id",
+        help=(
+            "Stable logical request ID for --action. Reuse only when retrying the same actor/action intent; "
+            "same ID with different action fails closed."
+        ),
+    )
+    parser.add_argument(
+        "--request-state",
+        metavar="REQUEST_ID",
+        help="Inspect the persisted play-genesis request state without executing the world.",
+    )
     parser.add_argument("--status", action="store_true", help="Print public player state.")
     parser.add_argument("--debug-state", action="store_true", help="Developer-only internal state.")
     parser.add_argument("--debug-secrets", action="store_true", help="Developer-only Secret seed state.")
@@ -248,9 +363,23 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     world = PlayableGenesisV187(args.data_dir)
+    runtime = _build_controlled_runtime(world, args.data_dir)
     saves = PortableSaveManager(args.data_dir)
     if args.name:
         world.set_display_name(args.player, args.name)
+
+    if args.request_state:
+        print(
+            json.dumps(
+                runtime.request_state(
+                    client_id=CONTROL_CLIENT_ID,
+                    request_id=args.request_state,
+                ),
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return 0
 
     if args.import_save:
         print(json.dumps(saves.import_file(args.import_save, conflict=args.save_conflict), ensure_ascii=False, indent=2))
@@ -332,8 +461,35 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(world.free_other_state(args.player), ensure_ascii=False, indent=2))
         return 0
     if args.action is not None:
-        print(json.dumps(world.process_action(args.player, args.action).to_dict(), ensure_ascii=False, indent=2))
+        request_id = str(args.request_id).strip() if args.request_id else _new_request_id("ACTION")
+        try:
+            result = _execute_controlled(
+                runtime,
+                player_id=args.player,
+                action=args.action,
+                request_id=request_id,
+            )
+        except (
+            PortableRequestConflict,
+            PortableRuntimeOutcomeUndetermined,
+            PortableRuntimeReceiptIntegrityError,
+            PortableRuntimeControlError,
+        ) as exc:
+            print(json.dumps(_control_error_payload(runtime, request_id, exc), ensure_ascii=False, indent=2))
+            return 2
+        payload = result.to_dict()
+        payload["_janus_control"] = {
+            "client_id": CONTROL_CLIENT_ID,
+            "request_id": request_id,
+            "request_state": runtime.request_state(
+                client_id=CONTROL_CLIENT_ID,
+                request_id=request_id,
+            ),
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
         return 0
+    if args.request_id:
+        raise SystemExit("--request-id requires --action; use --request-state to inspect an existing request")
     return play(
         args.data_dir,
         args.player,
