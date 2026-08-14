@@ -84,7 +84,7 @@ jobs:
               ('v37', v37, 'only after every selected target has the expected hash'),
               ('v38', v38, 'malformed or schema-invalid *existing* state fails closed'),
               ('v38', v38, 'event 1025 is rejected instead of silently deleting the oldest unsent event'),
-              ('v38', v38, 'automatic resend after an ambiguous remote boundary'),
+              ('v38', v38, 'automatic duplicate publication after an ambiguous remote boundary'),
               ('v38', v38, 'no hub-side deduplication/idempotency guarantee has been verified'),
               ('v38', v38, 'durable uncertainty over automatic duplicate publication'),
           ]
