@@ -1,0 +1,79 @@
+name: JANUS mutation surface v6.6
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_36_validated_registration_binding.py'
+      - 'genesis_v18_7_37_recovery_safe_save_import.py'
+      - 'tests/test_genesis_v18_7_36_validated_registration_binding.py'
+      - 'tests/test_genesis_v18_7_37_recovery_safe_save_import.py'
+      - 'requirements.txt'
+      - '.github/workflows/janus-mutation-surface-v6-6.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_36_validated_registration_binding.py'
+      - 'genesis_v18_7_37_recovery_safe_save_import.py'
+      - 'tests/test_genesis_v18_7_36_validated_registration_binding.py'
+      - 'tests/test_genesis_v18_7_37_recovery_safe_save_import.py'
+      - 'requirements.txt'
+      - '.github/workflows/janus-mutation-surface-v6-6.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-surface-descendants:
+    name: mutation-surface-descendants (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 18
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install canonical runtime dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Compile v6.6 descendants
+        run: >-
+          python -m py_compile
+          genesis_v18_7_36_validated_registration_binding.py
+          genesis_v18_7_37_recovery_safe_save_import.py
+          tests/test_genesis_v18_7_36_validated_registration_binding.py
+          tests/test_genesis_v18_7_37_recovery_safe_save_import.py
+
+      - name: Run validate-before-bind registration gates
+        run: python -m unittest -v tests.test_genesis_v18_7_36_validated_registration_binding
+
+      - name: Run recovery-safe multi-file save import gates
+        run: python -m unittest -v tests.test_genesis_v18_7_37_recovery_safe_save_import
+
+      - name: Enforce v6.6 claim boundaries
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          v36 = ' '.join(Path('genesis_v18_7_36_validated_registration_binding.py').read_text(encoding='utf-8').split()).lower()
+          v37 = ' '.join(Path('genesis_v18_7_37_recovery_safe_save_import.py').read_text(encoding='utf-8').split()).lower()
+          required = [
+              ('v36', v36, 'validation an explicit pre-binding gate'),
+              ('v36', v36, 'no durable registration request row is created until'),
+              ('v36', v36, 'does not claim that syntactic admission proves actor identity'),
+              ('v37', v37, 'recovery-safe roll-forward saga'),
+              ('v37', v37, 'not an atomic multi-file filesystem transaction'),
+              ('v37', v37, 'non-cooperating writers that bypass the import lock remain outside'),
+              ('v37', v37, 'only after every selected target has the expected hash'),
+          ]
+          missing = [(where, text) for where, haystack, text in required if text not in haystack]
+          if missing:
+              raise SystemExit('missing v6.6 semantics: ' + repr(missing))
+          PY
