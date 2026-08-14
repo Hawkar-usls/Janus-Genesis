@@ -1,0 +1,72 @@
+name: JANUS durable face control v6.1
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'genesis_v18_7_23_face_recovery_saga.py'
+      - 'genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_22_face_authority_epoch.py'
+      - 'tests/test_genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'tests/test_genesis_v18_7_25_durable_journal_fencing.py'
+      - '.github/workflows/janus-face-durable-control-v6-1.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'genesis_v18_7_22_face_authority_epoch.py'
+      - 'genesis_v18_7_23_face_recovery_saga.py'
+      - 'genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_22_face_authority_epoch.py'
+      - 'tests/test_genesis_v18_7_24_face_recovery_saga_hardened.py'
+      - 'tests/test_genesis_v18_7_25_durable_journal_fencing.py'
+      - '.github/workflows/janus-face-durable-control-v6-1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-durable-control-v6-1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile durable face control chain
+        run: |
+          python -m py_compile \
+            genesis_v18_7_21_face_microcontrol.py \
+            genesis_v18_7_22_face_authority_epoch.py \
+            genesis_v18_7_23_face_recovery_saga.py \
+            genesis_v18_7_24_face_recovery_saga_hardened.py \
+            genesis_v18_7_25_durable_journal_fencing.py
+
+      - name: Run v18.7.25 durable control tests
+        run: python -m unittest -v tests.test_genesis_v18_7_25_durable_journal_fencing
+
+      - name: Re-run v18.7.24 recovery saga tests
+        run: python -m unittest -v tests.test_genesis_v18_7_24_face_recovery_saga_hardened
+
+      - name: Re-run v18.7.22 authority epoch tests
+        run: python -m unittest -v tests.test_genesis_v18_7_22_face_authority_epoch
+
+      - name: Re-run v18.7.21 microcontrol tests
+        run: python -m unittest -v tests.test_genesis_v18_7_21_face_microcontrol
+
+      - name: Enforce v6.1 claim boundary strings
+        run: |
+          grep -F 'JSONL hash journal is durable only' genesis_v18_7_25_durable_journal_fencing.py
+          grep -F 'SQLite fencing coordinates processes sharing the same SQLite database/file' genesis_v18_7_25_durable_journal_fencing.py
+          grep -F 'provider idempotency is a declared adapter contract' genesis_v18_7_25_durable_journal_fencing.py
+          grep -F 'deadline/fairness scheduling grants attention only, never world authority' genesis_v18_7_25_durable_journal_fencing.py
