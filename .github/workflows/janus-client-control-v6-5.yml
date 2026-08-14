@@ -1,0 +1,70 @@
+name: JANUS client control v6.5
+
+on:
+  push:
+    paths:
+      - 'janus_portable_lock_v2.py'
+      - 'genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'tests/test_genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'tests/test_genesis_v18_7_31_real_runtime_integration.py'
+      - 'play_genesis.py'
+      - '.github/workflows/janus-client-control-v6-5.yml'
+  pull_request:
+    paths:
+      - 'janus_portable_lock_v2.py'
+      - 'genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'tests/test_genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'tests/test_genesis_v18_7_31_real_runtime_integration.py'
+      - 'play_genesis.py'
+      - '.github/workflows/janus-client-control-v6-5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-receipt-runtime:
+    name: portable-receipt-runtime (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile v6.5 portable runtime
+        run: python -m py_compile janus_portable_lock_v2.py genesis_v18_7_31_portable_receipt_runtime.py tests/test_genesis_v18_7_31_portable_receipt_runtime.py tests/test_genesis_v18_7_31_real_runtime_integration.py
+
+      - name: Run v18.7.31 adversarial portable tests
+        run: python -m unittest -v tests.test_genesis_v18_7_31_portable_receipt_runtime
+
+      - name: Run v18.7.31 real canonical integration
+        run: python -m unittest -v tests.test_genesis_v18_7_31_real_runtime_integration
+
+      - name: Enforce v6.5 portable claim boundaries
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          lock = ' '.join(Path('janus_portable_lock_v2.py').read_text(encoding='utf-8').split()).lower()
+          runtime = ' '.join(Path('genesis_v18_7_31_portable_receipt_runtime.py').read_text(encoding='utf-8').split()).lower()
+          required = [
+              ('lock', lock, 'process-global'),
+              ('lock', lock, 'not multi-host consensus'),
+              ('runtime', runtime, 'identical action text with a new request_id is a new intent'),
+              ('runtime', runtime, 'prefers false uncertainty to duplicate world execution'),
+              ('runtime', runtime, 'full canonical runtime result envelope'),
+              ('runtime', runtime, 'other mutating entry points need their own explicit request boundary'),
+          ]
+          missing = [(where, text) for where, haystack, text in required if text not in haystack]
+          if missing:
+              raise SystemExit('missing v6.5 portable semantics: ' + repr(missing))
+          PY
