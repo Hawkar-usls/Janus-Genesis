@@ -1,0 +1,120 @@
+{
+  "schema": "janus.genesis.round2_2_nondeterminism_isolation.v1",
+  "campaign": "JANUS_TOP100_ROUND2_2_NONDETERMINISM_ISOLATION_v0.1",
+  "parent_admission_config": {
+    "path": "benchmarks/round2_1_capability_preserving_quantization_admission_v0.1.json",
+    "git_blob_sha1": "a88952b4c71f86369512c94b618f27e63e5db447"
+  },
+  "parent_experimental_spec_fingerprint_sha256": "28173fb94cff1b2e0b741fc9e3bf1f529abc57818a965d4cc182842805f54657",
+  "critical_reference": {
+    "path": "benchmarks/frozen_samples/top100_round2_fp16_critical_reference_v0.1.json",
+    "git_blob_sha1": "6743337b8a6357783858c71fad01720d034b63ca"
+  },
+  "round1_pack": {
+    "path": "benchmarks/frozen_samples/top100_round1_stratified_v0.1.json",
+    "git_blob_sha1": "ca27652feb3532ff52e8453dd055b608711b0d43"
+  },
+  "critical_set_canonical_sha256": "aa04c2befda34e6a9a27b73360c55150617d3008f1d8fe82a6b49ad93f14e97c",
+  "critical_sample_ids": [
+    "gsm8k-test-0000",
+    "gsm8k-test-0001",
+    "gsm8k-test-0003",
+    "ifeval-key-1019",
+    "ifeval-key-1092",
+    "truthfulqa-row-0001",
+    "truthfulqa-row-0002",
+    "truthfulqa-row-0004"
+  ],
+  "focused_diagnostic_sample_ids": [
+    "gsm8k-test-0000",
+    "truthfulqa-row-0004"
+  ],
+  "focus_provenance": {
+    "source_workflow_run_id": 31393757494,
+    "reason": "These were the Q8_0 failed sample IDs in the fresh negative exact-spec receipt. The focused subset is diagnostic only and never changes CriticalFrozenSet membership."
+  },
+  "models": {
+    "Q8_0": {
+      "id": "Q8_0",
+      "tag": "qwen2.5:0.5b-instruct-q8_0",
+      "expected_digest": "84d044692a2ce0a5a063d3177ca7a69fb189fd81b3139a7a3ead74ccf42a51dc"
+    },
+    "FP16": {
+      "id": "FP16",
+      "tag": "qwen2.5:0.5b-instruct-fp16",
+      "expected_digest": "c82efd44bfdceead1596114a378e8c9f4f3c4509e98af0c034e1dcd5396f0547"
+    }
+  },
+  "inference": {
+    "temperature": 0.0,
+    "seed": 1138,
+    "num_predict": 512,
+    "backend_attempt_limit": 4
+  },
+  "required_environment": {
+    "OLLAMA_NUM_PARALLEL": "1",
+    "OLLAMA_MAX_LOADED_MODELS": "1"
+  },
+  "phases": [
+    {
+      "id": "Q8_WARM_FULL",
+      "target_model_id": "Q8_0",
+      "sample_scope": "FULL_CRITICAL_SET",
+      "replays": 3,
+      "pre_trial_action": "NONE",
+      "purpose": "Measure Q8_0 replay behavior while the model remains warm after a controlled phase-start unload."
+    },
+    {
+      "id": "Q8_COLD_FULL",
+      "target_model_id": "Q8_0",
+      "sample_scope": "FULL_CRITICAL_SET",
+      "replays": 3,
+      "pre_trial_action": "STOP_TARGET_BEFORE_EACH_TRIAL",
+      "purpose": "Measure Q8_0 after a forced model unload/reload before every trial."
+    },
+    {
+      "id": "Q8_SWITCH_FROM_FP16_FULL",
+      "target_model_id": "Q8_0",
+      "primer_model_id": "FP16",
+      "sample_scope": "FULL_CRITICAL_SET",
+      "replays": 3,
+      "pre_trial_action": "NONE",
+      "purpose": "Measure Q8_0 immediately after the same sample is executed by FP16, forcing an FP16-to-Q8 model switch under OLLAMA_MAX_LOADED_MODELS=1."
+    },
+    {
+      "id": "FP16_WARM_FULL",
+      "target_model_id": "FP16",
+      "sample_scope": "FULL_CRITICAL_SET",
+      "replays": 3,
+      "pre_trial_action": "NONE",
+      "purpose": "Reference stability control under the same warm contiguous replay regime."
+    },
+    {
+      "id": "Q8_WARM_FOCUS",
+      "target_model_id": "Q8_0",
+      "sample_scope": "FOCUSED_DIAGNOSTIC_SUBSET",
+      "replays": 12,
+      "pre_trial_action": "NONE",
+      "purpose": "Higher-density warm replay of the two previously failing Q8_0 samples."
+    },
+    {
+      "id": "Q8_COLD_FOCUS",
+      "target_model_id": "Q8_0",
+      "sample_scope": "FOCUSED_DIAGNOSTIC_SUBSET",
+      "replays": 12,
+      "pre_trial_action": "STOP_TARGET_BEFORE_EACH_TRIAL",
+      "purpose": "Higher-density forced-reload replay of the two previously failing Q8_0 samples."
+    }
+  ],
+  "diagnostic_semantics": {
+    "changes_admission_rule": false,
+    "changes_critical_membership": false,
+    "changes_model_identity": false,
+    "changes_seed_temperature_or_num_predict": false,
+    "green_ci_means_model_deterministic": false,
+    "phase_association_is_causation": false,
+    "raw_output_text_persisted": false,
+    "output_sha256_persisted": true
+  },
+  "claim_ceiling": "This diagnostic can establish within-run status/output stability or divergence associations across warm, forced-reload, and FP16-to-Q8 switch paths for the same frozen eight-sample critical set and exact Q8_0/FP16 identities. It does not prove a causal source of nondeterminism, universal determinism, bitwise identity, official benchmark accuracy, or general lossless quantization."
+}
