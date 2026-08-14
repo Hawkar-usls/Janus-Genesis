@@ -1,0 +1,100 @@
+name: JANUS client control v6.4
+
+on:
+  push:
+    paths:
+      - 'janus_portable_lock.py'
+      - 'genesis_v18_7_28_client_ledger_attestation.py'
+      - 'tests/test_genesis_v18_7_28_client_ledger_attestation.py'
+      - 'tests/test_genesis_v18_7_28_linux_runtime_integration.py'
+      - 'genesis_v18_7_19_ai_link_play.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'genesis_v18_7_26_controlled_ai_link.py'
+      - 'genesis_v18_7_27_session_review_reconciliation.py'
+      - 'requirements.txt'
+      - '.github/workflows/janus-client-control-v6-4.yml'
+  pull_request:
+    paths:
+      - 'janus_portable_lock.py'
+      - 'genesis_v18_7_28_client_ledger_attestation.py'
+      - 'tests/test_genesis_v18_7_28_client_ledger_attestation.py'
+      - 'tests/test_genesis_v18_7_28_linux_runtime_integration.py'
+      - 'genesis_v18_7_19_ai_link_play.py'
+      - 'genesis_v18_7_25_durable_journal_fencing.py'
+      - 'genesis_v18_7_26_controlled_ai_link.py'
+      - 'genesis_v18_7_27_session_review_reconciliation.py'
+      - 'requirements.txt'
+      - '.github/workflows/janus-client-control-v6-4.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-control-primitives:
+    name: portable-control-primitives (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile portable v6.4 primitives
+        run: python -m py_compile janus_portable_lock.py genesis_v18_7_28_client_ledger_attestation.py tests/test_genesis_v18_7_28_client_ledger_attestation.py
+
+      - name: Run portable v6.4 adversarial tests
+        run: python -m unittest -v tests.test_genesis_v18_7_28_client_ledger_attestation
+
+  linux-canonical-runtime-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install runtime dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Compile canonical integration chain
+        run: python -m py_compile genesis_v18_7_25_durable_journal_fencing.py genesis_v18_7_26_controlled_ai_link.py genesis_v18_7_27_session_review_reconciliation.py genesis_v18_7_28_client_ledger_attestation.py tests/test_genesis_v18_7_28_linux_runtime_integration.py
+
+      - name: Run v18.7.28 canonical runtime integration tests
+        run: python -m unittest -v tests.test_genesis_v18_7_28_linux_runtime_integration
+
+      - name: Re-run v18.7.27 review and reconciliation tests
+        run: python -m unittest -v tests.test_genesis_v18_7_27_session_review_reconciliation
+
+      - name: Re-run v18.7.26 controlled AI-link tests
+        run: python -m unittest -v tests.test_genesis_v18_7_26_controlled_ai_link
+
+      - name: Enforce v6.4 claim-boundary semantics
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('genesis_v18_7_28_client_ledger_attestation.py').read_text(encoding='utf-8')
+          normalized = ' '.join(text.split())
+          required = [
+              'JANUS does not infer that two identical actions are the same intent.',
+              'not multi-host consensus.',
+              'reference trust-boundary implementations',
+              'Review seats have zero world authority'.lower(),
+          ]
+          haystack = normalized.lower()
+          missing = [item for item in required if item.lower() not in haystack]
+          if missing:
+              raise SystemExit('missing v6.4 claim-boundary semantics: ' + repr(missing))
+          PY
