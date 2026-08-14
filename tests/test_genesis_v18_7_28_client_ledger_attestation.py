@@ -46,8 +46,7 @@ class PortableLockTests(unittest.TestCase):
             proc.start()
             try:
                 self.assertTrue(ready.wait(10), "child never acquired lock")
-                probe = PortableProcessLock(lock_path)
-                self.assertFalse(probe.try_acquire())
+                self.assertFalse(PortableProcessLock(lock_path).try_acquire())
             finally:
                 release.set()
                 proc.join(10)
@@ -135,12 +134,10 @@ class PersistentClientRequestLedgerTests(unittest.TestCase):
 class UnsafeFileGateway:
     """Deliberately racy store used to prove the wrapper owns one lock domain."""
 
-    def __init__(self, path: Path, start: threading.Barrier):
+    def __init__(self, path: Path):
         self.path = path
-        self.start = start
 
     def _mutate(self, kind: str):
-        self.start.wait(timeout=5)
         if self.path.exists():
             state = json.loads(self.path.read_text(encoding="utf-8"))
         else:
@@ -182,12 +179,16 @@ class LifecycleSerializationTests(unittest.TestCase):
             root = Path(td)
             store = root / "unsafe.json"
             start = threading.Barrier(2)
-            a = LifecycleSerializedGateway(UnsafeFileGateway(store, start), root)
-            b = LifecycleSerializedGateway(UnsafeFileGateway(store, start), root)
+            a = LifecycleSerializedGateway(UnsafeFileGateway(store), root)
+            b = LifecycleSerializedGateway(UnsafeFileGateway(store), root)
+
+            def launch(fn, *args):
+                start.wait(timeout=5)
+                return fn(*args)
 
             with ThreadPoolExecutor(max_workers=2) as pool:
-                f1 = pool.submit(a.register_session)
-                f2 = pool.submit(b.close_session, "session")
+                f1 = pool.submit(launch, a.register_session)
+                f2 = pool.submit(launch, b.close_session, "session")
                 self.assertEqual(sorted([f1.result(timeout=10), f2.result(timeout=10)]), [1, 2])
 
             state = json.loads(store.read_text(encoding="utf-8"))
