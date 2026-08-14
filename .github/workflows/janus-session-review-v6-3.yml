@@ -59,9 +59,19 @@ jobs:
       - name: Re-run v18.7.25 durable control tests
         run: python -m unittest -v tests.test_genesis_v18_7_25_durable_journal_fencing
 
-      - name: Enforce v6.3 constitutional strings
+      - name: Enforce v6.3 constitutional semantics
         run: |
-          grep -F 'Review independence is' genesis_v18_7_27_session_review_reconciliation.py
-          grep -F 'counted by lineage root, never by raw face count' genesis_v18_7_27_session_review_reconciliation.py
-          grep -F 'not a multi-host consensus claim' genesis_v18_7_27_session_review_reconciliation.py
-          grep -F 'explicit contract boundary' genesis_v18_7_27_session_review_reconciliation.py
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('genesis_v18_7_27_session_review_reconciliation.py').read_text(encoding='utf-8')
+          normalized = ' '.join(text.split())
+          required = [
+              'Review independence is counted by lineage root, never by raw face count.',
+              'It is not a multi-host consensus claim.',
+              'explicit contract boundary rather than proving the provider',
+              'one lineage contributes at most one seat',
+          ]
+          missing = [item for item in required if item not in normalized]
+          if missing:
+              raise SystemExit('missing constitutional semantics: ' + repr(missing))
+          PY
