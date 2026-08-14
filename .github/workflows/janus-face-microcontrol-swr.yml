@@ -1,0 +1,48 @@
+name: JANUS face microcontrol SOURCE-WORLD-RECEIPT
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - '.github/workflows/janus-face-microcontrol-swr.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_21_face_microcontrol.py'
+      - 'tests/test_genesis_v18_7_21_face_microcontrol.py'
+      - '.github/workflows/janus-face-microcontrol-swr.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-face-microcontrol:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Janus Genesis
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile microcontrol module
+        run: python -m py_compile genesis_v18_7_21_face_microcontrol.py
+
+      - name: Run focused microcontrol tests
+        run: python -m unittest discover -s tests -p 'test_genesis_v18_7_21_face_microcontrol.py' -v
+
+      - name: Enforce invariant strings
+        run: |
+          python - <<'PY'
+          from genesis_v18_7_21_face_microcontrol import FaceMicroController
+          c = FaceMicroController()
+          s = c.snapshot()
+          assert s['invariants']['face_count_is_voting_power'] is False
+          assert s['invariants']['proposal_is_world_commit'] is False
+          assert s['invariants']['effect_budget_per_effect_key'] == 1
+          assert s['invariants']['receipt_required_for_settlement'] is True
+          assert s['invariants']['external_side_effect_execution_in_module'] is False
+          print('JANUS_FACE_MICROCONTROL_INVARIANTS_PASS')
+          PY
