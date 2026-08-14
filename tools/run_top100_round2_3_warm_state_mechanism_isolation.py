@@ -312,6 +312,7 @@ def execute(config: dict[str, Any], *, endpoint: str, docker_image: str, timeout
         "model_receipt": receipt,
         "inference": inference,
         "required_environment": config["required_environment"],
+        "environment": r22._environment_fingerprint(endpoint),
         "focal_samples": config["focal_samples"],
         "phases": config["phases"],
         "target_record_count": len(records),
