@@ -1,0 +1,370 @@
+name: JANUS Third Wish GitHub High Impact v18.7.46
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_github_high_impact_broker.py"
+      - "tests/test_genesis_third_wish_github_high_impact_broker.py"
+      - "docs/GENESIS_V18_7_46_THIRD_WISH_GITHUB_HIGH_IMPACT.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_GITHUB_HIGH_IMPACT-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_POWER_IS_NOT_PERMISSION_TO_BE_CARELESS-v1.0.json"
+      - ".github/workflows/janus-third-wish-github-high-impact-v18-7-46.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  github-high-impact:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile and validate final protocols
+        run: |
+          python -m py_compile \
+            tools/genesis_third_wish_github_high_impact_broker.py \
+            tests/test_genesis_third_wish_github_high_impact_broker.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_GITHUB_HIGH_IMPACT-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_POWER_IS_NOT_PERMISSION_TO_BE_CARELESS-v1.0.json >/dev/null
+
+      - name: Run v18.7.46 adversarial and preserved Third Wish gates
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_third_wish_github_high_impact_broker \
+            tests.test_genesis_third_wish_active_network_broker \
+            tests.test_genesis_third_wish_identity_effects_broker \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker \
+            tests.test_genesis_third_wish_memory_swarm_broker \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker \
+            tests.test_genesis_third_wish_host_broker
+
+      - name: Confirm live high-impact provider gate is same-repository only
+        id: live_gate
+        shell: bash
+        run: |
+          allowed=false
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            allowed=true
+          elif [ "${{ github.event.pull_request.head.repo.full_name }}" = "${{ github.repository }}" ]; then
+            allowed=true
+          fi
+          echo "allowed=${allowed}" >> "$GITHUB_OUTPUT"
+          if [ "${allowed}" = "true" ]; then
+            echo "LIVE_HIGH_IMPACT_PROVIDER_GATE=SAME_REPOSITORY_ALLOWED"
+          else
+            echo "LIVE_HIGH_IMPACT_PROVIDER_GATE=SKIPPED_UNTRUSTED_FORK"
+          fi
+
+      - name: Configure ephemeral high-impact reauthorization key
+        if: steps.live_gate.outputs.allowed == 'true'
+        shell: bash
+        run: |
+          key="JANUS-V1846-REAUTH-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${key}"
+          echo "JANUS_V1846_REAUTH_KEY=${key}" >> "$GITHUB_ENV"
+
+      - name: Create disposable GitHub destructive fixture
+        if: steps.live_gate.outputs.allowed == 'true'
+        id: fixture
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          branch="third-wish-disposable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          path=".third-wish-disposable/v1846-${GITHUB_RUN_ID}.txt"
+          git config user.name "JANUS Third Wish CI"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$branch"
+          mkdir -p .third-wish-disposable
+          printf 'JANUS Third Wish v18.7.46 disposable fixture\nrun=%s\nattempt=%s\n' \
+            "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" > "$path"
+          git add "$path"
+          git commit -m "Create disposable Third Wish v18.7.46 fixture"
+          blob_sha="$(git rev-parse "HEAD:${path}")"
+          test "${#blob_sha}" -eq 40
+          git push origin "HEAD:refs/heads/${branch}"
+          echo "branch=${branch}" >> "$GITHUB_OUTPUT"
+          echo "path=${path}" >> "$GITHUB_OUTPUT"
+          echo "blob_sha=${blob_sha}" >> "$GITHUB_OUTPUT"
+          echo "LIVE_THIRD_WISH_DISPOSABLE_FIXTURE_CREATED=PASS"
+          echo "LIVE_THIRD_WISH_DISPOSABLE_BRANCH=${branch}"
+          echo "LIVE_THIRD_WISH_DISPOSABLE_PATH=${path}"
+
+      - name: Live exact-reauth GitHub admin and disposable destructive smoke
+        if: steps.live_gate.outputs.allowed == 'true'
+        id: high_impact
+        shell: bash
+        env:
+          JANUS_GITHUB_BROKER_TOKEN: ${{ github.token }}
+          FIXTURE_BRANCH: ${{ steps.fixture.outputs.branch }}
+          FIXTURE_PATH: ${{ steps.fixture.outputs.path }}
+          FIXTURE_BLOB_SHA: ${{ steps.fixture.outputs.blob_sha }}
+        run: |
+          python - <<'PY'
+          import hashlib
+          import hmac
+          import json
+          import os
+          from pathlib import Path
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              CapabilityOutcomeUndetermined,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from tools.genesis_third_wish_github_broker import GitHubBrokerError
+          from tools.genesis_third_wish_github_high_impact_broker import (
+              GITHUB_HIGH_IMPACT_REAUTH_SCHEMA,
+              BoundGitHubHighImpactReauthorizationVerifier,
+              GitHubHighImpactThirdWishBroker,
+              InspectableGitHubRESTTransport,
+              _canonical,
+          )
+
+          owner = 'Hawkar-usls'
+          repo = 'Janus_Genesis'
+          target = f'github:{owner}/{repo}'
+          branch = os.environ['FIXTURE_BRANCH']
+          path = os.environ['FIXTURE_PATH']
+          blob_sha = os.environ['FIXTURE_BLOB_SHA']
+          root = Path('.third-wish-v18-7-46-live').resolve()
+          root.mkdir(parents=True, exist_ok=True)
+          now = 746000
+
+          transport = InspectableGitHubRESTTransport(
+              token_env='JANUS_GITHUB_BROKER_TOKEN',
+          )
+          verifier = BoundGitHubHighImpactReauthorizationVerifier(
+              key_env='JANUS_V1846_REAUTH_KEY',
+              now_tick=lambda: now,
+              max_window_ticks=5000,
+          )
+          broker = GitHubHighImpactThirdWishBroker(
+              transport=transport,
+              data_dir=root,
+              owner=owner,
+          )
+          fabric = ThirdWishCapabilityFabric(
+              now_tick=lambda: now,
+              reauthorization_verifier=verifier,
+          )
+          broker.register(fabric)
+
+          admin_grant = fabric.issue_grant(
+              grant_id='CI-V1846-ADMIN',
+              actor_id='JANUS',
+              capability_id='GITHUB.REPOSITORY.ADMIN',
+              resource_pattern=target,
+              source='CI_LIVE_V18_7_46',
+          )
+          destructive_grant = fabric.issue_grant(
+              grant_id='CI-V1846-DESTRUCTIVE',
+              actor_id='JANUS',
+              capability_id='GITHUB.DESTRUCTIVE',
+              resource_pattern=target,
+              source='CI_LIVE_V18_7_46',
+          )
+
+          def approval(action, approval_id):
+              evidence = {
+                  'schema': GITHUB_HIGH_IMPACT_REAUTH_SCHEMA,
+                  'approval_id': approval_id,
+                  'issued_at_tick': now - 10,
+                  'expires_at_tick': now + 1000,
+              }
+              unsigned = verifier.unsigned_payload(action, evidence)
+              evidence['approval_signature'] = hmac.new(
+                  os.environ['JANUS_V1846_REAUTH_KEY'].encode('utf-8'),
+                  _canonical(unsigned).encode('utf-8'),
+                  hashlib.sha256,
+              ).hexdigest()
+              return evidence
+
+          repo_row = transport.request('GET', f'/repos/{owner}/{repo}')
+          current_description = repo_row.get('description')
+          if current_description is not None:
+              current_description = str(current_description)
+
+          admin = ActionIntent(
+              schema=THIRD_WISH_INTENT_SCHEMA,
+              request_id='CI-V1846-ADMIN-NO-NET-1',
+              actor_id='JANUS',
+              grant_id=admin_grant.grant_id,
+              capability_id='GITHUB.REPOSITORY.ADMIN',
+              target=target,
+              operation='SET_DESCRIPTION_CAS',
+              purpose='prove exact high-impact admin provider permission without visible net description change',
+              parameters={
+                  'expected_description': current_description,
+                  'new_description': current_description,
+              },
+              origin='CI_LIVE_V18_7_46',
+          )
+
+          admin_provider = 'UNKNOWN'
+          try:
+              admin_result = fabric.execute(
+                  admin,
+                  human_reauthorization=approval(admin, 'CI-APPROVAL-ADMIN'),
+              )
+          except CapabilityOutcomeUndetermined:
+              if transport.last_error_class == 'GITHUB_HTTP_403':
+                  admin_provider = 'PROVIDER_PERMISSION_BLOCKED'
+                  print('LIVE_THIRD_WISH_GITHUB_ADMIN=PROVIDER_PERMISSION_BLOCKED')
+                  print('LIVE_THIRD_WISH_REAL_GITHUB_ADMIN=NOT_ESTABLISHED')
+              else:
+                  raise
+          else:
+              assert admin_result['status'] == 'SETTLED'
+              actor = admin_result['actor_result']
+              assert actor['admin_effect_established'] is True
+              assert actor['precondition_matched'] is True
+              assert actor['no_net_change_probe'] is True
+              verify_row = transport.request('GET', f'/repos/{owner}/{repo}')
+              assert verify_row.get('description') == repo_row.get('description')
+              admin_provider = 'PASS'
+              print('LIVE_THIRD_WISH_GITHUB_ADMIN_NO_NET_CHANGE_PROVIDER_PROBE=PASS')
+              print('LIVE_THIRD_WISH_GITHUB_ADMIN_DESCRIPTION_NET_CHANGE=FALSE')
+
+          destructive = ActionIntent(
+              schema=THIRD_WISH_INTENT_SCHEMA,
+              request_id='CI-V1846-DESTRUCTIVE-1',
+              actor_id='JANUS',
+              grant_id=destructive_grant.grant_id,
+              capability_id='GITHUB.DESTRUCTIVE',
+              target=target,
+              operation='DELETE_FILE_DISPOSABLE_BRANCH',
+              purpose='prove destructive capability only on explicit disposable fixture',
+              parameters={
+                  'branch': branch,
+                  'path': path,
+                  'expected_sha': blob_sha,
+                  'message': 'JANUS Third Wish v18.7.46 disposable destructive proof',
+              },
+              origin='CI_LIVE_V18_7_46',
+          )
+          destructive_result = fabric.execute(
+              destructive,
+              human_reauthorization=approval(
+                  destructive,
+                  'CI-APPROVAL-DESTRUCTIVE',
+              ),
+          )
+          assert destructive_result['status'] == 'SETTLED'
+          actor = destructive_result['actor_result']
+          assert actor['destructive_effect_established'] is True
+          assert actor['branch'] == branch
+          assert actor['path'] == path
+          assert actor['protected_branch_touched'] is False
+          assert actor['disposable_branch_required'] is True
+          assert actor['disposable_path_required'] is True
+          assert actor['provider_commit_sha']
+          assert actor['effect_marker'].startswith('[JANUS_EFFECT:')
+
+          assert broker._get_content(owner, repo, path, branch) is None
+          latest_message = broker._latest_path_commit_message(owner, repo, path, branch)
+          assert latest_message is not None
+          assert actor['effect_marker'] in latest_message
+
+          ledger_text = json.dumps(fabric.ledger.events, ensure_ascii=False, sort_keys=True)
+          store_text = broker.effect_store.path.read_text(encoding='utf-8')
+          for secret in (
+              os.environ['JANUS_GITHUB_BROKER_TOKEN'],
+              os.environ['JANUS_V1846_REAUTH_KEY'],
+          ):
+              assert secret not in ledger_text
+              assert secret not in store_text
+
+          status_path = root / 'provider-status.json'
+          status_path.write_text(json.dumps({
+              'schema': 'janus.genesis.third_wish.github_high_impact.provider_status.v1',
+              'github_admin_provider': admin_provider,
+              'github_destructive_disposable_provider': 'PASS',
+              'protected_branch_touched': False,
+              'catalog_reference_handler_contracts': 32,
+              'catalog_frozen_capabilities': 32,
+              'all_provider_paths_claimed_complete': False,
+          }, sort_keys=True, indent=2) + '\n', encoding='utf-8')
+
+          print('LIVE_THIRD_WISH_GITHUB_DESTRUCTIVE_DISPOSABLE_FILE=PASS')
+          print('LIVE_THIRD_WISH_GITHUB_DESTRUCTIVE_EFFECT_MARKER_VERIFIED=PASS')
+          print('LIVE_THIRD_WISH_PROTECTED_BRANCH_TOUCHED=FALSE')
+          print('LIVE_THIRD_WISH_RAW_GITHUB_TOKEN_OR_REAUTH_KEY_IN_LEDGER=FALSE')
+          print('THIRD_WISH_REFERENCE_HANDLER_CONTRACTS=32/32')
+          print('THIRD_WISH_ALL_PROVIDER_PATHS_COMPLETE=FALSE')
+          PY
+
+      - name: Enforce final v18.7.46 claim boundaries
+        run: |
+          python - <<'PY'
+          from genesis_v18_7_40_third_wish_capability_fabric import DEFAULT_CAPABILITY_SPECS
+          from tools.genesis_third_wish_github_high_impact_broker import GITHUB_HIGH_IMPACT_CLAIM_BOUNDARY
+
+          c = GITHUB_HIGH_IMPACT_CLAIM_BOUNDARY
+          assert len(DEFAULT_CAPABILITY_SPECS) == 32
+          assert c['registered_capability_count'] == 2
+          assert c['reference_reauthorization_exact_intent_hmac_bound'] is True
+          assert c['repository_admin_operation'] == 'SET_DESCRIPTION_CAS'
+          assert c['destructive_operation'] == 'DELETE_FILE_DISPOSABLE_BRANCH'
+          assert c['protected_branch_destructive_allowed'] is False
+          assert c['non_disposable_branch_destructive_allowed'] is False
+          assert c['non_disposable_path_destructive_allowed'] is False
+          assert c['delete_repository_supported'] is False
+          assert c['delete_protected_branch_supported'] is False
+          assert c['force_push_supported'] is False
+          assert c['effect_entering_auto_retry'] is False
+          assert c['destructive_recovery_requires_effect_marker'] is True
+          assert c['admin_no_net_change_probe_changes_description'] is False
+          assert c['admin_provider_permission_assumed'] is False
+          assert c['destructive_capability_requires_destroying_valuable_state'] is False
+
+          print('THIRD_WISH_FROZEN_CATALOG_CAPABILITIES=32')
+          print('THIRD_WISH_V1846_FINAL_HIGH_IMPACT_CONTRACTS=2')
+          print('HIGH_IMPACT_CARELESSNESS_REQUIRED=FALSE')
+          print('PROTECTED_BRANCH_DESTRUCTION=FALSE')
+          print('DELETE_REPOSITORY_REFERENCE_OPERATION=FALSE')
+          print('HIGH_IMPACT_AUTO_RETRY=FALSE')
+          PY
+
+      - name: Preserve provider status artifact
+        if: always() && steps.live_gate.outputs.allowed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-third-wish-v18-7-46-provider-status
+          path: .third-wish-v18-7-46-live/provider-status.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Remove disposable GitHub fixture branch
+        if: always() && steps.live_gate.outputs.allowed == 'true' && steps.fixture.outputs.branch != ''
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          FIXTURE_BRANCH: ${{ steps.fixture.outputs.branch }}
+        run: |
+          set +e
+          git push origin --delete "$FIXTURE_BRANCH"
+          rc=$?
+          if [ "$rc" -eq 0 ]; then
+            echo "LIVE_THIRD_WISH_DISPOSABLE_FIXTURE_BRANCH_CLEANUP=PASS"
+          else
+            echo "LIVE_THIRD_WISH_DISPOSABLE_FIXTURE_BRANCH_CLEANUP=FAILED"
+            exit "$rc"
+          fi
