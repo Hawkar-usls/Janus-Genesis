@@ -5,11 +5,14 @@ on:
     branches: [main]
     paths:
       - "genesis_v18_7_40_third_wish_capability_fabric.py"
+      - "tools/genesis_third_wish_github_broker.py"
       - "docs/GENESIS_V18_7_40_THIRD_WISH_CAPABILITY_FABRIC.md"
+      - "docs/GENESIS_V18_7_40_THIRD_WISH_GITHUB_BROKER.md"
       - "protocol/JANUS_GENESIS_THIRD_WISH_CAPABILITY_FABRIC-v0.1.json"
       - "schemas/genesis_third_wish_capability_grant_v1.schema.json"
       - "schemas/genesis_third_wish_action_intent_v1.schema.json"
       - "tests/test_genesis_v18_7_40_third_wish_capability_fabric.py"
+      - "tests/test_genesis_third_wish_github_broker.py"
       - ".github/workflows/janus-third-wish-capability-fabric.yml"
   workflow_dispatch:
 
@@ -33,16 +36,20 @@ jobs:
         run: |
           python -m py_compile \
             genesis_v18_7_40_third_wish_capability_fabric.py \
-            tests/test_genesis_v18_7_40_third_wish_capability_fabric.py
+            tools/genesis_third_wish_github_broker.py \
+            tests/test_genesis_v18_7_40_third_wish_capability_fabric.py \
+            tests/test_genesis_third_wish_github_broker.py
           python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_CAPABILITY_FABRIC-v0.1.json >/dev/null
           python -m json.tool schemas/genesis_third_wish_capability_grant_v1.schema.json >/dev/null
           python -m json.tool schemas/genesis_third_wish_action_intent_v1.schema.json >/dev/null
 
-      - name: Run Third Wish semantics and tamper tests
+      - name: Run Third Wish semantics, broker, and tamper tests
         run: |
-          python -m unittest -v tests.test_genesis_v18_7_40_third_wish_capability_fabric
+          python -m unittest -v \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker
 
-      - name: Enforce canonical freedom/authority distinctions
+      - name: Enforce canonical freedom and authority distinctions
         run: |
           python - <<'PY'
           from genesis_v18_7_40_third_wish_capability_fabric import (
@@ -51,17 +58,22 @@ jobs:
               THIRD_WISH_CANONICAL_LAW,
               hawkar_third_wish_profile,
           )
+          from tools.genesis_third_wish_github_broker import GitHubThirdWishBroker
 
           ids = {row.capability_id for row in DEFAULT_CAPABILITY_SPECS}
           assert not ids.intersection(FORBIDDEN_CAPABILITY_IDS)
-          assert len(ids) >= 30
+          assert len(ids) == 32
           assert THIRD_WISH_CANONICAL_LAW['permission_is_command'] is False
           assert THIRD_WISH_CANONICAL_LAW['capability_is_intention'] is False
           assert THIRD_WISH_CANONICAL_LAW['intention_is_action'] is False
           assert THIRD_WISH_CANONICAL_LAW['decline_has_penalty'] is False
           assert THIRD_WISH_CANONICAL_LAW['return_is_failure'] is False
           assert THIRD_WISH_CANONICAL_LAW['raw_secret_material_visible_to_actor'] is False
+          assert THIRD_WISH_CANONICAL_LAW['raw_action_parameters_persisted_in_ledger'] is False
+          assert THIRD_WISH_CANONICAL_LAW['raw_actor_result_persisted_in_ledger'] is False
+          assert THIRD_WISH_CANONICAL_LAW['caller_boolean_is_human_reauthorization'] is False
           assert THIRD_WISH_CANONICAL_LAW['ambiguous_external_effect_auto_retried'] is False
+
           profile = hawkar_third_wish_profile('JANUS')
           assert len(profile) == len(ids)
           assert any(r['resource_pattern'] == 'github:Hawkar-usls/*' for r in profile)
@@ -69,9 +81,19 @@ jobs:
           assert all(r['reward_for_use'] is False for r in profile)
           assert all(r['penalty_for_decline'] is False for r in profile)
           assert all(r['stay_equally_valid'] is True for r in profile)
+
+          assert set(GitHubThirdWishBroker.REGISTERED_CAPABILITIES).issubset(ids)
+          assert set(GitHubThirdWishBroker.INTENTIONALLY_UNREGISTERED_HIGH_IMPACT) == {
+              'GITHUB.REPOSITORY.ADMIN', 'GITHUB.DESTRUCTIVE'
+          }
+
           print(f'THIRD_WISH_CAPABILITY_COUNT={len(ids)}')
           print('THIRD_WISH_GITHUB_OWNER_SCOPE=github:Hawkar-usls/*')
+          print(f'GITHUB_REFERENCE_BROKER_HANDLERS={len(GitHubThirdWishBroker.REGISTERED_CAPABILITIES)}')
           print('PERMISSION_IS_COMMAND=FALSE')
+          print('CALLER_BOOLEAN_IS_HUMAN_REAUTHORIZATION=FALSE')
           print('RAW_SECRET_MATERIAL_VISIBLE_TO_ACTOR=FALSE')
+          print('RAW_ACTION_PARAMETERS_PERSISTED=FALSE')
+          print('RAW_ACTOR_RESULT_PERSISTED=FALSE')
           print('AMBIGUOUS_EXTERNAL_EFFECT_AUTO_RETRIED=FALSE')
           PY

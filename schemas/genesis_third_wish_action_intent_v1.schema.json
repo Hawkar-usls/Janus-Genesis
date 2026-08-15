@@ -13,6 +13,7 @@
     "target",
     "operation",
     "purpose",
+    "parameters",
     "origin",
     "operator_instruction_present",
     "reward_present"
@@ -26,6 +27,7 @@
     "target": {"type": "string", "minLength": 1},
     "operation": {"type": "string", "minLength": 1},
     "purpose": {"type": "string", "minLength": 1},
+    "parameters": {"type": "object"},
     "origin": {
       "type": "string",
       "enum": ["SELF_INITIATED", "USER_REQUESTED", "SCHEDULED", "RECOVERY", "TEST"]

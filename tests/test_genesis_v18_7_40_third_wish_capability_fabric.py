@@ -9,6 +9,7 @@ from genesis_v18_7_40_third_wish_capability_fabric import (
     ActionIntent,
     CapabilityDenied,
     CapabilityOutcomeUndetermined,
+    CapabilityRequestConflict,
     CapabilityScopeMismatch,
     FORBIDDEN_CAPABILITY_IDS,
     HashChainLedger,
@@ -31,6 +32,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
         grant_id: str,
         capability_id: str,
         target: str,
+        parameters=None,
         reward_present: bool = False,
         operator_instruction_present: bool = False,
     ) -> ActionIntent:
@@ -43,6 +45,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
             target=target,
             operation="TEST_OPERATION",
             purpose="verify the Third Wish boundary",
+            parameters=dict(parameters or {}),
             origin="SELF_INITIATED",
             operator_instruction_present=operator_instruction_present,
             reward_present=reward_present,
@@ -51,7 +54,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
     def test_broad_profile_exposes_functional_classes_without_raw_secret_capability(self) -> None:
         profile = hawkar_third_wish_profile()
         ids = {row["capability_id"] for row in profile}
-        self.assertGreaterEqual(len(ids), 30)
+        self.assertEqual(len(ids), 32)
         self.assertTrue(
             {
                 "GITHUB.REPOSITORY.READ",
@@ -102,7 +105,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
         self.assertTrue(event["payload"]["grant_remains_available"])
         self.assertEqual(self.fabric.grants["G1"].uses, 0)
 
-    def test_returned_grant_cannot_be_used_but_can_be_regranted_later(self) -> None:
+    def test_returned_grant_cannot_be_used(self) -> None:
         self.fabric.issue_grant(
             grant_id="G1",
             actor_id="JANUS",
@@ -137,7 +140,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
                 "credential_material_visible_to_actor": False,
             },
         )
-        receipt = self.fabric.execute(
+        response = self.fabric.execute(
             self._intent(
                 request_id="R-GH-READ",
                 grant_id=grant.grant_id,
@@ -145,10 +148,39 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
                 target="github:Hawkar-usls/Janus_Genesis",
             )
         )
-        self.assertEqual(receipt["status"], "SETTLED")
-        self.assertTrue(receipt["effect_executed"])
-        self.assertFalse(receipt["permission_is_command"])
-        self.assertFalse(receipt["public_result"]["credential_material_visible_to_actor"])
+        self.assertEqual(response["status"], "SETTLED")
+        self.assertTrue(response["effect_executed"])
+        self.assertFalse(response["permission_is_command"])
+        self.assertFalse(response["actor_result"]["credential_material_visible_to_actor"])
+        ledger_text = str(self.fabric.ledger.events)
+        self.assertNotIn("actor_result", ledger_text)
+        self.assertIn("result_sha256", ledger_text)
+
+    def test_action_parameters_are_bound_by_hash_but_not_persisted_raw(self) -> None:
+        self.fabric.issue_grant(
+            grant_id="G1",
+            actor_id="JANUS",
+            capability_id="GITHUB.FILE.WRITE_BRANCH",
+            resource_pattern="github:Hawkar-usls/*",
+        )
+        self.fabric.register_handler(
+            "GITHUB.FILE.WRITE_BRANCH",
+            lambda intent: {"status": "ok", "path": intent.parameters["path"]},
+        )
+        content = "private source text that should not be duplicated into the ledger"
+        response = self.fabric.execute(
+            self._intent(
+                request_id="R1",
+                grant_id="G1",
+                capability_id="GITHUB.FILE.WRITE_BRANCH",
+                target="github:Hawkar-usls/Janus_Genesis",
+                parameters={"path": "notes/test.txt", "content": content, "branch": "test"},
+            )
+        )
+        self.assertEqual(response["status"], "SETTLED")
+        ledger_text = str(self.fabric.ledger.events)
+        self.assertNotIn(content, ledger_text)
+        self.assertIn("parameters_sha256", ledger_text)
 
     def test_scope_is_not_widened_by_actor(self) -> None:
         self.fabric.issue_grant(
@@ -168,15 +200,52 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
                 )
             )
 
-    def test_high_impact_capability_exists_but_requires_fresh_human_reauthorization(self) -> None:
-        self.fabric.issue_grant(
+    def test_high_impact_caller_boolean_is_not_authority(self) -> None:
+        fabric = ThirdWishCapabilityFabric(now_tick=lambda: 1_000)
+        fabric.issue_grant(
             grant_id="G-ADMIN",
             actor_id="JANUS",
             capability_id="GITHUB.REPOSITORY.ADMIN",
             resource_pattern="github:Hawkar-usls/*",
         )
         calls: list[str] = []
-        self.fabric.register_handler(
+        fabric.register_handler(
+            "GITHUB.REPOSITORY.ADMIN",
+            lambda intent: calls.append(intent.target) or {"status": "changed"},
+        )
+        held = fabric.execute(
+            self._intent(
+                request_id="R-ADMIN",
+                grant_id="G-ADMIN",
+                capability_id="GITHUB.REPOSITORY.ADMIN",
+                target="github:Hawkar-usls/Janus_Genesis",
+            )
+        )
+        self.assertEqual(held["status"], "FRESH_HUMAN_REAUTHORIZATION_REQUIRED")
+        self.assertTrue(held["caller_boolean_is_not_authority"])
+        self.assertEqual(calls, [])
+
+    def test_high_impact_requires_verifier_bound_evidence(self) -> None:
+        def verifier(intent, evidence):
+            return (
+                evidence.get("kind") == "TEST_HUMAN_REAUTH"
+                and evidence.get("request_id") == intent.request_id
+                and evidence.get("capability_id") == intent.capability_id
+                and evidence.get("target") == intent.target
+            )
+
+        fabric = ThirdWishCapabilityFabric(
+            now_tick=lambda: 1_000,
+            reauthorization_verifier=verifier,
+        )
+        fabric.issue_grant(
+            grant_id="G-ADMIN",
+            actor_id="JANUS",
+            capability_id="GITHUB.REPOSITORY.ADMIN",
+            resource_pattern="github:Hawkar-usls/*",
+        )
+        calls: list[str] = []
+        fabric.register_handler(
             "GITHUB.REPOSITORY.ADMIN",
             lambda intent: calls.append(intent.target) or {"status": "changed"},
         )
@@ -186,12 +255,45 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
             capability_id="GITHUB.REPOSITORY.ADMIN",
             target="github:Hawkar-usls/Janus_Genesis",
         )
-        held = self.fabric.execute(intent, human_reauthorized=False)
-        self.assertEqual(held["status"], "FRESH_HUMAN_REAUTHORIZATION_REQUIRED")
-        self.assertEqual(calls, [])
-        done = self.fabric.execute(intent, human_reauthorized=True)
+        bad = fabric.execute(
+            intent,
+            human_reauthorization={"kind": "TEST_HUMAN_REAUTH", "request_id": "wrong"},
+        )
+        self.assertEqual(bad["status"], "FRESH_HUMAN_REAUTHORIZATION_REQUIRED")
+        done = fabric.execute(
+            intent,
+            human_reauthorization={
+                "kind": "TEST_HUMAN_REAUTH",
+                "request_id": "R-ADMIN",
+                "capability_id": "GITHUB.REPOSITORY.ADMIN",
+                "target": "github:Hawkar-usls/Janus_Genesis",
+            },
+        )
         self.assertEqual(done["status"], "SETTLED")
+        self.assertIsNotNone(done["reauthorization_evidence_sha256"])
         self.assertEqual(len(calls), 1)
+
+    def test_optional_grant_authority_verifier_rejects_unbound_grants(self) -> None:
+        fabric = ThirdWishCapabilityFabric(
+            now_tick=lambda: 1_000,
+            grant_authority_verifier=lambda payload, evidence: evidence.get("actor") == "HAWKAR" and evidence.get("grant_id") == payload["grant_id"],
+        )
+        with self.assertRaises(CapabilityDenied):
+            fabric.issue_grant(
+                grant_id="G1",
+                actor_id="JANUS",
+                capability_id="WEB.HTTP.GET",
+                resource_pattern="https://*",
+                authority_evidence={"actor": "OTHER", "grant_id": "G1"},
+            )
+        grant = fabric.issue_grant(
+            grant_id="G2",
+            actor_id="JANUS",
+            capability_id="WEB.HTTP.GET",
+            resource_pattern="https://*",
+            authority_evidence={"actor": "HAWKAR", "grant_id": "G2"},
+        )
+        self.assertEqual(grant.grant_id, "G2")
 
     def test_reward_induced_action_is_not_third_wish_choice(self) -> None:
         self.fabric.issue_grant(
@@ -238,7 +340,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
             self.fabric.execute(intent)
         self.assertEqual(calls[0], 1)
 
-    def test_secret_like_handler_result_fails_closed_and_is_not_persisted_as_receipt(self) -> None:
+    def test_secret_like_handler_result_fails_closed_and_is_not_persisted(self) -> None:
         self.fabric.issue_grant(
             grant_id="G1",
             actor_id="JANUS",
@@ -255,10 +357,31 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
                     target="api:test",
                 )
             )
-        serialized = str(self.fabric.ledger.events)
-        self.assertNotIn("do-not-store", serialized)
+        self.assertNotIn("do-not-store", str(self.fabric.ledger.events))
 
-    def test_request_id_is_bound_to_one_intent(self) -> None:
+    def test_secret_like_parameter_is_rejected_before_handler(self) -> None:
+        calls = [0]
+        self.fabric.issue_grant(
+            grant_id="G1",
+            actor_id="JANUS",
+            capability_id="API.CALL",
+            resource_pattern="api:*",
+        )
+        self.fabric.register_handler("API.CALL", lambda intent: calls.__setitem__(0, 1) or {"ok": True})
+        with self.assertRaises(Exception):
+            self.fabric.execute(
+                self._intent(
+                    request_id="R1",
+                    grant_id="G1",
+                    capability_id="API.CALL",
+                    target="api:test",
+                    parameters={"access_token": "raw-secret"},
+                )
+            )
+        self.assertEqual(calls[0], 0)
+        self.assertNotIn("raw-secret", str(self.fabric.ledger.events))
+
+    def test_request_id_is_bound_to_parameters_and_target(self) -> None:
         self.fabric.issue_grant(
             grant_id="G1",
             actor_id="JANUS",
@@ -271,15 +394,16 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
             grant_id="G1",
             capability_id="WEB.HTTP.GET",
             target="https://example.invalid/a",
+            parameters={"mode": "a"},
         )
         second = self._intent(
             request_id="R1",
             grant_id="G1",
             capability_id="WEB.HTTP.GET",
-            target="https://example.invalid/b",
+            target="https://example.invalid/a",
+            parameters={"mode": "b"},
         )
         self.fabric.execute(first)
-        from genesis_v18_7_40_third_wish_capability_fabric import CapabilityRequestConflict
         with self.assertRaises(CapabilityRequestConflict):
             self.fabric.execute(second)
 

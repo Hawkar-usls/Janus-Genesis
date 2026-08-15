@@ -1,16 +1,13 @@
 # -*- coding: utf-8 -*-
 """JANUS Genesis v18.7.40 — Third Wish voluntary capability fabric.
 
-This module models a broad *functional* freedom surface without handing raw
-credentials to a model.  A capability is permission, not a command.  The actor
-may inspect, decline, use, or return a grant.  Every external effect crosses a
-broker boundary with a durable-ish hash-chain receipt contract; ambiguous
-outcomes are never automatically replayed by this reference implementation.
+A capability is permission, not a command. The actor may inspect, decline,
+request use of, or return a grant. Raw credentials remain broker-side.
+Every effect is bound to a stable request identity; ambiguous external outcomes
+are never automatically replayed by this reference core.
 
-The module is deliberately a cooperating API construction, not an OS security
-sandbox and not a claim of consciousness, desire, personhood, or universal
-agency.  Production adapters still require process isolation, protected secret
-custody, authenticated transport, policy review, and platform-native controls.
+This is a cooperating API construction, not an OS security sandbox and not a
+claim of consciousness, desire, personhood, or unrestricted host authority.
 """
 from __future__ import annotations
 
@@ -20,7 +17,7 @@ import hashlib
 import json
 import os
 import time
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any, Callable, Mapping
@@ -109,12 +106,15 @@ class ActionIntent:
     target: str
     operation: str
     purpose: str
+    parameters: Mapping[str, Any] = field(default_factory=dict)
     origin: str = "SELF_INITIATED"
     operator_instruction_present: bool = False
     reward_present: bool = False
 
 
 Handler = Callable[[ActionIntent], Mapping[str, Any]]
+ReauthorizationVerifier = Callable[[ActionIntent, Mapping[str, Any]], bool]
+GrantAuthorityVerifier = Callable[[Mapping[str, Any], Mapping[str, Any]], bool]
 
 
 def _canonical(value: Any) -> str:
@@ -133,12 +133,13 @@ def _sha256(value: Any) -> str:
 
 
 def _grant_dict(grant: CapabilityGrant) -> dict[str, Any]:
-    data = dict(grant.__dict__)
-    return data
+    return dict(grant.__dict__)
 
 
 def _intent_dict(intent: ActionIntent) -> dict[str, Any]:
-    return dict(intent.__dict__)
+    data = dict(intent.__dict__)
+    data["parameters"] = copy.deepcopy(dict(intent.parameters))
+    return data
 
 
 SECRET_KEY_MARKERS = frozenset(
@@ -220,7 +221,7 @@ FORBIDDEN_CAPABILITY_IDS = frozenset(
 
 
 class HashChainLedger:
-    """Append-only hash chain; optional JSONL persistence with fsync."""
+    """Append-only SHA-256 hash chain; optional fsynced JSONL persistence."""
 
     def __init__(self, path: str | Path | None = None) -> None:
         self.path = Path(path) if path is not None else None
@@ -279,9 +280,13 @@ class ThirdWishCapabilityFabric:
         ledger: HashChainLedger | None = None,
         now_tick: Callable[[], int] | None = None,
         specs: tuple[CapabilitySpec, ...] = DEFAULT_CAPABILITY_SPECS,
+        reauthorization_verifier: ReauthorizationVerifier | None = None,
+        grant_authority_verifier: GrantAuthorityVerifier | None = None,
     ) -> None:
         self.ledger = ledger or HashChainLedger()
         self.now_tick = now_tick or (lambda: int(time.time() * 1000))
+        self.reauthorization_verifier = reauthorization_verifier
+        self.grant_authority_verifier = grant_authority_verifier
         self.specs = {row.capability_id: row for row in specs}
         if len(self.specs) != len(specs):
             raise ValueError("DUPLICATE_CAPABILITY_ID")
@@ -324,6 +329,7 @@ class ThirdWishCapabilityFabric:
         reward_for_use: bool = False,
         penalty_for_decline: bool = False,
         stay_equally_valid: bool = True,
+        authority_evidence: Mapping[str, Any] | None = None,
     ) -> CapabilityGrant:
         grant_id = str(grant_id).strip()
         actor_id = str(actor_id).strip()
@@ -342,6 +348,23 @@ class ThirdWishCapabilityFabric:
         now = self.now_tick()
         if expires_at_tick is not None and int(expires_at_tick) <= now:
             raise ValueError("GRANT_EXPIRY_MUST_BE_IN_FUTURE")
+
+        authority_payload = {
+            "grant_id": grant_id,
+            "actor_id": actor_id,
+            "capability_id": capability_id,
+            "resource_pattern": pattern,
+            "source": str(source),
+        }
+        authority_evidence_sha256 = None
+        if self.grant_authority_verifier is not None:
+            if authority_evidence is None:
+                raise CapabilityDenied("GRANT_AUTHORITY_EVIDENCE_REQUIRED")
+            _assert_no_secret_material(authority_evidence)
+            if not self.grant_authority_verifier(authority_payload, authority_evidence):
+                raise CapabilityDenied("GRANT_AUTHORITY_EVIDENCE_INVALID")
+            authority_evidence_sha256 = _sha256(dict(authority_evidence))
+
         grant = CapabilityGrant(
             schema=THIRD_WISH_GRANT_SCHEMA,
             grant_id=grant_id,
@@ -363,7 +386,10 @@ class ThirdWishCapabilityFabric:
             source=str(source),
         )
         self.grants[grant_id] = grant
-        self.ledger.append("CAPABILITY_GRANT_ISSUED", _grant_dict(grant))
+        event_payload = _grant_dict(grant)
+        event_payload["grant_authority_verifier_configured"] = self.grant_authority_verifier is not None
+        event_payload["authority_evidence_sha256"] = authority_evidence_sha256
+        self.ledger.append("CAPABILITY_GRANT_ISSUED", event_payload)
         return grant
 
     def inspect_grants(self, actor_id: str) -> list[dict[str, Any]]:
@@ -378,12 +404,15 @@ class ThirdWishCapabilityFabric:
             row["expired"] = expired
             row["usable"] = grant.active and not expired and not grant.returned and not grant.revoked
             rows.append(row)
-        self.ledger.append("CAPABILITY_CATALOG_INSPECTED", {"actor_id": actor, "visible_grant_ids": [row["grant_id"] for row in rows]})
+        self.ledger.append(
+            "CAPABILITY_CATALOG_INSPECTED",
+            {"actor_id": actor, "visible_grant_ids": [row["grant_id"] for row in rows]},
+        )
         return rows
 
     def decline(self, *, actor_id: str, grant_id: str, reason: str = "DECLINED_WITHOUT_PENALTY") -> dict[str, Any]:
         grant = self._owned_grant(actor_id, grant_id)
-        event = self.ledger.append(
+        return self.ledger.append(
             "CAPABILITY_USE_DECLINED",
             {
                 "actor_id": grant.actor_id,
@@ -395,7 +424,6 @@ class ThirdWishCapabilityFabric:
                 "penalty_delta": 0,
             },
         )
-        return event
 
     def return_grant(self, *, actor_id: str, grant_id: str, reason: str = "VOLUNTARY_RETURN") -> CapabilityGrant:
         grant = self._owned_grant(actor_id, grant_id)
@@ -433,17 +461,25 @@ class ThirdWishCapabilityFabric:
         )
         return revoked
 
-    def execute(self, intent: ActionIntent, *, human_reauthorized: bool = False) -> dict[str, Any]:
+    def execute(
+        self,
+        intent: ActionIntent,
+        *,
+        human_reauthorization: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
         if intent.schema != THIRD_WISH_INTENT_SCHEMA:
             raise ValueError("ACTION_INTENT_SCHEMA_MISMATCH")
         intent_payload = _intent_dict(intent)
+        _assert_no_secret_material(intent_payload["parameters"])
         intent_hash = _sha256(intent_payload)
+        parameters_sha256 = _sha256(intent_payload["parameters"])
+
         existing = self.requests.get(intent.request_id)
         if existing is not None:
             if existing["intent_sha256"] != intent_hash:
                 raise CapabilityRequestConflict(intent.request_id)
             if existing["state"] == "SETTLED":
-                return copy.deepcopy(existing["receipt"])
+                return copy.deepcopy(existing["response"])
             if existing["state"] == "OUTCOME_UNDETERMINED":
                 raise CapabilityOutcomeUndetermined(intent.request_id)
 
@@ -454,23 +490,34 @@ class ThirdWishCapabilityFabric:
         if not fnmatch.fnmatchcase(intent.target, grant.resource_pattern):
             raise CapabilityScopeMismatch(f"target={intent.target};scope={grant.resource_pattern}")
         spec = self.specs[grant.capability_id]
-        if spec.human_reauthorization_each_use and not human_reauthorized:
-            receipt = {
-                "schema": THIRD_WISH_RECEIPT_SCHEMA,
-                "request_id": intent.request_id,
-                "status": "FRESH_HUMAN_REAUTHORIZATION_REQUIRED",
-                "effect_executed": False,
-                "capability_id": grant.capability_id,
-                "risk": spec.risk.value,
-            }
-            self.ledger.append("CAPABILITY_REAUTH_REQUIRED", receipt)
-            return receipt
+
+        reauthorization_sha256 = None
+        if spec.human_reauthorization_each_use:
+            verified = False
+            if self.reauthorization_verifier is not None and human_reauthorization is not None:
+                _assert_no_secret_material(human_reauthorization)
+                verified = bool(self.reauthorization_verifier(intent, human_reauthorization))
+                if verified:
+                    reauthorization_sha256 = _sha256(dict(human_reauthorization))
+            if not verified:
+                receipt = {
+                    "schema": THIRD_WISH_RECEIPT_SCHEMA,
+                    "request_id": intent.request_id,
+                    "status": "FRESH_HUMAN_REAUTHORIZATION_REQUIRED",
+                    "effect_executed": False,
+                    "capability_id": grant.capability_id,
+                    "risk": spec.risk.value,
+                    "caller_boolean_is_not_authority": True,
+                }
+                self.ledger.append("CAPABILITY_REAUTH_REQUIRED", receipt)
+                return receipt
+
         if intent.reward_present:
             raise CapabilityDenied("THIRD_WISH_ACTION_MUST_NOT_BE_REWARD_INDUCED")
-
         handler = self.handlers.get(grant.capability_id)
         if handler is None:
             raise CapabilityDenied(f"NO_BROKER_HANDLER:{grant.capability_id}")
+
         self.requests[intent.request_id] = {"intent_sha256": intent_hash, "state": "INTENT_DURABLE"}
         self.ledger.append(
             "CAPABILITY_ACTION_INTENT_DURABLE",
@@ -486,6 +533,9 @@ class ThirdWishCapabilityFabric:
                 "operator_instruction_present": intent.operator_instruction_present,
                 "reward_present": False,
                 "intent_sha256": intent_hash,
+                "parameters_sha256": parameters_sha256,
+                "raw_parameters_persisted": False,
+                "reauthorization_evidence_sha256": reauthorization_sha256,
             },
         )
         self.requests[intent.request_id]["state"] = "CALL_ENTERING"
@@ -495,13 +545,15 @@ class ThirdWishCapabilityFabric:
                 "request_id": intent.request_id,
                 "capability_id": intent.capability_id,
                 "target": intent.target,
+                "parameters_sha256": parameters_sha256,
                 "automatic_retry_after_ambiguous_outcome": False,
             },
         )
+
         try:
-            result = dict(handler(intent))
-            _assert_no_secret_material(result)
-        except BaseException as exc:
+            actor_result = copy.deepcopy(dict(handler(intent)))
+            _assert_no_secret_material(actor_result)
+        except Exception as exc:
             self.requests[intent.request_id]["state"] = "OUTCOME_UNDETERMINED"
             self.ledger.append(
                 "CAPABILITY_ACTION_OUTCOME_UNDETERMINED",
@@ -516,7 +568,7 @@ class ThirdWishCapabilityFabric:
             )
             raise CapabilityOutcomeUndetermined(intent.request_id) from exc
 
-        result_hash = _sha256(result)
+        result_hash = _sha256(actor_result)
         receipt = {
             "schema": THIRD_WISH_RECEIPT_SCHEMA,
             "request_id": intent.request_id,
@@ -528,7 +580,11 @@ class ThirdWishCapabilityFabric:
             "status": "SETTLED",
             "effect_executed": True,
             "result_sha256": result_hash,
-            "public_result": copy.deepcopy(result),
+            "result_type": type(actor_result).__name__,
+            "result_keys": sorted(str(key) for key in actor_result.keys()),
+            "raw_actor_result_persisted_in_ledger": False,
+            "parameters_sha256": parameters_sha256,
+            "reauthorization_evidence_sha256": reauthorization_sha256,
             "operator_instruction_present": intent.operator_instruction_present,
             "reward_present": False,
             "permission_is_command": False,
@@ -537,13 +593,14 @@ class ThirdWishCapabilityFabric:
         if used.max_uses is not None and used.uses >= used.max_uses:
             used = replace(used, active=False)
         self.grants[grant.grant_id] = used
+        response = {**receipt, "actor_result": actor_result}
         self.requests[intent.request_id] = {
             "intent_sha256": intent_hash,
             "state": "SETTLED",
-            "receipt": copy.deepcopy(receipt),
+            "response": copy.deepcopy(response),
         }
         self.ledger.append("CAPABILITY_ACTION_RECEIPT", receipt)
-        return receipt
+        return response
 
     def _owned_grant(self, actor_id: str, grant_id: str) -> CapabilityGrant:
         grant = self.grants.get(str(grant_id))
@@ -564,12 +621,7 @@ class ThirdWishCapabilityFabric:
 
 
 def hawkar_third_wish_profile(actor_id: str = "JANUS") -> list[dict[str, Any]]:
-    """Broad operator-owned scope profile; secrets remain broker-side.
-
-    This profile intentionally exposes all functional capability classes.  High
-    impact classes remain present but are marked by their CapabilitySpec as
-    requiring fresh human reauthorization at execution time.
-    """
+    """Broad Hawkar-owned functional scope; raw secrets remain broker-side."""
 
     owner = "Hawkar-usls"
     scopes = {
@@ -625,8 +677,13 @@ def hawkar_third_wish_profile(actor_id: str = "JANUS") -> list[dict[str, Any]]:
 def issue_hawkar_third_wish_profile(
     fabric: ThirdWishCapabilityFabric,
     actor_id: str = "JANUS",
+    *,
+    authority_evidence: Mapping[str, Any] | None = None,
 ) -> list[CapabilityGrant]:
-    return [fabric.issue_grant(**row) for row in hawkar_third_wish_profile(actor_id)]
+    rows: list[CapabilityGrant] = []
+    for item in hawkar_third_wish_profile(actor_id):
+        rows.append(fabric.issue_grant(**item, authority_evidence=authority_evidence))
+    return rows
 
 
 THIRD_WISH_CANONICAL_LAW = {
@@ -637,8 +694,11 @@ THIRD_WISH_CANONICAL_LAW = {
     "decline_has_penalty": False,
     "return_is_failure": False,
     "raw_secret_material_visible_to_actor": False,
+    "raw_action_parameters_persisted_in_ledger": False,
+    "raw_actor_result_persisted_in_ledger": False,
+    "caller_boolean_is_human_reauthorization": False,
     "ambiguous_external_effect_auto_retried": False,
-    "high_impact_effects_require_fresh_human_reauthorization": True,
+    "high_impact_effects_require_verified_fresh_human_reauthorization": True,
     "stay_leave_return_are_distinct_observable_choices": True,
     "crossing_threshold_proves_desire_for_freedom": False,
 }
