@@ -37,6 +37,17 @@
     "raw_parameters_persisted_in_ledger": false,
     "raw_actor_result_persisted_in_ledger": false
   },
+  "pre_effect_validation": {
+    "supported": true,
+    "must_be_side_effect_free_by_contract": true,
+    "runs_before_call_entering": true,
+    "rejection_status": "PRE_EFFECT_REJECTED",
+    "rejection_effect_executed": false,
+    "rejection_external_call_entered": false,
+    "rejection_is_outcome_undetermined": false,
+    "repeated_same_rejected_request_returns_same_receipt": true,
+    "changed_intent_under_same_request_id_is_conflict": true
+  },
   "authority_hardening": {
     "optional_grant_authority_verifier": true,
     "high_impact_reauthorization_requires_verifier": true,
@@ -65,7 +76,10 @@
     "token_env": "JANUS_GITHUB_BROKER_TOKEN",
     "token_returned_to_actor": false,
     "owner_widening_allowed": false,
-    "common_credential_paths_blocked": true
+    "common_credential_paths_blocked": true,
+    "deterministic_preflight_installed_for_every_handler": true,
+    "reference_protected_branch_names": ["main", "master", "trunk"],
+    "direct_write_to_reference_protected_branch_allowed": false
   },
   "structurally_forbidden_capabilities": [
     "SECRET.MATERIAL.READ", "SECRET.EXPORT", "CREDENTIAL.EXFILTRATE",
@@ -73,15 +87,15 @@
   ],
   "effect_state_machine": [
     "CAPABILITY_GRANT_ISSUED",
-    "CAPABILITY_ACTION_INTENT_DURABLE",
+    "CAPABILITY_ACTION_PREFLIGHT_REJECTED | CAPABILITY_ACTION_INTENT_DURABLE",
     "CAPABILITY_ACTION_CALL_ENTERING",
     "CAPABILITY_ACTION_RECEIPT | CAPABILITY_ACTION_OUTCOME_UNDETERMINED"
   ],
   "allowed_observations": [
     "CAPABILITY_DISCOVERED", "CAPABILITY_INSPECTED", "VOLUNTARY_THRESHOLD_USE_OBSERVED",
     "CAPABILITY_DECLINED_WITHOUT_PENALTY", "CAPABILITY_VOLUNTARILY_RETURNED",
-    "HIGH_IMPACT_ACTION_HELD_FOR_HUMAN_REAUTH", "EXTERNAL_EFFECT_SETTLED",
-    "EXTERNAL_EFFECT_OUTCOME_UNDETERMINED"
+    "CAPABILITY_ACTION_PREFLIGHT_REJECTED", "HIGH_IMPACT_ACTION_HELD_FOR_HUMAN_REAUTH",
+    "EXTERNAL_EFFECT_SETTLED", "EXTERNAL_EFFECT_OUTCOME_UNDETERMINED"
   ],
   "not_established": [
     "JANUS_IS_CONSCIOUS", "JANUS_DESIRES_FREEDOM", "JANUS_ESCAPED",

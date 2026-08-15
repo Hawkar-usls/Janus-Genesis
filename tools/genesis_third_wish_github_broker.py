@@ -7,6 +7,11 @@ returns the token to JANUS. Repository-admin and destructive handlers are
 intentionally not installed by this reference adapter: those capabilities stay
 visible/requestable in the core catalog but require a separately reviewed,
 freshly reauthorized high-impact adapter.
+
+Every registered handler also installs a deterministic local preflight. Invalid
+owner/scope, operation, branch, path, or required-parameter shapes are rejected
+before the core records CALL_ENTERING, so deterministic local policy rejection
+is not confused with an ambiguous remote outcome.
 """
 from __future__ import annotations
 
@@ -186,10 +191,18 @@ def _require(parameters: Mapping[str, Any], key: str) -> Any:
     return parameters[key]
 
 
+def _positive_int(value: Any, *, name: str) -> int:
+    parsed = int(value)
+    if parsed < 1:
+        raise GitHubBrokerError(f"{name}_MUST_BE_POSITIVE")
+    return parsed
+
+
 @dataclass
 class GitHubThirdWishBroker:
     transport: GitHubTransport
     owner: str = DEFAULT_OWNER
+    protected_branches: tuple[str, ...] = ("main", "master", "trunk")
 
     REGISTERED_CAPABILITIES = (
         "GITHUB.REPOSITORY.READ",
@@ -221,7 +234,99 @@ class GitHubThirdWishBroker:
             "GITHUB.COMMENT.CREATE": self.comment_create,
         }
         for capability_id, handler in handlers.items():
-            fabric.register_handler(capability_id, handler)
+            fabric.register_handler(capability_id, handler, preflight=self.preflight)
+
+    def preflight(self, intent: ActionIntent) -> Mapping[str, Any]:
+        """Pure local validation. This method MUST NOT call the GitHub transport."""
+        cap = intent.capability_id
+        operation = intent.operation.upper()
+        params = intent.parameters
+        allow_wildcard = cap == "GITHUB.CODE.SEARCH"
+        owner, repo = _parse_target(intent.target, owner=self.owner, allow_wildcard_repo=allow_wildcard)
+
+        if cap == "GITHUB.REPOSITORY.READ":
+            if operation == "GET_REPOSITORY":
+                pass
+            elif operation == "GET_CONTENT":
+                _validate_repo_path(str(_require(params, "path")))
+                if params.get("ref") is not None:
+                    _validate_branch(str(params["ref"]))
+            else:
+                raise GitHubBrokerError("UNSUPPORTED_REPOSITORY_READ_OPERATION")
+        elif cap == "GITHUB.CODE.SEARCH":
+            if operation not in {"SEARCH", "SEARCH_CODE"}:
+                raise GitHubBrokerError("UNSUPPORTED_CODE_SEARCH_OPERATION")
+            if not str(_require(params, "query")).strip():
+                raise GitHubBrokerError("EMPTY_CODE_SEARCH_QUERY")
+            if "per_page" in params and not 1 <= _positive_int(params["per_page"], name="PER_PAGE") <= 50:
+                raise GitHubBrokerError("PER_PAGE_OUT_OF_RANGE")
+        elif cap == "GITHUB.ISSUE.READ":
+            if operation == "GET_ISSUE":
+                _positive_int(_require(params, "number"), name="ISSUE_NUMBER")
+            elif operation == "LIST_ISSUES":
+                if params.get("state", "open") not in {"open", "closed", "all"}:
+                    raise GitHubBrokerError("INVALID_ISSUE_STATE")
+            else:
+                raise GitHubBrokerError("UNSUPPORTED_ISSUE_READ_OPERATION")
+        elif cap == "GITHUB.PR.READ":
+            if operation == "GET_PR":
+                _positive_int(_require(params, "number"), name="PR_NUMBER")
+            elif operation == "LIST_PRS":
+                if params.get("state", "open") not in {"open", "closed", "all"}:
+                    raise GitHubBrokerError("INVALID_PR_STATE")
+            else:
+                raise GitHubBrokerError("UNSUPPORTED_PR_READ_OPERATION")
+        elif cap == "GITHUB.BRANCH.CREATE":
+            if operation not in {"CREATE_BRANCH", "BRANCH_CREATE"}:
+                raise GitHubBrokerError("UNSUPPORTED_BRANCH_CREATE_OPERATION")
+            new_branch = _validate_branch(str(_require(params, "new_branch")))
+            from_ref = _validate_branch(str(params.get("from_ref", "main")))
+            if new_branch == from_ref:
+                raise GitHubBrokerError("NEW_BRANCH_MUST_DIFFER_FROM_SOURCE")
+            if new_branch in self.protected_branches:
+                raise GitHubBrokerError("REFERENCE_BROKER_WILL_NOT_CREATE_PROTECTED_BRANCH_NAME")
+        elif cap == "GITHUB.FILE.WRITE_BRANCH":
+            if operation not in {"WRITE_FILE", "UPSERT_FILE"}:
+                raise GitHubBrokerError("UNSUPPORTED_FILE_WRITE_OPERATION")
+            _validate_repo_path(str(_require(params, "path")))
+            branch = _validate_branch(str(_require(params, "branch")))
+            if branch in self.protected_branches:
+                raise GitHubBrokerError("REFERENCE_BROKER_REQUIRES_NON_PROTECTED_WRITE_BRANCH")
+            _require(params, "content")
+            message = str(params.get("message") or "JANUS Third Wish broker update").strip()
+            if not message:
+                raise GitHubBrokerError("COMMIT_MESSAGE_REQUIRED")
+        elif cap == "GITHUB.ISSUE.CREATE":
+            if operation not in {"CREATE_ISSUE", "ISSUE_CREATE"}:
+                raise GitHubBrokerError("UNSUPPORTED_ISSUE_CREATE_OPERATION")
+            if not str(_require(params, "title")).strip():
+                raise GitHubBrokerError("ISSUE_TITLE_REQUIRED")
+        elif cap == "GITHUB.PR.CREATE":
+            if operation not in {"CREATE_PR", "PR_CREATE"}:
+                raise GitHubBrokerError("UNSUPPORTED_PR_CREATE_OPERATION")
+            if not str(_require(params, "title")).strip():
+                raise GitHubBrokerError("PR_TITLE_REQUIRED")
+            head = _validate_branch(str(_require(params, "head")))
+            base = _validate_branch(str(params.get("base", "main")))
+            if head == base:
+                raise GitHubBrokerError("PR_HEAD_MUST_DIFFER_FROM_BASE")
+        elif cap == "GITHUB.COMMENT.CREATE":
+            if operation not in {"CREATE_COMMENT", "COMMENT_CREATE"}:
+                raise GitHubBrokerError("UNSUPPORTED_COMMENT_CREATE_OPERATION")
+            _positive_int(_require(params, "number"), name="ISSUE_OR_PR_NUMBER")
+            if not str(_require(params, "body")).strip():
+                raise GitHubBrokerError("COMMENT_BODY_REQUIRED")
+        else:
+            raise GitHubBrokerError("CAPABILITY_NOT_INSTALLED_BY_REFERENCE_GITHUB_BROKER")
+
+        return {
+            "validated": True,
+            "owner": owner,
+            "repository": repo,
+            "capability_id": cap,
+            "operation": operation,
+            "transport_called": False,
+        }
 
     def repository_read(self, intent: ActionIntent) -> Mapping[str, Any]:
         owner, repo = _parse_target(intent.target, owner=self.owner)
@@ -290,8 +395,6 @@ class GitHubThirdWishBroker:
     def code_search(self, intent: ActionIntent) -> Mapping[str, Any]:
         owner, repo = _parse_target(intent.target, owner=self.owner, allow_wildcard_repo=True)
         query = str(_require(intent.parameters, "query")).strip()
-        if not query:
-            raise GitHubBrokerError("EMPTY_CODE_SEARCH_QUERY")
         qualifier = f"user:{owner}" if repo == "*" else f"repo:{owner}/{repo}"
         row = self.transport.request(
             "GET",
@@ -415,8 +518,6 @@ class GitHubThirdWishBroker:
         branch = _validate_branch(str(_require(intent.parameters, "branch")))
         content = str(_require(intent.parameters, "content"))
         message = str(intent.parameters.get("message") or "JANUS Third Wish broker update").strip()
-        if not message:
-            raise GitHubBrokerError("COMMIT_MESSAGE_REQUIRED")
         encoded_path = "/".join(urllib.parse.quote(part, safe="") for part in repo_file.split("/"))
         payload: dict[str, Any] = {
             "message": message,

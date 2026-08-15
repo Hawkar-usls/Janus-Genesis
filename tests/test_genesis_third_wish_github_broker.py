@@ -6,7 +6,6 @@ import unittest
 
 from genesis_v18_7_40_third_wish_capability_fabric import (
     ActionIntent,
-    CapabilityOutcomeUndetermined,
     THIRD_WISH_INTENT_SCHEMA,
     ThirdWishCapabilityFabric,
     issue_hawkar_third_wish_profile,
@@ -100,8 +99,10 @@ class GitHubThirdWishBrokerTests(unittest.TestCase):
     def test_reference_adapter_registers_read_and_reversible_github_surface_only(self) -> None:
         for capability_id in GitHubThirdWishBroker.REGISTERED_CAPABILITIES:
             self.assertIn(capability_id, self.fabric.handlers)
+            self.assertIn(capability_id, self.fabric.preflights)
         for capability_id in GitHubThirdWishBroker.INTENTIONALLY_UNREGISTERED_HIGH_IMPACT:
             self.assertNotIn(capability_id, self.fabric.handlers)
+            self.assertNotIn(capability_id, self.fabric.preflights)
 
     def test_repository_metadata_and_content_read(self) -> None:
         meta = self.fabric.execute(self._intent("GITHUB.REPOSITORY.READ", "GET_REPOSITORY"))
@@ -116,6 +117,12 @@ class GitHubThirdWishBrokerTests(unittest.TestCase):
         )
         self.assertEqual(content["actor_result"]["text"], "hello janus\n")
         self.assertNotIn("hello janus", str(self.fabric.ledger.events))
+        durable = next(
+            row["payload"] for row in self.fabric.ledger.events
+            if row["event_type"] == "CAPABILITY_ACTION_INTENT_DURABLE" and row["payload"]["request_id"] == "REQ-CONTENT"
+        )
+        self.assertTrue(durable["preflight_configured"])
+        self.assertIsNotNone(durable["preflight_sha256"])
 
     def test_owner_wide_code_search(self) -> None:
         response = self.fabric.execute(
@@ -183,19 +190,53 @@ class GitHubThirdWishBrokerTests(unittest.TestCase):
         )
         self.assertEqual(comment["actor_result"]["comment_id"], 777)
 
-    def test_sensitive_credential_paths_fail_before_transport_call(self) -> None:
+    def test_sensitive_credential_path_is_pre_effect_rejected_without_transport_or_call_entering(self) -> None:
         before = len(self.transport.calls)
-        with self.assertRaises(CapabilityOutcomeUndetermined):
-            self.fabric.execute(
-                self._intent(
-                    "GITHUB.REPOSITORY.READ",
-                    "GET_CONTENT",
-                    {"path": ".env"},
-                    request_id="REQ-SENSITIVE",
-                )
+        response = self.fabric.execute(
+            self._intent(
+                "GITHUB.REPOSITORY.READ",
+                "GET_CONTENT",
+                {"path": ".env"},
+                request_id="REQ-SENSITIVE",
             )
+        )
+        self.assertEqual(response["status"], "PRE_EFFECT_REJECTED")
+        self.assertFalse(response["effect_executed"])
+        self.assertFalse(response["external_call_entered"])
         self.assertEqual(len(self.transport.calls), before)
-        self.assertNotIn(".env", str(self.fabric.ledger.events[-1]))
+        related = [
+            row for row in self.fabric.ledger.events
+            if row["payload"].get("request_id") == "REQ-SENSITIVE"
+        ]
+        self.assertEqual([row["event_type"] for row in related], ["CAPABILITY_ACTION_PREFLIGHT_REJECTED"])
+        self.assertNotIn("CAPABILITY_ACTION_CALL_ENTERING", [row["event_type"] for row in related])
+        self.assertNotIn(".env", str(related))
+
+    def test_direct_write_to_reference_protected_branch_is_pre_effect_rejected(self) -> None:
+        before = len(self.transport.calls)
+        response = self.fabric.execute(
+            self._intent(
+                "GITHUB.FILE.WRITE_BRANCH",
+                "WRITE_FILE",
+                {"path": "generated/test.txt", "branch": "main", "content": "x"},
+                request_id="REQ-PROTECTED-WRITE",
+            )
+        )
+        self.assertEqual(response["status"], "PRE_EFFECT_REJECTED")
+        self.assertEqual(len(self.transport.calls), before)
+
+    def test_preflight_rejection_request_id_is_bound_and_replayed_without_revalidation(self) -> None:
+        intent = self._intent(
+            "GITHUB.REPOSITORY.READ",
+            "GET_CONTENT",
+            {"path": ".env"},
+            request_id="REQ-STABLE-REJECT",
+        )
+        first = self.fabric.execute(intent)
+        events_after_first = len(self.fabric.ledger.events)
+        second = self.fabric.execute(intent)
+        self.assertEqual(first, second)
+        self.assertEqual(len(self.fabric.ledger.events), events_after_first)
 
 
 if __name__ == "__main__":

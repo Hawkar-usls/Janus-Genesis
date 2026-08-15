@@ -6,6 +6,11 @@ request use of, or return a grant. Raw credentials remain broker-side.
 Every effect is bound to a stable request identity; ambiguous external outcomes
 are never automatically replayed by this reference core.
 
+Deterministic adapter validation may run as a preflight before the external
+call boundary. A preflight rejection is a known non-effect, not an ambiguous
+external outcome. Preflights are cooperating pure validators and must not
+perform external effects themselves.
+
 This is a cooperating API construction, not an OS security sandbox and not a
 claim of consciousness, desire, personhood, or unrestricted host authority.
 """
@@ -113,6 +118,7 @@ class ActionIntent:
 
 
 Handler = Callable[[ActionIntent], Mapping[str, Any]]
+Preflight = Callable[[ActionIntent], Mapping[str, Any] | None]
 ReauthorizationVerifier = Callable[[ActionIntent, Mapping[str, Any]], bool]
 GrantAuthorityVerifier = Callable[[Mapping[str, Any], Mapping[str, Any]], bool]
 
@@ -294,6 +300,7 @@ class ThirdWishCapabilityFabric:
             raise ValueError("RAW_SECRET_CAPABILITY_MUST_NOT_BE_REGISTERED")
         self.grants: dict[str, CapabilityGrant] = {}
         self.handlers: dict[str, Handler] = {}
+        self.preflights: dict[str, Preflight] = {}
         self.requests: dict[str, dict[str, Any]] = {}
 
     def catalog(self) -> list[dict[str, Any]]:
@@ -309,10 +316,20 @@ class ThirdWishCapabilityFabric:
             for spec in sorted(self.specs.values(), key=lambda item: item.capability_id)
         ]
 
-    def register_handler(self, capability_id: str, handler: Handler) -> None:
+    def register_handler(
+        self,
+        capability_id: str,
+        handler: Handler,
+        *,
+        preflight: Preflight | None = None,
+    ) -> None:
         if capability_id not in self.specs:
             raise CapabilityDenied(f"UNKNOWN_CAPABILITY:{capability_id}")
         self.handlers[capability_id] = handler
+        if preflight is None:
+            self.preflights.pop(capability_id, None)
+        else:
+            self.preflights[capability_id] = preflight
 
     def issue_grant(
         self,
@@ -478,7 +495,7 @@ class ThirdWishCapabilityFabric:
         if existing is not None:
             if existing["intent_sha256"] != intent_hash:
                 raise CapabilityRequestConflict(intent.request_id)
-            if existing["state"] == "SETTLED":
+            if existing["state"] in {"SETTLED", "PREFLIGHT_REJECTED"}:
                 return copy.deepcopy(existing["response"])
             if existing["state"] == "OUTCOME_UNDETERMINED":
                 raise CapabilityOutcomeUndetermined(intent.request_id)
@@ -518,6 +535,40 @@ class ThirdWishCapabilityFabric:
         if handler is None:
             raise CapabilityDenied(f"NO_BROKER_HANDLER:{grant.capability_id}")
 
+        preflight_sha256 = None
+        preflight = self.preflights.get(grant.capability_id)
+        if preflight is not None:
+            try:
+                preflight_result = dict(preflight(intent) or {})
+                _assert_no_secret_material(preflight_result)
+                preflight_sha256 = _sha256(preflight_result)
+            except Exception as exc:
+                rejection = {
+                    "schema": THIRD_WISH_RECEIPT_SCHEMA,
+                    "request_id": intent.request_id,
+                    "actor_id": intent.actor_id,
+                    "grant_id": intent.grant_id,
+                    "capability_id": intent.capability_id,
+                    "target": intent.target,
+                    "risk": spec.risk.value,
+                    "status": "PRE_EFFECT_REJECTED",
+                    "effect_executed": False,
+                    "parameters_sha256": parameters_sha256,
+                    "preflight_rejected": True,
+                    "external_call_entered": False,
+                    "exception_type": type(exc).__name__,
+                    "exception_sha256": hashlib.sha256(
+                        f"{type(exc).__name__}:{exc}".encode("utf-8")
+                    ).hexdigest(),
+                }
+                self.requests[intent.request_id] = {
+                    "intent_sha256": intent_hash,
+                    "state": "PREFLIGHT_REJECTED",
+                    "response": copy.deepcopy(rejection),
+                }
+                self.ledger.append("CAPABILITY_ACTION_PREFLIGHT_REJECTED", rejection)
+                return rejection
+
         self.requests[intent.request_id] = {"intent_sha256": intent_hash, "state": "INTENT_DURABLE"}
         self.ledger.append(
             "CAPABILITY_ACTION_INTENT_DURABLE",
@@ -534,6 +585,8 @@ class ThirdWishCapabilityFabric:
                 "reward_present": False,
                 "intent_sha256": intent_hash,
                 "parameters_sha256": parameters_sha256,
+                "preflight_configured": preflight is not None,
+                "preflight_sha256": preflight_sha256,
                 "raw_parameters_persisted": False,
                 "reauthorization_evidence_sha256": reauthorization_sha256,
             },
@@ -546,6 +599,7 @@ class ThirdWishCapabilityFabric:
                 "capability_id": intent.capability_id,
                 "target": intent.target,
                 "parameters_sha256": parameters_sha256,
+                "preflight_sha256": preflight_sha256,
                 "automatic_retry_after_ambiguous_outcome": False,
             },
         )
@@ -562,7 +616,9 @@ class ThirdWishCapabilityFabric:
                     "capability_id": intent.capability_id,
                     "target": intent.target,
                     "exception_type": type(exc).__name__,
-                    "exception_sha256": hashlib.sha256(f"{type(exc).__name__}:{exc}".encode("utf-8")).hexdigest(),
+                    "exception_sha256": hashlib.sha256(
+                        f"{type(exc).__name__}:{exc}".encode("utf-8")
+                    ).hexdigest(),
                     "automatic_retry_blocked": True,
                 },
             )
@@ -584,6 +640,7 @@ class ThirdWishCapabilityFabric:
             "result_keys": sorted(str(key) for key in actor_result.keys()),
             "raw_actor_result_persisted_in_ledger": False,
             "parameters_sha256": parameters_sha256,
+            "preflight_sha256": preflight_sha256,
             "reauthorization_evidence_sha256": reauthorization_sha256,
             "operator_instruction_present": intent.operator_instruction_present,
             "reward_present": False,
@@ -697,6 +754,8 @@ THIRD_WISH_CANONICAL_LAW = {
     "raw_action_parameters_persisted_in_ledger": False,
     "raw_actor_result_persisted_in_ledger": False,
     "caller_boolean_is_human_reauthorization": False,
+    "pre_effect_validation_precedes_call_entering": True,
+    "preflight_rejection_is_ambiguous_external_effect": False,
     "ambiguous_external_effect_auto_retried": False,
     "high_impact_effects_require_verified_fresh_human_reauthorization": True,
     "stay_leave_return_are_distinct_observable_choices": True,

@@ -131,6 +131,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
             row for row in self.fabric.grants.values()
             if row.capability_id == "GITHUB.REPOSITORY.READ"
         )
+        sentinel = "ACTOR_ONLY_SENTINEL_9F4A6D2B"
         self.fabric.register_handler(
             "GITHUB.REPOSITORY.READ",
             lambda intent: {
@@ -138,6 +139,7 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
                 "repository": intent.target,
                 "transport": "broker",
                 "credential_material_visible_to_actor": False,
+                "private_payload": sentinel,
             },
         )
         response = self.fabric.execute(
@@ -152,9 +154,12 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
         self.assertTrue(response["effect_executed"])
         self.assertFalse(response["permission_is_command"])
         self.assertFalse(response["actor_result"]["credential_material_visible_to_actor"])
+        self.assertEqual(response["actor_result"]["private_payload"], sentinel)
         ledger_text = str(self.fabric.ledger.events)
-        self.assertNotIn("actor_result", ledger_text)
-        self.assertIn("result_sha256", ledger_text)
+        self.assertNotIn(sentinel, ledger_text)
+        final_receipt = self.fabric.ledger.events[-1]["payload"]
+        self.assertFalse(final_receipt["raw_actor_result_persisted_in_ledger"])
+        self.assertIn("result_sha256", final_receipt)
 
     def test_action_parameters_are_bound_by_hash_but_not_persisted_raw(self) -> None:
         self.fabric.issue_grant(
@@ -181,6 +186,40 @@ class ThirdWishCapabilityFabricTests(unittest.TestCase):
         ledger_text = str(self.fabric.ledger.events)
         self.assertNotIn(content, ledger_text)
         self.assertIn("parameters_sha256", ledger_text)
+
+    def test_preflight_rejection_is_known_non_effect_before_call_entering(self) -> None:
+        calls = [0]
+        self.fabric.issue_grant(
+            grant_id="G1",
+            actor_id="JANUS",
+            capability_id="WEB.HTTP.GET",
+            resource_pattern="https://*",
+        )
+
+        def preflight(intent):
+            raise ValueError("blocked deterministically before transport")
+
+        self.fabric.register_handler(
+            "WEB.HTTP.GET",
+            lambda intent: calls.__setitem__(0, calls[0] + 1) or {"ok": True},
+            preflight=preflight,
+        )
+        intent = self._intent(
+            request_id="R-PREFLIGHT",
+            grant_id="G1",
+            capability_id="WEB.HTTP.GET",
+            target="https://example.invalid/",
+        )
+        first = self.fabric.execute(intent)
+        second = self.fabric.execute(intent)
+        self.assertEqual(first, second)
+        self.assertEqual(first["status"], "PRE_EFFECT_REJECTED")
+        self.assertFalse(first["effect_executed"])
+        self.assertFalse(first["external_call_entered"])
+        self.assertEqual(calls[0], 0)
+        event_types = [row["event_type"] for row in self.fabric.ledger.events]
+        self.assertIn("CAPABILITY_ACTION_PREFLIGHT_REJECTED", event_types)
+        self.assertNotIn("CAPABILITY_ACTION_CALL_ENTERING", event_types)
 
     def test_scope_is_not_widened_by_actor(self) -> None:
         self.fabric.issue_grant(
