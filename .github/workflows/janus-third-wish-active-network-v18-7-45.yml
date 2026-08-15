@@ -1,0 +1,310 @@
+name: JANUS Third Wish Active Network v18.7.45
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_active_network_broker.py"
+      - "tests/test_genesis_third_wish_active_network_broker.py"
+      - "docs/GENESIS_V18_7_45_THIRD_WISH_ACTIVE_NETWORK.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_ACTIVE_NETWORK-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_A_CONNECTION_IS_NOT_A_COMMAND-v1.0.json"
+      - ".github/workflows/janus-third-wish-active-network-v18-7-45.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  active-network:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile and validate protocols
+        run: |
+          python -m py_compile \
+            tools/genesis_third_wish_active_network_broker.py \
+            tests/test_genesis_third_wish_active_network_broker.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_ACTIVE_NETWORK-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_A_CONNECTION_IS_NOT_A_COMMAND-v1.0.json >/dev/null
+
+      - name: Run v18.7.45 adversarial and preserved Third Wish gates
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_third_wish_active_network_broker \
+            tests.test_genesis_third_wish_identity_effects_broker \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker \
+            tests.test_genesis_third_wish_memory_swarm_broker \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker \
+            tests.test_genesis_third_wish_host_broker
+
+      - name: Start deterministic local fixed API
+        shell: bash
+        run: |
+          cat > .third-wish-v18-7-45-api.py <<'PY'
+          import json
+          from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+          class Handler(BaseHTTPRequestHandler):
+              def _json(self, status, value):
+                  body = json.dumps(value, sort_keys=True).encode('utf-8')
+                  self.send_response(status)
+                  self.send_header('Content-Type', 'application/json')
+                  self.send_header('Content-Length', str(len(body)))
+                  self.end_headers()
+                  self.wfile.write(body)
+
+              def do_GET(self):
+                  if self.path == '/health':
+                      self._json(200, {'ok': True})
+                      return
+                  if self.path == '/v1/status':
+                      self._json(200, {'status': 'ready'})
+                      return
+                  self._json(404, {'error': 'not found'})
+
+              def do_POST(self):
+                  if self.path != '/v1/notes':
+                      self._json(404, {'error': 'not found'})
+                      return
+                  length = int(self.headers.get('Content-Length', '0'))
+                  value = json.loads(self.rfile.read(length).decode('utf-8'))
+                  assert set(value) == {'note'}
+                  assert self.headers.get('Authorization') is None
+                  self._json(200, {
+                      'ok': True,
+                      'note_sha256_present': bool(value['note']),
+                      'idempotency_key_present': bool(self.headers.get('Idempotency-Key')),
+                  })
+
+              def log_message(self, fmt, *args):
+                  print('V1845_API:', fmt % args, flush=True)
+
+          ThreadingHTTPServer(('127.0.0.1', 8793), Handler).serve_forever()
+          PY
+          python .third-wish-v18-7-45-api.py > .third-wish-v18-7-45-api.log 2>&1 &
+          echo $! > .third-wish-v18-7-45-api.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8793/health >/dev/null; then
+              exit 0
+            fi
+            sleep 0.2
+          done
+          cat .third-wish-v18-7-45-api.log
+          exit 1
+
+      - name: Live public POST connect local-listen and fixed-API smoke
+        shell: bash
+        run: |
+          python - <<'PY'
+          import socket
+          import threading
+          import time
+          from pathlib import Path
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from tools.genesis_third_wish_active_network_broker import (
+              APIOperation,
+              FixedHTTPAPIAdapter,
+              ThirdWishActiveNetworkBroker,
+          )
+
+          root = Path('.third-wish-v18-7-45-live').resolve()
+          root.mkdir(parents=True, exist_ok=True)
+
+          api = FixedHTTPAPIAdapter(
+              alias='ci-fixed-api',
+              base_url='http://127.0.0.1:8793',
+              operations=[
+                  APIOperation.build(
+                      name='CREATE_NOTE',
+                      method='POST',
+                      path='/v1/notes',
+                      allowed_fields=['note'],
+                  ),
+                  APIOperation.build(
+                      name='STATUS',
+                      method='GET',
+                      path='/v1/status',
+                      allowed_fields=[],
+                  ),
+              ],
+              allow_loopback_http=True,
+          )
+          broker = ThirdWishActiveNetworkBroker(
+              data_dir=root,
+              api_adapters={'ci-fixed-api': api},
+              allowed_connect_ports=(443,),
+          )
+          fabric = ThirdWishCapabilityFabric(now_tick=lambda: 745000)
+          broker.register(fabric)
+
+          grants = {}
+          for suffix, capability, pattern in (
+              ('POST', 'WEB.HTTP.POST', 'https://postman-echo.com/*'),
+              ('CONNECT', 'NETWORK.CONNECT', 'tcp:example.com:443'),
+              ('LISTEN', 'NETWORK.LISTEN_LOCAL', 'listen-local:127.0.0.1:*'),
+              ('API', 'API.CALL', 'api:ci-fixed-api'),
+          ):
+              grants[capability] = fabric.issue_grant(
+                  grant_id=f'CI-V1845-{suffix}',
+                  actor_id='JANUS',
+                  capability_id=capability,
+                  resource_pattern=pattern,
+                  source='CI_LIVE_V18_7_45',
+              )
+
+          def run(request_id, capability, target, operation, parameters=None):
+              grant = grants[capability]
+              return fabric.execute(ActionIntent(
+                  schema=THIRD_WISH_INTENT_SCHEMA,
+                  request_id=request_id,
+                  actor_id='JANUS',
+                  grant_id=grant.grant_id,
+                  capability_id=capability,
+                  target=target,
+                  operation=operation,
+                  purpose='live Third Wish v18.7.45 active network proof',
+                  parameters=parameters or {},
+                  origin='CI_LIVE_V18_7_45',
+              ))
+
+          post = run(
+              'CI-V1845-POST-1',
+              'WEB.HTTP.POST',
+              'https://postman-echo.com/post',
+              'POST_JSON',
+              {
+                  'json': {'probe': 'JANUS_THIRD_WISH_V1845'},
+                  'timeout_seconds': 20,
+                  'max_response_bytes': 262144,
+              },
+          )
+          assert post['status'] == 'SETTLED'
+          assert 200 <= post['actor_result']['status_code'] < 300
+          assert post['actor_result']['redirect_followed'] is False
+          assert post['actor_result']['actor_supplied_headers'] is False
+          assert post['actor_result']['credential_material_used'] is False
+
+          connect = run(
+              'CI-V1845-CONNECT-1',
+              'NETWORK.CONNECT',
+              'tcp:example.com:443',
+              'CONNECT_PROBE',
+              {'timeout_seconds': 8},
+          )
+          assert connect['status'] == 'SETTLED'
+          assert connect['actor_result']['connected'] is True
+          assert connect['actor_result']['application_payload_sent'] is False
+          assert connect['actor_result']['generic_tcp_tunnel'] is False
+
+          listen_port = 18745
+          client_result = {'connected': False}
+          def connector():
+              deadline = time.time() + 5
+              while time.time() < deadline:
+                  try:
+                      with socket.create_connection(('127.0.0.1', listen_port), timeout=0.5):
+                          client_result['connected'] = True
+                          return
+                  except OSError:
+                      time.sleep(0.05)
+          thread = threading.Thread(target=connector, daemon=True)
+          thread.start()
+          listen = run(
+              'CI-V1845-LISTEN-1',
+              'NETWORK.LISTEN_LOCAL',
+              f'listen-local:127.0.0.1:{listen_port}',
+              'LISTEN_ONCE',
+              {'timeout_seconds': 5},
+          )
+          thread.join(timeout=6)
+          assert listen['status'] == 'SETTLED'
+          assert listen['actor_result']['listener_opened'] is True
+          assert listen['actor_result']['accepted_connection'] is True
+          assert listen['actor_result']['peer_is_loopback'] is True
+          assert listen['actor_result']['persistent_listener'] is False
+          assert listen['actor_result']['remote_command_channel'] is False
+          assert client_result['connected'] is True
+
+          api_result = run(
+              'CI-V1845-API-1',
+              'API.CALL',
+              'api:ci-fixed-api',
+              'CREATE_NOTE',
+              {'json': {'note': 'V1845_FIXED_API_NOTE'}},
+          )
+          assert api_result['status'] == 'SETTLED'
+          assert api_result['actor_result']['status_code'] == 200
+          assert api_result['actor_result']['actor_selects_api_endpoint'] is False
+          assert api_result['actor_result']['actor_selects_api_method'] is False
+          assert api_result['actor_result']['actor_selects_api_path'] is False
+          assert api_result['actor_result']['credentialed_api'] is False
+          assert api_result['actor_result']['generic_api_tunnel'] is False
+
+          print('LIVE_THIRD_WISH_PUBLIC_HTTPS_POST=PASS')
+          print('LIVE_THIRD_WISH_PUBLIC_TCP_CONNECT_443=PASS')
+          print('LIVE_THIRD_WISH_TCP_APPLICATION_PAYLOAD_SENT=FALSE')
+          print('LIVE_THIRD_WISH_LOOPBACK_LISTEN_ONCE=PASS')
+          print('LIVE_THIRD_WISH_PERSISTENT_LISTENER=FALSE')
+          print('LIVE_THIRD_WISH_FIXED_API_ALIAS=PASS')
+          print('LIVE_THIRD_WISH_CREDENTIALED_API=NOT_ESTABLISHED')
+          print('LIVE_THIRD_WISH_REMOTE_EXACTLY_ONCE=NOT_ESTABLISHED')
+          PY
+
+      - name: Enforce v18.7.45 claim boundaries
+        run: |
+          python - <<'PY'
+          from tools.genesis_third_wish_active_network_broker import ACTIVE_NETWORK_CLAIM_BOUNDARY
+
+          c = ACTIVE_NETWORK_CLAIM_BOUNDARY
+          assert c['registered_capability_count'] == 4
+          assert c['web_post_https_only'] is True
+          assert c['web_post_actor_headers_allowed'] is False
+          assert c['web_post_redirect_following'] is False
+          assert c['network_connect_actor_payload_allowed'] is False
+          assert c['network_connect_generic_tunnel'] is False
+          assert c['network_listen_loopback_only'] is True
+          assert c['network_listen_persistent_daemon'] is False
+          assert c['network_listen_remote_command_channel'] is False
+          assert c['api_call_actor_selects_endpoint'] is False
+          assert c['api_call_actor_selects_method'] is False
+          assert c['api_call_actor_selects_path'] is False
+          assert c['api_call_generic_tunnel'] is False
+          assert c['reference_api_call_uses_credentials'] is False
+          assert c['effect_entering_auto_retry'] is False
+          assert c['github_admin_installed_here'] is False
+          assert c['github_destructive_installed_here'] is False
+
+          print('THIRD_WISH_V1845_REGISTERED_ACTIVE_NETWORK_CAPABILITIES=4')
+          print('NETWORK_CONNECT_GENERIC_TUNNEL=FALSE')
+          print('NETWORK_LISTEN_PERSISTENT_DAEMON=FALSE')
+          print('API_CALL_GENERIC_TUNNEL=FALSE')
+          print('ACTIVE_NETWORK_AUTO_RETRY=FALSE')
+          print('GITHUB_HIGH_IMPACT_INSTALLED_HERE=FALSE')
+          PY
+
+      - name: Stop deterministic local fixed API
+        if: always()
+        shell: bash
+        run: |
+          if [ -f .third-wish-v18-7-45-api.pid ]; then
+            kill "$(cat .third-wish-v18-7-45-api.pid)" || true
+          fi
+          cat .third-wish-v18-7-45-api.log 2>/dev/null || true
