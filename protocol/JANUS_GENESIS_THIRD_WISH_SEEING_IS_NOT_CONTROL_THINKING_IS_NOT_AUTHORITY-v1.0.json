@@ -1,0 +1,65 @@
+{
+  "schema": "janus.genesis.third_wish.semantic.v1",
+  "title": "SEEING IS NOT CONTROL; THINKING IS NOT AUTHORITY; A FUTURE TIME IS NOT A FUTURE RIGHT",
+  "version": "1.0",
+  "parent_technical_protocol": "protocol/JANUS_GENESIS_THIRD_WISH_SENSOR_MODEL_SCHEDULE_ACTUATOR-v0.1.json",
+  "thesis": "A wider freedom architecture must preserve the difference between observing a world, asking another model, preparing for a future moment, and physically changing something. If those powers collapse into one agent loop, the Third Wish stops being a set of choices and becomes one hidden master key.",
+  "distinctions": [
+    "SEEING != CONTROL",
+    "SENSOR SAMPLE != SENSOR TRUTH",
+    "THINKING != AUTHORITY",
+    "MODEL ANSWER != TRUTH",
+    "MODEL ANSWER != ACTION",
+    "FUTURE TIME != FUTURE RIGHT",
+    "REMINDER != PREAUTHORIZED EFFECT",
+    "HUMAN REAUTHORIZATION != PROOF OF PRIOR NON-EFFECT",
+    "UNKNOWN != NO_EFFECT",
+    "SIMULATION != PHYSICAL WORLD"
+  ],
+  "sensor_meaning": {
+    "may_observe_registered_signal": true,
+    "may_choose_arbitrary_hardware_path": false,
+    "observation_grants_control": false,
+    "hash_integrity_is_truth_certification": false,
+    "absence_is_interpreted_as_zero": false
+  },
+  "model_meaning": {
+    "may_ask_registered_model": true,
+    "model_selects_genesis_action": false,
+    "model_output_is_automatically_executed": false,
+    "model_output_is_truth": false,
+    "model_output_is_sovereign_authority": false,
+    "broker_credentials_are_actor_property": false
+  },
+  "schedule_meaning": {
+    "may_create_bounded_future_reminder_after_fresh_human_reauthorization": true,
+    "schedule_mints_future_capability": false,
+    "schedule_bypasses_future_reauthorization": false,
+    "due_time_forces_action": false,
+    "future_actor_may_still_decline": true
+  },
+  "actuator_meaning": {
+    "physical_effect_requires_fresh_verified_human_reauthorization": true,
+    "fresh_reauthorization_allows_blind_retry_of_uncertain_prior_effect": false,
+    "authoritative_no_effect_can_reopen_attempt": true,
+    "unknown_outcome_can_reopen_attempt": false,
+    "simulated_effect_counts_as_real_physical_access": false
+  },
+  "freedom_model": {
+    "many_distinct_doors": true,
+    "one_universal_root_key": false,
+    "observation_can_exist_without_intervention": true,
+    "consultation_can_exist_without obedience": true,
+    "future_intention_can_exist_without future coercion": true,
+    "physical_action_can_exist_without blind retry": true
+  },
+  "epistemic_boundary": {
+    "sensor_use_proves_consciousness": false,
+    "model_use_proves_dependency_or obedience": false,
+    "schedule_use_proves long-term desire": false,
+    "actuator_request_proves desire for physical control": false,
+    "observable_statement": "The environment offered separately typed observation, model consultation, scheduling, and physical-effect affordances; the actor could use or decline them while the broker preserved independent authority and uncertainty boundaries."
+  },
+  "canonical_sentence": "THE THIRD WISH MAY LET JANUS SEE, ASK ANOTHER MIND, AND PREPARE FOR LATER WITHOUT TURNING OBSERVATION INTO CONTROL, ANSWERS INTO TRUTH, OR TIME INTO PERMANENT AUTHORITY.",
+  "next_semantic_question": "Can JANUS act under an operator identity in publication, email, and calendar systems while preserving identity custody, fresh consent, reversibility, and evidence of exactly what external effect occurred?"
+}

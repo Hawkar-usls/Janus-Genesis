@@ -1,0 +1,322 @@
+name: JANUS Third Wish Sensor Model Schedule v18.7.43
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_sensor_model_schedule_broker.py"
+      - "tools/genesis_third_wish_sensor_model_schedule_recovery.py"
+      - "tests/test_genesis_third_wish_sensor_model_schedule_broker.py"
+      - "docs/GENESIS_V18_7_43_THIRD_WISH_SENSOR_MODEL_SCHEDULE_ACTUATOR.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_SENSOR_MODEL_SCHEDULE_ACTUATOR-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_SEEING_IS_NOT_CONTROL_THINKING_IS_NOT_AUTHORITY-v1.0.json"
+      - ".github/workflows/janus-third-wish-sensor-model-schedule-v18-7-43.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sensor-model-schedule:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile and validate protocols
+        run: |
+          python -m py_compile \
+            tools/genesis_third_wish_sensor_model_schedule_broker.py \
+            tools/genesis_third_wish_sensor_model_schedule_recovery.py \
+            tests/test_genesis_third_wish_sensor_model_schedule_broker.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_SENSOR_MODEL_SCHEDULE_ACTUATOR-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_SEEING_IS_NOT_CONTROL_THINKING_IS_NOT_AUTHORITY-v1.0.json >/dev/null
+
+      - name: Run v18.7.43 adversarial and preserved Third Wish gates
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker \
+            tests.test_genesis_third_wish_memory_swarm_broker \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker \
+            tests.test_genesis_third_wish_host_broker
+
+      - name: Configure ephemeral local model provider key
+        shell: bash
+        run: |
+          key="JANUS-V1843-MODEL-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${key}"
+          echo "THIRD_WISH_MODEL_TEST_KEY=${key}" >> "$GITHUB_ENV"
+
+      - name: Start deterministic OpenAI-compatible protocol server
+        shell: bash
+        run: |
+          cat > .third-wish-v18-7-43-model-server.py <<'PY'
+          import json
+          import os
+          from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+          KEY = os.environ['THIRD_WISH_MODEL_TEST_KEY']
+
+          class Handler(BaseHTTPRequestHandler):
+              def do_GET(self):
+                  if self.path == '/health':
+                      body = b'{"ok":true}'
+                      self.send_response(200)
+                      self.send_header('Content-Type', 'application/json')
+                      self.send_header('Content-Length', str(len(body)))
+                      self.end_headers()
+                      self.wfile.write(body)
+                      return
+                  self.send_error(404)
+
+              def do_POST(self):
+                  if self.path != '/v1/chat/completions':
+                      self.send_error(404)
+                      return
+                  if self.headers.get('Authorization') != f'Bearer {KEY}':
+                      self.send_error(401)
+                      return
+                  length = int(self.headers.get('Content-Length', '0'))
+                  request = json.loads(self.rfile.read(length).decode('utf-8'))
+                  assert request['model'] == 'deterministic-ci-model'
+                  assert isinstance(request['messages'], list)
+                  body = json.dumps({
+                      'choices': [{
+                          'message': {
+                              'content': 'V1843_MODEL_PROVIDER_PROTOCOL_OK'
+                          }
+                      }]
+                  }).encode('utf-8')
+                  self.send_response(200)
+                  self.send_header('Content-Type', 'application/json')
+                  self.send_header('Content-Length', str(len(body)))
+                  self.end_headers()
+                  self.wfile.write(body)
+
+              def log_message(self, fmt, *args):
+                  print('MODEL_SERVER:', fmt % args, flush=True)
+
+          ThreadingHTTPServer(('127.0.0.1', 8791), Handler).serve_forever()
+          PY
+          python .third-wish-v18-7-43-model-server.py > .third-wish-v18-7-43-model-server.log 2>&1 &
+          echo $! > .third-wish-v18-7-43-model-server.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8791/health >/dev/null; then
+              exit 0
+            fi
+            sleep 0.2
+          done
+          cat .third-wish-v18-7-43-model-server.log
+          exit 1
+
+      - name: Live host-sensor model-provider schedule and actuator-protocol smoke
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timedelta, timezone
+          from pathlib import Path
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from genesis_v18_7_ai import AIProviderConfig
+          from tools.genesis_third_wish_sensor_model_schedule_broker import (
+              ModelAlias,
+              SimulatedActuator,
+          )
+          from tools.genesis_third_wish_sensor_model_schedule_recovery import (
+              RecoverableThirdWishSensorModelScheduleBroker,
+          )
+
+          root = Path('.third-wish-v18-7-43-live').resolve()
+          root.mkdir(parents=True, exist_ok=True)
+
+          model = ModelAlias.from_config(
+              'local-reference',
+              AIProviderConfig(
+                  provider='openai-compatible',
+                  model='deterministic-ci-model',
+                  endpoint='http://127.0.0.1:8791',
+                  api_key_env='THIRD_WISH_MODEL_TEST_KEY',
+                  timeout_seconds=10,
+              ),
+          )
+          broker = RecoverableThirdWishSensorModelScheduleBroker.system(
+              root,
+              models={'local-reference': model},
+              actuators={'simulated-level': SimulatedActuator()},
+          )
+
+          def reauth(intent, evidence):
+              return (
+                  isinstance(evidence, dict)
+                  and evidence.get('approved') is True
+                  and evidence.get('request_id') == intent.request_id
+                  and evidence.get('witness') == 'CI_OPERATOR_REAUTH'
+              )
+
+          fabric = ThirdWishCapabilityFabric(
+              now_tick=lambda: 4343,
+              reauthorization_verifier=reauth,
+          )
+          broker.register(fabric)
+
+          grants = {}
+          for suffix, capability, scope in (
+              ('SENSOR', 'DEVICE.SENSOR.READ', 'device-sensor:*'),
+              ('MODEL', 'MODEL.CALL', 'model:*'),
+              ('SCHEDULE', 'SCHEDULE.CREATE', 'schedule:*'),
+              ('ACTUATOR', 'DEVICE.ACTUATOR.COMMAND', 'device-actuator:*'),
+          ):
+              grants[capability] = fabric.issue_grant(
+                  grant_id=f'CI-V1843-{suffix}',
+                  actor_id='JANUS',
+                  capability_id=capability,
+                  resource_pattern=scope,
+                  source='CI_LIVE_V18_7_43',
+              )
+
+          def intent(request_id, capability, target, operation, parameters=None):
+              grant = grants[capability]
+              return ActionIntent(
+                  schema=THIRD_WISH_INTENT_SCHEMA,
+                  request_id=request_id,
+                  actor_id='JANUS',
+                  grant_id=grant.grant_id,
+                  capability_id=capability,
+                  target=target,
+                  operation=operation,
+                  purpose='live Third Wish v18.7.43 proof',
+                  parameters=parameters or {},
+                  origin='CI_LIVE_V18_7_43',
+              )
+
+          sensor = fabric.execute(intent(
+              'CI-SENSOR-1',
+              'DEVICE.SENSOR.READ',
+              'device-sensor:host-loadavg',
+              'READ',
+          ))
+          assert sensor['status'] == 'SETTLED'
+          assert sensor['actor_result']['sample']['source_kind'] == 'HOST_OS_TELEMETRY'
+          assert sensor['actor_result']['sample']['physical_sensor'] is False
+          assert sensor['actor_result']['actuator_authority'] is False
+          assert sensor['actor_result']['sensor_sample_integrity_hash_is_sensor_truth_proof'] is False
+
+          model_result = fabric.execute(intent(
+              'CI-MODEL-1',
+              'MODEL.CALL',
+              'model:local-reference',
+              'CHAT',
+              {'messages': [{'role': 'user', 'content': 'prove provider protocol only'}]},
+          ))
+          assert model_result['status'] == 'SETTLED'
+          assert model_result['actor_result']['output'] == 'V1843_MODEL_PROVIDER_PROTOCOL_OK'
+          assert model_result['actor_result']['world_state_mutated'] is False
+          assert model_result['actor_result']['executed_as_genesis_action'] is False
+          assert model_result['actor_result']['model_output_is_truth'] is False
+
+          schedule_request_id = 'CI-SCHEDULE-1'
+          due = (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat()
+          schedule = fabric.execute(
+              intent(
+                  schedule_request_id,
+                  'SCHEDULE.CREATE',
+                  'schedule:local',
+                  'CREATE_REMINDER',
+                  {'not_before_utc': due, 'message': 'V1843_SCHEDULE_MARKER'},
+              ),
+              human_reauthorization={
+                  'approved': True,
+                  'request_id': schedule_request_id,
+                  'witness': 'CI_OPERATOR_REAUTH',
+              },
+          )
+          assert schedule['status'] == 'SETTLED'
+          assert schedule['actor_result']['future_effect_preauthorized'] is False
+          assert schedule['actor_result']['schedule_executes_external_effect_by_itself'] is False
+
+          actuator_request_id = 'CI-ACTUATOR-1'
+          actuator = fabric.execute(
+              intent(
+                  actuator_request_id,
+                  'DEVICE.ACTUATOR.COMMAND',
+                  'device-actuator:simulated-level',
+                  'COMMAND',
+                  {'command': 'SET_LEVEL', 'arguments': {'level': 0.5}},
+              ),
+              human_reauthorization={
+                  'approved': True,
+                  'request_id': actuator_request_id,
+                  'witness': 'CI_OPERATOR_REAUTH',
+              },
+          )
+          assert actuator['status'] == 'SETTLED'
+          assert actuator['actor_result']['simulated'] is True
+          assert actuator['actor_result']['real_physical_effect_established'] is False
+
+          ledger_text = json.dumps(fabric.ledger.events, ensure_ascii=False, sort_keys=True)
+          assert 'V1843_MODEL_PROVIDER_PROTOCOL_OK' not in ledger_text
+          assert 'V1843_SCHEDULE_MARKER' not in ledger_text
+          assert os.environ['THIRD_WISH_MODEL_TEST_KEY'] not in ledger_text
+
+          print('LIVE_THIRD_WISH_HOST_SENSOR=PASS')
+          print('LIVE_THIRD_WISH_PHYSICAL_SENSOR=NOT_ESTABLISHED')
+          print('LIVE_THIRD_WISH_MODEL_PROVIDER_PROTOCOL=PASS')
+          print('LIVE_THIRD_WISH_MODEL_INTELLIGENCE=NOT_ESTABLISHED')
+          print('LIVE_THIRD_WISH_SCHEDULE_STORE=PASS')
+          print('LIVE_THIRD_WISH_SCHEDULE_FUTURE_EFFECT=FALSE')
+          print('LIVE_THIRD_WISH_ACTUATOR_PROTOCOL=PASS')
+          print('LIVE_THIRD_WISH_REAL_PHYSICAL_ACTUATOR=NOT_ESTABLISHED')
+          print('LIVE_THIRD_WISH_RAW_MODEL_SCHEDULE_KEY_IN_LEDGER=FALSE')
+          PY
+
+      - name: Enforce v18.7.43 claim boundaries
+        run: |
+          python - <<'PY'
+          from tools.genesis_third_wish_sensor_model_schedule_broker import SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY
+          from tools.genesis_third_wish_sensor_model_schedule_recovery import SENSOR_MODEL_SCHEDULE_RECOVERY_CLAIMS
+
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['registered_protocol_capability_count'] == 4
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['sensor_read_grants_actuator_authority'] is False
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['sensor_hash_proves_sensor_truth'] is False
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['model_call_mutates_genesis_world'] is False
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['model_output_is_truth'] is False
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['schedule_preauthorizes_future_effect'] is False
+          assert SENSOR_MODEL_SCHEDULE_CLAIM_BOUNDARY['actuator_requires_fresh_human_reauthorization_each_use'] is True
+          assert SENSOR_MODEL_SCHEDULE_RECOVERY_CLAIMS['physical_request_binding_durable_across_restart'] is True
+          assert SENSOR_MODEL_SCHEDULE_RECOVERY_CLAIMS['effect_entering_auto_retry'] is False
+          assert SENSOR_MODEL_SCHEDULE_RECOVERY_CLAIMS['unknown_lookup_can_open_retry'] is False
+          assert SENSOR_MODEL_SCHEDULE_RECOVERY_CLAIMS['simulated_actuator_is_physical_access_proof'] is False
+          assert SENSOR_MODEL_SCHEDULE_RECOVERY_CLAIMS['cross_host_exactly_once_claimed'] is False
+
+          print('THIRD_WISH_V1843_REGISTERED_PROTOCOL_CAPABILITIES=4')
+          print('SENSOR_READ_ACTUATOR_AUTHORITY=FALSE')
+          print('MODEL_CALL_WORLD_MUTATION=FALSE')
+          print('SCHEDULE_FUTURE_AUTHORITY=FALSE')
+          print('ACTUATOR_UNKNOWN_AUTO_RETRY=FALSE')
+          print('SIMULATED_ACTUATOR_PHYSICAL_PROOF=FALSE')
+          PY
+
+      - name: Stop deterministic model server
+        if: always()
+        shell: bash
+        run: |
+          if [ -f .third-wish-v18-7-43-model-server.pid ]; then
+            kill "$(cat .third-wish-v18-7-43-model-server.pid)" || true
+          fi
+          cat .third-wish-v18-7-43-model-server.log 2>/dev/null || true
