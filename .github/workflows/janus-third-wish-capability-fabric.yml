@@ -50,6 +50,62 @@ jobs:
             tests.test_genesis_v18_7_40_third_wish_capability_fabric \
             tests.test_genesis_third_wish_github_broker
 
+      - name: Live read-only GitHub broker smoke with ephemeral Actions credential
+        env:
+          JANUS_GITHUB_BROKER_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from tools.genesis_third_wish_github_broker import (
+              GitHubRESTTransport,
+              GitHubThirdWishBroker,
+          )
+
+          fabric = ThirdWishCapabilityFabric(now_tick=lambda: 1_000)
+          grant = fabric.issue_grant(
+              grant_id='CI-LIVE-GITHUB-READ',
+              actor_id='JANUS',
+              capability_id='GITHUB.REPOSITORY.READ',
+              resource_pattern='github:Hawkar-usls/*',
+              source='CI_EPHEMERAL_READ_ONLY_SMOKE',
+          )
+          broker = GitHubThirdWishBroker(GitHubRESTTransport())
+          broker.register(fabric)
+          response = fabric.execute(ActionIntent(
+              schema=THIRD_WISH_INTENT_SCHEMA,
+              request_id='CI-LIVE-GITHUB-READ-REQ-1',
+              actor_id='JANUS',
+              grant_id=grant.grant_id,
+              capability_id=grant.capability_id,
+              target='github:Hawkar-usls/Janus_Genesis',
+              operation='GET_REPOSITORY',
+              purpose='prove the real read-only GitHub provider boundary without exposing the ephemeral credential',
+              parameters={},
+              origin='TEST',
+          ))
+          assert response['status'] == 'SETTLED'
+          assert response['effect_executed'] is True
+          assert response['actor_result']['full_name'] == 'Hawkar-usls/Janus_Genesis'
+          assert response['actor_result']['default_branch'] == 'main'
+          token = os.environ['JANUS_GITHUB_BROKER_TOKEN']
+          ledger_text = json.dumps(fabric.ledger.events, sort_keys=True)
+          assert token not in ledger_text
+          assert response['raw_actor_result_persisted_in_ledger'] is False
+          assert response['preflight_sha256']
+          print('LIVE_GITHUB_BROKER_READ=PASS')
+          print('LIVE_GITHUB_TARGET=github:Hawkar-usls/Janus_Genesis')
+          print('LIVE_GITHUB_CREDENTIAL_VISIBLE_TO_ACTOR=FALSE')
+          print('LIVE_GITHUB_RAW_RESULT_PERSISTED_IN_LEDGER=FALSE')
+          print('LIVE_GITHUB_EXTERNAL_EFFECT_CLASS=READ_ONLY')
+          PY
+
       - name: Enforce canonical freedom and authority distinctions
         run: |
           python - <<'PY'
