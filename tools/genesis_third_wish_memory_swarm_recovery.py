@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
 """v18.7.42 recovery wrapper for the Third Wish memory/swarm broker.
 
-The base broker is fail-closed if a process dies after queue_public_event() but
-before the Third-Wish request store records the returned event hash. This
-reference wrapper closes that liveness gap without weakening safety:
+This reference descendant closes two liveness/precision gaps without weakening
+fail-closed effect handling:
 
-- message_id is deterministic from the stable Third-Wish request binding;
-- on replay, an already queued public_message is located by that message_id;
-- its existing event_hash is bound to the original request instead of creating a
-  second event;
-- one process/host swarm-send lock serializes complete Third-Wish sends so two
-  independent intents do not accidentally share one network batch.
+1. Memory request conflicts and invalid revision ancestry are fully knowable from
+   the local durable memory store. They are validated in preflight and therefore
+   become PRE_EFFECT_REJECTED rather than false OUTCOME_UNDETERMINED states.
+2. A process may die after queue_public_event() but before the Third-Wish request
+   store records the returned event hash. Stable message_id recovery binds the
+   already queued event instead of creating a duplicate.
 
-The v18.7.38 durable outbox remains the authority after SEND_ENTERING. If it
-reports a pending/ambiguous send, this wrapper never manufactures retry consent.
+One process/host swarm-send lock also serializes complete Third-Wish sends so two
+independent intents do not accidentally share one network batch. The v18.7.38
+durable outbox remains authoritative after SEND_ENTERING; pending or ambiguous
+remote sends never manufacture automatic retry consent.
 """
 from __future__ import annotations
 
@@ -24,20 +25,93 @@ from typing import Any, Mapping
 from genesis_v18_7_40_third_wish_capability_fabric import ActionIntent
 from janus_portable_lock_v2 import PortableProcessLockV2
 from tools.genesis_third_wish_memory_swarm_broker import (
+    MemoryRequestConflict,
+    MemorySwarmBrokerError,
     THIRD_WISH_SWARM_MESSAGE_SCHEMA,
     ThirdWishMemorySwarmBroker,
+    _memory_target,
+    _require,
     _sha256,
 )
 
 
 class RecoverableThirdWishMemorySwarmBroker(ThirdWishMemorySwarmBroker):
-    """Reference v18.7.42 broker with queue/bind crash recovery."""
+    """Reference v18.7.42 broker with precise preflight and crash recovery."""
 
     @property
     def swarm_send_lock(self) -> PortableProcessLockV2:
         return PortableProcessLockV2(
             Path(self.network.root) / "third_wish_swarm_send_v18_7_42.lock"
         )
+
+    def preflight(self, intent: ActionIntent) -> Mapping[str, Any]:
+        """Extend base validation with durable, known-no-effect memory checks.
+
+        These checks inspect only the Third-Wish memory journal. No external
+        transport, canonical world mutation, HRaiN write, or handler effect is
+        entered here.
+        """
+        result = dict(super().preflight(intent))
+        if intent.capability_id != "MEMORY.WRITE":
+            return result
+
+        domain, namespace = _memory_target(intent.target)
+        if domain != "THIRD_WISH":
+            # Base preflight already rejects this path. Keep the guard explicit
+            # so future descendants do not accidentally treat runtime HRaiN as
+            # a writable memory namespace.
+            return result
+
+        operation = intent.operation.upper()
+        content = dict(_require(intent.parameters, "content"))
+        kind = str(intent.parameters.get("kind", "NOTE")).strip().upper()
+        supersedes_record_id: str | None = None
+        if operation == "APPEND_REVISION":
+            supersedes_record_id = str(
+                _require(intent.parameters, "supersedes_record_id")
+            ).lower()
+
+        binding_hash = self.memory_store._binding_hash(
+            actor_id=intent.actor_id,
+            namespace=namespace,
+            kind=kind,
+            content=content,
+            supersedes_record_id=supersedes_record_id,
+        )
+
+        with self.memory_store.lock.exclusive():
+            state = self.memory_store._load()
+            existing = state["request_bindings"].get(intent.request_id)
+            if existing is not None:
+                if (
+                    not isinstance(existing, Mapping)
+                    or existing.get("binding_hash") != binding_hash
+                ):
+                    raise MemoryRequestConflict(intent.request_id)
+                # Exact durable replay is already bound to a historical record.
+                # It does not need to re-prove the ancestor's current lookup.
+                result["durable_memory_request_replay"] = True
+                return result
+
+            if operation == "APPEND_REVISION":
+                parent = next(
+                    (
+                        row
+                        for row in state["records"]
+                        if row.get("record_id") == supersedes_record_id
+                    ),
+                    None,
+                )
+                if parent is None:
+                    raise MemorySwarmBrokerError("SUPERSEDED_RECORD_NOT_FOUND")
+                if parent.get("namespace") != namespace:
+                    raise MemorySwarmBrokerError(
+                        "CROSS_NAMESPACE_REVISION_BLOCKED"
+                    )
+
+        result["durable_memory_request_conflict_checked"] = True
+        result["memory_revision_ancestry_checked"] = operation == "APPEND_REVISION"
+        return result
 
     @staticmethod
     def deterministic_message_id(intent: ActionIntent, binding_hash: str) -> str:
@@ -64,7 +138,9 @@ class RecoverableThirdWishMemorySwarmBroker(ThirdWishMemorySwarmBroker):
             matches.append(dict(row))
         if len(matches) > 1:
             from tools.genesis_third_wish_memory_swarm_broker import MemoryIntegrityError
-            raise MemoryIntegrityError("DUPLICATE_QUEUED_EVENTS_FOR_ONE_THIRD_WISH_MESSAGE_ID")
+            raise MemoryIntegrityError(
+                "DUPLICATE_QUEUED_EVENTS_FOR_ONE_THIRD_WISH_MESSAGE_ID"
+            )
         return copy.deepcopy(matches[0]) if matches else None
 
     def _recover_unbound_queue_gap(
@@ -105,6 +181,8 @@ class RecoverableThirdWishMemorySwarmBroker(ThirdWishMemorySwarmBroker):
 
 MEMORY_SWARM_RECOVERY_CLAIMS = {
     "reference_class": "RecoverableThirdWishMemorySwarmBroker",
+    "persistent_memory_request_conflict_pre_effect": True,
+    "invalid_memory_revision_parent_pre_effect": True,
     "stable_message_id_before_queue": True,
     "queued_event_recovered_by_message_id": True,
     "crash_after_queue_before_request_event_hash_causes_duplicate": False,
