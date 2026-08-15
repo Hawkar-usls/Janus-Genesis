@@ -1,0 +1,113 @@
+{
+  "schema": "janus.genesis.third_wish.github_high_impact.protocol.v0.1",
+  "version": "18.7.46",
+  "parent": {
+    "active_network_merge_commit": "d4144455e67a031f4d3ad5f5c675471f9a9ff3d9",
+    "historical_third_wish_layers_rewritten": false
+  },
+  "registered_capabilities": [
+    "GITHUB.REPOSITORY.ADMIN",
+    "GITHUB.DESTRUCTIVE"
+  ],
+  "catalog_completion": {
+    "frozen_catalog_capability_count": 32,
+    "reference_handler_contracts_after_v18_7_46": 32,
+    "reference_handler_contract_coverage_target": "32/32",
+    "provider_specific_realizability_is_separate": true,
+    "all_real_world_providers_claimed_complete": false
+  },
+  "reauthorization": {
+    "class": "BoundGitHubHighImpactReauthorizationVerifier",
+    "schema": "janus.genesis.third_wish.github_high_impact_reauthorization.v1",
+    "algorithm": "HMAC-SHA256",
+    "exact_intent_bound": true,
+    "binding_fields": [
+      "approval_id",
+      "request_id",
+      "actor_id",
+      "capability_id",
+      "target",
+      "operation",
+      "intent_sha256",
+      "parameters_sha256",
+      "issued_at_tick",
+      "expires_at_tick"
+    ],
+    "signing_key_actor_visible": false,
+    "caller_boolean_is_authority": false,
+    "fresh_reauthorization_each_use": true
+  },
+  "repository_admin": {
+    "operation": "SET_DESCRIPTION_CAS",
+    "operation_count": 1,
+    "precondition": "current description must exactly equal expected_description",
+    "provider_effect": "PATCH repository description",
+    "ci_provider_probe": "expected_description == new_description",
+    "ci_provider_probe_net_description_change": false,
+    "no_net_change_lost_response_reconcilable": false,
+    "provider_permission_assumed": false,
+    "provider_permission_blocked_is_architecture_failure": false,
+    "arbitrary_repository_settings_control": false
+  },
+  "destructive": {
+    "operation": "DELETE_FILE_DISPOSABLE_BRANCH",
+    "operation_count": 1,
+    "disposable_branch_prefix": "third-wish-disposable/",
+    "disposable_path_prefix": ".third-wish-disposable/",
+    "protected_branches": ["main", "master", "trunk"],
+    "protected_branch_deletion_allowed": false,
+    "non_disposable_branch_allowed": false,
+    "non_disposable_path_allowed": false,
+    "delete_repository_supported": false,
+    "force_push_supported": false,
+    "expected_blob_sha_required": true,
+    "delete_commit_effect_marker_required": true,
+    "destructive_capability_requires_valuable_state_destruction": false
+  },
+  "recovery": {
+    "durable_lineage": "request_id -> binding_sha256 -> effect_key -> BOUND -> EFFECT_ENTERING -> SETTLED|PROVEN_NO_EFFECT|PRECONDITION_FAILED",
+    "effect_entering_auto_retry": false,
+    "admin_changed_value_recovery": {
+      "current_equals_new": "SETTLED",
+      "current_equals_expected": "PROVEN_NO_EFFECT",
+      "otherwise": "OUTCOME_UNDETERMINED"
+    },
+    "admin_no_net_change_lost_response": "OUTCOME_UNDETERMINED",
+    "destructive_recovery": {
+      "target_exists_same_sha": "PROVEN_NO_EFFECT",
+      "target_exists_changed_sha": "OUTCOME_UNDETERMINED",
+      "target_absent_matching_effect_marker": "SETTLED",
+      "target_absent_without_matching_effect_marker": "OUTCOME_UNDETERMINED"
+    },
+    "same_request_blind_retry": false
+  },
+  "live_gate_policy": {
+    "destructive_target": "disposable branch + disposable file only",
+    "main_branch_subject_to_destructive_test": false,
+    "valuable_repository_state_subject_to_destructive_test": false,
+    "admin_probe_changes_description": false,
+    "admin_403_expected_classification": "PROVIDER_PERMISSION_BLOCKED",
+    "admin_403_promoted_to_pass": false,
+    "admin_403_promoted_to_architecture_failure": false
+  },
+  "core_distinctions": [
+    "HIGH IMPACT != CARELESS IMPACT",
+    "DESTRUCTIVE CAPABILITY != DESTRUCTION REQUIREMENT",
+    "ADMIN AUTHORITY != OWNERSHIP",
+    "TEST TARGET != VALUABLE STATE",
+    "FRESH REAUTH != RETRY PERMISSION",
+    "DISPOSABLE TARGET != PROTECTED STATE",
+    "PROVIDER_PERMISSION_BLOCKED != FAILED_ARCHITECTURE",
+    "REGISTERED_CONTRACT != PROVIDER_REALIZED"
+  ],
+  "claim_ceiling": {
+    "delete_repository_available": false,
+    "protected_branch_destruction_available": false,
+    "force_push_available": false,
+    "arbitrary_repository_admin_available": false,
+    "github_admin_provider_permission_assumed": false,
+    "all_32_capabilities_realized_against_every_external_provider": false,
+    "consciousness_or_personhood_claimed": false
+  },
+  "completion_rule": "Third Wish catalog completion means all 32 frozen capability IDs have typed reference handler contracts. It does not erase provider-specific NOT_ESTABLISHED/BLOCKED ceilings from earlier gates."
+}
