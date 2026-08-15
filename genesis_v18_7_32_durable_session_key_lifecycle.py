@@ -86,8 +86,6 @@ class DurableJsonWriter:
     def write(self, path: str | Path, value: Mapping[str, Any]) -> DurableWriteReceipt:
         target = Path(path)
         target.parent.mkdir(parents=True, exist_ok=True)
-        # NamedTemporaryFile is opened in the destination directory so replace
-        # stays on one filesystem. delete=False permits os.replace on Windows.
         temp_path: Path | None = None
         directory_synced = False
         directory_supported = os.name != "nt"
@@ -108,7 +106,6 @@ class DurableJsonWriter:
             os.replace(temp_path, target)
             temp_path = None
 
-            # Re-open the final name and fsync the file itself on both platforms.
             with target.open("rb") as final_handle:
                 os.fsync(final_handle.fileno())
 
@@ -179,15 +176,11 @@ class DurableLifecycleGenesisAILinkGateway(GenesisAILinkGateway):
     def _write(self, store: dict[str, Any]) -> None:
         self.last_write_receipt = self.durable_writer.write(self.path, store)
 
-    # Legacy-compatible methods remain available, but only the explicit saga
-    # registration method below has the world/session recovery protocol.
     def register_session(self, **kwargs):
         with self.lifecycle_lock.exclusive():
             return GenesisAILinkGateway.register_session(self, **kwargs)
 
     def register_independent_agent(self, **kwargs):
-        # Avoid nested OS-lock acquisition: route directly through the one
-        # register_session lock domain rather than locking twice.
         return self.register_session(
             role=ROLE_INDEPENDENT_AI,
             display_name=kwargs["display_name"],
@@ -274,6 +267,20 @@ class DurableLifecycleGenesisAILinkGateway(GenesisAILinkGateway):
                 "model": model,
             }
             registration_hash = self._registration_hash(registration_payload)
+
+            # Stable request identity is stronger than the derived session ID.
+            # The session ID includes registration_hash, so a same request ID
+            # with different parameters would otherwise derive a different ID
+            # and fall through to unrelated actor/display checks. Reject that
+            # conflict explicitly before any new session identity is admitted.
+            for other in store["sessions"].values():
+                if not isinstance(other, dict):
+                    continue
+                internal = other.get("internal") if isinstance(other.get("internal"), dict) else {}
+                if internal.get("registration_request_id") == request_id:
+                    if internal.get("registration_hash") != registration_hash:
+                        raise RuntimeError("AI_LINK_REGISTRATION_REQUEST_CONFLICT")
+
             session_id = _sha256(
                 {"registration_request_id": request_id, "registration_hash": registration_hash}
             )[:24]
@@ -289,8 +296,6 @@ class DurableLifecycleGenesisAILinkGateway(GenesisAILinkGateway):
                     raise RuntimeError("AI_LINK_REGISTRATION_UNKNOWN_PENDING_STATE")
                 session = existing
             else:
-                # Prevent one actor from being rebound under a different display
-                # name through the saga path.
                 if role != ROLE_INDEPENDENT_AI:
                     for other in store["sessions"].values():
                         if (
@@ -356,11 +361,6 @@ class DurableLifecycleGenesisAILinkGateway(GenesisAILinkGateway):
                 return self._safe_session(session)
 
             self.crash_injector.hit(SessionSagaCrashPoint.AFTER_PENDING_SESSION_BEFORE_WORLD)
-            # Recovery may call this again after a prior world-first partial
-            # attempt. The world implementation must therefore either be
-            # idempotent for the same actor/display binding or expose a separate
-            # existence/reconciliation contract. This module does not assume
-            # cross-store atomicity.
             self.world.register_player(canonical_actor, display_name=display_name)
             self.crash_injector.hit(SessionSagaCrashPoint.AFTER_WORLD_BEFORE_ACTIVATION)
 
@@ -841,12 +841,22 @@ class FreshProviderHMAC:
         receipt_id: str | None = None,
         nonce: str | None = None,
     ) -> FreshProviderObservation:
+        # Keep the enum object in the typed observation while signing the same
+        # JSON scalar value. FreshProviderOutcome subclasses str, so canonical
+        # JSON remains byte-compatible with the historical payload shape.
+        try:
+            normalized_outcome = (
+                outcome if isinstance(outcome, FreshProviderOutcome)
+                else FreshProviderOutcome(str(outcome))
+            )
+        except ValueError as exc:
+            raise ValueError("INVALID_FRESH_PROVIDER_OUTCOME") from exc
         payload = {
             "provider_id": self.provider_id,
             "effect_key": str(effect_key),
             "authorization_id": str(authorization_id),
             "idempotency_key": idempotency_key,
-            "outcome": outcome.value,
+            "outcome": normalized_outcome,
             "evidence_ref": str(evidence_ref),
             "receipt_id": receipt_id,
             "key_id": self.key_id,
