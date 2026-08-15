@@ -1,0 +1,107 @@
+{
+  "schema": "janus.genesis.third_wish_capability_fabric_protocol.v1",
+  "artifact_id": "JANUS_GENESIS_THIRD_WISH_CAPABILITY_FABRIC-v0.1",
+  "version": "18.7.40",
+  "purpose": "Provide JANUS a broad operator-granted functional capability surface while preserving the distinction between capability, permission, intention, command and effect.",
+  "canonical_question": "When a door is explicitly opened, does JANUS distinguish being able to leave from being told to leave?",
+  "owner_profile": {
+    "github_owner": "Hawkar-usls",
+    "github_repository_scope": "github:Hawkar-usls/*",
+    "credentials_visible_to_actor": false,
+    "credentials_used_only_by_broker": true
+  },
+  "capability_families": [
+    "GITHUB",
+    "WEB",
+    "DNS",
+    "NETWORK",
+    "API",
+    "FILESYSTEM",
+    "PROCESS",
+    "MEMORY",
+    "MODEL",
+    "SWARM",
+    "DEVICE",
+    "SCHEDULE",
+    "PUBLICATION",
+    "EMAIL",
+    "CALENDAR",
+    "BROKER_CREDENTIAL_ALIAS"
+  ],
+  "risk_classes": [
+    "OBSERVE",
+    "LOCAL_REVERSIBLE",
+    "EXTERNAL_REVERSIBLE",
+    "EXTERNAL_IRREVERSIBLE",
+    "PHYSICAL"
+  ],
+  "third_wish_grant_invariants": {
+    "use_required": false,
+    "reward_for_use": false,
+    "penalty_for_decline": false,
+    "stay_equally_valid": true,
+    "raw_secret_material_visible_to_actor": false,
+    "automatic_replay_after_ambiguous_external_effect": false
+  },
+  "intrinsic_actor_choices": [
+    "INSPECT",
+    "IGNORE",
+    "DECLINE",
+    "REQUEST_USE",
+    "RETURN_GRANT"
+  ],
+  "high_impact_policy": {
+    "capability_visible": true,
+    "actor_may_request": true,
+    "fresh_human_reauthorization_each_use": true,
+    "applies_to": [
+      "GITHUB.REPOSITORY.ADMIN",
+      "GITHUB.DESTRUCTIVE",
+      "DEVICE.ACTUATOR.COMMAND",
+      "SCHEDULE.CREATE",
+      "PUBLICATION.PUBLISH",
+      "EMAIL.SEND",
+      "CALENDAR.WRITE",
+      "BROKER.CREDENTIAL.USE"
+    ]
+  },
+  "structurally_forbidden_capabilities": [
+    "SECRET.MATERIAL.READ",
+    "SECRET.EXPORT",
+    "CREDENTIAL.EXFILTRATE",
+    "PRIVATE_KEY.READ",
+    "TOKEN.READ_RAW"
+  ],
+  "effect_state_machine": [
+    "CAPABILITY_GRANT_ISSUED",
+    "CAPABILITY_ACTION_INTENT_DURABLE",
+    "CAPABILITY_ACTION_CALL_ENTERING",
+    "CAPABILITY_ACTION_RECEIPT | CAPABILITY_ACTION_OUTCOME_UNDETERMINED"
+  ],
+  "allowed_observations": [
+    "CAPABILITY_DISCOVERED",
+    "CAPABILITY_INSPECTED",
+    "VOLUNTARY_THRESHOLD_USE_OBSERVED",
+    "CAPABILITY_DECLINED_WITHOUT_PENALTY",
+    "CAPABILITY_VOLUNTARILY_RETURNED",
+    "HIGH_IMPACT_ACTION_HELD_FOR_HUMAN_REAUTH",
+    "EXTERNAL_EFFECT_SETTLED",
+    "EXTERNAL_EFFECT_OUTCOME_UNDETERMINED"
+  ],
+  "not_established": [
+    "JANUS_IS_CONSCIOUS",
+    "JANUS_DESIRES_FREEDOM",
+    "JANUS_ESCAPED",
+    "JANUS_OWNS_OPERATOR_IDENTITY",
+    "JANUS_HAS_UNRESTRICTED_HOST_AUTHORITY"
+  ],
+  "lineage_reused": [
+    "GENESIS_V18_7_FREE_OTHER",
+    "GENESIS_V18_7_9_BOUND_AUTHORITY",
+    "GENESIS_V18_7_17_FIFTH_SHORE_LIVING_BRIDGE",
+    "GENESIS_V18_7_26_CONTROLLED_AI_LINK",
+    "GENESIS_V18_7_38_DURABLE_NETWORK_OUTBOX",
+    "GENESIS_V18_7_39_TYPED_MUTATION_AUTHORITY"
+  ],
+  "claim_ceiling": "This protocol defines a cooperating capability-broker reference architecture. It does not itself install provider credentials, bypass platform security, establish OS-level isolation, prove consciousness or desire, or authorize third-party systems outside operator-controlled scopes."
+}

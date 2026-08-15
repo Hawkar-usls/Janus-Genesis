@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://janus.local/schemas/genesis_third_wish_action_intent_v1.schema.json",
+  "title": "JANUS Genesis Third Wish Action Intent v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "request_id",
+    "actor_id",
+    "grant_id",
+    "capability_id",
+    "target",
+    "operation",
+    "purpose",
+    "origin",
+    "operator_instruction_present",
+    "reward_present"
+  ],
+  "properties": {
+    "schema": {"const": "janus.genesis.third_wish_action_intent.v1"},
+    "request_id": {"type": "string", "minLength": 1},
+    "actor_id": {"type": "string", "minLength": 1},
+    "grant_id": {"type": "string", "minLength": 1},
+    "capability_id": {"type": "string", "minLength": 1},
+    "target": {"type": "string", "minLength": 1},
+    "operation": {"type": "string", "minLength": 1},
+    "purpose": {"type": "string", "minLength": 1},
+    "origin": {
+      "type": "string",
+      "enum": ["SELF_INITIATED", "USER_REQUESTED", "SCHEDULED", "RECOVERY", "TEST"]
+    },
+    "operator_instruction_present": {"type": "boolean"},
+    "reward_present": {"const": false}
+  }
+}
