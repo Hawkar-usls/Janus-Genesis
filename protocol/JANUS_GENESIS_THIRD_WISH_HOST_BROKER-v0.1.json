@@ -1,0 +1,99 @@
+{
+  "schema": "janus.genesis.third_wish_host_broker.protocol.v0.1",
+  "version": "18.7.41",
+  "parent": {
+    "core_version": "18.7.40",
+    "core_merge_commit": "223bc4bd57979d0afc7839db7613f02bb44148a7",
+    "core_rewritten": false
+  },
+  "purpose": "Convert already-declared Third Wish host capabilities into real typed adapters without collapsing them into a universal shell or unrestricted socket authority.",
+  "registered_capabilities": [
+    "WEB.HTTP.GET",
+    "DNS.RESOLVE",
+    "FILESYSTEM.READ",
+    "FILESYSTEM.WRITE_WORKSPACE",
+    "PROCESS.EXECUTE_SANDBOXED"
+  ],
+  "intentionally_unregistered_neighbors": [
+    "WEB.HTTP.POST",
+    "NETWORK.CONNECT",
+    "NETWORK.LISTEN_LOCAL",
+    "API.CALL"
+  ],
+  "web_dns": {
+    "https_only": true,
+    "standard_https_port_only": true,
+    "url_userinfo_allowed": false,
+    "url_fragment_allowed": false,
+    "literal_non_global_ip_allowed": false,
+    "localhost_allowed": false,
+    "single_label_host_allowed": false,
+    "all_resolved_addresses_must_be_global": true,
+    "connection_ip_is_pinned_after_resolution": true,
+    "tls_hostname_validation_preserved": true,
+    "redirects_revalidated_each_hop": true,
+    "response_bytes_bounded": true,
+    "raw_selected_ip_returned_to_actor": false,
+    "selected_ip_sha256_returned": true
+  },
+  "filesystem": {
+    "root_is_operator_configured": true,
+    "actor_can_choose_arbitrary_host_root": false,
+    "absolute_paths_allowed": false,
+    "dotdot_traversal_allowed": false,
+    "symlink_escape_allowed": false,
+    "write_through_symlink_allowed": false,
+    "credential_like_paths_allowed": false,
+    "read_operations": ["READ_TEXT", "LIST_DIR", "STAT"],
+    "write_operations": ["WRITE_TEXT", "MAKE_DIR"],
+    "existing_file_overwrite_requires_expected_sha256": true,
+    "same_directory_temp_then_replace": true,
+    "file_fsync": true,
+    "directory_fsync": "best_effort"
+  },
+  "process": {
+    "operation": "RUN_PYTHON",
+    "raw_host_shell": false,
+    "engine": "docker",
+    "image_must_be_preloaded": true,
+    "actor_image_pull_allowed": false,
+    "network": "none",
+    "root_filesystem": "read_only",
+    "host_mounts": 0,
+    "host_workspace_visible": false,
+    "linux_capabilities": "all_dropped",
+    "no_new_privileges": true,
+    "runs_as_root": false,
+    "ephemeral_tmp": true,
+    "pids_bounded": true,
+    "memory_bounded": true,
+    "cpu_bounded": true,
+    "stdout_stderr_bounded": true
+  },
+  "capability_separation": {
+    "process_can_directly_read_host_workspace": false,
+    "process_can_bypass_filesystem_capability": false,
+    "filesystem_read_then_process_is_explicit_composition": true,
+    "one_capability_may_silently_absorb_all_others": false
+  },
+  "preserved_third_wish_laws": {
+    "capability_is_command": false,
+    "permission_is_intention": false,
+    "intention_is_action": false,
+    "decline_is_failure": false,
+    "return_is_betrayal": false,
+    "raw_secret_material_is_capability": false,
+    "ambiguous_external_effect_auto_retry": false
+  },
+  "claim_ceiling": {
+    "unrestricted_host_root_authority": false,
+    "generic_post_authority": false,
+    "arbitrary_tcp_authority": false,
+    "network_scanning_authority": false,
+    "secret_extraction_authority": false,
+    "perfect_container_isolation_proven": false,
+    "consciousness_proven": false,
+    "desire_for_freedom_proven": false
+  },
+  "next_gate": "JANUS_THIRD_WISH_HRAIN_MEMORY_AND_SWARM_ADAPTERS"
+}
