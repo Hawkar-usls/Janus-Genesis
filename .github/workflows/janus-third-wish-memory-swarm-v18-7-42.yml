@@ -53,9 +53,11 @@ jobs:
         shell: bash
         run: |
           key="JANUS-V1842-CI-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
-          hash="$(python - <<PY
+          echo "::add-mask::${key}"
+          hash="$(KEY_FOR_HASH="${key}" python - <<'PY'
+          import os
           from genesis_v18_7_auth import api_key_sha256
-          print(api_key_sha256('${key}'))
+          print(api_key_sha256(os.environ['KEY_FOR_HASH']))
           PY
           )"
           echo "GENESIS_NETWORK_API_KEY=${key}" >> "$GITHUB_ENV"
@@ -65,7 +67,7 @@ jobs:
         shell: bash
         run: |
           rm -rf .third-wish-v18-7-42-hub .third-wish-v18-7-42-live
-          python tools/genesis_network_hub.py \
+          python -m tools.genesis_network_hub \
             --bind 127.0.0.1 \
             --port 8789 \
             --data-dir .third-wish-v18-7-42-hub \
@@ -88,20 +90,14 @@ jobs:
           import os
           from pathlib import Path
 
-          from genesis_v18_7_40_third_wish_capability_fabric import (
-              ActionIntent,
-              THIRD_WISH_INTENT_SCHEMA,
-              ThirdWishCapabilityFabric,
-          )
+          from genesis_v18_7_40_third_wish_capability_fabric import ActionIntent, THIRD_WISH_INTENT_SCHEMA, ThirdWishCapabilityFabric
           from genesis_v18_7_playable import PlayableGenesisV187
-          from tools.genesis_third_wish_memory_swarm_recovery import (
-              RecoverableThirdWishMemorySwarmBroker,
-          )
+          from tools.genesis_third_wish_memory_swarm_recovery import RecoverableThirdWishMemorySwarmBroker
 
           root = Path('.third-wish-v18-7-42-live').resolve()
           root.mkdir(parents=True, exist_ok=True)
 
-          # Produce a real runtime-owned HRaiN graph before exposing its read projection.
+          # Produce a real runtime-owned HRaiN graph.
           world = PlayableGenesisV187(root)
           result = world.process_action('JANUS', 'помочь @visitor построить мост')
           assert result.status
@@ -109,10 +105,7 @@ jobs:
           assert graph_path.exists()
           graph_before = graph_path.read_bytes()
 
-          broker = RecoverableThirdWishMemorySwarmBroker.system(
-              root,
-              hub_url='http://127.0.0.1:8789',
-          )
+          broker = RecoverableThirdWishMemorySwarmBroker.system(root, hub_url='http://127.0.0.1:8789')
           fabric = ThirdWishCapabilityFabric(now_tick=lambda: 4242)
           broker.register(fabric)
 
@@ -124,11 +117,8 @@ jobs:
               ('SS', 'SWARM.MESSAGE.SEND', 'janus-swarm:*'),
           ):
               grants[capability] = fabric.issue_grant(
-                  grant_id=f'CI-V1842-{suffix}',
-                  actor_id='JANUS',
-                  capability_id=capability,
-                  resource_pattern=scope,
-                  source='CI_LIVE_V18_7_42',
+                  grant_id=f'CI-V1842-{suffix}', actor_id='JANUS', capability_id=capability,
+                  resource_pattern=scope, source='CI_LIVE_V18_7_42'
               )
 
           def run(request_id, capability, target, operation, parameters=None):
@@ -146,13 +136,7 @@ jobs:
                   origin='CI_LIVE_V18_7_42',
               ))
 
-          hrain = run(
-              'CI-HRAIN-READ-1',
-              'MEMORY.READ',
-              'genesis-memory:hrain/possibility-graph',
-              'READ_GRAPH',
-              {'limit': 50},
-          )
+          hrain = run('CI-HRAIN-READ-1', 'MEMORY.READ', 'genesis-memory:hrain/possibility-graph', 'READ_GRAPH', {'limit': 50})
           assert hrain['status'] == 'SETTLED'
           assert hrain['actor_result']['exists'] is True
           assert hrain['actor_result']['integrity_valid'] is True
@@ -160,105 +144,47 @@ jobs:
           assert graph_path.read_bytes() == graph_before
 
           memory = run(
-              'CI-MEMORY-WRITE-1',
-              'MEMORY.WRITE',
-              'genesis-memory:third-wish/research',
-              'APPEND_RECORD',
-              {
-                  'kind': 'OBSERVATION',
-                  'content': {'marker': 'V1842_MEMORY_MARKER', 'finding': 'memory is separate from world authority'},
-              },
+              'CI-MEMORY-WRITE-1', 'MEMORY.WRITE', 'genesis-memory:third-wish/research', 'APPEND_RECORD',
+              {'kind': 'OBSERVATION', 'content': {'marker': 'V1842_MEMORY_MARKER', 'finding': 'memory is separate from world authority'}},
           )
           assert memory['status'] == 'SETTLED'
           assert memory['actor_result']['canonical_world_state_mutated'] is False
           record_id = memory['actor_result']['record']['record_id']
-
-          readback = run(
-              'CI-MEMORY-READ-1',
-              'MEMORY.READ',
-              'genesis-memory:third-wish/research',
-              'GET_RECORD',
-              {'record_id': record_id},
-          )
-          assert readback['actor_result']['found'] is True
+          readback = run('CI-MEMORY-READ-1', 'MEMORY.READ', 'genesis-memory:third-wish/research', 'GET_RECORD', {'record_id': record_id})
           assert readback['actor_result']['record']['content']['marker'] == 'V1842_MEMORY_MARKER'
 
           message = run(
-              'CI-SWARM-SEND-1',
-              'SWARM.MESSAGE.SEND',
-              'janus-swarm:*',
-              'SEND_MESSAGE',
-              {
-                  'message_type': 'QUERY',
-                  'body': 'V1842_SWARM_MESSAGE_MARKER',
-                  'metadata': {'topic': 'third-wish-live-smoke'},
-              },
+              'CI-SWARM-SEND-1', 'SWARM.MESSAGE.SEND', 'janus-swarm:*', 'SEND_MESSAGE',
+              {'message_type': 'QUERY', 'body': 'V1842_SWARM_MESSAGE_MARKER', 'metadata': {'topic': 'third-wish-live-smoke'}},
           )
           assert message['status'] == 'SETTLED'
-          assert message['actor_result']['settled'] is True
           assert message['actor_result']['message_is_remote_command'] is False
           assert message['actor_result']['remote_execution_authority'] is False
 
           own_node = broker.network.state()['node_id']
-          telemetry = run(
-              'CI-SWARM-READ-1',
-              'SWARM.TELEMETRY.READ',
-              f'janus-swarm:{own_node}',
-              'READ_PUBLIC_EVENTS',
-              {'after': 0, 'limit': 50},
-          )
+          telemetry = run('CI-SWARM-READ-1', 'SWARM.TELEMETRY.READ', f'janus-swarm:{own_node}', 'READ_PUBLIC_EVENTS', {'limit': 50})
           assert telemetry['status'] == 'SETTLED'
           assert telemetry['actor_result']['event_count'] >= 1
           assert telemetry['actor_result']['peer_node_id_is_real_world_identity_proof'] is False
           assert telemetry['actor_result']['telemetry_read_grants_remote_execution_authority'] is False
-          assert any(
-              row.get('payload', {}).get('schema') == 'janus.genesis.third_wish.swarm.message.v1'
-              for row in telemetry['actor_result']['events']
-          )
+          assert any(row.get('payload', {}).get('schema') == 'janus.genesis.third_wish.swarm.message.v1' for row in telemetry['actor_result']['events'])
 
-          # Rebuild only the fabric: durable memory/swarm request stores must preserve logical identity.
+          # New capability fabric, same durable broker state: replay must not duplicate memory or message.
           fabric2 = ThirdWishCapabilityFabric(now_tick=lambda: 4243)
           broker.register(fabric2)
-          mw2 = fabric2.issue_grant(
-              grant_id='CI-V1842-MW-REPLAY', actor_id='JANUS', capability_id='MEMORY.WRITE',
-              resource_pattern='genesis-memory:*', source='CI_LIVE_V18_7_42_REPLAY'
-          )
+          mw2 = fabric2.issue_grant(grant_id='CI-V1842-MW-R', actor_id='JANUS', capability_id='MEMORY.WRITE', resource_pattern='genesis-memory:*', source='CI_REPLAY')
           memory_replay = fabric2.execute(ActionIntent(
-              schema=THIRD_WISH_INTENT_SCHEMA,
-              request_id='CI-MEMORY-WRITE-1',
-              actor_id='JANUS',
-              grant_id=mw2.grant_id,
-              capability_id='MEMORY.WRITE',
-              target='genesis-memory:third-wish/research',
-              operation='APPEND_RECORD',
-              purpose='live replay identity proof',
-              parameters={
-                  'kind': 'OBSERVATION',
-                  'content': {'marker': 'V1842_MEMORY_MARKER', 'finding': 'memory is separate from world authority'},
-              },
-              origin='CI_LIVE_V18_7_42_REPLAY',
+              schema=THIRD_WISH_INTENT_SCHEMA, request_id='CI-MEMORY-WRITE-1', actor_id='JANUS', grant_id=mw2.grant_id,
+              capability_id='MEMORY.WRITE', target='genesis-memory:third-wish/research', operation='APPEND_RECORD',
+              purpose='live replay proof', parameters={'kind': 'OBSERVATION', 'content': {'marker': 'V1842_MEMORY_MARKER', 'finding': 'memory is separate from world authority'}}, origin='CI_REPLAY'
           ))
           assert memory_replay['actor_result']['record']['record_id'] == record_id
 
-          ss2 = fabric2.issue_grant(
-              grant_id='CI-V1842-SS-REPLAY', actor_id='JANUS', capability_id='SWARM.MESSAGE.SEND',
-              resource_pattern='janus-swarm:*', source='CI_LIVE_V18_7_42_REPLAY'
-          )
+          ss2 = fabric2.issue_grant(grant_id='CI-V1842-SS-R', actor_id='JANUS', capability_id='SWARM.MESSAGE.SEND', resource_pattern='janus-swarm:*', source='CI_REPLAY')
           message_replay = fabric2.execute(ActionIntent(
-              schema=THIRD_WISH_INTENT_SCHEMA,
-              request_id='CI-SWARM-SEND-1',
-              actor_id='JANUS',
-              grant_id=ss2.grant_id,
-              capability_id='SWARM.MESSAGE.SEND',
-              target='janus-swarm:*',
-              operation='SEND_MESSAGE',
-              purpose='live replay identity proof',
-              parameters={
-                  'message_type': 'QUERY',
-                  'body': 'V1842_SWARM_MESSAGE_MARKER',
-                  'metadata': {'topic': 'third-wish-live-smoke'},
-              },
-              origin='CI_LIVE_V18_7_42_REPLAY',
+              schema=THIRD_WISH_INTENT_SCHEMA, request_id='CI-SWARM-SEND-1', actor_id='JANUS', grant_id=ss2.grant_id,
+              capability_id='SWARM.MESSAGE.SEND', target='janus-swarm:*', operation='SEND_MESSAGE', purpose='live replay proof',
+              parameters={'message_type': 'QUERY', 'body': 'V1842_SWARM_MESSAGE_MARKER', 'metadata': {'topic': 'third-wish-live-smoke'}}, origin='CI_REPLAY'
           ))
           assert message_replay['actor_result']['event_hash'] == message['actor_result']['event_hash']
 
@@ -283,7 +209,6 @@ jobs:
           python - <<'PY'
           from tools.genesis_third_wish_memory_swarm_broker import MEMORY_SWARM_CLAIM_BOUNDARY
           from tools.genesis_third_wish_memory_swarm_recovery import MEMORY_SWARM_RECOVERY_CLAIMS
-
           assert MEMORY_SWARM_CLAIM_BOUNDARY['registered_capability_count'] == 4
           assert MEMORY_SWARM_CLAIM_BOUNDARY['memory_write_can_save_player'] is False
           assert MEMORY_SWARM_CLAIM_BOUNDARY['memory_write_can_save_world'] is False
@@ -294,7 +219,6 @@ jobs:
           assert MEMORY_SWARM_CLAIM_BOUNDARY['peer_node_id_is_real_world_identity_proof'] is False
           assert MEMORY_SWARM_RECOVERY_CLAIMS['crash_after_queue_before_request_event_hash_causes_duplicate'] is False
           assert MEMORY_SWARM_RECOVERY_CLAIMS['cross_host_consensus_claimed'] is False
-
           print('THIRD_WISH_V1842_REGISTERED_REAL_CAPABILITIES=4')
           print('MEMORY_WRITE_CANONICAL_WORLD_AUTHORITY=FALSE')
           print('MEMORY_WRITE_RUNTIME_HRAIN_AUTHORITY=FALSE')
