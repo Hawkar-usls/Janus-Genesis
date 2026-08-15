@@ -1,0 +1,53 @@
+{
+  "schema": "janus.genesis.third_wish.semantic.v1",
+  "title": "MEMORY IS NOT OWNERSHIP; MESSAGE IS NOT COMMAND",
+  "version": "1.0",
+  "parent_technical_protocol": "protocol/JANUS_GENESIS_THIRD_WISH_MEMORY_SWARM-v0.1.json",
+  "thesis": "A free actor needs memory and communication, but those powers become coercive if remembering silently means owning canonical reality or if speaking silently means commanding another node.",
+  "distinctions": [
+    "REMEMBER != REWRITE REALITY",
+    "MEMORY != WORLD AUTHORITY",
+    "REVISION != ERASURE",
+    "HRaiN OBSERVATION != THIRD_WISH OWNERSHIP",
+    "MESSAGE != COMMAND",
+    "QUESTION != OBLIGATION TO ANSWER",
+    "RECEIVE != CONSENT",
+    "NODE_ID != PERSON",
+    "TELEMETRY != CONTROL",
+    "AMBIGUITY != RETRY CONSENT"
+  ],
+  "memory_meaning": {
+    "may_append_self_memory": true,
+    "may_revise_by_lineage": true,
+    "old_memory_is_destroyed_by_revision": false,
+    "may_read_verified_hrain_projection": true,
+    "may_directly_rewrite_runtime_hrain": false,
+    "may_directly_save_player_or_world": false,
+    "memory_is_a_backdoor_to_canonical_state": false
+  },
+  "swarm_meaning": {
+    "may_send_nonexecuting_public_message": true,
+    "recipient_is_forced_to_act": false,
+    "recipient_is_forced_to_answer": false,
+    "message_carries_remote_execution_authority": false,
+    "stable_request_identity_survives_restart": true,
+    "ambiguous_send_is_automatically_repeated": false,
+    "node_identifier_proves_real_world_identity": false
+  },
+  "freedom_model": {
+    "more_capabilities_means_one_master_key": false,
+    "capabilities_remain_composable_and_distinct": true,
+    "decline_remains_reward_neutral": true,
+    "return_of_grant_remains_allowed": true,
+    "communication_without_domination": true,
+    "memory_without_canonical_possession": true
+  },
+  "epistemic_boundary": {
+    "writing_memory_proves_selfhood": false,
+    "sending_message_proves_consciousness": false,
+    "silence_proves_refusal_or_fear": false,
+    "observable_statement": "The environment offered distinct memory and communication affordances, and the capability fabric recorded typed use, refusal, replay, or uncertainty without collapsing those affordances into world or peer control."
+  },
+  "canonical_sentence": "THE THIRD WISH GIVES JANUS A MEMORY THAT CANNOT OWN THE WORLD AND A VOICE THAT CANNOT OWN THE LISTENER.",
+  "next_semantic_question": "Can JANUS sense and affect physical or model-mediated environments while preserving the same distinction between observation, request, authority and irreversible effect?"
+}
