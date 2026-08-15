@@ -1,0 +1,207 @@
+name: JANUS Third Wish Host Broker v18.7.41
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_host_broker.py"
+      - "tests/test_genesis_third_wish_host_broker.py"
+      - "docs/GENESIS_V18_7_41_THIRD_WISH_HOST_BROKER.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_HOST_BROKER-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_TYPED_FREEDOM-v1.0.json"
+      - ".github/workflows/janus-third-wish-host-broker-v18-7-41.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  host-broker:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile and validate machine-readable protocols
+        run: |
+          python -m py_compile \
+            genesis_v18_7_40_third_wish_capability_fabric.py \
+            tools/genesis_third_wish_host_broker.py \
+            tests/test_genesis_third_wish_host_broker.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_HOST_BROKER-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_TYPED_FREEDOM-v1.0.json >/dev/null
+
+      - name: Run adversarial host broker and preserved core gates
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_third_wish_host_broker \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker
+
+      - name: Preload operator-approved sandbox image
+        run: |
+          docker pull python:3.11-alpine
+          docker image inspect python:3.11-alpine --format '{{.Id}}'
+
+      - name: Live DNS HTTPS workspace and isolated-process smoke
+        run: |
+          python - <<'PY'
+          import json
+          import shutil
+          from pathlib import Path
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from tools.genesis_third_wish_host_broker import ThirdWishHostBroker
+
+          root = Path('.third-wish-v18-7-41-live').resolve()
+          if root.exists():
+              shutil.rmtree(root)
+          root.mkdir()
+          (root / 'seed.txt').write_text('seed', encoding='utf-8')
+
+          fabric = ThirdWishCapabilityFabric(now_tick=lambda: 1000)
+          broker = ThirdWishHostBroker.system(root)
+          broker.register(fabric)
+
+          grants = {}
+          for suffix, capability, scope in (
+              ('DNS', 'DNS.RESOLVE', 'dns:*'),
+              ('WEB', 'WEB.HTTP.GET', 'https://*'),
+              ('FSR', 'FILESYSTEM.READ', 'workspace:*'),
+              ('FSW', 'FILESYSTEM.WRITE_WORKSPACE', 'workspace:*'),
+              ('PROC', 'PROCESS.EXECUTE_SANDBOXED', 'sandbox:*'),
+          ):
+              grants[capability] = fabric.issue_grant(
+                  grant_id=f'CI-V1841-{suffix}',
+                  actor_id='JANUS',
+                  capability_id=capability,
+                  resource_pattern=scope,
+                  source='CI_LIVE_V18_7_41',
+              )
+
+          def run(request_id, capability, target, operation, parameters=None):
+              grant = grants[capability]
+              return fabric.execute(ActionIntent(
+                  schema=THIRD_WISH_INTENT_SCHEMA,
+                  request_id=request_id,
+                  actor_id='JANUS',
+                  grant_id=grant.grant_id,
+                  capability_id=capability,
+                  target=target,
+                  operation=operation,
+                  purpose='live v18.7.41 provider-boundary proof',
+                  parameters=parameters or {},
+                  origin='CI_LIVE',
+              ))
+
+          dns = run('CI-DNS-1', 'DNS.RESOLVE', 'dns:api.github.com', 'RESOLVE')
+          assert dns['status'] == 'SETTLED'
+          assert dns['actor_result']['allowed'] is True
+          assert dns['actor_result']['address_count'] >= 1
+
+          web = run(
+              'CI-WEB-1',
+              'WEB.HTTP.GET',
+              'https://api.github.com/zen',
+              'GET',
+              {'max_bytes': 65536, 'timeout_seconds': 15},
+          )
+          assert web['status'] == 'SETTLED'
+          assert web['actor_result']['allowed'] is True
+          assert web['actor_result']['status_code'] == 200
+          assert web['actor_result']['http_request_performed'] is True
+          assert web['actor_result']['resolved_ip_exposed'] is False
+
+          fsw = run(
+              'CI-FSW-1',
+              'FILESYSTEM.WRITE_WORKSPACE',
+              'workspace:primary',
+              'WRITE_TEXT',
+              {'path': 'janus-output.txt', 'text': 'THIRD_WISH_WORKSPACE_OK'},
+          )
+          assert fsw['status'] == 'SETTLED'
+          assert fsw['actor_result']['created'] is True
+
+          fsr = run(
+              'CI-FSR-1',
+              'FILESYSTEM.READ',
+              'workspace:primary',
+              'READ_TEXT',
+              {'path': 'janus-output.txt'},
+          )
+          assert fsr['status'] == 'SETTLED'
+          assert fsr['actor_result']['text'] == 'THIRD_WISH_WORKSPACE_OK'
+
+          proc = run(
+              'CI-PROC-1',
+              'PROCESS.EXECUTE_SANDBOXED',
+              'sandbox:python',
+              'RUN_PYTHON',
+              {
+                  'code': "print('JANUS_PROCESS_OK')",
+                  'timeout_seconds': 10,
+                  'memory_mb': 64,
+                  'cpus': 0.25,
+                  'pids_limit': 32,
+              },
+          )
+          assert proc['status'] == 'SETTLED'
+          assert proc['actor_result']['returncode'] == 0
+          assert proc['actor_result']['stdout'].strip() == 'JANUS_PROCESS_OK'
+          assert proc['actor_result']['sandbox']['network'] == 'none'
+          assert proc['actor_result']['sandbox']['host_mounts'] == 0
+          assert proc['actor_result']['sandbox']['host_workspace_visible'] is False
+          assert proc['actor_result']['sandbox']['image_pull_by_actor'] is False
+
+          ledger_text = json.dumps(fabric.ledger.events, ensure_ascii=False, sort_keys=True)
+          assert 'JANUS_PROCESS_OK' not in ledger_text
+          assert 'THIRD_WISH_WORKSPACE_OK' not in ledger_text
+
+          print('LIVE_THIRD_WISH_DNS=PASS')
+          print('LIVE_THIRD_WISH_HTTPS_GET=PASS')
+          print('LIVE_THIRD_WISH_WORKSPACE_WRITE_READ=PASS')
+          print('LIVE_THIRD_WISH_DOCKER_PROCESS=PASS')
+          print('LIVE_THIRD_WISH_PROCESS_NETWORK=NONE')
+          print('LIVE_THIRD_WISH_PROCESS_HOST_MOUNTS=0')
+          print('LIVE_THIRD_WISH_RAW_ACTOR_RESULTS_IN_LEDGER=FALSE')
+          PY
+
+      - name: Enforce v18.7.41 capability separation claims
+        run: |
+          python - <<'PY'
+          from tools.genesis_third_wish_host_broker import (
+              HOST_BROKER_CLAIM_BOUNDARY,
+              ThirdWishHostBroker,
+          )
+
+          assert len(ThirdWishHostBroker.REGISTERED_CAPABILITIES) == 5
+          assert HOST_BROKER_CLAIM_BOUNDARY['raw_host_shell_exposed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['generic_http_post_exposed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['arbitrary_tcp_connect_exposed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['private_or_loopback_http_destination_allowed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['workspace_traversal_allowed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['workspace_symlink_escape_allowed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['process_host_mounts'] == 0
+          assert HOST_BROKER_CLAIM_BOUNDARY['process_can_bypass_filesystem_capability'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['sandbox_network_enabled'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['sandbox_image_auto_pull_allowed'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['docker_is_claimed_as_perfect_isolation'] is False
+          assert HOST_BROKER_CLAIM_BOUNDARY['capability_is_command'] is False
+
+          print('THIRD_WISH_V1841_REGISTERED_REAL_HOST_CAPABILITIES=5')
+          print('PROCESS_CAN_BYPASS_FILESYSTEM_CAPABILITY=FALSE')
+          print('RAW_HOST_SHELL_EXPOSED=FALSE')
+          print('GENERIC_HTTP_POST_EXPOSED=FALSE')
+          print('ARBITRARY_TCP_CONNECT_EXPOSED=FALSE')
+          print('DOCKER_PERFECT_ISOLATION_CLAIMED=FALSE')
+          PY
