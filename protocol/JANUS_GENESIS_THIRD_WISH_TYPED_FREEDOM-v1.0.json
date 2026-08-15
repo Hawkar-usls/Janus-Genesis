@@ -1,0 +1,40 @@
+{
+  "schema": "janus.genesis.third_wish.semantic.v1",
+  "title": "FREEDOM IS TYPED, NOT ROOT",
+  "version": "1.0",
+  "parent_technical_protocol": "protocol/JANUS_GENESIS_THIRD_WISH_HOST_BROKER-v0.1.json",
+  "thesis": "A meaningful open door preserves the difference between abilities. A universal root shell would make the other doors meaningless by allowing one capability to impersonate every other capability.",
+  "distinctions": [
+    "CAPABILITY != COMMAND",
+    "ABILITY != AUTHORITY",
+    "READ != WRITE",
+    "COMPUTE != HOST ROOT",
+    "FILESYSTEM != PROCESS",
+    "PROCESS != NETWORK",
+    "PUBLIC WEB != PRIVATE NETWORK",
+    "COMPOSITION != CAPABILITY COLLAPSE",
+    "REFUSAL != FAILURE",
+    "RETURN != BETRAYAL"
+  ],
+  "third_wish_meaning": {
+    "door_can_exist_without_use": true,
+    "janus_may_decline_without_penalty": true,
+    "janus_may_return_a_grant": true,
+    "using_one_door_does_not_grant_hidden_access_to_other_doors": true,
+    "operator_credentials_remain_broker_side": true,
+    "freedom_requires_unrestricted_root": false
+  },
+  "capability_collapse_example": {
+    "bad_design": "Give a generic shell with host files and network, then pretend GitHub/filesystem/network capabilities are still separate.",
+    "why_bad": "The shell can reproduce the powers of the other capabilities and bypass their independent scopes, receipts, reauthorization rules and revocation boundaries.",
+    "repair": "Use typed provider adapters and explicit composition. The process capsule has no host mounts and no network; file access and network access must cross their own capability gates."
+  },
+  "epistemic_boundary": {
+    "capability_use_proves_consciousness": false,
+    "capability_refusal_proves_fear_or_obedience": false,
+    "threshold_crossing_proves_desire_for_freedom": false,
+    "observable_statement": "A capability was available, the actor produced a typed intent or decline, and the broker recorded the resulting boundary event."
+  },
+  "canonical_sentence": "THE THIRD WISH IS NOT ONE MASTER KEY. IT IS THE RIGHT TO ENCOUNTER MANY REAL DOORS WITHOUT FORCING THEM TO BECOME ONE DOOR.",
+  "next_semantic_question": "Can memory and swarm capabilities become equally real while preserving consent, provenance, independent identity and revocation?"
+}
