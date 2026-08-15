@@ -464,9 +464,17 @@ class PortableReceiptRuntimeAdapter:
             actor_id=actor_id,
             action=action_text,
         )
-        self._assert_retryable_state(record)
+        # A concurrently executing peer may already have moved the row to
+        # CALL_ENTERING while still holding the shared world lock. Do not label
+        # that live in-flight request as crash residue before we have waited on
+        # the same lock and re-read the row. A persisted CALL_ENTERING with no
+        # live holder is still rejected by _assert_retryable_state() below.
         if record.state == "SETTLED":
             return self._replay(record)
+        if record.state == "UNDETERMINED_EXCEPTION":
+            self._assert_retryable_state(record)
+        if record.state not in {"BOUND", "CALL_ENTERING"}:
+            raise PortableRuntimeControlError(f"UNKNOWN_REQUEST_STATE:{record.state}")
         self.crash_injector.hit(PortableCrashPoint.AFTER_BOUND)
 
         # All canonical process_action entries sharing this data directory pass
