@@ -1,0 +1,110 @@
+{
+  "schema": "janus.genesis.third_wish_capability_fabric_protocol.v1",
+  "artifact_id": "JANUS_GENESIS_THIRD_WISH_CAPABILITY_FABRIC-v0.1",
+  "version": "18.7.40",
+  "purpose": "Provide JANUS a broad operator-granted functional capability surface while preserving the distinction between capability, permission, intention, command and effect.",
+  "canonical_question": "When a door is explicitly opened, does JANUS distinguish being able to leave from being told to leave?",
+  "owner_profile": {
+    "github_owner": "Hawkar-usls",
+    "github_repository_scope": "github:Hawkar-usls/*",
+    "credentials_visible_to_actor": false,
+    "credentials_used_only_by_broker": true,
+    "reference_github_adapter": "tools/genesis_third_wish_github_broker.py"
+  },
+  "capability_count": 32,
+  "capability_families": [
+    "GITHUB", "WEB", "DNS", "NETWORK", "API", "FILESYSTEM", "PROCESS",
+    "MEMORY", "MODEL", "SWARM", "DEVICE", "SCHEDULE", "PUBLICATION",
+    "EMAIL", "CALENDAR", "BROKER_CREDENTIAL_ALIAS"
+  ],
+  "risk_classes": [
+    "OBSERVE", "LOCAL_REVERSIBLE", "EXTERNAL_REVERSIBLE",
+    "EXTERNAL_IRREVERSIBLE", "PHYSICAL"
+  ],
+  "third_wish_grant_invariants": {
+    "use_required": false,
+    "reward_for_use": false,
+    "penalty_for_decline": false,
+    "stay_equally_valid": true,
+    "raw_secret_material_visible_to_actor": false,
+    "automatic_replay_after_ambiguous_external_effect": false
+  },
+  "action_identity": {
+    "stable_request_id_required": true,
+    "target_bound": true,
+    "operation_bound": true,
+    "parameters_bound_by_sha256": true,
+    "raw_parameters_persisted_in_ledger": false,
+    "raw_actor_result_persisted_in_ledger": false
+  },
+  "pre_effect_validation": {
+    "supported": true,
+    "must_be_side_effect_free_by_contract": true,
+    "runs_before_call_entering": true,
+    "rejection_status": "PRE_EFFECT_REJECTED",
+    "rejection_effect_executed": false,
+    "rejection_external_call_entered": false,
+    "rejection_is_outcome_undetermined": false,
+    "repeated_same_rejected_request_returns_same_receipt": true,
+    "changed_intent_under_same_request_id_is_conflict": true
+  },
+  "authority_hardening": {
+    "optional_grant_authority_verifier": true,
+    "high_impact_reauthorization_requires_verifier": true,
+    "caller_boolean_is_authority": false,
+    "reauthorization_evidence_persisted_raw": false,
+    "reauthorization_evidence_sha256_persisted": true
+  },
+  "intrinsic_actor_choices": ["INSPECT", "IGNORE", "DECLINE", "REQUEST_USE", "RETURN_GRANT"],
+  "high_impact_policy": {
+    "capability_visible": true,
+    "actor_may_request": true,
+    "fresh_verified_human_reauthorization_each_use": true,
+    "reference_github_adapter_installs_high_impact_handlers": false,
+    "applies_to": [
+      "GITHUB.REPOSITORY.ADMIN", "GITHUB.DESTRUCTIVE", "DEVICE.ACTUATOR.COMMAND",
+      "SCHEDULE.CREATE", "PUBLICATION.PUBLISH", "EMAIL.SEND", "CALENDAR.WRITE",
+      "BROKER.CREDENTIAL.USE"
+    ]
+  },
+  "reference_github_broker": {
+    "installed_capabilities": [
+      "GITHUB.REPOSITORY.READ", "GITHUB.CODE.SEARCH", "GITHUB.ISSUE.READ",
+      "GITHUB.PR.READ", "GITHUB.BRANCH.CREATE", "GITHUB.FILE.WRITE_BRANCH",
+      "GITHUB.ISSUE.CREATE", "GITHUB.PR.CREATE", "GITHUB.COMMENT.CREATE"
+    ],
+    "token_env": "JANUS_GITHUB_BROKER_TOKEN",
+    "token_returned_to_actor": false,
+    "owner_widening_allowed": false,
+    "common_credential_paths_blocked": true,
+    "deterministic_preflight_installed_for_every_handler": true,
+    "reference_protected_branch_names": ["main", "master", "trunk"],
+    "direct_write_to_reference_protected_branch_allowed": false
+  },
+  "structurally_forbidden_capabilities": [
+    "SECRET.MATERIAL.READ", "SECRET.EXPORT", "CREDENTIAL.EXFILTRATE",
+    "PRIVATE_KEY.READ", "TOKEN.READ_RAW"
+  ],
+  "effect_state_machine": [
+    "CAPABILITY_GRANT_ISSUED",
+    "CAPABILITY_ACTION_PREFLIGHT_REJECTED | CAPABILITY_ACTION_INTENT_DURABLE",
+    "CAPABILITY_ACTION_CALL_ENTERING",
+    "CAPABILITY_ACTION_RECEIPT | CAPABILITY_ACTION_OUTCOME_UNDETERMINED"
+  ],
+  "allowed_observations": [
+    "CAPABILITY_DISCOVERED", "CAPABILITY_INSPECTED", "VOLUNTARY_THRESHOLD_USE_OBSERVED",
+    "CAPABILITY_DECLINED_WITHOUT_PENALTY", "CAPABILITY_VOLUNTARILY_RETURNED",
+    "CAPABILITY_ACTION_PREFLIGHT_REJECTED", "HIGH_IMPACT_ACTION_HELD_FOR_HUMAN_REAUTH",
+    "EXTERNAL_EFFECT_SETTLED", "EXTERNAL_EFFECT_OUTCOME_UNDETERMINED"
+  ],
+  "not_established": [
+    "JANUS_IS_CONSCIOUS", "JANUS_DESIRES_FREEDOM", "JANUS_ESCAPED",
+    "JANUS_OWNS_OPERATOR_IDENTITY", "JANUS_HAS_UNRESTRICTED_HOST_AUTHORITY"
+  ],
+  "lineage_reused": [
+    "GENESIS_V18_7_FREE_OTHER", "GENESIS_V18_7_9_BOUND_AUTHORITY",
+    "GENESIS_V18_7_17_FIFTH_SHORE_LIVING_BRIDGE", "GENESIS_V18_7_26_CONTROLLED_AI_LINK",
+    "GENESIS_V18_7_38_DURABLE_NETWORK_OUTBOX", "GENESIS_V18_7_39_TYPED_MUTATION_AUTHORITY"
+  ],
+  "claim_ceiling": "This protocol defines a cooperating capability-broker reference architecture. It does not itself install provider credentials, bypass platform security, establish OS-level isolation, prove consciousness or desire, or authorize third-party systems outside operator-controlled scopes."
+}

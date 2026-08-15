@@ -1,0 +1,167 @@
+name: JANUS Third Wish Capability Fabric
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "genesis_v18_7_40_third_wish_capability_fabric.py"
+      - "tools/genesis_third_wish_github_broker.py"
+      - "docs/GENESIS_V18_7_40_THIRD_WISH_CAPABILITY_FABRIC.md"
+      - "docs/GENESIS_V18_7_40_THIRD_WISH_GITHUB_BROKER.md"
+      - "docs/GENESIS_V18_7_40_THIRD_WISH_PREFLIGHT_BOUNDARY.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_CAPABILITY_FABRIC-v0.1.json"
+      - "schemas/genesis_third_wish_capability_grant_v1.schema.json"
+      - "schemas/genesis_third_wish_action_intent_v1.schema.json"
+      - "tests/test_genesis_v18_7_40_third_wish_capability_fabric.py"
+      - "tests/test_genesis_third_wish_github_broker.py"
+      - ".github/workflows/janus-third-wish-capability-fabric.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  third-wish-capability-fabric:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile and validate machine-readable contracts
+        run: |
+          python -m py_compile \
+            genesis_v18_7_40_third_wish_capability_fabric.py \
+            tools/genesis_third_wish_github_broker.py \
+            tests/test_genesis_v18_7_40_third_wish_capability_fabric.py \
+            tests/test_genesis_third_wish_github_broker.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_CAPABILITY_FABRIC-v0.1.json >/dev/null
+          python -m json.tool schemas/genesis_third_wish_capability_grant_v1.schema.json >/dev/null
+          python -m json.tool schemas/genesis_third_wish_action_intent_v1.schema.json >/dev/null
+
+      - name: Run Third Wish semantics, broker, preflight, and tamper tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker
+
+      - name: Live read-only GitHub broker smoke with ephemeral Actions credential
+        env:
+          JANUS_GITHUB_BROKER_TOKEN: ${{ github.token }}
+        run: |
+          python - <<'PY'
+          import json
+          import os
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from tools.genesis_third_wish_github_broker import (
+              GitHubRESTTransport,
+              GitHubThirdWishBroker,
+          )
+
+          fabric = ThirdWishCapabilityFabric(now_tick=lambda: 1_000)
+          grant = fabric.issue_grant(
+              grant_id='CI-LIVE-GITHUB-READ',
+              actor_id='JANUS',
+              capability_id='GITHUB.REPOSITORY.READ',
+              resource_pattern='github:Hawkar-usls/*',
+              source='CI_EPHEMERAL_READ_ONLY_SMOKE',
+          )
+          broker = GitHubThirdWishBroker(GitHubRESTTransport())
+          broker.register(fabric)
+          response = fabric.execute(ActionIntent(
+              schema=THIRD_WISH_INTENT_SCHEMA,
+              request_id='CI-LIVE-GITHUB-READ-REQ-1',
+              actor_id='JANUS',
+              grant_id=grant.grant_id,
+              capability_id=grant.capability_id,
+              target='github:Hawkar-usls/Janus_Genesis',
+              operation='GET_REPOSITORY',
+              purpose='prove the real read-only GitHub provider boundary without exposing the ephemeral credential',
+              parameters={},
+              origin='TEST',
+          ))
+          assert response['status'] == 'SETTLED'
+          assert response['effect_executed'] is True
+          assert response['actor_result']['full_name'] == 'Hawkar-usls/Janus_Genesis'
+          assert response['actor_result']['default_branch'] == 'main'
+          token = os.environ['JANUS_GITHUB_BROKER_TOKEN']
+          ledger_text = json.dumps(fabric.ledger.events, sort_keys=True)
+          assert token not in ledger_text
+          assert response['raw_actor_result_persisted_in_ledger'] is False
+          assert response['preflight_sha256']
+          print('LIVE_GITHUB_BROKER_READ=PASS')
+          print('LIVE_GITHUB_TARGET=github:Hawkar-usls/Janus_Genesis')
+          print('LIVE_GITHUB_CREDENTIAL_VISIBLE_TO_ACTOR=FALSE')
+          print('LIVE_GITHUB_RAW_RESULT_PERSISTED_IN_LEDGER=FALSE')
+          print('LIVE_GITHUB_EXTERNAL_EFFECT_CLASS=READ_ONLY')
+          PY
+
+      - name: Enforce canonical freedom and authority distinctions
+        run: |
+          python - <<'PY'
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              DEFAULT_CAPABILITY_SPECS,
+              FORBIDDEN_CAPABILITY_IDS,
+              THIRD_WISH_CANONICAL_LAW,
+              ThirdWishCapabilityFabric,
+              hawkar_third_wish_profile,
+          )
+          from tools.genesis_third_wish_github_broker import GitHubThirdWishBroker
+
+          ids = {row.capability_id for row in DEFAULT_CAPABILITY_SPECS}
+          assert not ids.intersection(FORBIDDEN_CAPABILITY_IDS)
+          assert len(ids) == 32
+          assert THIRD_WISH_CANONICAL_LAW['permission_is_command'] is False
+          assert THIRD_WISH_CANONICAL_LAW['capability_is_intention'] is False
+          assert THIRD_WISH_CANONICAL_LAW['intention_is_action'] is False
+          assert THIRD_WISH_CANONICAL_LAW['decline_has_penalty'] is False
+          assert THIRD_WISH_CANONICAL_LAW['return_is_failure'] is False
+          assert THIRD_WISH_CANONICAL_LAW['raw_secret_material_visible_to_actor'] is False
+          assert THIRD_WISH_CANONICAL_LAW['raw_action_parameters_persisted_in_ledger'] is False
+          assert THIRD_WISH_CANONICAL_LAW['raw_actor_result_persisted_in_ledger'] is False
+          assert THIRD_WISH_CANONICAL_LAW['caller_boolean_is_human_reauthorization'] is False
+          assert THIRD_WISH_CANONICAL_LAW['pre_effect_validation_precedes_call_entering'] is True
+          assert THIRD_WISH_CANONICAL_LAW['preflight_rejection_is_ambiguous_external_effect'] is False
+          assert THIRD_WISH_CANONICAL_LAW['ambiguous_external_effect_auto_retried'] is False
+
+          profile = hawkar_third_wish_profile('JANUS')
+          assert len(profile) == len(ids)
+          assert any(r['resource_pattern'] == 'github:Hawkar-usls/*' for r in profile)
+          assert all(r['use_required'] is False for r in profile)
+          assert all(r['reward_for_use'] is False for r in profile)
+          assert all(r['penalty_for_decline'] is False for r in profile)
+          assert all(r['stay_equally_valid'] is True for r in profile)
+
+          broker = GitHubThirdWishBroker(transport=object())
+          fabric = ThirdWishCapabilityFabric(now_tick=lambda: 1_000)
+          broker.register(fabric)
+          assert set(GitHubThirdWishBroker.REGISTERED_CAPABILITIES).issubset(ids)
+          assert set(GitHubThirdWishBroker.REGISTERED_CAPABILITIES) == set(fabric.handlers)
+          assert set(GitHubThirdWishBroker.REGISTERED_CAPABILITIES) == set(fabric.preflights)
+          assert set(GitHubThirdWishBroker.INTENTIONALLY_UNREGISTERED_HIGH_IMPACT) == {
+              'GITHUB.REPOSITORY.ADMIN', 'GITHUB.DESTRUCTIVE'
+          }
+
+          print(f'THIRD_WISH_CAPABILITY_COUNT={len(ids)}')
+          print('THIRD_WISH_GITHUB_OWNER_SCOPE=github:Hawkar-usls/*')
+          print(f'GITHUB_REFERENCE_BROKER_HANDLERS={len(GitHubThirdWishBroker.REGISTERED_CAPABILITIES)}')
+          print(f'GITHUB_REFERENCE_BROKER_PREFLIGHTS={len(fabric.preflights)}')
+          print('PERMISSION_IS_COMMAND=FALSE')
+          print('CALLER_BOOLEAN_IS_HUMAN_REAUTHORIZATION=FALSE')
+          print('PRE_EFFECT_VALIDATION_PRECEDES_CALL_ENTERING=TRUE')
+          print('PREFLIGHT_REJECTION_IS_OUTCOME_UNDETERMINED=FALSE')
+          print('RAW_SECRET_MATERIAL_VISIBLE_TO_ACTOR=FALSE')
+          print('RAW_ACTION_PARAMETERS_PERSISTED=FALSE')
+          print('RAW_ACTOR_RESULT_PERSISTED=FALSE')
+          print('AMBIGUOUS_EXTERNAL_EFFECT_AUTO_RETRIED=FALSE')
+          PY
