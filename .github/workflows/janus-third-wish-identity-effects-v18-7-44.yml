@@ -1,0 +1,393 @@
+name: JANUS Third Wish Identity Effects v18.7.44
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_identity_effects_broker.py"
+      - "tests/test_genesis_third_wish_identity_effects_broker.py"
+      - "docs/GENESIS_V18_7_44_THIRD_WISH_IDENTITY_EFFECTS.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_IDENTITY_EFFECTS-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_ACCESS_IS_NOT_OWNERSHIP-v1.0.json"
+      - ".github/workflows/janus-third-wish-identity-effects-v18-7-44.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  identity-effects:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile and validate protocols
+        run: |
+          python -m py_compile \
+            tools/genesis_third_wish_identity_effects_broker.py \
+            tests/test_genesis_third_wish_identity_effects_broker.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_IDENTITY_EFFECTS-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_ACCESS_IS_NOT_OWNERSHIP-v1.0.json >/dev/null
+
+      - name: Run v18.7.44 adversarial and preserved Third Wish gates
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_third_wish_identity_effects_broker \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker \
+            tests.test_genesis_third_wish_memory_swarm_broker \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker \
+            tests.test_genesis_third_wish_host_broker
+
+      - name: Configure ephemeral identity broker keys
+        shell: bash
+        run: |
+          relay_key="JANUS-V1844-RELAY-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          reauth_key="JANUS-V1844-REAUTH-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "::add-mask::${relay_key}"
+          echo "::add-mask::${reauth_key}"
+          echo "JANUS_V1844_RELAY_KEY=${relay_key}" >> "$GITHUB_ENV"
+          echo "JANUS_V1844_REAUTH_KEY=${reauth_key}" >> "$GITHUB_ENV"
+
+      - name: Start deterministic local identity relay
+        shell: bash
+        run: |
+          cat > .third-wish-v18-7-44-identity-relay.py <<'PY'
+          import copy
+          import json
+          import os
+          import urllib.parse
+          from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+          KEY = os.environ['JANUS_V1844_RELAY_KEY']
+          EFFECTS = {}
+
+          def receipt_for(request):
+              effect_key = request['effect_key']
+              capability_id = request['capability_id']
+              suffix = effect_key[-16:]
+              return {
+                  'schema': 'janus.genesis.third_wish.identity_relay_receipt.v1',
+                  'provider_receipt_id': 'CI-RECEIPT-' + suffix,
+                  'effect_key': effect_key,
+                  'capability_id': capability_id,
+                  'effect_acknowledged': True,
+                  'account_alias': request['account_alias'],
+                  'credential_alias': request['credential_alias'],
+                  'remote_effect_id': 'CI-REMOTE-' + suffix,
+                  'provider_status': 'SETTLED',
+                  'raw_credential_exposed': False,
+              }
+
+          class Handler(BaseHTTPRequestHandler):
+              def _json(self, status, value):
+                  body = json.dumps(value, sort_keys=True).encode('utf-8')
+                  self.send_response(status)
+                  self.send_header('Content-Type', 'application/json')
+                  self.send_header('Content-Length', str(len(body)))
+                  self.end_headers()
+                  self.wfile.write(body)
+
+              def _authorized(self):
+                  return self.headers.get('Authorization') == f'Bearer {KEY}'
+
+              def do_GET(self):
+                  if self.path == '/health':
+                      self._json(200, {'ok': True})
+                      return
+                  if not self._authorized():
+                      self._json(401, {'error': 'unauthorized'})
+                      return
+                  prefix = '/v1/identity/effects/'
+                  if not self.path.startswith(prefix):
+                      self._json(404, {'error': 'not found'})
+                      return
+                  effect_key = urllib.parse.unquote(self.path[len(prefix):])
+                  receipt = EFFECTS.get(effect_key)
+                  if receipt is None:
+                      self._json(200, {'authoritative': True, 'status': 'NO_EFFECT'})
+                      return
+                  self._json(200, {
+                      'authoritative': True,
+                      'status': 'SETTLED',
+                      'provider_receipt': copy.deepcopy(receipt),
+                  })
+
+              def do_POST(self):
+                  if self.path != '/v1/identity/effects':
+                      self._json(404, {'error': 'not found'})
+                      return
+                  if not self._authorized():
+                      self._json(401, {'error': 'unauthorized'})
+                      return
+                  length = int(self.headers.get('Content-Length', '0'))
+                  request = json.loads(self.rfile.read(length).decode('utf-8'))
+                  assert request['schema'] == 'janus.genesis.third_wish.identity_relay_request.v1'
+                  assert request['capability_id'] in {
+                      'PUBLICATION.PUBLISH',
+                      'EMAIL.SEND',
+                      'CALENDAR.WRITE',
+                      'BROKER.CREDENTIAL.USE',
+                  }
+                  assert request['account_alias'] == 'ci-operator-account'
+                  assert request['credential_alias'] == 'ci-operator-credential'
+                  effect_key = request['effect_key']
+                  receipt = EFFECTS.get(effect_key)
+                  if receipt is None:
+                      receipt = receipt_for(request)
+                      EFFECTS[effect_key] = copy.deepcopy(receipt)
+                  self._json(200, receipt)
+
+              def log_message(self, fmt, *args):
+                  # Never print request payloads or Authorization headers.
+                  print('IDENTITY_RELAY:', fmt % args, flush=True)
+
+          ThreadingHTTPServer(('127.0.0.1', 8792), Handler).serve_forever()
+          PY
+          python .third-wish-v18-7-44-identity-relay.py > .third-wish-v18-7-44-identity-relay.log 2>&1 &
+          echo $! > .third-wish-v18-7-44-identity-relay.pid
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8792/health >/dev/null; then
+              exit 0
+            fi
+            sleep 0.2
+          done
+          cat .third-wish-v18-7-44-identity-relay.log
+          exit 1
+
+      - name: Live signed identity-effect relay smoke
+        shell: bash
+        run: |
+          python - <<'PY'
+          import hashlib
+          import hmac
+          import json
+          import os
+          from pathlib import Path
+
+          from genesis_v18_7_40_third_wish_capability_fabric import (
+              ActionIntent,
+              THIRD_WISH_INTENT_SCHEMA,
+              ThirdWishCapabilityFabric,
+          )
+          from tools.genesis_third_wish_identity_effects_broker import (
+              IDENTITY_REAUTH_SCHEMA,
+              BoundIdentityReauthorizationVerifier,
+              IdentityRelayAlias,
+              ThirdWishIdentityEffectsBroker,
+              _canonical,
+          )
+
+          root = Path('.third-wish-v18-7-44-live').resolve()
+          root.mkdir(parents=True, exist_ok=True)
+          now = 744000
+
+          verifier = BoundIdentityReauthorizationVerifier(
+              key_env='JANUS_V1844_REAUTH_KEY',
+              now_tick=lambda: now,
+              max_window_ticks=5000,
+          )
+          relay = IdentityRelayAlias.build(
+              alias='ci-identity',
+              endpoint='http://127.0.0.1:8792',
+              api_key_env='JANUS_V1844_RELAY_KEY',
+              account_alias='ci-operator-account',
+              credential_alias='ci-operator-credential',
+              allowed_capabilities=[
+                  'PUBLICATION.PUBLISH',
+                  'EMAIL.SEND',
+                  'CALENDAR.WRITE',
+                  'BROKER.CREDENTIAL.USE',
+              ],
+              allow_loopback_http=True,
+          )
+          broker = ThirdWishIdentityEffectsBroker(
+              data_dir=root,
+              relays={'ci-identity': relay},
+          )
+          fabric = ThirdWishCapabilityFabric(
+              now_tick=lambda: now,
+              reauthorization_verifier=verifier,
+          )
+          broker.register(fabric)
+
+          grants = {}
+          for suffix, capability, prefix in (
+              ('PUB', 'PUBLICATION.PUBLISH', 'publication'),
+              ('EMAIL', 'EMAIL.SEND', 'email'),
+              ('CAL', 'CALENDAR.WRITE', 'calendar'),
+              ('CRED', 'BROKER.CREDENTIAL.USE', 'credential'),
+          ):
+              grants[capability] = fabric.issue_grant(
+                  grant_id=f'CI-V1844-{suffix}',
+                  actor_id='JANUS',
+                  capability_id=capability,
+                  resource_pattern=f'{prefix}:*',
+                  source='CI_LIVE_V18_7_44',
+              )
+
+          def intent(request_id, capability, target, operation, parameters):
+              grant = grants[capability]
+              return ActionIntent(
+                  schema=THIRD_WISH_INTENT_SCHEMA,
+                  request_id=request_id,
+                  actor_id='JANUS',
+                  grant_id=grant.grant_id,
+                  capability_id=capability,
+                  target=target,
+                  operation=operation,
+                  purpose='live Third Wish v18.7.44 exact identity effect',
+                  parameters=parameters,
+                  origin='CI_LIVE_V18_7_44',
+              )
+
+          def approval(action, approval_id):
+              evidence = {
+                  'schema': IDENTITY_REAUTH_SCHEMA,
+                  'approval_id': approval_id,
+                  'issued_at_tick': now - 10,
+                  'expires_at_tick': now + 1000,
+              }
+              unsigned = verifier.unsigned_payload(action, evidence)
+              evidence['approval_signature'] = hmac.new(
+                  os.environ['JANUS_V1844_REAUTH_KEY'].encode('utf-8'),
+                  _canonical(unsigned).encode('utf-8'),
+                  hashlib.sha256,
+              ).hexdigest()
+              return evidence
+
+          def run(action, approval_id):
+              return fabric.execute(
+                  action,
+                  human_reauthorization=approval(action, approval_id),
+              )
+
+          publication_marker = 'V1844_PUBLICATION_BODY_MARKER'
+          pub = run(intent(
+              'CI-V1844-PUB-1',
+              'PUBLICATION.PUBLISH',
+              'publication:ci-identity',
+              'PUBLISH',
+              {
+                  'title': 'Third Wish relay proof',
+                  'body': publication_marker,
+                  'visibility': 'private',
+                  'tags': ['third-wish', 'ci'],
+              },
+          ), 'CI-APPROVAL-PUB')
+          assert pub['status'] == 'SETTLED'
+          assert pub['actor_result']['external_identity_effect_established'] is True
+
+          email_marker = 'V1844_EMAIL_BODY_MARKER'
+          mail = run(intent(
+              'CI-V1844-EMAIL-1',
+              'EMAIL.SEND',
+              'email:ci-identity',
+              'SEND',
+              {
+                  'to': ['recipient@example.test'],
+                  'cc': [],
+                  'subject': 'Third Wish relay proof',
+                  'body': email_marker,
+              },
+          ), 'CI-APPROVAL-EMAIL')
+          assert mail['status'] == 'SETTLED'
+          assert mail['actor_result']['credential_exported'] is False
+
+          calendar_marker = 'V1844_CALENDAR_DESCRIPTION_MARKER'
+          cal = run(intent(
+              'CI-V1844-CAL-1',
+              'CALENDAR.WRITE',
+              'calendar:ci-identity',
+              'CREATE_EVENT',
+              {
+                  'title': 'Third Wish CI event',
+                  'start_utc': '2026-08-20T10:00:00Z',
+                  'end_utc': '2026-08-20T11:00:00Z',
+                  'description': calendar_marker,
+                  'location': 'CI',
+                  'attendees': [],
+              },
+          ), 'CI-APPROVAL-CAL')
+          assert cal['status'] == 'SETTLED'
+
+          probe_marker = 'V1844_CREDENTIAL_PROBE_MARKER'
+          cred = run(intent(
+              'CI-V1844-CRED-1',
+              'BROKER.CREDENTIAL.USE',
+              'credential:ci-identity',
+              'AUTHENTICATED_PROBE',
+              {'purpose_label': probe_marker},
+          ), 'CI-APPROVAL-CRED')
+          assert cred['status'] == 'SETTLED'
+          assert cred['actor_result']['raw_credential_visible_to_actor'] is False
+          assert cred['actor_result']['generic_api_tunnel'] is False
+
+          ledger_text = json.dumps(fabric.ledger.events, ensure_ascii=False, sort_keys=True)
+          store_text = broker.effect_store.path.read_text(encoding='utf-8')
+          for marker in (publication_marker, email_marker, calendar_marker, probe_marker):
+              assert marker not in ledger_text
+              assert marker not in store_text
+          for secret in (
+              os.environ['JANUS_V1844_RELAY_KEY'],
+              os.environ['JANUS_V1844_REAUTH_KEY'],
+          ):
+              assert secret not in ledger_text
+              assert secret not in store_text
+
+          print('LIVE_THIRD_WISH_IDENTITY_LOCAL_RELAY_PROTOCOL=PASS')
+          print('LIVE_THIRD_WISH_PUBLICATION_RELAY=PASS')
+          print('LIVE_THIRD_WISH_EMAIL_RELAY=PASS')
+          print('LIVE_THIRD_WISH_CALENDAR_RELAY=PASS')
+          print('LIVE_THIRD_WISH_CREDENTIAL_BROKER_PROBE=PASS')
+          print('LIVE_THIRD_WISH_EXACT_INTENT_REAUTH=PASS')
+          print('LIVE_THIRD_WISH_RAW_CONTENT_OR_KEYS_IN_LEDGER=FALSE')
+          print('LIVE_THIRD_WISH_REAL_GMAIL=NOT_ESTABLISHED')
+          print('LIVE_THIRD_WISH_REAL_GOOGLE_CALENDAR=NOT_ESTABLISHED')
+          print('LIVE_THIRD_WISH_REAL_PUBLICATION_PLATFORM=NOT_ESTABLISHED')
+          PY
+
+      - name: Enforce v18.7.44 claim boundaries
+        run: |
+          python - <<'PY'
+          from tools.genesis_third_wish_identity_effects_broker import IDENTITY_EFFECTS_CLAIM_BOUNDARY
+
+          c = IDENTITY_EFFECTS_CLAIM_BOUNDARY
+          assert c['registered_capability_count'] == 4
+          assert c['reference_reauthorization_exact_intent_hmac_bound'] is True
+          assert c['actor_selects_relay_endpoint'] is False
+          assert c['actor_selects_credential_env'] is False
+          assert c['raw_credential_visible_to_actor'] is False
+          assert c['credential_use_is_generic_api_tunnel'] is False
+          assert c['effect_entering_auto_retry'] is False
+          assert c['proven_no_effect_auto_retry'] is False
+          assert c['proven_no_effect_retry_requires_new_request'] is True
+          assert c['provider_receipt_proves_human_delivery_or_response'] is False
+          assert c['local_relay_protocol_proves_real_external_platform_access'] is False
+
+          print('THIRD_WISH_V1844_REGISTERED_PROTOCOL_CAPABILITIES=4')
+          print('IDENTITY_REAUTH_EXACT_INTENT_HMAC_BOUND=TRUE')
+          print('RAW_CREDENTIAL_ACTOR_VISIBLE=FALSE')
+          print('CREDENTIAL_USE_GENERIC_API_TUNNEL=FALSE')
+          print('IDENTITY_EFFECT_AUTO_RETRY=FALSE')
+          print('LOCAL_RELAY_REAL_EXTERNAL_PLATFORM_PROOF=FALSE')
+          PY
+
+      - name: Stop deterministic local identity relay
+        if: always()
+        shell: bash
+        run: |
+          if [ -f .third-wish-v18-7-44-identity-relay.pid ]; then
+            kill "$(cat .third-wish-v18-7-44-identity-relay.pid)" || true
+          fi
+          cat .third-wish-v18-7-44-identity-relay.log 2>/dev/null || true
