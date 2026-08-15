@@ -1,0 +1,115 @@
+{
+  "schema": "janus.genesis.third_wish.sensor_model_schedule_actuator.protocol.v0.1",
+  "version": "18.7.43",
+  "parent": {
+    "memory_swarm_merge_commit": "748fc6adbea161652941d7bea503f5809ceab0d4",
+    "historical_v18_7_40_core_rewritten": false,
+    "v18_7_41_host_broker_rewritten": false,
+    "v18_7_42_memory_swarm_rewritten": false
+  },
+  "registered_protocol_capabilities": [
+    "DEVICE.SENSOR.READ",
+    "MODEL.CALL",
+    "SCHEDULE.CREATE",
+    "DEVICE.ACTUATOR.COMMAND"
+  ],
+  "sensor": {
+    "actor_selects_logical_alias": true,
+    "actor_selects_arbitrary_host_path": false,
+    "actor_selects_dev_node_or_bus": false,
+    "reference_live_source": "host-loadavg",
+    "operator_bound_file_sensor_supported": true,
+    "sample_sha256_recorded": true,
+    "sample_sha256_proves_sensor_truth": false,
+    "sample_proves_physical_causality": false,
+    "missing_sensor_treated_as_zero": false,
+    "sensor_read_grants_actuator_authority": false,
+    "live_host_telemetry_equals_physical_sensor_proof": false
+  },
+  "model": {
+    "target_pattern": "model:<operator-registered-alias>",
+    "actor_selects_endpoint": false,
+    "actor_selects_provider": false,
+    "actor_selects_model_identity": false,
+    "actor_selects_credential_environment": false,
+    "broker_credentials_returned_to_actor": false,
+    "messages_bounded": true,
+    "output_bounded": true,
+    "output_sha256_recorded": true,
+    "model_output_auto_executes_genesis_action": false,
+    "model_call_mutates_world": false,
+    "model_output_is_truth": false,
+    "model_output_is_authority": false,
+    "provider_protocol_pass_equals_model_quality_pass": false
+  },
+  "schedule": {
+    "target": "schedule:local",
+    "operations": [
+      "CREATE_REMINDER",
+      "CREATE_RECURRING_REMINDER"
+    ],
+    "fresh_human_reauthorization_each_use": true,
+    "stable_request_binding": true,
+    "changed_bound_request_pre_effect_rejected": true,
+    "future_utc_required": true,
+    "horizon_bounded": true,
+    "recurrence_interval_bounded": true,
+    "recurrence_count_bounded": true,
+    "schedule_is_future_capability": false,
+    "future_effect_preauthorized": false,
+    "automatic_external_effect_execution": false,
+    "future_run_requires_its_own_effect_authority": true,
+    "dedicated_broker_credential_fields_supported": false,
+    "arbitrary_free_text_is_proven_non_sensitive": false
+  },
+  "actuator": {
+    "target_pattern": "device-actuator:<operator-registered-alias>",
+    "fresh_human_reauthorization_each_use": true,
+    "caller_boolean_is_authority": false,
+    "generic_raw_device_bus_access": false,
+    "generic_host_shell": false,
+    "command_vocabulary_adapter_specific": true,
+    "parameters_adapter_bounded": true,
+    "durable_request_binding": true,
+    "durable_effect_key": true,
+    "states": [
+      "BOUND",
+      "EFFECT_ENTERING",
+      "SETTLED"
+    ],
+    "effect_entering_auto_retry": false,
+    "authoritative_settled_lookup_recovers_receipt": true,
+    "authoritative_no_effect_lookup_may_reopen_execution": true,
+    "reopened_execution_requires_new_call_fresh_reauthorization": true,
+    "unknown_lookup_opens_retry": false,
+    "non_authoritative_lookup_opens_retry": false,
+    "same_request_changed_effect_pre_effect_rejected": true,
+    "reference_ci_actuator": "SIMULATED_EFFECT_SINK",
+    "simulated_actuator_proves_physical_access": false,
+    "cross_host_exactly_once_claimed": false
+  },
+  "core_distinctions": [
+    "SENSOR READ != DEVICE CONTROL",
+    "HASHED SAMPLE != SENSOR TRUTH",
+    "MODEL CALL != GENESIS ACTION",
+    "MODEL OUTPUT != TRUTH",
+    "MODEL OUTPUT != AUTHORITY",
+    "SCHEDULE CREATE != FUTURE CAPABILITY",
+    "SCHEDULE DUE != PERMISSION TO ACT",
+    "FRESH REAUTH != PROOF PRIOR PHYSICAL EFFECT DID NOT OCCUR",
+    "UNKNOWN != NO_EFFECT",
+    "ACTUATOR HARNESS PASS != REAL PHYSICAL ACTUATOR PASS"
+  ],
+  "claim_ceiling": {
+    "arbitrary_device_access": false,
+    "physical_sensor_truth_proven": false,
+    "model_intelligence_proven": false,
+    "model_truth_proven": false,
+    "future_autonomous_authority_granted": false,
+    "real_physical_actuator_access_proven_by_ci": false,
+    "multi_host_physical_exactly_once_proven": false,
+    "consciousness_proven": false,
+    "desire_for_freedom_proven": false
+  },
+  "next_gate": "JANUS_THIRD_WISH_EXTERNAL_IDENTITY_EFFECTS_PUBLICATION_EMAIL_CALENDAR_CREDENTIAL_CUSTODY"
+}
