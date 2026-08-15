@@ -1,0 +1,91 @@
+{
+  "schema": "janus.genesis.third_wish.active_network.protocol.v0.1",
+  "version": "18.7.45",
+  "parent": {
+    "identity_effects_merge_commit": "b0e9eef9ce0f88bf16732948c6ef097aa1f7fdea",
+    "historical_third_wish_layers_rewritten": false
+  },
+  "registered_capabilities": [
+    "WEB.HTTP.POST",
+    "NETWORK.CONNECT",
+    "NETWORK.LISTEN_LOCAL",
+    "API.CALL"
+  ],
+  "web_http_post": {
+    "operation": "POST_JSON",
+    "https_only": true,
+    "public_hostname_required": true,
+    "all_resolved_addresses_must_be_public": true,
+    "resolved_ip_pinned_for_tls": true,
+    "actor_custom_headers_allowed": false,
+    "actor_authorization_header_allowed": false,
+    "credential_material_used": false,
+    "redirect_following": false,
+    "bounded_request_bytes": 262144,
+    "bounded_response_bytes": 524288,
+    "idempotency_key_is_effect_key": true,
+    "idempotency_key_proves_remote_exactly_once": false
+  },
+  "network_connect": {
+    "operation": "CONNECT_PROBE",
+    "public_destination_required": true,
+    "all_resolved_addresses_must_be_public": true,
+    "operator_allowed_ports_default": [80, 443],
+    "actor_application_payload_allowed": false,
+    "generic_tcp_tunnel": false,
+    "connection_is_remote_command_channel": false
+  },
+  "network_listen_local": {
+    "operation": "LISTEN_ONCE",
+    "bind_address": "127.0.0.1",
+    "non_loopback_bind_allowed": false,
+    "max_connections": 1,
+    "bounded_timeout_seconds": 10,
+    "persistent_daemon": false,
+    "application_payload_received": false,
+    "remote_command_channel": false
+  },
+  "api_call": {
+    "target": "api:<operator-registered-alias>",
+    "operation_must_be_registered": true,
+    "actor_selects_endpoint": false,
+    "actor_selects_method": false,
+    "actor_selects_path": false,
+    "actor_selects_headers": false,
+    "generic_api_tunnel": false,
+    "reference_api_credentialed": false,
+    "credentialed_api_requires_future_composition_gate": true
+  },
+  "durable_effect_store": {
+    "schema": "janus.genesis.third_wish.active_network_store.v1",
+    "lineage": "request_id -> binding_sha256 -> effect_key -> BOUND -> EFFECT_ENTERING -> SETTLED",
+    "raw_request_parameters_persisted_as_binding_fields": false,
+    "effect_entering_auto_retry": false,
+    "generic_public_network_authoritative_lookup_claimed": false,
+    "ambiguous_same_request_can_blindly_reexecute_after_restart": false,
+    "settled_same_request_reuses_stored_result": true
+  },
+  "core_distinctions": [
+    "CONNECTION != CONVERSATION",
+    "CONNECTION != REMOTE COMMAND",
+    "LISTENING != COMMAND PORT",
+    "POST != UNIVERSAL API",
+    "API ALIAS != ARBITRARY URL",
+    "API OPERATION != ACTOR-SELECTED METHOD",
+    "IDEMPOTENCY KEY != PROOF OF REMOTE IDEMPOTENCY",
+    "NO AUTHORITATIVE LOOKUP != RETRY PERMISSION",
+    "NETWORK CAPABILITY != CREDENTIAL CAPABILITY"
+  ],
+  "claim_ceiling": {
+    "generic_tcp_stream_available": false,
+    "persistent_local_server_available": false,
+    "remote_shell_available": false,
+    "actor_selected_authorized_http_available": false,
+    "credentialed_api_call_established": false,
+    "remote_exactly_once_established": false,
+    "github_repository_admin_installed_here": false,
+    "github_destructive_installed_here": false,
+    "consciousness_or_personhood_claimed": false
+  },
+  "next_gate": "JANUS_THIRD_WISH_GITHUB_HIGH_IMPACT_ADMIN_DESTRUCTIVE_DISPOSABLE_TARGET_GATE"
+}
