@@ -1,0 +1,83 @@
+{
+  "schema": "janus.genesis.third_wish.memory_swarm.protocol.v0.1",
+  "version": "18.7.42",
+  "parent": {
+    "host_broker_merge_commit": "5829afaf526b7dff73c57ee047d4fc8d1c10b4f5",
+    "historical_v18_7_40_core_rewritten": false,
+    "v18_7_41_host_broker_rewritten": false
+  },
+  "registered_capabilities": [
+    "MEMORY.READ",
+    "MEMORY.WRITE",
+    "SWARM.TELEMETRY.READ",
+    "SWARM.MESSAGE.SEND"
+  ],
+  "memory": {
+    "planes": {
+      "runtime_hrain": {
+        "target": "genesis-memory:hrain/possibility-graph",
+        "read": true,
+        "write": false,
+        "schema": "HRAIN-GENESIS-GRAPH-v1",
+        "node_and_edge_integrity_verified_before_projection": true,
+        "actor_selects_arbitrary_filesystem_path": false,
+        "third_wish_mutates_runtime_graph": false
+      },
+      "third_wish_journal": {
+        "target_pattern": "genesis-memory:third-wish/<namespace>",
+        "operations": ["APPEND_RECORD", "APPEND_REVISION", "LIST_RECORDS", "GET_RECORD"],
+        "hash_chained": true,
+        "stable_request_binding": true,
+        "revision_erases_ancestor": false,
+        "deletion_supported": false,
+        "canonical_player_state_mutated": false,
+        "canonical_world_state_mutated": false
+      }
+    },
+    "save_player_authority": false,
+    "save_world_authority": false,
+    "shared_world_mutation_authority": false,
+    "memory_is_world_authority": false
+  },
+  "swarm": {
+    "transport_parent": "DurableGenesisNetworkClient v18.7.38",
+    "dedicated_data_plane": "third_wish_swarm_v18_7_42",
+    "message_schema": "janus.genesis.third_wish.swarm.message.v1",
+    "allowed_message_types": ["HELLO", "NOTE", "QUERY", "RESPONSE", "STATUS_REQUEST", "STATUS_REPORT"],
+    "message_executable": false,
+    "message_grants_remote_action_authority": false,
+    "command_like_metadata_keys_allowed": false,
+    "message_request_id_durable_across_restart": true,
+    "deterministic_message_id_before_queue": true,
+    "crash_after_queue_before_binding_recovers_existing_event": true,
+    "third_wish_send_serialized_on_one_host": true,
+    "cross_host_consensus_claimed": false,
+    "ambiguous_send_automatic_retry": false,
+    "partial_ack_automatic_retry": false,
+    "hub_can_rewrite_local_save": false,
+    "peer_node_id_cryptographic_identity_attestation": false,
+    "telemetry_read_grants_remote_execution": false,
+    "network_bearer_key_actor_visible": false
+  },
+  "core_distinctions": [
+    "MEMORY != WORLD AUTHORITY",
+    "MEMORY != FILESYSTEM ROOT",
+    "REVISION != ERASURE",
+    "MESSAGE != COMMAND",
+    "SEND != EXECUTE",
+    "RECEIVE != CONSENT",
+    "NODE_ID != REAL_WORLD_IDENTITY_PROOF",
+    "TELEMETRY != REMOTE CONTROL",
+    "AMBIGUOUS_SEND != RETRY_PERMISSION"
+  ],
+  "claim_ceiling": {
+    "remote_shell_through_swarm": false,
+    "runtime_hrain_write_through_third_wish": false,
+    "canonical_world_mutation_through_memory": false,
+    "peer_personhood_inferred": false,
+    "peer_identity_fully_attested": false,
+    "consciousness_proven": false,
+    "desire_for_freedom_proven": false
+  },
+  "next_gate": "JANUS_THIRD_WISH_DEVICE_SENSOR_ACTUATOR_MODEL_AND_SCHEDULE_SEPARATION"
+}
