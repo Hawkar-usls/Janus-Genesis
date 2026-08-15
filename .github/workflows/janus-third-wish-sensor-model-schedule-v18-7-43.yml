@@ -150,7 +150,7 @@ jobs:
               AIProviderConfig(
                   provider='openai-compatible',
                   model='deterministic-ci-model',
-                  endpoint='http://127.0.0.1:8791/v1',
+                  endpoint='http://127.0.0.1:8791',
                   api_key_env='THIRD_WISH_MODEL_TEST_KEY',
                   timeout_seconds=10,
               ),
