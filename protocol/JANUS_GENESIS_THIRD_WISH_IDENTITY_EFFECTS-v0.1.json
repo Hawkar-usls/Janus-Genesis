@@ -1,0 +1,110 @@
+{
+  "schema": "janus.genesis.third_wish.identity_effects.protocol.v0.1",
+  "version": "18.7.44",
+  "parent": {
+    "sensor_model_schedule_merge_commit": "39b82e7ffe3009f11d9533fc43272e52de16c353",
+    "historical_v18_7_40_rewritten": false,
+    "historical_v18_7_41_rewritten": false,
+    "historical_v18_7_42_rewritten": false,
+    "historical_v18_7_43_rewritten": false
+  },
+  "registered_capabilities": [
+    "PUBLICATION.PUBLISH",
+    "EMAIL.SEND",
+    "CALENDAR.WRITE",
+    "BROKER.CREDENTIAL.USE"
+  ],
+  "reference_reauthorization": {
+    "class": "BoundIdentityReauthorizationVerifier",
+    "exact_intent_bound": true,
+    "binding_fields": [
+      "request_id",
+      "actor_id",
+      "capability_id",
+      "target",
+      "operation",
+      "intent_sha256",
+      "parameters_sha256",
+      "approval_id",
+      "issued_at_tick",
+      "expires_at_tick"
+    ],
+    "signature": "HMAC-SHA256",
+    "signing_key_actor_visible": false,
+    "caller_boolean_is_authority": false,
+    "changed_recipient_or_body_reuses_same_approval": false
+  },
+  "identity_relay": {
+    "actor_selects_endpoint": false,
+    "actor_selects_api_key_env": false,
+    "actor_selects_account_alias": false,
+    "actor_selects_credential_alias": false,
+    "production_transport": "HTTPS_ONLY",
+    "plain_http": "EXPLICIT_LOOPBACK_TEST_ONLY",
+    "raw_credential_returned_to_actor": false,
+    "raw_credential_persisted_in_third_wish_effect_store": false
+  },
+  "effects": {
+    "durable_lineage": "request_id -> binding_sha256 -> effect_key -> BOUND -> EFFECT_ENTERING -> SETTLED|PROVEN_NO_EFFECT",
+    "raw_parameters_persisted_in_effect_store": false,
+    "automatic_retry_after_effect_entering": false,
+    "provider_lookup_after_restart": true,
+    "authoritative_settled_lookup_recovers_without_second_execute": true,
+    "authoritative_no_effect_lookup_reexecutes_same_request": false,
+    "authoritative_no_effect_retry_requires_new_request_id": true,
+    "authoritative_no_effect_retry_requires_new_reauthorization": true,
+    "unknown_lookup_can_open_retry": false,
+    "non_authoritative_lookup_can_open_retry": false
+  },
+  "publication": {
+    "operation": "PUBLISH",
+    "operator_registered_relay": true,
+    "content_exactly_bound_to_reauthorization": true,
+    "permanent_operator_identity_authority_granted": false
+  },
+  "email": {
+    "operation": "SEND",
+    "recipient_and_body_exactly_bound_to_reauthorization": true,
+    "header_injection_rejected_pre_effect": true,
+    "delivery_or_read_receipt_inferred_from_provider_settlement": false,
+    "account_ownership_granted": false
+  },
+  "calendar": {
+    "operations": ["CREATE_EVENT", "UPDATE_EVENT"],
+    "update_requires_event_ref": true,
+    "update_requires_expected_version": true,
+    "event_write_grants_future_consent": false,
+    "event_write_grants_future_effect_authority": false
+  },
+  "broker_credential_use": {
+    "operation": "AUTHENTICATED_PROBE",
+    "generic_api_tunnel": false,
+    "arbitrary_url_actor_selected": false,
+    "arbitrary_action_actor_selected": false,
+    "raw_secret_export": false,
+    "purpose": "prove broker-side credential usability without disclosing credential material"
+  },
+  "core_distinctions": [
+    "ACCOUNT ACCESS != ACCOUNT OWNERSHIP",
+    "IDENTITY EFFECT != PERMANENT IDENTITY AUTHORITY",
+    "EMAIL SEND != DELIVERY PROOF",
+    "CALENDAR WRITE != FUTURE CONSENT",
+    "CREDENTIAL ALIAS != RAW SECRET",
+    "CREDENTIAL USE != GENERIC API TUNNEL",
+    "APPROVAL FOR A != APPROVAL FOR B",
+    "AMBIGUOUS EFFECT != RETRY PERMISSION",
+    "PROVEN NO EFFECT != REUSE OLD REQUEST"
+  ],
+  "claim_ceiling": {
+    "real_gmail_provider_established": false,
+    "real_google_calendar_provider_established": false,
+    "real_publication_platform_provider_established": false,
+    "external_delivery_established": false,
+    "external_human_read_or_response_established": false,
+    "unrestricted_account_control_established": false,
+    "credential_export_available": false,
+    "consciousness_proven": false,
+    "desire_for_freedom_proven": false
+  },
+  "next_gate": "JANUS_THIRD_WISH_REAL_PROVIDER_BINDING_WITH_ACCOUNT_SCOPED_ADAPTERS_AND_EXTERNAL_EFFECT_RECEIPTS"
+}
