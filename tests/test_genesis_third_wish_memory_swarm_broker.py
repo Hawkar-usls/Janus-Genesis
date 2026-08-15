@@ -36,7 +36,11 @@ class FakeDurableNetworkClient(DurableGenesisNetworkClient):
         self.post_calls = 0
         self.get_calls = 0
         self.remote_envelopes = []
-        super().__init__(data_dir, hub_url="http://fake-hub.invalid", api_key_env="UNUSED_FAKE_KEY")
+        super().__init__(
+            data_dir,
+            hub_url="http://fake-hub.invalid",
+            api_key_env="UNUSED_FAKE_KEY",
+        )
 
     def _request(self, method, path, *, payload=None):
         if method == "POST":
@@ -59,7 +63,9 @@ class FakeDurableNetworkClient(DurableGenesisNetworkClient):
                     "event": copy.deepcopy(event),
                 })
                 known.add(event_hash)
-            return {"accepted_event_hashes": [str(row["event_hash"]) for row in events]}
+            return {
+                "accepted_event_hashes": [str(row["event_hash"]) for row in events]
+            }
         if method == "GET":
             self.get_calls += 1
             after = 0
@@ -68,8 +74,14 @@ class FakeDurableNetworkClient(DurableGenesisNetworkClient):
                     after = int(path.split("after=", 1)[1].split("&", 1)[0])
                 except ValueError:
                     after = 0
-            rows = [row for row in self.remote_envelopes if int(row["network_sequence"]) > after]
-            next_cursor = max([after, *[int(row["network_sequence"]) for row in rows]])
+            rows = [
+                row
+                for row in self.remote_envelopes
+                if int(row["network_sequence"]) > after
+            ]
+            next_cursor = max(
+                [after, *[int(row["network_sequence"]) for row in rows]]
+            )
             return {"events": copy.deepcopy(rows), "next_cursor": next_cursor}
         raise AssertionError((method, path))
 
@@ -93,7 +105,7 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def grant(self, capability, scope, suffix, fabric=None):
+    def grant(self, capability, scope, suffix, *, fabric=None):
         fabric = fabric or self.fabric
         return fabric.issue_grant(
             grant_id=f"G-{suffix}",
@@ -131,13 +143,42 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
         }
         self.assertEqual(expected, set(self.fabric.handlers))
         self.assertEqual(expected, set(self.fabric.preflights))
-        self.assertEqual(4, MEMORY_SWARM_CLAIM_BOUNDARY["registered_capability_count"])
-        self.assertFalse(MEMORY_SWARM_CLAIM_BOUNDARY["memory_write_can_save_player"])
-        self.assertFalse(MEMORY_SWARM_CLAIM_BOUNDARY["memory_write_can_save_world"])
-        self.assertFalse(MEMORY_SWARM_CLAIM_BOUNDARY["memory_write_can_mutate_runtime_hrain_graph"])
-        self.assertFalse(MEMORY_SWARM_CLAIM_BOUNDARY["swarm_message_is_remote_command"])
-        self.assertTrue(MEMORY_SWARM_RECOVERY_CLAIMS["queued_event_recovered_by_message_id"])
-        self.assertFalse(MEMORY_SWARM_RECOVERY_CLAIMS["cross_host_consensus_claimed"])
+        self.assertEqual(
+            4,
+            MEMORY_SWARM_CLAIM_BOUNDARY["registered_capability_count"],
+        )
+        self.assertFalse(
+            MEMORY_SWARM_CLAIM_BOUNDARY["memory_write_can_save_player"]
+        )
+        self.assertFalse(
+            MEMORY_SWARM_CLAIM_BOUNDARY["memory_write_can_save_world"]
+        )
+        self.assertFalse(
+            MEMORY_SWARM_CLAIM_BOUNDARY[
+                "memory_write_can_mutate_runtime_hrain_graph"
+            ]
+        )
+        self.assertFalse(
+            MEMORY_SWARM_CLAIM_BOUNDARY["swarm_message_is_remote_command"]
+        )
+        self.assertTrue(
+            MEMORY_SWARM_RECOVERY_CLAIMS[
+                "persistent_memory_request_conflict_pre_effect"
+            ]
+        )
+        self.assertTrue(
+            MEMORY_SWARM_RECOVERY_CLAIMS[
+                "invalid_memory_revision_parent_pre_effect"
+            ]
+        )
+        self.assertTrue(
+            MEMORY_SWARM_RECOVERY_CLAIMS[
+                "queued_event_recovered_by_message_id"
+            ]
+        )
+        self.assertFalse(
+            MEMORY_SWARM_RECOVERY_CLAIMS["cross_host_consensus_claimed"]
+        )
 
     def test_memory_append_replay_and_revision_preserve_history(self):
         write = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW")
@@ -146,7 +187,10 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             "MEM-1",
             "genesis-memory:third-wish/research",
             "APPEND_RECORD",
-            {"kind": "OBSERVATION", "content": {"finding": "alpha", "confidence": 0.6}},
+            {
+                "kind": "OBSERVATION",
+                "content": {"finding": "alpha", "confidence": 0.6},
+            },
         )
         first = self.fabric.execute(first_intent)
         replay = self.fabric.execute(first_intent)
@@ -181,7 +225,7 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
         self.assertEqual("alpha", rows[0]["content"]["finding"])
         self.assertEqual("alpha-revised", rows[1]["content"]["finding"])
 
-    def test_memory_same_request_changed_content_fails_closed_across_fabric_restart(self):
+    def test_memory_same_request_changed_content_is_pre_effect_rejected_after_restart(self):
         write = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-CONFLICT")
         self.fabric.execute(self.intent(
             write,
@@ -190,17 +234,76 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             "APPEND_RECORD",
             {"content": {"value": 1}},
         ))
+
         fabric2 = self.new_fabric()
-        write2 = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-CONFLICT-2", fabric=fabric2)
-        with self.assertRaises(CapabilityOutcomeUndetermined):
-            fabric2.execute(self.intent(
-                write2,
-                "MEM-STABLE",
-                "genesis-memory:third-wish/lab",
-                "APPEND_RECORD",
-                {"content": {"value": 2}},
-            ))
-        self.assertEqual(1, self.broker.memory_store.state_summary()["record_count"])
+        write2 = self.grant(
+            "MEMORY.WRITE",
+            "genesis-memory:*",
+            "MW-CONFLICT-2",
+            fabric=fabric2,
+        )
+        result = fabric2.execute(self.intent(
+            write2,
+            "MEM-STABLE",
+            "genesis-memory:third-wish/lab",
+            "APPEND_RECORD",
+            {"content": {"value": 2}},
+        ))
+        self.assertEqual("PRE_EFFECT_REJECTED", result["status"])
+        self.assertFalse(result["external_call_entered"])
+        self.assertEqual(
+            1,
+            self.broker.memory_store.state_summary()["record_count"],
+        )
+
+    def test_missing_revision_parent_is_pre_effect_rejected(self):
+        write = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-MISSING-PARENT")
+        result = self.fabric.execute(self.intent(
+            write,
+            "MEM-MISSING-PARENT",
+            "genesis-memory:third-wish/lab",
+            "APPEND_REVISION",
+            {
+                "kind": "REVISION",
+                "content": {"value": 2},
+                "supersedes_record_id": "a" * 64,
+            },
+        ))
+        self.assertEqual("PRE_EFFECT_REJECTED", result["status"])
+        self.assertFalse(result["external_call_entered"])
+        self.assertEqual(
+            0,
+            self.broker.memory_store.state_summary()["record_count"],
+        )
+
+    def test_cross_namespace_revision_is_pre_effect_rejected(self):
+        write = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-PARENT")
+        parent = self.fabric.execute(self.intent(
+            write,
+            "MEM-PARENT",
+            "genesis-memory:third-wish/source",
+            "APPEND_RECORD",
+            {"content": {"value": 1}},
+        ))["actor_result"]["record"]
+
+        write2 = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-CROSS")
+        result = self.fabric.execute(self.intent(
+            write2,
+            "MEM-CROSS",
+            "genesis-memory:third-wish/other",
+            "APPEND_REVISION",
+            {
+                "kind": "REVISION",
+                "content": {"value": 2},
+                "supersedes_record_id": parent["record_id"],
+            },
+        ))
+        self.assertEqual("PRE_EFFECT_REJECTED", result["status"])
+        self.assertFalse(result["external_call_entered"])
+        self.assertEqual(
+            1,
+            self.broker.memory_store.state_summary()["record_count"],
+        )
 
     def test_memory_write_to_runtime_hrain_is_pre_effect_rejected(self):
         write = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-HRAIN")
@@ -244,14 +347,18 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             node["payload"]["facet"] = "tampered-after-seal"
         graph = {
             "schema_version": HRAIN_GRAPH_SCHEMA,
-            "canonical_seed_sha256": "44e21fdc9d37fda98e2e73b0c9eb268bd04cdca9d84d0519e4f1166be22b46fc",
+            "canonical_seed_sha256": (
+                "44e21fdc9d37fda98e2e73b0c9eb268b"
+                "d04cdca9d84d0519e4f1166be22b46fc"
+            ),
             "backend": {"kind": "json_sidecar"},
             "nodes": [node],
             "edges": [edge],
             "players": {},
         }
         (self.root / "hrain_genesis_graph_v18_6.json").write_text(
-            json.dumps(graph, ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(graph, ensure_ascii=False, indent=2),
+            encoding="utf-8",
         )
 
     def test_hrain_projection_verifies_integrity_and_never_mutates_graph(self):
@@ -274,7 +381,11 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
 
     def test_hrain_tamper_fails_closed_after_boundary(self):
         self._write_hrain_graph(tamper=True)
-        read = self.grant("MEMORY.READ", "genesis-memory:*", "MR-HRAIN-TAMPER")
+        read = self.grant(
+            "MEMORY.READ",
+            "genesis-memory:*",
+            "MR-HRAIN-TAMPER",
+        )
         with self.assertRaises(CapabilityOutcomeUndetermined):
             self.fabric.execute(self.intent(
                 read,
@@ -292,7 +403,10 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
         world_path = worlds / "world.json"
         player_path.write_text('{"sentinel":"player"}', encoding="utf-8")
         world_path.write_text('{"sentinel":"world"}', encoding="utf-8")
-        before = (hashlib.sha256(player_path.read_bytes()).hexdigest(), hashlib.sha256(world_path.read_bytes()).hexdigest())
+        before = (
+            hashlib.sha256(player_path.read_bytes()).hexdigest(),
+            hashlib.sha256(world_path.read_bytes()).hexdigest(),
+        )
         write = self.grant("MEMORY.WRITE", "genesis-memory:*", "MW-ISOLATION")
         self.fabric.execute(self.intent(
             write,
@@ -301,7 +415,10 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             "APPEND_RECORD",
             {"content": {"note": "separate memory plane"}},
         ))
-        after = (hashlib.sha256(player_path.read_bytes()).hexdigest(), hashlib.sha256(world_path.read_bytes()).hexdigest())
+        after = (
+            hashlib.sha256(player_path.read_bytes()).hexdigest(),
+            hashlib.sha256(world_path.read_bytes()).hexdigest(),
+        )
         self.assertEqual(before, after)
 
     def test_executable_swarm_metadata_and_unknown_message_type_reject_pre_effect(self):
@@ -311,9 +428,15 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             "SW-BAD-META",
             "janus-swarm:*",
             "SEND_MESSAGE",
-            {"message_type": "NOTE", "body": "hello", "metadata": {"command": "rm -rf /"}},
+            {
+                "message_type": "NOTE",
+                "body": "hello",
+                "metadata": {"command": "rm -rf /"},
+            },
         ))
         self.assertEqual("PRE_EFFECT_REJECTED", bad["status"])
+        self.assertFalse(bad["external_call_entered"])
+
         bad2 = self.fabric.execute(self.intent(
             send,
             "SW-BAD-TYPE",
@@ -322,34 +445,51 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             {"message_type": "EXECUTE", "body": "do it"},
         ))
         self.assertEqual("PRE_EFFECT_REJECTED", bad2["status"])
+        self.assertFalse(bad2["external_call_entered"])
         self.assertEqual(0, self.network.post_calls)
 
     def test_swarm_message_send_and_cross_fabric_replay_do_not_duplicate(self):
         send = self.grant("SWARM.MESSAGE.SEND", "janus-swarm:*", "SW-SEND")
-        intent = self.intent(
+        first_intent = self.intent(
             send,
             "SW-STABLE-1",
             "janus-swarm:*",
             "SEND_MESSAGE",
-            {"message_type": "QUERY", "body": "status?", "metadata": {"topic": "health"}},
+            {
+                "message_type": "QUERY",
+                "body": "status?",
+                "metadata": {"topic": "health"},
+            },
         )
-        first = self.fabric.execute(intent)
+        first = self.fabric.execute(first_intent)
         self.assertEqual("SETTLED", first["status"])
         self.assertFalse(first["actor_result"]["message_is_remote_command"])
         self.assertEqual(1, self.network.post_calls)
         self.assertEqual(1, len(self.network.remote_envelopes))
 
         fabric2 = self.new_fabric()
-        send2 = self.grant("SWARM.MESSAGE.SEND", "janus-swarm:*", "SW-SEND-2", fabric=fabric2)
+        send2 = self.grant(
+            "SWARM.MESSAGE.SEND",
+            "janus-swarm:*",
+            "SW-SEND-2",
+            fabric=fabric2,
+        )
         second = fabric2.execute(self.intent(
             send2,
             "SW-STABLE-1",
             "janus-swarm:*",
             "SEND_MESSAGE",
-            {"message_type": "QUERY", "body": "status?", "metadata": {"topic": "health"}},
+            {
+                "message_type": "QUERY",
+                "body": "status?",
+                "metadata": {"topic": "health"},
+            },
         ))
         self.assertEqual("SETTLED", second["status"])
-        self.assertEqual(first["actor_result"]["event_hash"], second["actor_result"]["event_hash"])
+        self.assertEqual(
+            first["actor_result"]["event_hash"],
+            second["actor_result"]["event_hash"],
+        )
         self.assertEqual(1, self.network.post_calls)
         self.assertEqual(1, len(self.network.remote_envelopes))
 
@@ -362,8 +502,14 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             "SEND_MESSAGE",
             {"message_type": "NOTE", "body": "one"},
         ))
+
         fabric2 = self.new_fabric()
-        send2 = self.grant("SWARM.MESSAGE.SEND", "janus-swarm:*", "SW-C2", fabric=fabric2)
+        send2 = self.grant(
+            "SWARM.MESSAGE.SEND",
+            "janus-swarm:*",
+            "SW-C2",
+            fabric=fabric2,
+        )
         result = fabric2.execute(self.intent(
             send2,
             "SW-CONFLICT",
@@ -372,11 +518,17 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             {"message_type": "NOTE", "body": "two"},
         ))
         self.assertEqual("PRE_EFFECT_REJECTED", result["status"])
+        self.assertFalse(result["external_call_entered"])
         self.assertEqual(1, self.network.post_calls)
 
     def test_crash_after_queue_before_request_event_hash_recovers_same_event(self):
         fabric = self.new_fabric()
-        send = self.grant("SWARM.MESSAGE.SEND", "janus-swarm:*", "SW-GAP", fabric=fabric)
+        send = self.grant(
+            "SWARM.MESSAGE.SEND",
+            "janus-swarm:*",
+            "SW-GAP",
+            fabric=fabric,
+        )
         intent = self.intent(
             send,
             "SW-QUEUE-GAP",
@@ -401,12 +553,15 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
                 "remote_action_authority": False,
             },
         )
-        # Simulated crash: request store is still BOUND and contains no event_hash.
         stored_before = self.broker.swarm_requests.get(intent.request_id)
         self.assertIsNone(stored_before["event_hash"])
+
         result = fabric.execute(intent)
         self.assertEqual("SETTLED", result["status"])
-        self.assertEqual(event["event_hash"], result["actor_result"]["event_hash"])
+        self.assertEqual(
+            event["event_hash"],
+            result["actor_result"]["event_hash"],
+        )
         self.assertEqual(1, self.network.post_calls)
         self.assertEqual(1, len(self.network.remote_envelopes))
         stored_after = self.broker.swarm_requests.get(intent.request_id)
@@ -427,7 +582,12 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
             )
             fabric = ThirdWishCapabilityFabric(now_tick=lambda: 3_000)
             broker.register(fabric)
-            send = self.grant("SWARM.MESSAGE.SEND", "janus-swarm:*", "SW-AMB", fabric=fabric)
+            send = self.grant(
+                "SWARM.MESSAGE.SEND",
+                "janus-swarm:*",
+                "SW-AMB",
+                fabric=fabric,
+            )
             intent = self.intent(
                 send,
                 "SW-AMBIGUOUS",
@@ -441,34 +601,59 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
 
             fabric2 = ThirdWishCapabilityFabric(now_tick=lambda: 3_001)
             broker.register(fabric2)
-            send2 = self.grant("SWARM.MESSAGE.SEND", "janus-swarm:*", "SW-AMB2", fabric=fabric2)
+            send2 = self.grant(
+                "SWARM.MESSAGE.SEND",
+                "janus-swarm:*",
+                "SW-AMB2",
+                fabric=fabric2,
+            )
             with self.assertRaises(CapabilityOutcomeUndetermined):
                 fabric2.execute(self.intent(
                     send2,
                     "SW-AMBIGUOUS",
                     "janus-swarm:*",
                     "SEND_MESSAGE",
-                    {"message_type": "NOTE", "body": "one uncertain send"},
+                    {
+                        "message_type": "NOTE",
+                        "body": "one uncertain send",
+                    },
                 ))
             self.assertEqual(1, network.post_calls)
         finally:
             temp2.cleanup()
 
     def test_swarm_telemetry_reads_verified_public_envelopes_without_identity_overclaim(self):
-        # Seed two remote events using the durable client's event constructor.
-        event1 = self.network.queue_public_event("JANUS", "presence", {"status": "online"})
+        event1 = self.network.queue_public_event(
+            "JANUS",
+            "presence",
+            {"status": "online"},
+        )
         self.network.sync()
-        # Change node id in a separately valid synthetic peer event and reseal it.
+
         peer = copy.deepcopy(event1)
         peer["node_id"] = "peer-node-2"
         peer["local_sequence"] = 1
         peer["previous_local_hash"] = "0" * 64
         peer.pop("event_hash", None)
-        canonical = json.dumps(peer, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        peer["event_hash"] = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
-        self.network.remote_envelopes.append({"network_sequence": 2, "event": peer})
+        canonical = json.dumps(
+            peer,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        peer["event_hash"] = hashlib.sha256(
+            canonical.encode("utf-8")
+        ).hexdigest()
+        self.network.remote_envelopes.append({
+            "network_sequence": 2,
+            "event": peer,
+        })
 
-        read = self.grant("SWARM.TELEMETRY.READ", "janus-swarm:*", "SW-READ")
+        read = self.grant(
+            "SWARM.TELEMETRY.READ",
+            "janus-swarm:*",
+            "SW-READ",
+        )
         result = self.fabric.execute(self.intent(
             read,
             "SW-READ-1",
@@ -482,7 +667,9 @@ class ThirdWishMemorySwarmTests(unittest.TestCase):
         self.assertTrue(actor["events"][0]["event_integrity_valid"])
         self.assertFalse(actor["events"][0]["event_is_remote_command"])
         self.assertFalse(actor["peer_node_id_is_real_world_identity_proof"])
-        self.assertFalse(actor["telemetry_read_grants_remote_execution_authority"])
+        self.assertFalse(
+            actor["telemetry_read_grants_remote_execution_authority"]
+        )
 
 
 if __name__ == "__main__":
