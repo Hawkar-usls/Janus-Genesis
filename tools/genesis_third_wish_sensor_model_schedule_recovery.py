@@ -1,16 +1,10 @@
 # -*- coding: utf-8 -*-
-"""v18.7.43 precision/recovery layer for sensor/model/schedule/actuator doors.
+"""Final v18.7.43 precision/recovery layer.
 
-Two things are made stricter than the lower-level broker:
-
-1. one-shot schedule validation is explicit and avoids any accidental recurrence
-   interpretation;
-2. physical actuator requests receive their own durable request/effect store so
-   process restart cannot silently re-execute an effect after EFFECT_ENTERING.
-
-A provider-specific ``lookup(effect_key)`` may reconcile a prior physical
-boundary. Only authoritative SETTLED or NO_EFFECT evidence changes the recovery
-state. UNKNOWN/non-authoritative evidence never grants retry permission.
+Known schedule conflicts stay pre-effect. Physical actuator requests are bound in
+an independent durable store so process restart cannot silently repeat a prior
+EFFECT_ENTERING operation. Provider lookup may recover only authoritative
+SETTLED or NO_EFFECT evidence; UNKNOWN never becomes retry permission.
 """
 from __future__ import annotations
 
@@ -28,11 +22,9 @@ from tools.genesis_third_wish_sensor_model_schedule_broker import (
     MAX_SCHEDULE_HORIZON_SECONDS,
     MAX_SCHEDULE_MESSAGE_BYTES,
     MIN_RECURRENCE_SECONDS,
-    ScheduleRequestConflict,
     SensorModelScheduleError,
     ThirdWishSensorModelScheduleBroker,
     _alias_from_target,
-    _canonical,
     _parse_utc,
     _require,
     _sha256,
@@ -68,11 +60,11 @@ class DurableActuatorRequestStore:
                     "schema": ACTUATOR_REQUEST_SCHEMA,
                     "requests": {},
                     "invariants": {
-                        "effect_entering_can_auto_retry": false,
-                        "unknown_lookup_can_open_retry": false,
-                        "settled_request_can_reexecute": false,
-                        "same_request_can_change_effect": false
-                    }
+                        "effect_entering_can_auto_retry": False,
+                        "unknown_lookup_can_open_retry": False,
+                        "settled_request_can_reexecute": False,
+                        "same_request_can_change_effect": False,
+                    },
                 })
             else:
                 self._load()
@@ -148,7 +140,7 @@ class DurableActuatorRequestStore:
 class RecoverableThirdWishSensorModelScheduleBroker(
     ThirdWishSensorModelScheduleBroker
 ):
-    """Final v18.7.43 reference broker."""
+    """Final reference broker for v18.7.43."""
 
     @property
     def actuator_store(self) -> DurableActuatorRequestStore:
@@ -170,10 +162,7 @@ class RecoverableThirdWishSensorModelScheduleBroker(
                 "SCHEDULE_PARAMETERS_NOT_ALLOWED:" + ",".join(sorted(unknown))
             )
         message = str(_require(parameters, "message"))
-        if (
-            not message
-            or len(message.encode("utf-8")) > MAX_SCHEDULE_MESSAGE_BYTES
-        ):
+        if not message or len(message.encode("utf-8")) > MAX_SCHEDULE_MESSAGE_BYTES:
             raise SensorModelScheduleError("SCHEDULE_MESSAGE_INVALID")
         due = _parse_utc(str(_require(parameters, "not_before_utc")))
         now = self.now_utc().astimezone(due.tzinfo)
@@ -181,18 +170,13 @@ class RecoverableThirdWishSensorModelScheduleBroker(
         if delta <= 0:
             raise SensorModelScheduleError("SCHEDULE_TIME_MUST_BE_FUTURE")
         if delta > MAX_SCHEDULE_HORIZON_SECONDS:
-            raise SensorModelScheduleError(
-                "SCHEDULE_TIME_BEYOND_REFERENCE_HORIZON"
-            )
+            raise SensorModelScheduleError("SCHEDULE_TIME_BEYOND_REFERENCE_HORIZON")
 
         recurrence = parameters.get("recurrence")
         if operation == "CREATE_REMINDER":
             if recurrence is not None and recurrence != {}:
-                raise SensorModelScheduleError(
-                    "ONE_SHOT_REMINDER_CANNOT_RECUR"
-                )
+                raise SensorModelScheduleError("ONE_SHOT_REMINDER_CANNOT_RECUR")
             return
-
         if not isinstance(recurrence, Mapping):
             raise SensorModelScheduleError("RECURRENCE_OBJECT_REQUIRED")
         if set(recurrence) != {"interval_seconds", "max_occurrences"}:
@@ -203,18 +187,14 @@ class RecoverableThirdWishSensorModelScheduleBroker(
         except (TypeError, ValueError) as exc:
             raise SensorModelScheduleError("RECURRENCE_VALUES_INVALID") from exc
         if not MIN_RECURRENCE_SECONDS <= interval <= MAX_RECURRENCE_SECONDS:
-            raise SensorModelScheduleError(
-                "RECURRENCE_INTERVAL_OUT_OF_RANGE"
-            )
+            raise SensorModelScheduleError("RECURRENCE_INTERVAL_OUT_OF_RANGE")
         if not 1 <= count <= MAX_RECURRENCE_OCCURRENCES:
             raise SensorModelScheduleError("RECURRENCE_COUNT_OUT_OF_RANGE")
 
     @staticmethod
     def _actuator_binding(intent: ActionIntent) -> tuple[str, str]:
         command = str(_require(intent.parameters, "command")).upper()
-        arguments = copy.deepcopy(
-            dict(_require(intent.parameters, "arguments"))
-        )
+        arguments = copy.deepcopy(dict(_require(intent.parameters, "arguments")))
         binding = {
             "actor_id": intent.actor_id,
             "target": intent.target,
@@ -265,24 +245,14 @@ class RecoverableThirdWishSensorModelScheduleBroker(
             "real_physical_effect_established",
         }
         if not required.issubset(value):
-            raise ActuatorReceiptIntegrityError(
-                "ACTUATOR_PROVIDER_RECEIPT_INCOMPLETE"
-            )
+            raise ActuatorReceiptIntegrityError("ACTUATOR_PROVIDER_RECEIPT_INCOMPLETE")
         if str(value["effect_key"]) != effect_key:
-            raise ActuatorReceiptIntegrityError(
-                "ACTUATOR_EFFECT_KEY_MISMATCH"
-            )
+            raise ActuatorReceiptIntegrityError("ACTUATOR_EFFECT_KEY_MISMATCH")
         if value["effect_acknowledged"] is not True:
-            raise ActuatorReceiptIntegrityError(
-                "ACTUATOR_EFFECT_NOT_ACKNOWLEDGED"
-            )
+            raise ActuatorReceiptIntegrityError("ACTUATOR_EFFECT_NOT_ACKNOWLEDGED")
         if bool(value["simulated"]) != bool(expected_simulated):
-            raise ActuatorReceiptIntegrityError(
-                "ACTUATOR_SIMULATION_CLASS_MISMATCH"
-            )
-        if bool(value["simulated"]) and bool(
-            value["real_physical_effect_established"]
-        ):
+            raise ActuatorReceiptIntegrityError("ACTUATOR_SIMULATION_CLASS_MISMATCH")
+        if bool(value["simulated"]) and bool(value["real_physical_effect_established"]):
             raise ActuatorReceiptIntegrityError(
                 "SIMULATED_ACTUATOR_CANNOT_CLAIM_PHYSICAL_EFFECT"
             )
@@ -302,42 +272,30 @@ class RecoverableThirdWishSensorModelScheduleBroker(
             )
         observation = lookup(effect_key)
         if not isinstance(observation, Mapping):
-            raise PhysicalEffectOutcomeUndetermined(
-                "ACTUATOR_LOOKUP_NOT_STRUCTURED"
-            )
+            raise PhysicalEffectOutcomeUndetermined("ACTUATOR_LOOKUP_NOT_STRUCTURED")
+        if observation.get("authoritative") is not True:
+            raise PhysicalEffectOutcomeUndetermined("ACTUATOR_LOOKUP_NOT_AUTHORITATIVE")
         status = str(observation.get("status") or "UNKNOWN").upper()
-        authoritative = observation.get("authoritative") is True
-        if not authoritative:
-            raise PhysicalEffectOutcomeUndetermined(
-                "ACTUATOR_LOOKUP_NOT_AUTHORITATIVE"
-            )
         if status == "SETTLED":
             receipt = observation.get("provider_receipt")
             if not isinstance(receipt, Mapping):
                 raise ActuatorReceiptIntegrityError(
                     "SETTLED_LOOKUP_REQUIRES_PROVIDER_RECEIPT"
                 )
-            return (
-                "SETTLED",
-                self._validate_provider_receipt(
-                    receipt,
-                    effect_key=effect_key,
-                    expected_simulated=expected_simulated,
-                ),
+            return "SETTLED", self._validate_provider_receipt(
+                receipt,
+                effect_key=effect_key,
+                expected_simulated=expected_simulated,
             )
         if status == "NO_EFFECT":
             return "NO_EFFECT", None
-        raise PhysicalEffectOutcomeUndetermined(
-            "ACTUATOR_EFFECT_OUTCOME_UNKNOWN"
-        )
+        raise PhysicalEffectOutcomeUndetermined("ACTUATOR_EFFECT_OUTCOME_UNKNOWN")
 
     def actuator_command(self, intent: ActionIntent) -> Mapping[str, Any]:
         alias = _alias_from_target(intent.target, "device-actuator")
         adapter = self.actuators[alias]
         command = str(_require(intent.parameters, "command")).upper()
-        arguments = copy.deepcopy(
-            dict(_require(intent.parameters, "arguments"))
-        )
+        arguments = copy.deepcopy(dict(_require(intent.parameters, "arguments")))
         binding_sha256, effect_key = self._actuator_binding(intent)
         stored = self.actuator_store.bind(
             request_id=intent.request_id,
@@ -379,28 +337,22 @@ class RecoverableThirdWishSensorModelScheduleBroker(
                     actor_result=actor_result,
                 )
                 return actor_result
-            if status == "NO_EFFECT":
-                self.actuator_store.update(
-                    intent.request_id,
-                    state="BOUND",
-                    provider_receipt=None,
-                    actor_result=None,
-                    authoritative_no_effect_reconciled=True,
-                )
+            self.actuator_store.update(
+                intent.request_id,
+                state="BOUND",
+                provider_receipt=None,
+                actor_result=None,
+                authoritative_no_effect_reconciled=True,
+            )
 
-        self.actuator_store.update(
-            intent.request_id,
-            state="EFFECT_ENTERING",
-        )
+        self.actuator_store.update(intent.request_id, state="EFFECT_ENTERING")
         receipt = adapter.execute(
             command=command,
             arguments=arguments,
             effect_key=effect_key,
         )
         if not isinstance(receipt, Mapping):
-            raise ActuatorReceiptIntegrityError(
-                "ACTUATOR_PROVIDER_RECEIPT_NOT_OBJECT"
-            )
+            raise ActuatorReceiptIntegrityError("ACTUATOR_PROVIDER_RECEIPT_NOT_OBJECT")
         verified = self._validate_provider_receipt(
             receipt,
             effect_key=effect_key,
