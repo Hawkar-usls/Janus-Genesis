@@ -74,4 +74,4 @@ jobs:
           python play_genesis.py --data-dir .smoke --player smoke --verify-possibility-graph
           python play_genesis.py --data-dir .smoke --player smoke --verify-free-others
           python play_genesis.py --data-dir .smoke --export-save smoke.genesis-save.json
-          python play_genesis.py --data-dir .smoke-restored --import-save smoke.genesis-save.json
+          python play_genesis.py --data-dir .smoke-restored --import-save smoke.genesis-save.json --import-request-id SMOKE-IMPORT-001

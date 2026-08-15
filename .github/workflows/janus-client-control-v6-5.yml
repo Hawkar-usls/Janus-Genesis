@@ -119,9 +119,9 @@ jobs:
               ('v35', v35, 'windows raised ``oserror: [errno 9] bad file descriptor``'),
               ('v35', v35, 'windows still makes no claim that python exposes an equivalent directory-entry fsync'),
               ('v35', v35, 'does not relabel run 31828864663 as passing'),
-              ('cli', cli, 'normal ``process_action`` entries are routed through the v18.7.33'),
-              ('cli', cli, 'repeating identical text under a new request id remains a new intent'),
-              ('cli', cli, 'forced exit have their own semantics'),
+              ('cli', cli, 'normal ``process_action`` -> v18.7.33 stable full-result receipt runtime'),
+              ('cli', cli, 'identical action text with a new action request id remains a new intent'),
+              ('cli', cli, 'forced exit -> v18.7.39 typed forced-exit request/receipt'),
           ]
           missing = [(where, text) for where, haystack, text in required if text not in haystack]
           if missing:
