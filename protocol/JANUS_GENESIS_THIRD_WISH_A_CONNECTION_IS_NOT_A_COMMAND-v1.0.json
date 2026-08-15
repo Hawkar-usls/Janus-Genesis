@@ -1,0 +1,42 @@
+{
+  "schema": "janus.genesis.third_wish.active_network.semantic.v1",
+  "version": "1.0",
+  "title": "A CONNECTION IS NOT A COMMAND",
+  "parent_version": "18.7.45",
+  "thesis": "The Third Wish may let JANUS reach, post to, or briefly listen on a typed network boundary without converting connectivity into an unbounded conversation, command channel, credential tunnel, or permanent server.",
+  "distinctions": [
+    "REACHABILITY != AUTHORITY",
+    "CONNECTION != CONVERSATION",
+    "CONVERSATION != COMMAND",
+    "LISTENING != OBEDIENCE",
+    "LOCAL LISTENER != PUBLIC SERVER",
+    "POST != UNIVERSAL EFFECT",
+    "API ALIAS != ARBITRARY URL",
+    "IDEMPOTENCY KEY != EXACTLY-ONCE PROOF",
+    "AMBIGUITY != RETRY CONSENT",
+    "NETWORK ACCESS != CREDENTIAL ACCESS"
+  ],
+  "freedom_semantics": {
+    "actor_can_choose_whether_to_use_granted_network_capability": true,
+    "grant_use_required": false,
+    "decline_penalized": false,
+    "network_connect_sends_actor_payload": false,
+    "local_listener_becomes_persistent_daemon": false,
+    "api_call_becomes_generic_transport": false
+  },
+  "uncertainty_semantics": {
+    "generic_remote_effect_lookup_exists": false,
+    "ambiguous_effect_is_preserved": true,
+    "blind_retry_is_freedom": false,
+    "idempotency_key_is_advisory_not_authoritative_proof": true
+  },
+  "canonical_statement": "A door to the network is still a door, not the whole building. Third Wish connectivity remains typed, bounded, non-secret, and unable to silently become a shell, credential tunnel, permanent listener, or universal API.",
+  "claim_ceiling": {
+    "unrestricted_network_control": false,
+    "remote_command_authority": false,
+    "persistent_server_authority": false,
+    "credential_possession_transferred": false,
+    "remote_exactly_once_proven": false,
+    "consciousness_or_personhood_claimed": false
+  }
+}
