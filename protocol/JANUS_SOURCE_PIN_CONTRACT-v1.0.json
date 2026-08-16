@@ -8,7 +8,8 @@
     "GIT_COMMIT_SHA1_REQUIRES_EXPLICIT_KIND_AND_LOWERCASE_40_HEX",
     "OPAQUE_VERSION_TOKEN_CANNOT_SATISFY_EXACT_GIT_REPLAY",
     "PRIVATE_EXACT_PIN_MAY_BE_VERIFIED_LOCALLY_WITHOUT_PUBLICATION",
-    "PUBLIC_PROJECTION_OF_PRIVATE_GIT_PIN_OMITS_EXACT_VALUE",
+    "PRIVATE_SOURCE_ID_PUBLIC_PROJECTION_REQUIRES_OPAQUE_NUMERIC_ID",
+    "PUBLIC_PROJECTION_OMITS_PRIVATE_PIN_VALUE_AND_LOCAL_PINSET_ID",
     "SOURCE_PIN_CONTRACT_DOES_NOT_GRANT_SOURCE_WRITEBACK",
     "CI_GREEN_DOES_NOT_GRANT_MERGE_PERMISSION"
   ],
@@ -25,9 +26,10 @@
     }
   },
   "privacy": {
-    "private_source_id_may_be_opaque_repository_id": true,
+    "private_source_id_contract": "OPAQUE_NUMERIC_1_TO_32_DIGITS",
     "private_exact_pin_publication_required": false,
     "private_exact_pin_public_projection": "OMIT_VALUE_AND_LOCAL_DIGEST",
+    "local_pinset_id_publication_required": false,
     "private_pinset_digest_publication_required": false
   },
   "authority_boundary": {
