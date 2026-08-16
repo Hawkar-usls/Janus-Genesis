@@ -31,6 +31,15 @@ REGULAR_BLOB_MODES = {"100644", "100755"}
 MANIFEST_TOP_LEVEL_FIELDS = frozenset(
     {"schema", "artifact_id", "write_back_default", "source_code_execution", "sources"}
 )
+PUBLIC_SOURCE_FIELDS = frozenset(
+    {"repository_id", "visibility", "repository", "branch", "sha"}
+)
+PRIVATE_SOURCE_FIELDS = frozenset(
+    {"repository_id", "visibility", "branch", "sha"}
+)
+PRIVATE_IDENTITY_FIELDS = frozenset(
+    {"repository", "name", "full_name", "clone_url", "html_url"}
+)
 
 
 class NexusMaterializerError(RuntimeError):
@@ -82,6 +91,11 @@ def validate_manifest(value: Any) -> dict[str, Any]:
         raise NexusMaterializerError("NEXUS_MANIFEST_SCHEMA_INVALID")
     if set(value) - MANIFEST_TOP_LEVEL_FIELDS:
         raise NexusMaterializerError("NEXUS_MANIFEST_TOP_LEVEL_FIELD_INVALID")
+    artifact_id = value.get("artifact_id")
+    if artifact_id is not None and (
+        not isinstance(artifact_id, str) or not 1 <= len(artifact_id) <= 200
+    ):
+        raise NexusMaterializerError("NEXUS_MANIFEST_ARTIFACT_ID_INVALID")
     if value.get("write_back_default") != "DENY":
         raise NexusMaterializerError("NEXUS_WRITE_BACK_MUST_DEFAULT_DENY")
     if value.get("source_code_execution") is not False:
@@ -102,6 +116,11 @@ def validate_manifest(value: Any) -> dict[str, Any]:
             raise NexusMaterializerError("NEXUS_SOURCE_REPOSITORY_ID_INVALID")
         if visibility not in {"public", "private"}:
             raise NexusMaterializerError("NEXUS_SOURCE_VISIBILITY_INVALID")
+        if visibility == "private" and PRIVATE_IDENTITY_FIELDS.intersection(row):
+            raise NexusMaterializerError("NEXUS_PRIVATE_REPOSITORY_METADATA_LEAK")
+        allowed_fields = PUBLIC_SOURCE_FIELDS if visibility == "public" else PRIVATE_SOURCE_FIELDS
+        if set(row) - allowed_fields:
+            raise NexusMaterializerError(f"NEXUS_SOURCE_FIELD_INVALID:{repo_id}")
         if not SAFE_BRANCH.fullmatch(branch) or ".." in branch:
             raise NexusMaterializerError("NEXUS_SOURCE_BRANCH_INVALID")
         if not FULL_SHA.fullmatch(sha):
@@ -109,10 +128,6 @@ def validate_manifest(value: Any) -> dict[str, Any]:
         if visibility == "public":
             if not SAFE_PUBLIC_REPO.fullmatch(str(row.get("repository") or "")):
                 raise NexusMaterializerError("NEXUS_PUBLIC_REPOSITORY_INVALID")
-        else:
-            forbidden = {"repository", "name", "full_name", "clone_url", "html_url"}
-            if forbidden.intersection(row):
-                raise NexusMaterializerError("NEXUS_PRIVATE_REPOSITORY_METADATA_LEAK")
         seen_ids.add(repo_id)
     return value
 
