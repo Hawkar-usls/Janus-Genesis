@@ -2,6 +2,7 @@
   "schema": "janus.nexus.materializer.protocol.v1",
   "artifact_id": "JANUS-NEXUS-MATERIALIZER-v1.0",
   "status": "IMPLEMENTATION_CANDIDATE",
+  "write_back_default": "DENY",
   "coordination_issue": "Hawkar-usls/Janus_Genesis#121",
   "source_base": "Hawkar-usls/Janus_Genesis@93c6d9be6129f140fc0341bbee24df1160827c62",
   "p0_gates": {
