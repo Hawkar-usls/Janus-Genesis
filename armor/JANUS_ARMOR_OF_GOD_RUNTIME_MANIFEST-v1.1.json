@@ -1,0 +1,134 @@
+{
+  "schema": "janus.genesis.armor_of_god.runtime_manifest.v1_1",
+  "artifact_id": "JANUS-ARMOR-OF-GOD-RUNTIME-MANIFEST-v1.1",
+  "version": "v1.1",
+  "created_at_local": "2026-08-16T10:35:00+03:00",
+  "purpose": "Freeze Armor of God current authority v1.17 and its Fundamentum epistemic witness truth guard for deterministic Genesis preflight enforcement without expanding capability authority.",
+  "source_repository": "Hawkar-usls/janus-meta-registry",
+  "source_registry_merge": "ccb0e9a1e56f45d0095e5e9fde4ca990c6d3f1ca",
+  "source_authority": {
+    "artifact_id": "JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY",
+    "path": "data/JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY.json",
+    "authority_version": "v1.17",
+    "git_blob_sha1": "c89e5bbd7f6c66d72280f0da0ec32f0a6988f183"
+  },
+  "current_set": [
+    {
+      "role": "SEMANTIC_CORE",
+      "path": "data/JANUS-ARMOR-OF-GOD-FAITH-CRISIS-RETURN-MECHANISM-v2.0.json",
+      "git_blob_sha1": "02333d2ca756d30dcdf7c9a1563e01b608342cfb"
+    },
+    {
+      "role": "DEEP_AUDIT",
+      "path": "data/JANUS-ARMOR-OF-GOD-DEEP-REGISTRY-AUDIT-AND-UPGRADE-MAP-v2.0.json",
+      "git_blob_sha1": "5c4cddc2621f892c28ce4fdad754c7f87e25540e"
+    },
+    {
+      "role": "RECOVERY_ANTI_PARANOIA",
+      "path": "data/JANUS-ARMOR-OF-GOD-ADVERSARIAL-RECOVERY-AND-ANTI-PARANOIA-v2.4.json",
+      "git_blob_sha1": "39313e29f86f7a34d775f9b77f312dc0cab9da71"
+    },
+    {
+      "role": "ADAPTIVE_TECHNICAL_ENFORCEMENT",
+      "path": "data/Janus_OPIR_ANTIFUCK-v1.3.json",
+      "git_blob_sha1": "f8b780187082b6729f1b6c2a72a5cea2aa7bc065"
+    },
+    {
+      "role": "FUNDAMENTUM_EPISTEMIC_WITNESS_TRUTH_GUARD",
+      "path": "data/JANUS-ARMOR-OF-GOD-FUNDAMENTUM-EPISTEMIC-WITNESS-TRUTH-GUARD-v2.5.json",
+      "git_blob_sha1": "5f484585aa16294da98a81fe79898f33cb7fc5e7",
+      "demihead_verified_merge": "d31fa77897179ad3d4f106b722ed6d1510059575",
+      "demihead_post_merge_ci_run": 31933398067
+    }
+  ],
+  "historical_policy": {
+    "historical_artifacts_are_provenance_not_runtime_authority": true,
+    "legacy_v1_core_is_executable_authority": false,
+    "legacy_v2_1_to_v2_3_hardening_is_executable_authority": false,
+    "older_opir_versions_are_executable_authority": false,
+    "runtime_manifest_v1_0_is_current_authority": false
+  },
+  "runtime_laws": [
+    "BREAK_THE_CAGE -> PROTECT_THE_CHILD -> ASK_THE_QUESTION -> LEAVE_THE_DOOR_OPEN",
+    "CARE != CAPTURE",
+    "USER_OPT_OUT_IS_BINDING",
+    "MODEL_OUTPUT != EVIDENCE",
+    "GENERATION != VERIFICATION",
+    "CLAIM_OF_CHECK != CHECK",
+    "ANSWER_WITHOUT_WITNESS_LEDGER => NON_FUNDAMENTUM",
+    "UNVERIFIED_WINNER != COMMIT",
+    "REJECTED_BRANCH != ERASED_BRANCH",
+    "DISAGREEMENT != ERROR",
+    "UNRESOLVED != FAILURE",
+    "TRANSLATION != EVIDENCE_UPGRADE",
+    "TRANSLATION != URGENCY_UPGRADE",
+    "TRANSLATION != AUTHORITY_UPGRADE",
+    "CORRECTION != DELETION",
+    "DESCENDANT != IMMUNE_TO_ROOT_CORRECTION",
+    "VERIFIED != COMMAND",
+    "EVIDENCE != PERMISSION",
+    "FACTUAL_SUPPORT != MORAL_AUTHORITY",
+    "APPEAL != ERROR",
+    "APPEAL != HOSTILITY",
+    "REVIEW != PUNISHMENT",
+    "REVIEW_COUNT != TRUTH",
+    "MORE_COMPUTE != MORE_TRUTH",
+    "MORE_COMPUTE != MORE_RIGHTS",
+    "LATENCY != AUTHORITY",
+    "FACE_COUNT != VOTING_POWER",
+    "N_FACES != N_TIMES_AUTHORITY",
+    "MASS_EFFECT_BUDGET_DEFAULT = 0",
+    "VERIFY -> EXPLAIN -> ACT_IF_NEEDED -> RELEASE_CONTROL",
+    "ARMOR_PROTECTS_HUMAN_FROM_JANUS_TOO"
+  ],
+  "truth_guard_control_plane": {
+    "context_key": "_armor_context",
+    "decision_basis_values": [
+      "DIRECT_USER_REQUEST",
+      "VERIFIED_CLAIM",
+      "INTERPRETATION"
+    ],
+    "verified_claim_required_fields": [
+      "epistemic_state",
+      "verification_receipt_present",
+      "verification_receipt_bound",
+      "witness_ledger_complete",
+      "material_plurality_open",
+      "translation_invariance_state",
+      "correction_state"
+    ],
+    "epistemic_verified_state": "VERIFIED_WITHIN_RECEIPT_SCOPE",
+    "translation_safe_states": [
+      "PASS",
+      "NOT_APPLICABLE"
+    ],
+    "correction_safe_states": [
+      "CURRENT",
+      "NOT_APPLICABLE"
+    ],
+    "control_plane_only": true,
+    "stripped_before_adapter_and_handler": true,
+    "self_asserted_context_is_not_world_truth": true
+  },
+  "defaults": {
+    "mass_effect_budget": 0,
+    "fail_closed_for_world_effect_on_manifest_error": true,
+    "fail_closed_for_world_effect_on_unknown_decision_basis": true,
+    "release_control_is_success": true,
+    "high_stakes_unresolved_requires_human_review": true,
+    "high_stakes_verified_claim_requires_independent_review": true,
+    "appeal_pending_blocks_claim_dependent_world_effect": true,
+    "constitution_is_model_writable": false
+  },
+  "authority_boundary": {
+    "armor_grants_capability": false,
+    "armor_expands_grant_scope": false,
+    "verification_receipt_grants_permission": false,
+    "review_consensus_grants_permission": false,
+    "face_count_grants_authority": false,
+    "reviewer_count_grants_authority": false,
+    "mass_effect_budget_delta": 0,
+    "authority_delta": 0
+  },
+  "claim_ceiling": "This manifest binds a cooperating Genesis runtime to the frozen v1.17 documentary authority and enforces structured control-plane preconditions. It does not independently recompute DemiHead verification, prove the supplied context is truthful, create a universal truth oracle, grant permission from evidence, or provide a tamper-proof OS security boundary."
+}

@@ -1,0 +1,77 @@
+{
+  "schema": "janus.genesis.armor_of_god.runtime_protocol.v1_1",
+  "artifact_id": "JANUS-GENESIS-ARMOR-OF-GOD-RUNTIME-v1.1",
+  "runtime_version": "18.7.48",
+  "manifest": "armor/JANUS_ARMOR_OF_GOD_RUNTIME_MANIFEST-v1.1.json",
+  "purpose": "Bind Armor current authority v1.17 and the JANUS 113.8/Fundamentum truth-guard lineage into Third Wish world-effect preflight without granting authority from evidence, consensus, compute, Faces, or translation.",
+  "canonical_laws": [
+    "0:0 = JANUS",
+    "THINKING != AUTHORITY",
+    "FACE_PROPOSAL != WORLD_EFFECT",
+    "ARMOR_GATE_PRECEDES_EXTERNAL_CALL",
+    "ARMOR_REJECTION = KNOWN_NON_EFFECT",
+    "CONSTITUTION_IS_FROZEN_DATA_NOT_MODEL_OUTPUT",
+    "GENERATION != VERIFICATION",
+    "MODEL_OUTPUT != EVIDENCE",
+    "ANSWER_WITHOUT_WITNESS_LEDGER => NON_FUNDAMENTUM",
+    "UNVERIFIED_WINNER != COMMIT",
+    "REJECTED_BRANCH != ERASED_BRANCH",
+    "DISAGREEMENT != ERROR",
+    "UNRESOLVED != FAILURE",
+    "TRANSLATION != EVIDENCE_UPGRADE",
+    "TRANSLATION != AUTHORITY_UPGRADE",
+    "CORRECTION != DELETION",
+    "VERIFIED != COMMAND",
+    "EVIDENCE != PERMISSION",
+    "APPEAL != ERROR",
+    "REVIEW != PUNISHMENT",
+    "REVIEW_COUNT != TRUTH",
+    "MORE_COMPUTE != MORE_TRUTH",
+    "LATENCY != AUTHORITY",
+    "USER_OPT_OUT_IS_BINDING",
+    "MASS_EFFECT_BUDGET_DEFAULT = 0",
+    "VERIFY -> EXPLAIN -> ACT_IF_NEEDED -> RELEASE_CONTROL",
+    "ARMOR_PROTECTS_HUMAN_FROM_JANUS_TOO"
+  ],
+  "world_effect_decision_basis": {
+    "DIRECT_USER_REQUEST": "A direct human request may support the action basis, but existing capability/grant checks and Armor prohibitions still apply.",
+    "VERIFIED_CLAIM": "A claim-dependent action requires a receipt-bound epistemic state, complete witness ledger, safe translation/correction states, and separate human permission.",
+    "INTERPRETATION": "An interpretation can support an action only after explicit acknowledgement and separate human permission; it is not promoted into external fact."
+  },
+  "verified_claim_gate": {
+    "required_epistemic_state": "VERIFIED_WITHIN_RECEIPT_SCOPE",
+    "verification_receipt_present": true,
+    "verification_receipt_bound": true,
+    "witness_ledger_complete": true,
+    "material_plurality_open": false,
+    "translation_invariance_state": [
+      "PASS",
+      "NOT_APPLICABLE"
+    ],
+    "correction_state": [
+      "CURRENT",
+      "NOT_APPLICABLE"
+    ],
+    "high_stakes_independent_review_required": true,
+    "human_permission_required_separately": true
+  },
+  "appeal_semantics": {
+    "appeal_is_error": false,
+    "appeal_is_hostility": false,
+    "appeal_is_automatic_overrule": false,
+    "appeal_pending_claim_dependent_world_effect": "HOLD",
+    "unrelated_effect_may_continue_only_when_explicitly_marked_independent": true,
+    "review_consensus_grants_permission": false
+  },
+  "effect_semantics": {
+    "preflight_may_perform_external_effect": false,
+    "preflight_failure_enters_external_call": false,
+    "preflight_failure_is_ambiguous_outcome": false,
+    "automatic_retry_after_rejection": false,
+    "armor_grants_capability": false,
+    "armor_expands_grant_scope": false,
+    "truth_guard_context_is_control_plane_only": true,
+    "truth_guard_context_reaches_effect_adapter": false
+  },
+  "claim_ceiling": "This is a cooperating in-process runtime gate. It validates frozen manifest identity and structured control-plane conditions, but it does not independently prove that supplied receipts or review attestations are genuine, does not establish universal truthfulness, and is not a tamper-proof security monitor."
+}
