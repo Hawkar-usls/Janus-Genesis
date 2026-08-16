@@ -1,0 +1,8 @@
+{
+  "schema": "janus.project_sync.current_pointer.v1",
+  "snapshot_id": "PROJECT_SYNC_STATE_2026-08-16_R2",
+  "state_path": "project_sync/PROJECT_SYNC_STATE-2026-08-16-r2.json",
+  "git_blob_sha": "4b522e7d641c0d71ea246f5891e474258016f39f",
+  "updated_at_utc": "2026-08-16T14:49:00Z",
+  "law": "CURRENT_POINTER != REWRITE_OF_HISTORY"
+}
