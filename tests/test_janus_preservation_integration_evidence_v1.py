@@ -11,13 +11,33 @@ from tools.janus_preservation_integration_evidence import (
 
 
 class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
-    def heads(self) -> dict[str, str]:
+    def refs(self) -> dict[str, dict[str, object]]:
         return {
-            "materializer": "1" * 40,
-            "privacy_projection": "2" * 40,
-            "variant_lineage": "3" * 40,
-            "handoff_ledger": "4" * 40,
-            "swarm_recovery": "5" * 40,
+            "materializer": {
+                "repository": "Hawkar-usls/Janus_Genesis",
+                "pull_request": 122,
+                "sha": "1" * 40,
+            },
+            "privacy_projection": {
+                "repository": "Hawkar-usls/Janus_Genesis",
+                "pull_request": 125,
+                "sha": "2" * 40,
+            },
+            "variant_lineage": {
+                "repository": "Hawkar-usls/Janus_Genesis",
+                "pull_request": 123,
+                "sha": "3" * 40,
+            },
+            "handoff_ledger": {
+                "repository": "Hawkar-usls/Janus_Genesis",
+                "pull_request": 124,
+                "sha": "4" * 40,
+            },
+            "swarm_recovery": {
+                "repository": "Hawkar-usls/janus-distributed-ai-swarm",
+                "pull_request": 5,
+                "sha": "5" * 40,
+            },
         }
 
     def lock(self) -> dict[str, object]:
@@ -26,13 +46,13 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
             "preregistration_receipt": "5308388940",
             "expected_source_count": 44,
             "privacy_mode": "LOCAL_EVIDENCE_PUBLIC_REDACTED_SUMMARY",
-            "producer_heads": self.heads(),
+            "producer_refs": self.refs(),
         }
 
     def bundle(self) -> dict[str, object]:
         return {
             "schema": "janus.nexus.preservation_integration_evidence.v1",
-            "producer_heads": self.heads(),
+            "producer_refs": self.refs(),
             "materializer": {
                 "source_count": 44,
                 "clean_target_rebuild_exercised": True,
@@ -85,16 +105,29 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         self.assertFalse(result["empirical_replay_claimed_by_this_verifier"])
         self.assertFalse(result["merge_permission_granted"])
 
-    def test_producer_heads_must_match_external_lock(self) -> None:
+    def test_producer_refs_must_match_external_lock(self) -> None:
         bundle = self.bundle()
-        bundle["producer_heads"]["materializer"] = "6" * 40  # type: ignore[index]
-        with self.assertRaisesRegex(PreservationEvidenceError, "producer heads do not match"):
+        bundle["producer_refs"]["materializer"]["sha"] = "6" * 40  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "producer refs do not match"):
             evaluate(bundle, self.lock())
 
-    def test_malformed_producer_sha_fails_closed(self) -> None:
+    def test_repository_identity_is_bound_per_producer_role(self) -> None:
         lock = self.lock()
-        lock["producer_heads"]["swarm_recovery"] = "main"  # type: ignore[index]
+        lock["producer_refs"]["swarm_recovery"]["repository"] = (  # type: ignore[index]
+            "Hawkar-usls/Janus_Genesis"
+        )
+        with self.assertRaisesRegex(PreservationEvidenceError, "janus-distributed-ai-swarm"):
+            evaluate(self.bundle(), lock)
+
+    def test_malformed_producer_sha_and_pr_fail_closed(self) -> None:
+        lock = self.lock()
+        lock["producer_refs"]["swarm_recovery"]["sha"] = "main"  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "exact lowercase 40-hex"):
+            evaluate(self.bundle(), lock)
+
+        lock = self.lock()
+        lock["producer_refs"]["materializer"]["pull_request"] = True  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "positive integer PR"):
             evaluate(self.bundle(), lock)
 
     def test_independent_rebuild_digest_mismatch_is_rejected(self) -> None:
@@ -103,11 +136,16 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         with self.assertRaisesRegex(PreservationEvidenceError, "rebuild digests differ"):
             evaluate(bundle, self.lock())
 
-    def test_missing_failed_variant_evidence_is_rejected(self) -> None:
+    def test_missing_or_malformed_failed_variant_evidence_is_rejected(self) -> None:
         bundle = self.bundle()
         bundle["lineage"]["failed_variant_ids"] = []  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "at least one retained failed variant"):
             evaluate(bundle, self.lock())
+
+        malformed = self.bundle()
+        malformed["lineage"]["failed_variant_ids"] = [{"not": "hashable-as-id"}]  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "must be lowercase 64-hex"):
+            evaluate(malformed, self.lock())
 
     def test_lineage_head_mismatch_is_rejected(self) -> None:
         bundle = self.bundle()
@@ -125,6 +163,11 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         majority["handoff"]["majority_vote_used"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
             evaluate(majority, self.lock())
+
+        malformed = self.bundle()
+        malformed["handoff"]["conflict_message_ids"] = ["MSG-A", {"bad": "id"}]  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "must be a non-empty string"):
+            evaluate(malformed, self.lock())
 
     def test_swarm_session_drop_and_resume_are_mandatory(self) -> None:
         bundle = self.bundle()
@@ -173,14 +216,15 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         for value in local_sensitive:
             self.assertNotIn(str(value), serialized)
         self.assertFalse(result["local_sensitive_evidence_persisted_in_summary"])
+        self.assertEqual(result["producer_refs"], self.refs())
 
     def test_lock_is_external_and_exact_not_self_declared(self) -> None:
         bundle = self.bundle()
         lock = self.lock()
-        bundle_heads = copy.deepcopy(bundle["producer_heads"])
-        lock["producer_heads"] = bundle_heads
+        bundle_refs = copy.deepcopy(bundle["producer_refs"])
+        lock["producer_refs"] = bundle_refs
         result = evaluate(bundle, lock)
-        self.assertEqual(result["producer_heads"], self.heads())
+        self.assertEqual(result["producer_refs"], self.refs())
         self.assertRegex(result["producer_lock_digest"], r"^[0-9a-f]{64}$")
 
 
