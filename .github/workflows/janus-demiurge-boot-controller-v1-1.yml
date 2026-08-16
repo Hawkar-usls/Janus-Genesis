@@ -1,0 +1,86 @@
+name: JANUS Demiurge Boot Controller v1.1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_demiurge_boot_controller.py'
+      - 'tools/janus_demiurge_boot_controller_v1_1.py'
+      - 'tests/test_janus_demiurge_boot_controller_v1_1.py'
+      - 'protocol/JANUS_DEMIURGE_BOOT_CONTROLLER-v1.1.json'
+      - '.github/workflows/janus-demiurge-boot-controller-v1-1.yml'
+  push:
+    branches:
+      - integration/janus-demiurge-boot-controller-v1
+
+permissions:
+  contents: read
+
+jobs:
+  controller:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Validate controller contract
+        run: python -m json.tool protocol/JANUS_DEMIURGE_BOOT_CONTROLLER-v1.1.json >/dev/null
+      - name: Compile controller chain
+        run: |
+          python -m py_compile \
+            tools/janus_demiurge_boot_controller.py \
+            tools/janus_demiurge_boot_controller_v1_1.py \
+            tests/test_janus_demiurge_boot_controller_v1_1.py
+      - name: Replay checkpoint durability tests
+        run: python -m unittest -v tests.test_janus_demiurge_supervisor_checkpoint_journal_v1
+      - name: Replay loop-to-Cortex projection tests
+        run: python -m unittest -v tests.test_janus_demiurge_loop_cortex_projection_v1
+      - name: Run boot-controller restart and concurrency tests
+        run: python -m unittest -v tests.test_janus_demiurge_boot_controller_v1_1
+      - name: Reject direct network/process/repo-acquisition surfaces
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          paths = [
+              Path('tools/janus_demiurge_boot_controller.py'),
+              Path('tools/janus_demiurge_boot_controller_v1_1.py'),
+          ]
+          forbidden = {'aiohttp','httpx','requests','socket','subprocess','urllib','shutil','ftplib','paramiko'}
+          for path in paths:
+              tree = ast.parse(path.read_text(encoding='utf-8'))
+              imported = set()
+              for node in ast.walk(tree):
+                  if isinstance(node, ast.Import):
+                      imported.update(a.name.split('.')[0] for a in node.names)
+                  elif isinstance(node, ast.ImportFrom) and node.module:
+                      imported.add(node.module.split('.')[0])
+                  elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                      assert node.func.id not in {'exec','eval','compile','__import__'}
+              assert imported.isdisjoint(forbidden), (path, imported)
+          PY
+      - name: Enforce autonomy and authority ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('protocol/JANUS_DEMIURGE_BOOT_CONTROLLER-v1.1.json').read_text(encoding='utf-8'))
+          assert p['parent_durability']['head'] == '400e15d8398bc69a1578b26e47d867a9b824151f'
+          assert p['supervisor_source']['head'] == '74c8a9dc090dba4d3bd7d497e1ff75223e6fe6c0'
+          assert p['objective_admission']['persist_before_first_compute_window'] is True
+          assert p['restart_semantics']['manual_continue_between_segments'] is False
+          assert p['serialization']['cross_process_exclusive_lease'] is False
+          assert p['dependency_binding']['dynamic_repo_import'] is False
+          assert p['autonomy']['automatic_local_supervisor_execution_within_admitted_objective'] is True
+          assert p['autonomy']['self_generated_purpose'] is False
+          assert p['autonomy']['autonomous_external_action'] is False
+          assert p['claim_ceiling']['closed_local_boot_loop_without_manual_continue'] is True
+          assert p['claim_ceiling']['distributed_multi_process_coordination'] is False
+          assert p['claim_ceiling']['source_writeback'] is False
+          assert p['claim_ceiling']['authority_delta'] == 0
+          assert p['claim_ceiling']['mass_effect_budget_delta'] == 0
+          PY
