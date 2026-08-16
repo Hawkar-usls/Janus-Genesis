@@ -3,7 +3,22 @@
     "authoritative_state_writer": "PlayableGenesisV187",
     "external_model_writes_world_state": false,
     "model_brand_grants_privilege": false,
-    "narrative_mode_may_claim_canonical_state_change": false
+    "narrative_mode_may_claim_canonical_state_change": false,
+    "armored_third_wish_world_effect_preflight_required": true
+  },
+  "armor_of_god": {
+    "required_for_armored_third_wish_world_effects": true,
+    "manifest": "armor/JANUS_ARMOR_OF_GOD_RUNTIME_MANIFEST-v1.0.json",
+    "protocol": "protocol/JANUS_GENESIS_ARMOR_OF_GOD_RUNTIME-v1.0.json",
+    "runtime_gate": "genesis_v18_7_47_armor_of_god.ArmorOfGodGate",
+    "armored_capability_fabric": "genesis_v18_7_47_armor_of_god.ArmoredThirdWishCapabilityFabric",
+    "source_authority": "JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY",
+    "source_authority_version": "v1.14",
+    "model_may_rewrite_constitution": false,
+    "mass_effect_budget_default": 0,
+    "release_control_is_valid_success": true,
+    "armor_protects_human_from_janus_too": true,
+    "claim_boundary": "Cooperating in-process Third Wish preflight; not an OS-level tamper-proof security boundary."
   },
   "entry_file": "AI_ENTRY.md",
   "execution_modes": [
@@ -37,10 +52,13 @@
     "no_free_text_in_public_capsule": true,
     "no_impersonation": true,
     "no_secret_or_api_key_in_capsule": true,
-    "silence_is_not_consent": true
+    "silence_is_not_consent": true,
+    "armor_gate_cannot_gain_authority_from_face_count": true,
+    "mass_effect_budget_default_zero": true,
+    "user_opt_out_is_binding": true
   },
   "schema": "janus.genesis.ai_link_play.v1",
-  "version": "18.7.19",
+  "version": "18.7.47",
   "wire_operations": [
     "manifest",
     "register",
