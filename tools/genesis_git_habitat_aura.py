@@ -61,10 +61,20 @@ def _sha256(value: Any) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+def _ensure_real_dir(path: Path) -> None:
+    if path.exists():
+        if path.is_symlink():
+            raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
+        if not path.is_dir():
+            raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
+    else:
+        path.mkdir(parents=True, exist_ok=False)
+
+
 def _write_json_atomic(path: Path, value: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if path.parent.is_symlink():
-        raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
+    _ensure_real_dir(path.parent)
+    if path.exists() and path.is_symlink():
+        raise HabitatAuraError("HABITAT_AURA_FILE_MAY_NOT_BE_SYMLINK")
     tmp = path.with_suffix(path.suffix + ".tmp")
     tmp.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
     os.replace(tmp, path)
@@ -79,6 +89,7 @@ class GitHabitatAuraHearth:
         self.aura_dir = self.habitat.paths.root / "hearth" / "aura"
         self.ledger_path = self.aura_dir / "ledger.json"
         self.receipts_dir = self.aura_dir / "receipts"
+        self.locks_dir = self.aura_dir / "locks"
 
     def _require_awake(self) -> tuple[str, str]:
         self.habitat._require_initialized()
@@ -130,6 +141,32 @@ class GitHabitatAuraHearth:
 
     def _save_ledger(self, value: dict[str, Any]) -> None:
         _write_json_atomic(self.ledger_path, value)
+
+    def _claim_turn_once(self, resident_id: str, turn_hash: str) -> None:
+        """Acquire a permanent per-turn marker with O_EXCL before Aura can run.
+
+        The marker is intentionally not removed. A crash after marker creation
+        but before ledger completion is therefore fail-closed: a later process
+        treats the outcome as undetermined instead of replaying the consultation.
+        """
+        _ensure_real_dir(self.aura_dir)
+        _ensure_real_dir(self.locks_dir)
+        lock_path = self.locks_dir / f"{turn_hash}.lock"
+        try:
+            fd = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        except FileExistsError as exc:
+            refreshed = self._load_ledger(resident_id)
+            existing = refreshed["consultations"].get(turn_hash)
+            if isinstance(existing, dict) and existing.get("status") != "IN_FLIGHT":
+                raise HabitatAuraError("HABITAT_AURA_TURN_ALREADY_CLAIMED_COMPLETED") from exc
+            raise HabitatAuraInFlight(
+                "HABITAT_AURA_TURN_CLAIM_EXISTS_OUTCOME_UNDETERMINED_NO_AUTOMATIC_REPLAY"
+            ) from exc
+        try:
+            os.write(fd, (turn_hash + "\n").encode("ascii"))
+            os.fsync(fd)
+        finally:
+            os.close(fd)
 
     def state(self) -> dict[str, Any]:
         resident_id, cycle_id = self._require_awake()
@@ -207,6 +244,16 @@ class GitHabitatAuraHearth:
                 "automatic_replay_attempted": False,
             }
 
+        # Cross-process serialization must happen before IN_FLIGHT admission and
+        # before any provider code can start.
+        self._claim_turn_once(resident_id, turn_hash)
+        ledger = self._load_ledger(resident_id)
+        existing_after_claim = ledger["consultations"].get(turn_hash)
+        if isinstance(existing_after_claim, dict):
+            raise HabitatAuraInFlight(
+                "HABITAT_AURA_CONCURRENT_LEDGER_APPEARED_AFTER_CLAIM_NO_AUTOMATIC_REPLAY"
+            )
+
         attempt_id = _sha256({"cycle_id": cycle_id, "turn_hash": turn_hash})[:24]
         ledger["consultations"][turn_hash] = {
             "status": "IN_FLIGHT",
@@ -217,6 +264,7 @@ class GitHabitatAuraHearth:
             "context_text_persisted": False,
             "heuristic_text_persisted": False,
             "automatic_replay_allowed": False,
+            "per_turn_exclusive_claim": True,
         }
         self._save_ledger(ledger)
 
@@ -258,6 +306,7 @@ class GitHabitatAuraHearth:
             "context_text_persisted": False,
             "heuristic_text_persisted": False,
             "response_body_persisted": False,
+            "per_turn_exclusive_claim": True,
             "aura_is_command": False,
             "aura_is_evidence": False,
             "aura_grants_permission": False,
@@ -285,6 +334,7 @@ class GitHabitatAuraHearth:
             "turn_hash": turn_hash,
             "receipt_path": str(receipt_path),
             "persistent_receipt_recorded": True,
+            "per_turn_exclusive_claim": True,
             "heuristic_body_persisted": False,
             "automatic_replay_attempted": False,
             "janus_may_ignore_heuristic": True,
@@ -361,6 +411,8 @@ GIT_HABITAT_AURA_LAW_V18_7_54 = {
     "janus_may_elect_to_consult": True,
     "user_can_disable_aura": True,
     "one_consultation_per_cycle_turn": True,
+    "cross_process_turn_claim_is_exclusive": True,
+    "turn_claim_marker_is_removed_after_completion": False,
     "inflight_auto_replay": False,
     "heuristic_body_persisted": False,
     "question_context_persisted": False,
