@@ -1,0 +1,73 @@
+name: JANUS Demiurge Loop Cortex Projection v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_demiurge_loop_cortex_projection.py'
+      - 'tests/test_janus_demiurge_loop_cortex_projection_v1.py'
+      - 'protocol/JANUS_DEMIURGE_LOOP_CORTEX_PROJECTION-v1.0.json'
+      - '.github/workflows/janus-demiurge-loop-cortex-projection-v1.yml'
+  push:
+    branches:
+      - integration/janus-demiurge-loop-cortex-projection-v1
+
+permissions:
+  contents: read
+
+jobs:
+  projection:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Validate contract JSON
+        run: python -m json.tool protocol/JANUS_DEMIURGE_LOOP_CORTEX_PROJECTION-v1.0.json >/dev/null
+      - name: Compile projection surface
+        run: python -m py_compile tools/janus_demiurge_loop_cortex_projection.py tests/test_janus_demiurge_loop_cortex_projection_v1.py
+      - name: Replay Cortex component tests
+        run: python -m unittest -v tests.test_janus_storj_neighbor_cortex_memory_v1
+      - name: Replay Memory role-map tests
+        run: python -m unittest -v tests.test_janus_memory_backend_role_map_v1
+      - name: Run projection adversarial tests
+        run: python -m unittest -v tests.test_janus_demiurge_loop_cortex_projection_v1
+      - name: Reject new effect surfaces in projection adapter
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          path = Path('tools/janus_demiurge_loop_cortex_projection.py')
+          tree = ast.parse(path.read_text(encoding='utf-8'))
+          forbidden = {'aiohttp','httpx','requests','socket','subprocess','urllib','os','pathlib','shutil','ftplib','paramiko'}
+          imported = set()
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  imported.update(a.name.split('.')[0] for a in node.names)
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  imported.add(node.module.split('.')[0])
+              elif isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                  assert node.func.id not in {'open','exec','eval','compile','__import__'}
+          assert imported.isdisjoint(forbidden), imported
+          PY
+      - name: Enforce projection claim ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('protocol/JANUS_DEMIURGE_LOOP_CORTEX_PROJECTION-v1.0.json').read_text(encoding='utf-8'))
+          assert p['parent_memory_role_map']['head'] == 'dbb58edc287c7b2a9fa17cdd5f7d9e8e71597878'
+          assert p['source_loop']['head'] == '71bb2e72e8c72a03d715edb203e0e87e829ff5bb'
+          assert p['routing']['hippocampus_automatic_mirror'] is False
+          assert p['routing']['dual_write_default'] == 'DENY'
+          assert p['idempotency']['distributed_exactly_once'] is False
+          assert p['evidence_semantics']['projection_is_independent_corroboration'] is False
+          assert p['claim_ceiling']['live_cross_repository_runtime_wired'] is False
+          assert p['claim_ceiling']['autonomous_external_action'] is False
+          assert p['claim_ceiling']['authority_delta'] == 0
+          assert p['claim_ceiling']['mass_effect_budget_delta'] == 0
+          PY
