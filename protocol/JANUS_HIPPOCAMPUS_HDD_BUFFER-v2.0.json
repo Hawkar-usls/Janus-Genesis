@@ -61,8 +61,8 @@
     "WAL": "SEPARATE_APPEND_ORIENTED_JOURNAL_DOES_NOT_MEAN_ZERO_HDD_INTERFERENCE",
     "buffered_record": "NOT_PERSISTED",
     "successful_flush": "PERSISTED_TO_SQLITE_TRANSACTION_BOUNDARY",
-    "persisted": "NOT_EQ_BACKED_UP",
-    "persisted": "NOT_EQ_REPLICATED"
+    "persisted_not_backed_up": true,
+    "persisted_not_replicated": true
   },
   "storj_claim_ceiling": {
     "batching_reduces_sqlite_commit_count": true,
@@ -87,6 +87,7 @@
   "laws": [
     "RAM_BUFFERED != PERSISTED",
     "PERSISTED != BACKED_UP",
+    "PERSISTED != REPLICATED",
     "BATCHING != ZERO_STORJ_INTERFERENCE",
     "WAL != ZERO_DISK_WRITES",
     "SYNCHRONOUS_NORMAL != POWER_LOSS_PROOF",
