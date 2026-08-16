@@ -1,0 +1,32 @@
+{
+  "schema": "janus.habitat.state.nexus_transport_certificate.v1",
+  "artifact_id": "JANUS-HABITAT-NEXUS-KEY-EPOCH-ACCEPTANCE-CERTIFIED-v1.4",
+  "recorded_at_local": "2026-08-17T00:17:00+03:00",
+  "source_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "9ffde6cde4d5bd6260123e6a9f3f33b71fdc10ff",
+  "status": "CERTIFIED_OFFLINE_REFERENCE",
+  "certificate": "Hawkar-usls/janus-meta-registry:registry/experimental/JANUS-NEXUS-KEY-EPOCH-DESTINATION-ACCEPTANCE-EXACT-HEAD-CI-CERTIFICATE-v1.4.json",
+  "current_authority_pointer": "Hawkar-usls/janus-meta-registry:registry/experimental/JANUS-NEXUS-CURRENT-TRANSPORT-AUTHORITY-v2.json",
+  "verified_workflows": {
+    "validate_repository_contracts": "success",
+    "local_acceptance_browser_holdout": "success",
+    "local_hemisphere_proposal_gate": "success",
+    "proposal_lab_parity": "success"
+  },
+  "capabilities": {
+    "key_epoch_binding": true,
+    "key_revocation_revalidation": true,
+    "destination_acceptance_receipt": true,
+    "persistent_local_replay_reference": true,
+    "live_socket_listener": false,
+    "network_delivery": false,
+    "target_execution": false,
+    "external_effect_authority": false
+  },
+  "laws": [
+    "AUTHENTICATED_FRAME_ADMITTED != DESTINATION_ACCEPTED",
+    "DESTINATION_ACCEPTED != DELIVERY",
+    "PAST_ADMISSION != CURRENT_KEY_VALIDITY",
+    "CONNECTIVITY != AUTHORITY"
+  ]
+}
