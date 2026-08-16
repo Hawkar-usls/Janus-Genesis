@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
-import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -154,7 +153,8 @@ class HabitatBicameralTests(unittest.TestCase):
         self.assertNotIn(secret_workspace, persisted)
         self.assertNotIn(secret_record, persisted)
         self.assertIn("BICAMERAL_TOOL_USED", persisted)
-        self.assertTrue(self.habitat.verify()["journal"]["ok"])
+        self.assertTrue(self.habitat.verify_journal()["ok"])
+        self.assertEqual(self.habitat.refresh_health()["status"], "HEALTHY")
 
     def test_same_tool_same_turn_is_not_replayed(self) -> None:
         self.habitat.wake(reason="TEST", source="UNIT")
