@@ -1,0 +1,59 @@
+name: JANUS Nexus Preservation Replay v1
+
+on:
+  pull_request:
+    paths:
+      - "tools/janus_nexus_materializer.py"
+      - "tools/janus_nexus_preservation_replay.py"
+      - "tests/test_janus_nexus_materializer*.py"
+      - "tests/test_janus_nexus_preservation_replay_v1.py"
+      - "protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json"
+      - "protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json"
+      - ".github/workflows/janus-nexus-preservation-replay-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preservation-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR state
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate protocol JSON
+        run: |
+          python -m json.tool protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json >/dev/null
+
+      - name: Compile preservation surface
+        run: |
+          python -m py_compile tools/janus_nexus_materializer.py
+          python -m py_compile tools/janus_nexus_preservation_replay.py
+          python -m py_compile tests/test_janus_nexus_preservation_replay_v1.py
+
+      - name: Replay inherited Nexus materializer regressions
+        run: python -m unittest discover -s tests -p 'test_janus_nexus_materializer*.py' -v
+
+      - name: Run synthetic complete 44-slot preservation replay
+        run: python -m unittest -v tests.test_janus_nexus_preservation_replay_v1
+
+      - name: Enforce privacy and authority boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'requests\.|urllib\.request|httpx\.|curl[[:space:]]|wget[[:space:]]|git[[:space:]]+(clone|fetch|push)|gh[[:space:]]' tools/janus_nexus_preservation_replay.py
+          grep -F '"private_exact_commit_sha_allowed": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
+          grep -F '"private_tree_digest_allowed": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
+          grep -F '"whole_nexus_digest_allowed": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
+          grep -F '"source_writeback": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
+          echo 'PRESERVATION_PRIVATE_PIN_PUBLICATION=FALSE'
+          echo 'PRESERVATION_WHOLE_NEXUS_DIGEST_PUBLICATION=FALSE'
+          echo 'PRESERVATION_SOURCE_WRITEBACK=FALSE'
