@@ -1,0 +1,74 @@
+name: JANUS AI provider default deny v18.7.56
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_ai.py'
+      - 'genesis_v18_7_network.py'
+      - 'genesis_v18_7_50_armor_routing.py'
+      - 'tests/test_genesis_v18_7_50_armor_routing.py'
+      - 'tests/test_genesis_v18_7_55_legacy_network_default_deny.py'
+      - 'tests/test_genesis_v18_7_56_ai_provider_default_deny.py'
+      - 'tools/audit_legacy_direct_egress_v18_7_56.py'
+      - '.github/workflows/janus-ai-provider-default-deny-v18-7-56.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_ai.py'
+      - 'genesis_v18_7_network.py'
+      - 'genesis_v18_7_50_armor_routing.py'
+      - 'tests/test_genesis_v18_7_50_armor_routing.py'
+      - 'tests/test_genesis_v18_7_55_legacy_network_default_deny.py'
+      - 'tests/test_genesis_v18_7_56_ai_provider_default_deny.py'
+      - 'tools/audit_legacy_direct_egress_v18_7_56.py'
+      - '.github/workflows/janus-ai-provider-default-deny-v18-7-56.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  ai-provider-default-deny:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install declared runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile hardening surfaces
+        run: |
+          python -m py_compile \
+            genesis_v18_7_ai.py \
+            genesis_v18_7_network.py \
+            genesis_v18_7_50_armor_routing.py \
+            tests/test_genesis_v18_7_50_armor_routing.py \
+            tests/test_genesis_v18_7_55_legacy_network_default_deny.py \
+            tests/test_genesis_v18_7_56_ai_provider_default_deny.py \
+            tools/audit_legacy_direct_egress_v18_7_56.py
+
+      - name: Run canonical routing and default-deny regression tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_v18_7_50_armor_routing \
+            tests.test_genesis_v18_7_55_legacy_network_default_deny \
+            tests.test_genesis_v18_7_56_ai_provider_default_deny
+
+      - name: Audit v18.7.56 scope and remaining debt
+        run: python tools/audit_legacy_direct_egress_v18_7_56.py
+
+      - name: Smoke canonical armored launcher
+        run: python play_genesis_armored.py --help >/dev/null
+
+      - name: Preserve v18.7.56 claim ceiling
+        run: |
+          grep -q 'LEGACY_DIRECT_AI_EGRESS_DEFAULT_DENY' genesis_v18_7_ai.py
+          grep -q 'canonical_ai_transient_provider_admission_after_armor_pass.*True' genesis_v18_7_50_armor_routing.py
+          grep -q 'canonical_ai_provider_admission_restored_in_finally.*True' genesis_v18_7_50_armor_routing.py
+          grep -q 'repository_wide_complete_routing_coverage_proven.*False' tools/audit_legacy_direct_egress_v18_7_56.py
+          grep -q 'janus_genesis.py.*LEGACY_ROOT_GEMINI_NARRATOR_EGRESS_NOT_YET_DEFAULT_DENIED' tools/audit_legacy_direct_egress_v18_7_56.py
