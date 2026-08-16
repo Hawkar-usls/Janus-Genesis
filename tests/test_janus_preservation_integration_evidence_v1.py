@@ -23,6 +23,11 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
                 "pull_request": 125,
                 "sha": "2" * 40,
             },
+            "source_pin_contract": {
+                "repository": "Hawkar-usls/Janus_Genesis",
+                "pull_request": 126,
+                "sha": "6" * 40,
+            },
             "variant_lineage": {
                 "repository": "Hawkar-usls/Janus_Genesis",
                 "pull_request": 123,
@@ -64,6 +69,15 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
                 "source_writeback_observed": False,
                 "destructive_cleanup_required_for_pass": False,
             },
+            "source_pins": {
+                "typed_pinset_validated": True,
+                "exact_git_replay_required": True,
+                "git_commit_kind": "GIT_COMMIT_SHA1",
+                "opaque_version_kind": "OPAQUE_VERSION_TOKEN",
+                "type_inference_used": False,
+                "private_exact_pin_publication": False,
+                "whole_pinset_digest_publication": False,
+            },
             "lineage": {
                 "expected_head_digest": "b" * 64,
                 "observed_head_digest": "b" * 64,
@@ -98,6 +112,7 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         result = evaluate(self.bundle(), self.lock())
         self.assertEqual(result["decision"], "EVIDENCE_BUNDLE_CONSISTENT")
         self.assertTrue(result["clean_target_rebuild_exercised"])
+        self.assertTrue(result["typed_source_pin_contract_passed"])
         self.assertTrue(result["failed_variant_retention"])
         self.assertTrue(result["conflict_retention_and_hold_reconcile"])
         self.assertTrue(result["swarm_session_drop_recovery"])
@@ -107,7 +122,7 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
 
     def test_producer_refs_must_match_external_lock(self) -> None:
         bundle = self.bundle()
-        bundle["producer_refs"]["materializer"]["sha"] = "6" * 40  # type: ignore[index]
+        bundle["producer_refs"]["materializer"]["sha"] = "7" * 40  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "producer refs do not match"):
             evaluate(bundle, self.lock())
 
@@ -129,6 +144,22 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         lock["producer_refs"]["materializer"]["pull_request"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "positive integer PR"):
             evaluate(self.bundle(), lock)
+
+    def test_source_pin_contract_is_mandatory_and_never_inferred(self) -> None:
+        inferred = self.bundle()
+        inferred["source_pins"]["type_inference_used"] = True  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
+            evaluate(inferred, self.lock())
+
+        wrong_kind = self.bundle()
+        wrong_kind["source_pins"]["git_commit_kind"] = "OPAQUE_VERSION_TOKEN"  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "must be GIT_COMMIT_SHA1"):
+            evaluate(wrong_kind, self.lock())
+
+        leaked = self.bundle()
+        leaked["source_pins"]["private_exact_pin_publication"] = True  # type: ignore[index]
+        with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
+            evaluate(leaked, self.lock())
 
     def test_independent_rebuild_digest_mismatch_is_rejected(self) -> None:
         bundle = self.bundle()
