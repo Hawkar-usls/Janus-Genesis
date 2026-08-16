@@ -1,0 +1,30 @@
+{
+  "schema": "janus.git_habitat.nexus_intent_guarded_dispatch_state.v1",
+  "state_id": "NEXUS-INTENT-GUARDED-DISPATCH-CERTIFIED-v1.6",
+  "recorded_at_local": "2026-08-17T00:20:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "b4071b6a69779bc43a1cc58c9034432ab19dd539",
+  "status": "CERTIFIED_INTENT_GUARDED_LOCAL_DISPATCH_ADVERSARIAL_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-INTENT-GUARDED-DISPATCH-ADVERSARIAL-EXACT-HEAD-CI-CERTIFICATE-v1.6.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-DISPATCH-AUTHORITY-v2.json",
+  "certified_properties": {
+    "intent_identity_independent_of_handler_version": true,
+    "unique_persistent_intent_constraint": true,
+    "concurrent_duplicate_holdout_passed": true,
+    "restart_holdout_passed": true,
+    "lock_contention_holdout_passed": true,
+    "corrupt_and_unavailable_storage_fail_closed": true,
+    "ambiguous_completion_no_retry": true
+  },
+  "boundaries": {
+    "socket_listener_enabled": false,
+    "network_io_performed": false,
+    "cross_repository_delivery": false,
+    "guaranteed_delivery": false,
+    "exactly_once_delivery": false,
+    "automatic_retry": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "SEPARATE_LOCALHOST_ONLY_SOCKET_CANDIDATE_LISTENER_DISABLED_BY_DEFAULT"
+}
