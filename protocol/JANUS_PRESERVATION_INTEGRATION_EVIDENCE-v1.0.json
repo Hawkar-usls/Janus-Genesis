@@ -1,0 +1,93 @@
+{
+  "schema": "janus.nexus.preservation_integration_evidence.contract.v1",
+  "version": "1.0",
+  "roadmap": "Hawkar-usls/Janus_Genesis#121",
+  "preregistration_receipt": "5308388940",
+  "gate": "P0_PRESERVATION_INTEGRATION_EVIDENCE_V1",
+  "status": "IMPLEMENTATION_PRIMITIVE",
+  "purpose": "Admit a locally produced cross-lane evidence bundle only when it is internally consistent with an independently supplied exact producer-head lock and the pre-registered P0 preservation conditions, then emit a privacy-safe public summary.",
+  "producer_lanes": [
+    "materializer",
+    "privacy_projection",
+    "variant_lineage",
+    "handoff_ledger",
+    "swarm_recovery"
+  ],
+  "external_lock": {
+    "required": true,
+    "producer_head_format": "exact_lowercase_40_hex_git_sha",
+    "bundle_must_match_lock_exactly": true,
+    "self_declared_bundle_heads_are_sufficient": false,
+    "expected_source_count": 44,
+    "privacy_mode": "LOCAL_EVIDENCE_PUBLIC_REDACTED_SUMMARY"
+  },
+  "pre_registered_conditions": {
+    "clean_target_rebuild_exercised": true,
+    "independent_rebuild_identity_reproduced": true,
+    "local_exact_replay_passed": true,
+    "privacy_projection_passed": true,
+    "lineage_expected_head_digest_reproduced": true,
+    "at_least_one_failed_variant_retained": true,
+    "handoff_expected_head_digest_reproduced": true,
+    "at_least_two_conflicting_messages_retained": true,
+    "handoff_reconciliation_status": "HOLD_RECONCILE",
+    "majority_vote_used": false,
+    "swarm_session_drop_exercised": true,
+    "swarm_resume_decision": "RESUME",
+    "source_pin_drift": false,
+    "duplicate_source_mutation_observed": false,
+    "source_identity_before_equals_after": true,
+    "source_writeback_observed": false,
+    "destructive_effect_observed": false,
+    "destructive_cleanup_required_for_pass": false
+  },
+  "privacy_boundary": {
+    "local_bundle_may_contain_sensitive_digests": true,
+    "public_summary_contains_local_rebuild_digests": false,
+    "public_summary_contains_lineage_head_digest": false,
+    "public_summary_contains_failed_variant_ids": false,
+    "public_summary_contains_handoff_head_digest": false,
+    "public_summary_contains_conflict_message_ids": false,
+    "public_summary_contains_swarm_checkpoint_or_receipt_digest": false,
+    "public_summary_contains_source_identity_digest": false,
+    "public_summary_contains_source_pins": false,
+    "public_summary_may_contain_public_producer_code_heads": true,
+    "public_summary_binds_external_lock_digest": true
+  },
+  "effect_boundary": {
+    "repository_acquisition": false,
+    "source_materialization": false,
+    "producer_receipt_generation": false,
+    "network_transport": false,
+    "subprocess_execution": false,
+    "source_writeback": false,
+    "source_delete": false,
+    "history_rewrite": false,
+    "command_execution": false,
+    "file_output": false,
+    "stdout_summary_only": true
+  },
+  "canonical_laws": [
+    "BUNDLE_CONSISTENCY != EMPIRICAL_REPLAY",
+    "SELF_DECLARED_HEAD != EXTERNAL_HEAD_LOCK",
+    "PUBLIC_SUMMARY != PRIVATE_EVIDENCE_DUMP",
+    "EXPECTED_DIGEST != OBSERVED_DIGEST -> REJECT",
+    "FAILED_VARIANT_RETENTION_REQUIRED",
+    "CONFLICT_RETENTION_REQUIRED",
+    "HOLD_RECONCILE_REQUIRED_FOR_CONFLICT_FIXTURE",
+    "MAJORITY_VOTE != CONFLICT_RESOLUTION",
+    "SESSION_DROP_RECOVERY_REQUIRED",
+    "SOURCE_IDENTITY_CHANGE -> REJECT",
+    "SOURCE_WRITEBACK_OBSERVED -> REJECT",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "authority_boundary": {
+    "evidence_consistency_is_truth": false,
+    "evidence_consistency_is_empirical_replay": false,
+    "evidence_consistency_is_merge_permission": false,
+    "evidence_consistency_is_writeback_permission": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "claim_ceiling": "This verifier can establish only that a supplied local cross-lane evidence bundle is internally consistent with an external exact producer-head lock and the pre-registered P0 conditions. It cannot establish that producer harnesses honestly generated the evidence, that all real owner repositories were replayed, or that any merge, source mutation, execution, or external-effect authority exists."
+}
