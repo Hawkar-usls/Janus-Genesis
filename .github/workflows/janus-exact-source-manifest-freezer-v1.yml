@@ -48,14 +48,20 @@ jobs:
       - name: Run exact-source manifest freezer adversarial contract
         run: python -m unittest discover -s tests -p 'test_janus_exact_source_manifest_freezer_v1.py' -v
 
-      - name: Enforce offline authority-neutral freezer surface
+      - name: Enforce offline privacy-safe authority-neutral freezer surface
         shell: bash
         run: |
           set -euo pipefail
           ! grep -Eq 'git[[:space:]]+(clone|fetch|push)|gh[[:space:]]+|requests\.|urllib\.request|httpx\.|curl[[:space:]]|wget[[:space:]]' tools/janus_exact_source_manifest_freezer.py
           grep -F '"network_access": false' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
           grep -F '"source_writeback": false' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
+          grep -F '"constellation_binding_projection": "CLOSED_PUBLIC_SAFE_SOURCE_INVENTORY_ONLY"' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
+          grep -F '"raw_caller_top_level_metadata_in_digest_domain": false' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
+          grep -F '"raw_constellation_digest": "FORBIDDEN"' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
+          grep -F '"output_create": "OPENAT_RELATIVE_TO_PINNED_PARENT_FD_WITH_O_EXCL_AND_O_NOFOLLOW"' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
           grep -F '"A_authenticated_exact_source_manifest": "NOT_ESTABLISHED_BY_IMPLEMENTATION_TESTS"' protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
           echo 'EXACT_SOURCE_MANIFEST_FREEZER_NETWORK_ACCESS=FALSE'
           echo 'EXACT_SOURCE_MANIFEST_FREEZER_SOURCE_WRITEBACK=FALSE'
+          echo 'EXACT_SOURCE_MANIFEST_PRIVATE_HISTORY_PUBLIC_FINGERPRINT=ABSENT_BY_CONTRACT'
+          echo 'EXACT_SOURCE_MANIFEST_OUTPUT_CREATE=PINNED_PARENT_FD_OPENAT'
           echo 'REAL_44_SOURCE_MANIFEST_CLAIM=NOT_ESTABLISHED'
