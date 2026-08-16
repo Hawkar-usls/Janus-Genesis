@@ -25,10 +25,10 @@ SHA_A = "a" * 40
 SHA_B = "b" * 40
 
 
-def pinset(rows):
+def pinset(rows, pinset_id="TEST-PINSET"):
     return {
         "schema": "janus.source_pin_set.v1",
-        "pinset_id": "TEST-PINSET",
+        "pinset_id": pinset_id,
         "sources": rows,
     }
 
@@ -138,18 +138,40 @@ class JanusSourcePinContractTests(unittest.TestCase):
                 )
             )
 
-    def test_private_projection_omits_exact_value_and_whole_digest(self):
+    def test_private_source_id_must_be_opaque_numeric(self):
+        with self.assertRaisesRegex(
+            SourcePinContractError,
+            "PRIVATE_SOURCE_ID_MUST_BE_OPAQUE_NUMERIC",
+        ):
+            validate_pinset(
+                pinset(
+                    [
+                        row(
+                            "private-repository-name",
+                            SHA_B,
+                            visibility="private",
+                        )
+                    ]
+                )
+            )
+
+    def test_private_projection_omits_exact_value_whole_digest_and_local_id(self):
+        secret_pinset_id = "PRIVATE-REPOSITORY-NAME-MUST-NOT-LEAK"
         value = pinset(
             [
                 row("1089782172", SHA_A, visibility="public"),
                 row("1112728873", SHA_B, visibility="private"),
-            ]
+            ],
+            pinset_id=secret_pinset_id,
         )
         projected = public_projection(value)
         serialized = json.dumps(projected, sort_keys=True)
         self.assertIn(SHA_A, serialized)
         self.assertNotIn(SHA_B, serialized)
+        self.assertNotIn(secret_pinset_id, serialized)
         self.assertNotIn("pinset_digest", projected)
+        self.assertNotIn("pinset_id", projected)
+        self.assertFalse(projected["local_pinset_id_published"])
         self.assertFalse(projected["whole_pinset_digest_published"])
         private = next(
             item for item in projected["sources"] if item["visibility"] == "private"
