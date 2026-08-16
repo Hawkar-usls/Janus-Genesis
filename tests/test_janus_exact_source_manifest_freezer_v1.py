@@ -219,13 +219,14 @@ class ExactSourceManifestFreezerTests(unittest.TestCase):
         second["private_repository_slots"] = list(
             reversed(second["private_repository_slots"])
         )
+        pins = pinset_for(first)
         self.assertEqual(
             constellation_binding_digest(first),
             constellation_binding_digest(second),
         )
         self.assertEqual(
-            freeze_exact_source_manifest(pinset_for(first), first),
-            freeze_exact_source_manifest(pinset_for(second), second),
+            freeze_exact_source_manifest(pins, first),
+            freeze_exact_source_manifest(pins, second),
         )
 
     def test_missing_or_extra_source_fails_closed(self):
