@@ -1,0 +1,104 @@
+name: JANUS Power Memory Runtime Adapter v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_power_compute_fabric.py'
+      - 'tools/janus_power_compute_fabric_v1_1.py'
+      - 'tools/janus_hippocampus_hdd_buffer.py'
+      - 'tools/janus_power_memory_runtime_adapter.py'
+      - 'tests/test_janus_power_compute_fabric_v1.py'
+      - 'tests/test_janus_power_compute_fabric_v1_1.py'
+      - 'tests/test_janus_hippocampus_hdd_buffer_v2.py'
+      - 'tests/test_janus_power_memory_runtime_adapter_v1.py'
+      - 'protocol/JANUS_POWER_COMPUTE_FABRIC-v1.0.json'
+      - 'protocol/JANUS_POWER_COMPUTE_FABRIC-v1.1.json'
+      - 'protocol/JANUS_HIPPOCAMPUS_HDD_BUFFER-v2.0.json'
+      - 'protocol/JANUS_POWER_MEMORY_RUNTIME_ADAPTER-v1.0.json'
+      - '.github/workflows/janus-power-memory-runtime-adapter-v1.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/janus_power_memory_runtime_adapter.py'
+      - 'tests/test_janus_power_memory_runtime_adapter_v1.py'
+      - 'protocol/JANUS_POWER_MEMORY_RUNTIME_ADAPTER-v1.0.json'
+      - '.github/workflows/janus-power-memory-runtime-adapter-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify exact integration ancestry and Memory blobs
+        run: |
+          set -euo pipefail
+          test "$(git show -s --format=%P 19d2809e698d397090a0b92d25403da1bbb27e0f)" = "c8e3ddba158934cefaadb0af1ad0d069f3ce61a9 938adb84975fa6a91cf6db89e9c95bf08c8fbdc9"
+          test "$(git hash-object tools/janus_hippocampus_hdd_buffer.py)" = "2c20a79e86aa489a6ffb55d8bc8493a74621707a"
+          test "$(git hash-object tests/test_janus_hippocampus_hdd_buffer_v2.py)" = "b33b98ee450b03f2dadf4c680777e26006b22038"
+          test "$(git hash-object protocol/JANUS_HIPPOCAMPUS_HDD_BUFFER-v2.0.json)" = "550e96f35e9a81c2fe4afbfc64740fbce090bcf6"
+          test "$(git hash-object .github/workflows/janus-hippocampus-hdd-buffer-v2.yml)" = "07bc2cb538b2ee36f7a07a4fc0720025122375d9"
+      - name: Compile complete bounded runtime surface
+        run: |
+          python -m py_compile tools/janus_power_compute_fabric.py
+          python -m py_compile tools/janus_power_compute_fabric_v1_1.py
+          python -m py_compile tools/janus_hippocampus_hdd_buffer.py
+          python -m py_compile tools/janus_power_memory_runtime_adapter.py
+          python -m py_compile tests/test_janus_power_memory_runtime_adapter_v1.py
+      - name: Validate adapter contract with duplicate-key rejection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def unique_pairs(pairs):
+              out = {}
+              for key, value in pairs:
+                  if key in out:
+                      raise ValueError(f'duplicate key: {key}')
+                  out[key] = value
+              return out
+
+          p = Path('protocol/JANUS_POWER_MEMORY_RUNTIME_ADAPTER-v1.0.json')
+          data = json.loads(p.read_text(encoding='utf-8'), object_pairs_hook=unique_pairs)
+          assert data['exact_lineage']['integration_parent_sha'] == '19d2809e698d397090a0b92d25403da1bbb27e0f'
+          assert data['effect_boundary']['authority_delta'] == 0
+          assert data['effect_boundary']['mass_effect_budget_delta'] == 0
+          assert data['claim_ceiling']['live_janus_runtime_wired'] is False
+          print('adapter-contract: PASS')
+          PY
+      - name: Enforce adapter effect delta is local-only
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          path = Path('tools/janus_power_memory_runtime_adapter.py')
+          tree = ast.parse(path.read_text(encoding='utf-8'))
+          forbidden = {'aiohttp', 'requests', 'socket', 'subprocess', 'boto3', 'paramiko'}
+          imported = set()
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  imported.update(alias.name.split('.')[0] for alias in node.names)
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  imported.add(node.module.split('.')[0])
+          assert not (imported & forbidden), imported & forbidden
+          print('adapter-effect-delta: PASS')
+          PY
+      - name: Replay exact Memory component tests
+        run: python -m unittest -v tests.test_janus_hippocampus_hdd_buffer_v2
+      - name: Replay exact Power v1 tests
+        run: python -m unittest -v tests.test_janus_power_compute_fabric_v1
+      - name: Replay additive Power v1.1 tests
+        run: python -m unittest -v tests.test_janus_power_compute_fabric_v1_1
+      - name: Run Power Memory integration falsification tests
+        run: python -m unittest -v tests.test_janus_power_memory_runtime_adapter_v1

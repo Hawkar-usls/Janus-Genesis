@@ -1,0 +1,80 @@
+name: JANUS Memory Backend Role Map v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_hippocampus_hdd_buffer.py'
+      - 'tools/janus_storj_neighbor_cortex_memory.py'
+      - 'tools/janus_power_memory_runtime_adapter.py'
+      - 'tests/test_janus_hippocampus_hdd_buffer_v2.py'
+      - 'tests/test_janus_storj_neighbor_cortex_memory_v1.py'
+      - 'tests/test_janus_power_memory_runtime_adapter_v1.py'
+      - 'tests/test_janus_memory_backend_role_map_v1.py'
+      - 'protocol/JANUS_MEMORY_BACKEND_ROLE_MAP-v1.0.json'
+      - '.github/workflows/janus-memory-backend-role-map-v1.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tests/test_janus_memory_backend_role_map_v1.py'
+      - 'protocol/JANUS_MEMORY_BACKEND_ROLE_MAP-v1.0.json'
+      - '.github/workflows/janus-memory-backend-role-map-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify full-green adapter plus exact Cortex ancestry
+        run: |
+          set -euo pipefail
+          test "$(git show -s --format=%P 950de94d95d18e0a7dd2ba25af1788b9e86c1d92)" = "426d25acdb04b3e9a1256e75670c5b2f5b42d802 bb3c79fbae7f6f6af670562c2e0b868ca056fa89"
+          test "$(git hash-object tools/janus_hippocampus_hdd_buffer.py)" = "2c20a79e86aa489a6ffb55d8bc8493a74621707a"
+          test "$(git hash-object tools/janus_storj_neighbor_cortex_memory.py)" = "0ade2cc325e09e409026bea2d6f5b01f624edcee"
+          test "$(git hash-object tools/janus_power_memory_runtime_adapter.py)" = "6d2a4b57ef9a5f8b64ff2b88d7f149a80ca6ea05"
+      - name: Validate role map with duplicate-key rejection
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def unique_pairs(pairs):
+              out = {}
+              for key, value in pairs:
+                  if key in out:
+                      raise ValueError(f'duplicate key: {key}')
+                  out[key] = value
+              return out
+
+          path = Path('protocol/JANUS_MEMORY_BACKEND_ROLE_MAP-v1.0.json')
+          data = json.loads(path.read_text(encoding='utf-8'), object_pairs_hook=unique_pairs)
+          assert data['routing']['dual_write_default'] == 'DENY'
+          assert data['routing']['power_telemetry_to_cortex_default'] is False
+          assert data['admission']['selective_projection_adapter'] == 'NOT_IMPLEMENTED'
+          assert data['authority_delta'] == 0
+          assert data['mass_effect_budget_delta'] == 0
+          print('memory-role-contract: PASS')
+          PY
+      - name: Compile combined memory surface
+        run: |
+          python -m py_compile tools/janus_hippocampus_hdd_buffer.py
+          python -m py_compile tools/janus_storj_neighbor_cortex_memory.py
+          python -m py_compile tools/janus_power_memory_runtime_adapter.py
+          python -m py_compile tests/test_janus_memory_backend_role_map_v1.py
+      - name: Replay Hippocampus journal tests
+        run: python -m unittest -v tests.test_janus_hippocampus_hdd_buffer_v2
+      - name: Replay Cortex episodic/search tests
+        run: python -m unittest -v tests.test_janus_storj_neighbor_cortex_memory_v1
+      - name: Replay Power Memory adapter tests
+        run: python -m unittest -v tests.test_janus_power_memory_runtime_adapter_v1
+      - name: Enforce memory role separation
+        run: python -m unittest -v tests.test_janus_memory_backend_role_map_v1

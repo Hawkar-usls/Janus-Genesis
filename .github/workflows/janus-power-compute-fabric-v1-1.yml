@@ -1,0 +1,88 @@
+name: JANUS Power Compute Fabric v1.1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_power_compute_fabric.py'
+      - 'tools/janus_power_compute_fabric_v1_1.py'
+      - 'tests/test_janus_power_compute_fabric_v1.py'
+      - 'tests/test_janus_power_compute_fabric_v1_1.py'
+      - 'protocol/JANUS_POWER_COMPUTE_FABRIC-v1.0.json'
+      - 'protocol/JANUS_POWER_COMPUTE_FABRIC-v1.1.json'
+      - '.github/workflows/janus-power-compute-fabric-v1.yml'
+      - '.github/workflows/janus-power-compute-fabric-v1-1.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/janus_power_compute_fabric.py'
+      - 'tools/janus_power_compute_fabric_v1_1.py'
+      - 'tests/test_janus_power_compute_fabric_v1.py'
+      - 'tests/test_janus_power_compute_fabric_v1_1.py'
+      - 'protocol/JANUS_POWER_COMPUTE_FABRIC-v1.0.json'
+      - 'protocol/JANUS_POWER_COMPUTE_FABRIC-v1.1.json'
+      - '.github/workflows/janus-power-compute-fabric-v1.yml'
+      - '.github/workflows/janus-power-compute-fabric-v1-1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile v1 plus additive v1.1 surface
+        run: |
+          python -m py_compile tools/janus_power_compute_fabric.py
+          python -m py_compile tools/janus_power_compute_fabric_v1_1.py
+          python -m py_compile tests/test_janus_power_compute_fabric_v1.py
+          python -m py_compile tests/test_janus_power_compute_fabric_v1_1.py
+      - name: Validate additive contract and parent immutability declarations
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          def unique_pairs(pairs):
+              out = {}
+              for key, value in pairs:
+                  if key in out:
+                      raise ValueError(f'duplicate key: {key}')
+                  out[key] = value
+              return out
+
+          p = Path('protocol/JANUS_POWER_COMPUTE_FABRIC-v1.1.json')
+          data = json.loads(p.read_text(encoding='utf-8'), object_pairs_hook=unique_pairs)
+          assert data['parent']['exact_head_sha'] == '64038ff04517573a51e67d57a9aed2f861f52855'
+          assert data['parent']['relationship'] == 'ADDITIVE_SUCCESSOR_DO_NOT_REWRITE_V1'
+          assert data['effect_boundary_delta'] == 0
+          assert data['authority_delta'] == 0
+          print('v1.1-contract: PASS')
+          PY
+      - name: Enforce additive no-transport hardening surface
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+
+          path = Path('tools/janus_power_compute_fabric_v1_1.py')
+          tree = ast.parse(path.read_text(encoding='utf-8'))
+          forbidden = {'aiohttp', 'requests', 'socket', 'subprocess', 'boto3', 'paramiko'}
+          imported = set()
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  imported.update(alias.name.split('.')[0] for alias in node.names)
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  imported.add(node.module.split('.')[0])
+          assert not (imported & forbidden), imported & forbidden
+          print('v1.1-effect-delta: PASS')
+          PY
+      - name: Replay parent Power falsification suite
+        run: python -m unittest -v tests.test_janus_power_compute_fabric_v1
+      - name: Run v1.1 deadline and memory API regressions
+        run: python -m unittest -v tests.test_janus_power_compute_fabric_v1_1
