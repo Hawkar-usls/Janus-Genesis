@@ -1,0 +1,38 @@
+{
+  "schema": "janus.git_habitat.nexus_phase_boundary_recovery_state.v1",
+  "state_id": "NEXUS-PHASE-BOUNDARY-MANUAL-CRASH-RECOVERY-CERTIFIED-v1.10",
+  "recorded_at_local": "2026-08-17T02:40:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "971dedcea1c1d984f980f17dd52f39ddd4ed424f",
+  "parent_lifecycle_exact_head": "21f2e21129971abf45ab76833fd31a61a202ba03",
+  "status": "CERTIFIED_PHASE_BOUNDARY_MANUAL_CRASH_RECOVERY_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-PHASE-BOUNDARY-MANUAL-CRASH-RECOVERY-EXACT-HEAD-CI-CERTIFICATE-v1.10.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-RECOVERY-AUTHORITY-v1.json",
+  "frozen_holdout": {
+    "path": "fixtures/nexus_phase_boundary_crash_recovery_holdout_v1.json",
+    "cases": 13,
+    "freeze_sha256": "e3946b4f95262598203f46c46ca2998ffffaa26a9124b52a877424acc963452d"
+  },
+  "recovery_semantics": {
+    "pre_dispatch_clean_recovery": "OPERATOR_ACK + PROCESS_DEAD_ATTESTATION + ZERO_FRAME_BOUND_DISPATCH_EVIDENCE",
+    "post_dispatch_or_execution_uncertain": "CLOSED_AMBIGUOUS",
+    "contradictory_pre_dispatch_dispatch_evidence": "HOLD_NO_MUTATION",
+    "dispatch_evidence_unavailable": "HOLD_NO_MUTATION",
+    "unknown_phase": "HOLD_NO_MUTATION",
+    "dispatch_and_replay_ledgers_reset": false
+  },
+  "boundaries": {
+    "real_sigkill_tested": false,
+    "real_power_loss_tested": false,
+    "process_death_independently_verified": false,
+    "automatic_recovery": false,
+    "automatic_restart": false,
+    "automatic_retry": false,
+    "cross_host_transport": false,
+    "persistent_daemon": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "REAL_SUBPROCESS_TERMINATION_PRE_DISPATCH_DURABILITY_HOLDOUT"
+}
