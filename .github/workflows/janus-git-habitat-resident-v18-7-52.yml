@@ -25,7 +25,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  OLLAMA_INSTALL_SHA256: 5f8d33dbbd55f5034c9ce0ff9a6433abf4596583f42688bf0767f058d72491e5
+  OLLAMA_INSTALL_URL: https://github.com/ollama/ollama/releases/download/v0.30.8/ollama-linux-amd64.tar.zst
+  OLLAMA_INSTALL_SHA256: ffe2b2c2f2f5f5b30c081ec353c2e0bb2d9ead516064a8e22663b24b8fd8dca0
   RESIDENT_MODEL: qwen2.5:0.5b-instruct-q4_K_M
   RESIDENT_MODEL_DIGEST_PREFIX: a8b0c5157701
 
@@ -101,7 +102,7 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL --retry 5 --retry-delay 2 \
-            https://ollama.com/download/ollama-linux-amd64.tar.zst \
+            "${OLLAMA_INSTALL_URL}" \
             -o /tmp/ollama-linux-amd64.tar.zst
           echo "${OLLAMA_INSTALL_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
           sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
@@ -234,7 +235,7 @@ jobs:
         run: |
           set -euo pipefail
           curl -fsSL --retry 5 --retry-delay 2 \
-            https://ollama.com/download/ollama-linux-amd64.tar.zst \
+            "${OLLAMA_INSTALL_URL}" \
             -o /tmp/ollama-linux-amd64.tar.zst
           echo "${OLLAMA_INSTALL_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
           sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
