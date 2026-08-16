@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import sys
 from pathlib import Path
 
 from genesis_v18_7_40_third_wish_capability_fabric import ThirdWishCapabilityFabric
@@ -97,7 +96,8 @@ def main(argv: list[str] | None = None) -> int:
             "exception_sha256": hashlib.sha256(
                 f"{type(exc).__name__}:{exc}".encode("utf-8")
             ).hexdigest(),
-            "automatic_external_effect_execution": False,
+            "model_provider_call_may_have_been_entered": True,
+            "resident_choice_external_effect_executed": False,
             "automatic_retry_permission": False,
         }
         print(json.dumps(failure, sort_keys=True, indent=2))
@@ -121,8 +121,9 @@ def main(argv: list[str] | None = None) -> int:
         "journal_last_event_hash": verification["last_event_hash"],
         "habitat_health": health["status"],
         "model_call_crossed_third_wish_capability": True,
+        "model_provider_call_executed": True,
         "model_output_directly_executed": False,
-        "external_effect_executed": False,
+        "resident_choice_external_effect_executed": False,
         "outbox_auto_execution": False,
         "consciousness_claimed": False,
     }
