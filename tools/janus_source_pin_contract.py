@@ -28,6 +28,7 @@ PINSET_FIELDS = frozenset({"schema", "pinset_id", "sources"})
 SOURCE_FIELDS = frozenset({"source_id", "visibility", "source_kind", "pin"})
 PIN_FIELDS = frozenset({"kind", "value"})
 SOURCE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+-]{0,239}$")
+PRIVATE_SOURCE_ID = re.compile(r"^[0-9]{1,32}$")
 FULL_GIT_SHA1 = re.compile(r"^[0-9a-f]{40}$")
 OPAQUE_TOKEN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/+@=-]{0,255}$")
 
@@ -93,6 +94,8 @@ def validate_pinset(value: Any) -> dict[str, Any]:
             raise SourcePinContractError("SOURCE_PIN_SOURCE_ID_DUPLICATE")
         if visibility not in ALLOWED_VISIBILITY:
             raise SourcePinContractError("SOURCE_PIN_VISIBILITY_INVALID")
+        if visibility == "private" and not PRIVATE_SOURCE_ID.fullmatch(source_id):
+            raise SourcePinContractError("PRIVATE_SOURCE_ID_MUST_BE_OPAQUE_NUMERIC")
         if source_kind not in ALLOWED_SOURCE_KINDS:
             raise SourcePinContractError("SOURCE_PIN_SOURCE_KIND_INVALID")
         normalized.append(
@@ -176,8 +179,9 @@ def adapt_legacy_source_pins(
 def public_projection(value: Any) -> dict[str, Any]:
     """Project a validated local pinset without exposing private pin values.
 
-    The projection intentionally has no whole-pinset digest because that digest
-    would commit to private exact pin values and become a public fingerprint.
+    The projection intentionally omits both the whole-pinset digest and the
+    local ``pinset_id``. Either could become an accidental public fingerprint
+    or carry caller-supplied private naming metadata.
     """
     normalized = validate_pinset(value)
     projected: list[dict[str, Any]] = []
@@ -200,8 +204,8 @@ def public_projection(value: Any) -> dict[str, Any]:
         projected.append(base)
     return {
         "schema": PUBLIC_PROJECTION_SCHEMA,
-        "pinset_id": normalized["pinset_id"],
         "source_count": len(projected),
+        "local_pinset_id_published": False,
         "private_pin_values_published": False,
         "whole_pinset_digest_published": False,
         "sources": projected,
