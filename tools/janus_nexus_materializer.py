@@ -150,8 +150,6 @@ def _pinned_tree_blobs(repo: Path, commit_sha: str) -> list[tuple[Path, str, str
         except (ValueError, UnicodeDecodeError) as exc:
             raise NexusMaterializerError("NEXUS_GIT_TREE_RECORD_INVALID") from exc
         if object_type != "blob" or mode not in REGULAR_BLOB_MODES:
-            # Symlinks (120000), gitlinks/submodules (160000), and unusual tree
-            # entries are not admitted into the executable-looking lab body.
             raise NexusMaterializerError(
                 f"NEXUS_SOURCE_ENTRY_TYPE_REJECTED:{rel.as_posix()}:{mode}:{object_type}"
             )
@@ -264,6 +262,15 @@ class NexusMaterializer:
             receipt["repository"] = row["repository"]
         return receipt
 
+    def _expected_source_receipt(self, manifest_row: dict[str, Any]) -> dict[str, Any]:
+        checkout = self._source_checkout(manifest_row)
+        self._verify_checkout_pin(manifest_row, checkout)
+        files: list[dict[str, Any]] = []
+        for rel, blob_sha, git_mode in _pinned_tree_blobs(checkout, manifest_row["sha"]):
+            raw = _git(checkout, "cat-file", "blob", blob_sha)
+            files.append(_file_record(raw, rel, blob_sha, git_mode))
+        return self._source_receipt(manifest_row, files)
+
     def _existing_receipt(self) -> dict[str, Any] | None:
         if not self.receipt_path.exists():
             return None
@@ -348,7 +355,10 @@ class NexusMaterializer:
     def verify(self) -> dict[str, Any]:
         if not self.receipt_path.is_file() or self.receipt_path.is_symlink():
             return {"ok": False, "errors": ["NEXUS_RECEIPT_MISSING"]}
-        receipt = _read_json(self.receipt_path)
+        try:
+            receipt = _read_json(self.receipt_path)
+        except NexusMaterializerError:
+            return {"ok": False, "errors": ["NEXUS_RECEIPT_UNREADABLE"]}
         errors: list[str] = []
 
         if receipt.get("schema") != RECEIPT_SCHEMA:
@@ -392,11 +402,14 @@ class NexusMaterializer:
             errors.append("NEXUS_SOURCE_RECEIPTS_INVALID")
         if receipt.get("source_count") != len(source_rows):
             errors.append("NEXUS_SOURCE_COUNT_MISMATCH")
+        if receipt.get("source_count") != len(self.manifest["sources"]):
+            errors.append("NEXUS_SOURCE_COUNT_MISMATCH")
 
         manifest_rows = {
             str(row["repository_id"]): row
             for row in self.manifest["sources"]
         }
+        manifest_order = [str(row["repository_id"]) for row in self.manifest["sources"]]
         receipt_ids: list[str] = []
         expected_face_names: set[str] = set()
         basis_sources: list[dict[str, Any]] = []
@@ -408,6 +421,7 @@ class NexusMaterializer:
             repo_id = str(row.get("repository_id") or "")
             receipt_ids.append(repo_id)
             manifest_row = manifest_rows.get(repo_id)
+            expected_receipt: dict[str, Any] | None = None
             if manifest_row is None:
                 errors.append(f"NEXUS_SOURCE_BINDING_MISMATCH:{repo_id}")
             else:
@@ -419,6 +433,13 @@ class NexusMaterializer:
                         errors.append(f"NEXUS_SOURCE_BINDING_MISMATCH:{repo_id}")
                 elif "repository" in row:
                     errors.append(f"NEXUS_PRIVATE_METADATA_LEAK:{repo_id}")
+                try:
+                    expected_receipt = self._expected_source_receipt(manifest_row)
+                except NexusMaterializerError as exc:
+                    errors.append(f"NEXUS_SOURCE_REPLAY_FAILED:{repo_id}:{exc}")
+                else:
+                    if row != expected_receipt:
+                        errors.append(f"NEXUS_SOURCE_RECEIPT_PIN_MISMATCH:{repo_id}")
 
             visibility = row.get("visibility")
             prefix = "public" if visibility == "public" else "private"
@@ -429,7 +450,10 @@ class NexusMaterializer:
                 errors.append(f"NEXUS_BODY_DIR_INVALID:{repo_id}")
                 continue
 
-            file_rows = row.get("files")
+            if expected_receipt is not None:
+                file_rows = expected_receipt["files"]
+            else:
+                file_rows = row.get("files")
             if not isinstance(file_rows, list):
                 errors.append(f"NEXUS_FILE_RECEIPTS_INVALID:{repo_id}")
                 continue
@@ -471,7 +495,12 @@ class NexusMaterializer:
             if recomputed != file_rows:
                 errors.append(f"NEXUS_BODY_FILE_DIGEST_MISMATCH:{repo_id}")
             tree_sha = _sha256_json(recomputed)
-            if tree_sha != row.get("tree_sha256"):
+            expected_tree_sha = (
+                expected_receipt.get("tree_sha256")
+                if expected_receipt is not None
+                else row.get("tree_sha256")
+            )
+            if tree_sha != expected_tree_sha:
                 errors.append(f"NEXUS_TREE_DIGEST_MISMATCH:{repo_id}")
 
             source_json = body_dir / "SOURCE.json"
@@ -485,19 +514,30 @@ class NexusMaterializer:
                     errors.append(f"NEXUS_SOURCE_RECEIPT_UNREADABLE:{repo_id}")
                 if persisted_source_receipt != row:
                     errors.append(f"NEXUS_SOURCE_RECEIPT_MISMATCH:{repo_id}")
+                if expected_receipt is not None and persisted_source_receipt != expected_receipt:
+                    errors.append(f"NEXUS_SOURCE_RECEIPT_PIN_MISMATCH:{repo_id}")
                 if visibility == "private" and any(
                     key in persisted_source_receipt
                     for key in ("repository", "name", "full_name", "clone_url", "html_url")
                 ):
                     errors.append(f"NEXUS_PRIVATE_METADATA_LEAK:{repo_id}")
 
-            basis_sources.append(
-                {
-                    "repository_id": repo_id,
-                    "sha": row.get("sha"),
-                    "tree_sha256": row.get("tree_sha256"),
-                }
-            )
+            if manifest_row is not None and expected_receipt is not None:
+                basis_sources.append(
+                    {
+                        "repository_id": repo_id,
+                        "sha": manifest_row["sha"],
+                        "tree_sha256": expected_receipt["tree_sha256"],
+                    }
+                )
+            else:
+                basis_sources.append(
+                    {
+                        "repository_id": repo_id,
+                        "sha": row.get("sha"),
+                        "tree_sha256": row.get("tree_sha256"),
+                    }
+                )
 
         if len(receipt_ids) != len(set(receipt_ids)):
             errors.append("NEXUS_SOURCE_RECEIPT_ID_DUPLICATE")
@@ -505,6 +545,8 @@ class NexusMaterializer:
             errors.append("NEXUS_SOURCE_SET_MISMATCH")
         if len(source_rows) != len(self.manifest["sources"]):
             errors.append("NEXUS_SOURCE_SET_MISMATCH")
+        if receipt_ids != manifest_order:
+            errors.append("NEXUS_SOURCE_ORDER_MISMATCH")
 
         if faces_root.is_dir() and not faces_root.is_symlink():
             try:
