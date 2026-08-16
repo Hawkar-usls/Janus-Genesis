@@ -77,6 +77,31 @@ class LocalCheckoutCollectorGitEnvironmentTests(unittest.TestCase):
         self.assertEqual(env["GIT_OPTIONAL_LOCKS"], "0")
         self.assertEqual(env["GIT_TERMINAL_PROMPT"], "0")
 
+    def test_plain_child_directory_cannot_inherit_parent_repository_head(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sources = root / "sources"
+            init_repo(sources, "parent-repository\n")
+            child = sources / "1001"
+            child.mkdir()
+
+            with self.assertRaisesRegex(
+                collector.LocalCheckoutPinCollectorError,
+                "SOURCE_CHECKOUT_NOT_GIT_ROOT:1001",
+            ):
+                collector._checkout_for(sources, "1001")
+
+    def test_unicode_sources_root_is_supported_without_path_case_folding(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sources = root / "джерела"
+            sources.mkdir()
+            checkout = sources / "1001"
+            expected = init_repo(checkout, "unicode-root\n")
+
+            self.assertEqual(collector._checkout_for(sources, "1001"), checkout)
+            self.assertEqual(collector._exact_head_commit(checkout, "1001"), expected)
+
 
 if __name__ == "__main__":
     unittest.main()
