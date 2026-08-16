@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - "tools/janus_nexus_materializer.py"
-      - "tests/test_janus_nexus_materializer*.py"
+      - "tests/test_janus_nexus_*.py"
       - "protocol/JANUS_NEXUS_MATERIALIZER-v1.0.json"
       - "protocol/JANUS_NEXUS_MANIFEST-v1.0.schema.json"
       - ".github/workflows/janus-nexus-materializer-v1.yml"
@@ -31,11 +31,11 @@ jobs:
           python -m json.tool protocol/JANUS_NEXUS_MATERIALIZER-v1.0.json >/dev/null
           python -m json.tool protocol/JANUS_NEXUS_MANIFEST-v1.0.schema.json >/dev/null
 
-      - name: Compile materializer and tests
-        run: python -m py_compile tools/janus_nexus_materializer.py tests/test_janus_nexus_materializer*.py
+      - name: Compile Nexus P0 implementation and contract tests
+        run: python -m py_compile tools/janus_nexus_materializer.py tests/test_janus_nexus_*.py
 
-      - name: Run Nexus materializer adversarial and replay tests
-        run: python -m unittest discover -s tests -p 'test_janus_nexus_materializer*.py' -v
+      - name: Run complete Nexus P0 adversarial and replay contract
+        run: python -m unittest discover -s tests -p 'test_janus_nexus_*.py' -v
 
       - name: Enforce authority-neutral surface
         shell: bash
