@@ -1,0 +1,17 @@
+{
+  "schema": "janus.genesis.guardian_mesh.armor_of_god.strict_broker_compatibility.v1_4_2",
+  "artifact_id": "JANUS-GENESIS-GUARDIAN-MESH-ARMOR-OF-GOD-STRICT-BROKER-COMPATIBILITY-HARDENING-v1.4.2",
+  "created_at_local": "2026-08-16T03:41:00+03:00",
+  "parent": "data/JANUS-GENESIS-GUARDIAN-MESH-ARMOR-OF-GOD-RUNTIME-BINDING-v1.4.json",
+  "finding": "_armor_context originally occupied ActionIntent.parameters, but strict existing brokers reject undeclared payload keys. This failed closed rather than bypassing policy, but prevented correct broker composition.",
+  "repair": "Armor evaluates the original intent, then strips _armor_context before both adapter preflight and handler. The original ActionIntent remains unchanged for policy evaluation and request identity.",
+  "law": "ARMOR_CONTEXT = CONTROL_PLANE_METADATA; ARMOR_CONTEXT != BROKER_PAYLOAD",
+  "ci": {
+    "verified_head_sha": "a02ef9a6b600d39ac18a36437bddb6aeb2cb7a72",
+    "workflow_run_id": 31917755721,
+    "job_id": 95092420012,
+    "conclusion": "SUCCESS"
+  },
+  "claim_ceiling": "Strict-broker compatibility is established for the tested composition pattern; complete external-effect routing coverage remains unproven.",
+  "next_gate": "ARMOR_ROUTING_COVERAGE_AUDIT_AND_DEFAULT_FACTORY_BINDING"
+}
