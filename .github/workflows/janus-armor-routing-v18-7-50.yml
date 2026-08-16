@@ -3,6 +3,7 @@ name: JANUS Armor routing v18.7.50
 on:
   push:
     paths:
+      - 'README.md'
       - 'genesis_v18_7_47_armor_of_god.py'
       - 'genesis_v18_7_48_armor_truth_guard.py'
       - 'genesis_v18_7_49_armor_mechanics_hardening.py'
@@ -20,6 +21,7 @@ on:
       - '.github/workflows/janus-armor-routing-v18-7-50.yml'
   pull_request:
     paths:
+      - 'README.md'
       - 'genesis_v18_7_47_armor_of_god.py'
       - 'genesis_v18_7_48_armor_truth_guard.py'
       - 'genesis_v18_7_49_armor_mechanics_hardening.py'
@@ -52,6 +54,9 @@ jobs:
             tools/audit_armor_routing_coverage_v18_7_50.py \
             tests/test_genesis_v18_7_50_armor_routing.py
 
+      - name: Smoke canonical launcher
+        run: python play_genesis_armored.py --help >/dev/null
+
       - name: Run canonical Armor routing tests
         run: python -m unittest tests.test_genesis_v18_7_50_armor_routing -v
 
@@ -62,3 +67,4 @@ jobs:
         run: |
           grep -q 'repository_wide_legacy_bypass_proven_closed.*False' genesis_v18_7_50_armor_routing.py
           grep -q 'repository_wide_complete_routing_coverage_proven.*repository_wide_complete' tools/audit_armor_routing_coverage_v18_7_50.py
+          grep -q 'python play_genesis_armored.py' README.md
