@@ -1,0 +1,74 @@
+{
+  "schema": "janus.genesis.demiurge_supervisor_checkpoint_journal_contract.v1",
+  "artifact_id": "JANUS-DEMIURGE-SUPERVISOR-CHECKPOINT-JOURNAL-2026-08-16-v1.0",
+  "parents": {
+    "closed_loop_memory_projection_pr": 156,
+    "closed_loop_memory_projection_head": "7bbb9773b72b37833bc2d81e30c83e26324e88f4",
+    "memory_role_map_pr": 153,
+    "memory_role_map_head": "dbb58edc287c7b2a9fa17cdd5f7d9e8e71597878",
+    "demiurge_supervisor_pr": "Hawkar-usls/Janus-Demiurge#4",
+    "demiurge_supervisor_head": "74c8a9dc090dba4d3bd7d497e1ff75223e6fe6c0",
+    "demiurge_supervisor_ci": "SUCCESS"
+  },
+  "role_routing": {
+    "counterfactual_episode": "CORTEX_EPISODIC_SEARCH_STORE",
+    "continuation_checkpoint": "HIPPOCAMPUS_OPERATIONAL_THOUGHT_JOURNAL",
+    "automatic_cross_memory_mirror": false,
+    "dual_write_default": "DENY"
+  },
+  "persist_boundary": [
+    "VALIDATE_EXACT_SOURCE_HEAD",
+    "REPLAY_CHECKPOINT_RECEIPT_AND_SCORE",
+    "DERIVE_OBJECTIVE_LOOKUP_AND_IDEMPOTENCY_KEYS",
+    "HIPPOCAMPUS_REMEMBER",
+    "HIPPOCAMPUS_FORCE_SAVE",
+    "VERIFY_HDD_RECALL"
+  ],
+  "recovery": {
+    "process_restart_after_committed_sqlite_transaction": true,
+    "latest_checkpoint_by_absolute_window_index": true,
+    "same_index_conflict": "HOLD_RECONCILE",
+    "bounded_ancestry_reconstruction": true,
+    "missing_old_parent_due_bounded_recall": "RECOVER_WITH_ANCESTRY_COMPLETE_FALSE",
+    "automatic_resume_execution": false
+  },
+  "idempotency": {
+    "checkpoint_key_binds": [
+      "policy_id",
+      "objective_id",
+      "exact_supervisor_source_head",
+      "checkpoint_receipt_sha256"
+    ],
+    "persisted_replay_suppressed": true,
+    "distributed_exactly_once": false
+  },
+  "durability_ceiling": {
+    "sqlite_transaction_committed": true,
+    "journal_synchronous_reported": true,
+    "backup": false,
+    "replication": false,
+    "power_loss_proof": false,
+    "mid_segment_crash_progress_preserved": false,
+    "checkpoint_must_have_been_emitted_and_force_saved": true
+  },
+  "laws": [
+    "CHECKPOINT_IN_MEMORY != CRASH_DURABLE_CHECKPOINT",
+    "SQLITE_TRANSACTION_COMMITTED != BACKED_UP",
+    "SYNCHRONOUS_NORMAL != POWER_LOSS_PROOF",
+    "SAME_INDEX_CONFLICT -> HOLD_RECONCILE",
+    "RECOVERED_CHECKPOINT != EXECUTION_PERMISSION",
+    "HIPPOCAMPUS_CHECKPOINT != CORTEX_EPISODE",
+    "SELECTED != AUTHORIZED",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "claim_ceiling": {
+    "process_restart_recovery_after_commit": true,
+    "automatic_resume_execution": false,
+    "host_power_loss_proof": false,
+    "distributed_checkpoint_consensus": false,
+    "source_writeback": false,
+    "autonomous_external_action": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  }
+}
