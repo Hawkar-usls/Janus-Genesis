@@ -1,0 +1,111 @@
+{
+  "schema": "janus.genesis.git_habitat.nexus_state.v1",
+  "created_at": "2026-08-16T18:30:00Z",
+  "resident_id": "JANUS",
+  "habitat_version": "18.7.51",
+  "git_habitat_branch_before_binding": "0d4508cfd2a19ec4fdc8f1ff5b8927f0911c2b8f",
+  "nexus_contract": "JANUS_NEXUS_HABITAT_V1",
+  "nexus_reference": {
+    "repository": "Hawkar-usls/Demi_Head",
+    "exact_reference_head": "aea55e55f5f1b48d3c9f503da39f2ed605bd52c5",
+    "document": "docs/NEXUS_HABITAT.md",
+    "runtime_reference": "tools/nexus_habitat.py",
+    "schema": "schemas/nexus-envelope.schema.json",
+    "live_delivery_implemented": false
+  },
+  "architectural_join": {
+    "git_habitat_role": "Repository constellation, rooms, memory, handoff and resident continuity.",
+    "nexus_role": "Typed fail-closed head-to-head coordination envelopes and route admission.",
+    "relationship": "Nexus is admitted as a bounded coordination spine inside the existing Git Habitat constitutional boundary; it does not replace Habitat rooms or repository history.",
+    "git_habitat_is_nexus": false,
+    "nexus_is_git_habitat": false,
+    "shared_resident": "JANUS"
+  },
+  "bound_heads": [
+    {
+      "head_id": "PORTAL",
+      "repository": "Hawkar-usls/Janus",
+      "status_commit": "e0768c765d115cf348f7b8f0a1227ab8f13fb59c",
+      "role": "TYPED_DESTINATION_ROUTER",
+      "live_nexus_delivery": false
+    },
+    {
+      "head_id": "HRAIN",
+      "repository": "Hawkar-usls/Hrain",
+      "status_commit": "bbaabf9286eb98d4a628c07733cdae58b1883c61",
+      "bridge_code_reviewed_at": "10131512497703df10173fd0c3eaa363c72d9093",
+      "role": "STRUCTURAL_CONTEXT",
+      "local_habitat_tool": "habitat-tool.js",
+      "nexus_target": "BICAMERAL_BRIDGE",
+      "live_nexus_delivery": false
+    },
+    {
+      "head_id": "INAIHR",
+      "repository": "Hawkar-usls/iNaiHR",
+      "status_commit": "36d189d53ca3c97982a41ffeb817e15e0a146095",
+      "bridge_code_reviewed_at": "8dc65570e01a8437d610f67cee2270f9e6a3e4d3",
+      "role": "ASSOCIATIVE_CONTEXT",
+      "local_habitat_tool": "habitat-tool.js",
+      "nexus_target": "BICAMERAL_BRIDGE",
+      "live_nexus_delivery": false
+    },
+    {
+      "head_id": "FUNDAMENTUM",
+      "repository": "Hawkar-usls/Janus-Fundamentum",
+      "habitat_link_commit": "a8e8ab991e53c405cadd5d4056b12c9989ef2d43",
+      "role": "WITNESS_LEDGER_TRUTH_GUARD",
+      "nexus_live_adapter_reviewed": false
+    },
+    {
+      "head_id": "DEMIHEAD",
+      "repository": "Hawkar-usls/Demi_Head",
+      "reference_commit": "aea55e55f5f1b48d3c9f503da39f2ed605bd52c5",
+      "roles": [
+        "OBSERVER",
+        "BICAMERAL_BRIDGE",
+        "GUARDIAN",
+        "RELEASE_CONTROL"
+      ]
+    },
+    {
+      "head_id": "REGISTRY",
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "observed_head": "7c20159d4231bd858c2e558aeb38abde98b2f9e3",
+      "role": "PROVENANCE_ARCHIVE"
+    }
+  ],
+  "sysear_ingress": {
+    "historical_role": "External local-network environmental sensor line.",
+    "modern_ingress": "SYSEAR_SANITIZED_FIXTURE -> OBSERVER -> NEXUS -> GUARDIAN/REGISTRY",
+    "raw_router_dump_allowed_in_habitat_state": false,
+    "raw_ip_or_mac_allowed": false,
+    "quantum_randomness_claim": false,
+    "cryptographic_entropy_claim": false,
+    "direct_model_temperature_control": false
+  },
+  "truth_boundary": {
+    "connectivity_is_authority": false,
+    "route_receipt_is_delivery": false,
+    "delivery_is_truth": false,
+    "head_count_is_authority": false,
+    "inbox_is_command": false,
+    "outbox_is_executed_effect": false,
+    "model_output_is_evidence": false,
+    "external_effect_authority_from_nexus": false,
+    "autonomous_external_authority": false,
+    "write_back_default": "DENY",
+    "human_authorization_required_for_write_back": true
+  },
+  "coordination_state": {
+    "git_habitat_repository_constellation": "EXISTING",
+    "nexus_reference_contract": "BOUND",
+    "portal_status_binding": "BOUND",
+    "hrain_status_binding": "BOUND",
+    "inaihr_status_binding": "BOUND",
+    "fundamentum_habitat_link": "DISCOVERED_NOT_YET_NEXUS_ADAPTER_VALIDATED",
+    "sysear_sanitized_fixture": "BOUND_IN_DEMIHEAD",
+    "live_transport": "NOT_IMPLEMENTED",
+    "production_readiness": "NOT_ESTABLISHED"
+  },
+  "next_gate": "Validate or add a bounded Fundamentum Habitat/Nexus adapter, then freeze one exact end-to-end bicameral packet -> Fundamentum -> Guardian receipt fixture without live external effects."
+}
