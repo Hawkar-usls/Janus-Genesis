@@ -1,0 +1,114 @@
+{
+  "schema": "janus.memory.backend_role_map.v1",
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "title": "JANUS Memory backend role map — journal vs episodic search",
+  "coordination_issue": "Hawkar-usls/Janus_Genesis#102",
+  "exact_lineage": {
+    "frozen_compatibility_base_sha": "42e3798fd6bc07338070874d5c7e1774a2b25313",
+    "hippocampus_component_pr": 139,
+    "hippocampus_component_sha": "938adb84975fa6a91cf6db89e9c95bf08c8fbdc9",
+    "hippocampus_compatibility_pr": 144,
+    "hippocampus_compatibility_merge_sha": "12a2bddbf98b3bbbcd3e9a4604fe6014bae553b3",
+    "cortex_component_pr": 143,
+    "cortex_component_sha": "bb3c79fbae7f6f6af670562c2e0b868ca056fa89",
+    "cortex_compatibility_pr": 146,
+    "cortex_compatibility_merge_sha": "2b6124783e45a6a83fd39ab94e06092524b6a577",
+    "combined_memory_parent_sha": "1a274b1891317d69c6f02da18ed7c49bd3568a37"
+  },
+  "roles": {
+    "OPERATIONAL_THOUGHT_JOURNAL": {
+      "backend": "JanusHippocampusBufferedJournal",
+      "source_pr": 139,
+      "table": "thoughts",
+      "historical_schema_compatibility": true,
+      "primary_inputs": [
+        "runtime thought events",
+        "bounded operational telemetry",
+        "JANUS Power queued/terminal telemetry through PR152 adapter"
+      ],
+      "search_role": "BOUNDED_RECENT_RECALL_ONLY",
+      "canonical_chronicle": false,
+      "command_authority": false,
+      "default_power_telemetry_sink": true
+    },
+    "EPISODIC_SEARCH_STORE": {
+      "backend": "JanusCortexMemory",
+      "source_pr": 143,
+      "table": "memories",
+      "historical_schema_compatibility": false,
+      "primary_inputs": [
+        "explicitly selected episodic memories",
+        "explicitly selected search/index projections"
+      ],
+      "search_role": "RAM_PLUS_SQLITE_WITH_OPTIONAL_FTS5",
+      "canonical_chronicle": false,
+      "command_authority": false,
+      "default_power_telemetry_sink": false
+    }
+  },
+  "routing": {
+    "dual_write_default": "DENY",
+    "power_telemetry_default_route": [
+      "OPERATIONAL_THOUGHT_JOURNAL"
+    ],
+    "power_telemetry_to_cortex_default": false,
+    "journal_to_cortex_automatic_mirroring": false,
+    "cortex_to_journal_automatic_mirroring": false,
+    "selective_projection_to_cortex": {
+      "status": "REQUIRES_SEPARATE_ADAPTER_AND_EXPLICIT_POLICY",
+      "required_fields": [
+        "source_backend",
+        "source_record_identity_or_receipt",
+        "projection_policy_id",
+        "projection_reason",
+        "idempotency_key"
+      ],
+      "source_record_content_may_be_rewritten": false,
+      "projection_receipt_required": true,
+      "implicit_selection": false
+    }
+  },
+  "storage_topology": {
+    "same_physical_disk_allowed": true,
+    "same_sqlite_database_file_default": false,
+    "recommended_default": "SEPARATE_DB_FILES_OUTSIDE_STORJ_MANAGED_ROOT",
+    "reason": "Keep write cadence, checkpoint/search policy and failure domains independently observable before any shared-file experiment.",
+    "cortex_db_inside_storj_managed_root": "FORBIDDEN_BY_CORTEX_COMPONENT",
+    "zero_storj_interference_claimed": false
+  },
+  "authority": {
+    "neither_backend_is_canonical_project_chronicle": true,
+    "neither_backend_is_truth_oracle": true,
+    "recall_result_is_command": false,
+    "memory_row_is_permission": false,
+    "memory_row_is_independent_evidence": false,
+    "meta_registry_or_explicit_proof_receipt_still_required_for_project_provenance": true
+  },
+  "admission": {
+    "hippocampus_component": "COMPATIBILITY_PASS",
+    "cortex_component": "COMPATIBILITY_PASS",
+    "power_memory_adapter_pr152": "FULL_COMPATIBILITY_PASS",
+    "selective_projection_adapter": "NOT_IMPLEMENTED",
+    "live_runtime_deployment": false,
+    "production_nas_benchmark": false
+  },
+  "laws": [
+    "JOURNAL != EPISODIC_SEARCH_STORE",
+    "DUAL_WRITE_DEFAULT = DENY",
+    "POWER_TELEMETRY -> JOURNAL_BY_DEFAULT",
+    "JOURNAL -> CORTEX_REQUIRES_EXPLICIT_PROJECTION_POLICY",
+    "PROJECTION != SECOND_INDEPENDENT_MEMORY_ROOT",
+    "CORTEX_RECALL != COMMAND",
+    "MEMORY_ROW != TRUTH",
+    "BOTH_BACKENDS_AGREE != INDEPENDENT_CORROBORATION",
+    "SAME_CONTENT_IN_TWO_TABLES != TWO_EVIDENCE_ROOTS",
+    "CACHE_OR_INDEX != CANONICAL_CHRONICLE",
+    "CI_GREEN != LIVE_DEPLOYMENT",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "source_writeback": false,
+  "source_delete": false,
+  "history_rewrite": false,
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0
+}
