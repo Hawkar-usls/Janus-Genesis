@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Fail-closed validator for JANUS project-sync / Many Faces command packets."""
+"""Fail-closed validator for JANUS project-sync / Many Faces command packets.
+
+Each command is replayed against the exact project-state snapshot it names. A
+separate CURRENT pointer identifies which append-only snapshot governs new work.
+"""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +13,7 @@ from pathlib import Path
 from typing import Any
 
 PROTOCOL_PATH = Path("protocol/JANUS_MANY_FACES_GIT_COORDINATION-v1.0.json")
-STATE_PATH = Path("project_sync/PROJECT_SYNC_STATE-2026-08-16.json")
+CURRENT_PATH = Path("project_sync/CURRENT.json")
 COMMAND_ROOT = Path("project_sync/commands")
 
 FORBIDDEN_DURING_GLOBAL_HOLD = (
@@ -46,11 +50,54 @@ def git_blob_sha(path: Path) -> str:
     return hashlib.sha1(header + data).hexdigest()  # Git object identity, not truth proof.
 
 
-def validate(protocol_path: Path = PROTOCOL_PATH, state_path: Path = STATE_PATH, command_root: Path = COMMAND_ROOT) -> dict[str, Any]:
-    protocol = load_json(protocol_path)
-    state = load_json(state_path)
+def _safe_repo_path(root: Path, raw: str) -> Path:
+    rel = Path(str(raw))
+    if rel.is_absolute() or ".." in rel.parts:
+        raise ProjectSyncError(f"STATE_BINDING_PATH_ESCAPE:{raw}")
+    if not rel.as_posix().startswith("project_sync/PROJECT_SYNC_STATE") or rel.suffix != ".json":
+        raise ProjectSyncError(f"STATE_BINDING_PATH_NOT_PROJECT_SNAPSHOT:{raw}")
+    path = root / rel
+    if not path.is_file():
+        raise ProjectSyncError(f"BOUND_STATE_MISSING:{raw}")
+    return path
 
-    faces = {row["face_id"]: row for row in protocol.get("faces", []) if isinstance(row, dict) and row.get("face_id")}
+
+def _check_binding(root: Path, binding: dict[str, Any], accepted_algorithms: set[str], binding_required: set[str]) -> tuple[Path, dict[str, Any]]:
+    missing = binding_required - set(binding)
+    if missing:
+        raise ProjectSyncError(f"BINDING_FIELDS_MISSING:{','.join(sorted(missing))}")
+    algorithm = str(binding.get("algorithm") or "")
+    value = str(binding.get("value") or "")
+    raw_path = str(binding.get("path") or "")
+    if algorithm not in accepted_algorithms:
+        raise ProjectSyncError(f"BINDING_ALGORITHM_NOT_ALLOWED:{algorithm}")
+    state_path = _safe_repo_path(root, raw_path)
+    if algorithm == "git_blob_sha":
+        expected = git_blob_sha(state_path)
+        if value != expected:
+            raise ProjectSyncError(f"BINDING_GIT_BLOB_MISMATCH:{raw_path}:{value}:{expected}")
+    elif algorithm == "sha256":
+        expected = hashlib.sha256(state_path.read_bytes()).hexdigest()
+        if value != expected:
+            raise ProjectSyncError(f"BINDING_SHA256_MISMATCH:{raw_path}:{value}:{expected}")
+    return state_path, load_json(state_path)
+
+
+def validate(
+    protocol_path: Path = PROTOCOL_PATH,
+    current_path: Path = CURRENT_PATH,
+    command_root: Path = COMMAND_ROOT,
+    project_root: Path = Path("."),
+) -> dict[str, Any]:
+    root = project_root.resolve()
+    protocol = load_json(protocol_path)
+    current = load_json(current_path)
+
+    faces = {
+        row["face_id"]: row
+        for row in protocol.get("faces", [])
+        if isinstance(row, dict) and row.get("face_id")
+    }
     if not faces:
         raise ProjectSyncError("NO_FACES_DEFINED")
 
@@ -64,14 +111,22 @@ def validate(protocol_path: Path = PROTOCOL_PATH, state_path: Path = STATE_PATH,
     accepted_algorithms = set(binding_contract.get("accepted_algorithms") or [])
     binding_required = set(binding_contract.get("required_fields") or [])
 
-    expected_blob = git_blob_sha(state_path)
+    current_raw_path = str(current.get("state_path") or "")
+    current_state_path = _safe_repo_path(root, current_raw_path)
+    current_blob = git_blob_sha(current_state_path)
+    if str(current.get("git_blob_sha") or "") != current_blob:
+        raise ProjectSyncError(
+            f"CURRENT_POINTER_BLOB_MISMATCH:{current.get('git_blob_sha')}:{current_blob}"
+        )
+    current_state = load_json(current_state_path)
+    if current.get("snapshot_id") != current_state.get("snapshot_id"):
+        raise ProjectSyncError("CURRENT_POINTER_SNAPSHOT_ID_MISMATCH")
+
     seen_ids: set[str] = set()
     validated: list[dict[str, Any]] = []
     paths = sorted(command_root.rglob("*.json"))
     if not paths:
         raise ProjectSyncError("NO_COMMAND_PACKETS")
-
-    global_hold = str(state.get("global_state", "")).startswith("HOLD")
 
     for path in paths:
         cmd = load_json(path)
@@ -109,22 +164,14 @@ def validate(protocol_path: Path = PROTOCOL_PATH, state_path: Path = STATE_PATH,
         binding = cmd.get("project_sync_state_binding")
         if not isinstance(binding, dict):
             raise ProjectSyncError(f"BINDING_NOT_OBJECT:{path}")
-        if binding_required - set(binding):
-            raise ProjectSyncError(f"BINDING_FIELDS_MISSING:{path}")
-        algorithm = str(binding.get("algorithm") or "")
-        value = str(binding.get("value") or "")
-        bound_path = str(binding.get("path") or "")
-        if algorithm not in accepted_algorithms:
-            raise ProjectSyncError(f"BINDING_ALGORITHM_NOT_ALLOWED:{path}:{algorithm}")
-        if bound_path != state_path.as_posix():
-            raise ProjectSyncError(f"BINDING_PATH_MISMATCH:{path}:{bound_path}")
-        if algorithm == "git_blob_sha" and value != expected_blob:
-            raise ProjectSyncError(f"BINDING_GIT_BLOB_MISMATCH:{path}:{value}:{expected_blob}")
-        if algorithm == "sha256":
-            expected_sha256 = hashlib.sha256(state_path.read_bytes()).hexdigest()
-            if value != expected_sha256:
-                raise ProjectSyncError(f"BINDING_SHA256_MISMATCH:{path}:{value}:{expected_sha256}")
+        try:
+            bound_state_path, bound_state = _check_binding(
+                root, binding, accepted_algorithms, binding_required
+            )
+        except ProjectSyncError as exc:
+            raise ProjectSyncError(f"{exc}:{path}") from exc
 
+        global_hold = str(bound_state.get("global_state", "")).startswith("HOLD")
         combined = json.dumps(
             {
                 "type": command_type,
@@ -134,9 +181,11 @@ def validate(protocol_path: Path = PROTOCOL_PATH, state_path: Path = STATE_PATH,
             ensure_ascii=False,
         ).lower()
         if global_hold and any(term in combined for term in FORBIDDEN_DURING_GLOBAL_HOLD):
-            # A HOLD packet may mention a forbidden effect only to explicitly forbid it.
             action = str(cmd.get("requested_action") or "").lower()
-            protective = any(marker in action for marker in ("do not", "without", "forbid", "must not", "not merge", "no merge"))
+            protective = any(
+                marker in action
+                for marker in ("do not", "without", "forbid", "must not", "not merge", "no merge")
+            )
             if not protective:
                 raise ProjectSyncError(f"GLOBAL_HOLD_FORBIDS_REQUESTED_EFFECT:{path}")
 
@@ -148,13 +197,17 @@ def validate(protocol_path: Path = PROTOCOL_PATH, state_path: Path = STATE_PATH,
                 "command_type": command_type,
                 "authority_class": authority,
                 "settlement_state": settlement,
+                "bound_snapshot_id": bound_state.get("snapshot_id"),
+                "bound_state_path": bound_state_path.relative_to(root).as_posix(),
+                "is_current_state_binding": bound_state_path.resolve() == current_state_path.resolve(),
             }
         )
 
     return {
         "status": "PASS",
-        "global_state": state.get("global_state"),
-        "project_state_git_blob_sha": expected_blob,
+        "current_snapshot_id": current_state.get("snapshot_id"),
+        "current_global_state": current_state.get("global_state"),
+        "current_project_state_git_blob_sha": current_blob,
         "faces": len(faces),
         "commands": len(validated),
         "validated_commands": validated,
@@ -166,11 +219,12 @@ def validate(protocol_path: Path = PROTOCOL_PATH, state_path: Path = STATE_PATH,
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--protocol", type=Path, default=PROTOCOL_PATH)
-    parser.add_argument("--state", type=Path, default=STATE_PATH)
+    parser.add_argument("--current", type=Path, default=CURRENT_PATH)
     parser.add_argument("--commands", type=Path, default=COMMAND_ROOT)
+    parser.add_argument("--root", type=Path, default=Path("."))
     args = parser.parse_args()
     try:
-        result = validate(args.protocol, args.state, args.commands)
+        result = validate(args.protocol, args.current, args.commands, args.root)
     except ProjectSyncError as exc:
         print(json.dumps({"status": "FAIL", "error": str(exc)}, sort_keys=True))
         return 1
