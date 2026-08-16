@@ -300,6 +300,16 @@ class NexusMaterializer:
             return None
         return _read_json(self.receipt_path)
 
+    def _preflight_sources(self) -> list[tuple[dict[str, Any], Path, list[tuple[Path, str, str]]]]:
+        """Validate every source pin/tree before publishing any Nexus body bytes."""
+        prepared: list[tuple[dict[str, Any], Path, list[tuple[Path, str, str]]]] = []
+        for row in self.manifest["sources"]:
+            checkout = self._source_checkout(row)
+            self._verify_checkout_pin(row, checkout)
+            tracked = _pinned_tree_blobs(checkout, row["sha"])
+            prepared.append((row, checkout, tracked))
+        return prepared
+
     def materialize(self) -> dict[str, Any]:
         if self.output_root.is_symlink():
             raise NexusMaterializerError("NEXUS_OUTPUT_ROOT_SYMLINK_REJECTED")
@@ -319,13 +329,12 @@ class NexusMaterializer:
 
         if self.output_root.exists() and any(self.output_root.iterdir()):
             raise NexusMaterializerError("NEXUS_OUTPUT_NOT_EMPTY")
+
+        prepared_sources = self._preflight_sources()
         self.output_root.mkdir(parents=True, exist_ok=True)
 
         source_receipts: list[dict[str, Any]] = []
-        for row in self.manifest["sources"]:
-            checkout = self._source_checkout(row)
-            self._verify_checkout_pin(row, checkout)
-            tracked = _pinned_tree_blobs(checkout, row["sha"])
+        for row, checkout, tracked in prepared_sources:
             body_dir = self._body_dir(row)
             body_dir.mkdir(parents=True, exist_ok=False)
             files: list[dict[str, Any]] = []
