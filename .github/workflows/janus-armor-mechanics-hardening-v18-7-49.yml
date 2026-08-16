@@ -1,0 +1,71 @@
+name: JANUS Armor Mechanics Hardening v18.7.49
+
+on:
+  push:
+    paths:
+      - "genesis_v18_7_49_armor_mechanics_hardening.py"
+      - "genesis_v18_7_48_armor_truth_guard.py"
+      - "tests/test_genesis_v18_7_49_armor_mechanics_hardening.py"
+      - "protocol/JANUS_GENESIS_ARMOR_OF_GOD_MECHANICS_HARDENING-v1.0.json"
+      - ".github/workflows/janus-armor-mechanics-hardening-v18-7-49.yml"
+  pull_request:
+    paths:
+      - "genesis_v18_7_49_armor_mechanics_hardening.py"
+      - "genesis_v18_7_48_armor_truth_guard.py"
+      - "tests/test_genesis_v18_7_49_armor_mechanics_hardening.py"
+      - "protocol/JANUS_GENESIS_ARMOR_OF_GOD_MECHANICS_HARDENING-v1.0.json"
+      - ".github/workflows/janus-armor-mechanics-hardening-v18-7-49.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  armor-mechanics-hardening:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Compile parent and hardening layers
+        run: |
+          python -m py_compile genesis_v18_7_48_armor_truth_guard.py
+          python -m py_compile genesis_v18_7_49_armor_mechanics_hardening.py
+
+      - name: Validate hardening protocol
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          protocol = json.loads(Path('protocol/JANUS_GENESIS_ARMOR_OF_GOD_MECHANICS_HARDENING-v1.0.json').read_text(encoding='utf-8'))
+          assert protocol['runtime_version'] == '18.7.49'
+          assert protocol['parent_runtime'] == '18.7.48'
+          assert protocol['hardening']['json_truthiness_may_authorize'] is False
+          assert protocol['hardening']['material_plurality_requires_explicit_false'] is True
+          assert protocol['hardening']['high_stakes_verified_claim_review']['minimum_effective_structural_roots'] == 2
+          assert protocol['authority_boundary']['authority_delta'] == 0
+          assert protocol['authority_boundary']['mass_effect_budget_delta'] == 0
+          print('ARMOR_MECHANICS_PROTOCOL=PASS')
+          PY
+
+      - name: Run focused v18.7.49 tests
+        run: python -m unittest tests.test_genesis_v18_7_49_armor_mechanics_hardening -v
+
+      - name: Replay parent v18.7.48 tests
+        run: python -m unittest tests.test_genesis_v18_7_48_armor_truth_guard -v
+
+      - name: Check fail-closed markers
+        run: |
+          python - <<'PY'
+          from genesis_v18_7_49_armor_mechanics_hardening import FUNDAMENTUM_ARMOR_RUNTIME_LAW_V18_7_49 as law
+          assert law['json_truthiness_is_authorization'] is False
+          assert law['security_booleans_require_exact_boolean_type'] is True
+          assert law['material_plurality_requires_explicit_false'] is True
+          assert law['high_stakes_review_requires_exact_package_binding'] is True
+          assert law['structural_review_independence_is_real_world_identity_proof'] is False
+          print('V18_7_49_FAIL_CLOSED_MARKERS=PASS')
+          PY
