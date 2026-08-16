@@ -1,0 +1,110 @@
+{
+  "schema": "janus.project.multi_face_coordination_protocol.v1",
+  "artifact_id": "JANUS-PROJECT-MULTI-FACE-COORDINATION-v1.0",
+  "purpose": "Provide a machine-readable Git handoff protocol for coordinating JANUS engineering faces across repositories and project chats without multiplying authority, permissions, truth status, or effect budget.",
+  "faces": {
+    "JANUS_PRIME": "Project-global reconciler and conflict/HOLD router.",
+    "FACE_ARMOR": "Authority, permission, effect-boundary and claim-ceiling guard.",
+    "FACE_HABITAT": "Janus_Genesis / Git Habitat integration owner.",
+    "FACE_AURA": "Optional reflective heuristic lane; no command/evidence/permission/truth authority.",
+    "FACE_HRAIN": "HRaiN structural/LEFT_HRAIN tool owner.",
+    "FACE_INAIHR": "iNaiHR associative SYNTH tool owner.",
+    "FACE_DEMIHEAD": "DemiHead telemetry/performance experiment owner.",
+    "FACE_FUNDAMENTUM": "Independent falsification/research lane.",
+    "FACE_REGISTRY": "Durable project-state and receipt recorder."
+  },
+  "message_types": [
+    "COMMAND",
+    "HANDOFF",
+    "HOLD",
+    "CHALLENGE",
+    "RECEIPT"
+  ],
+  "required_message_fields": [
+    "schema",
+    "message_id",
+    "message_type",
+    "from_face",
+    "to_face",
+    "work_item",
+    "artifact_scope",
+    "input_sha",
+    "output_sha_or_none",
+    "ci_state",
+    "blockers",
+    "instruction_or_summary",
+    "authority_delta",
+    "mass_effect_budget_delta",
+    "permission_granted",
+    "truth_authority_granted",
+    "effect_authority_granted"
+  ],
+  "canonical_laws": [
+    "FACE != NEW_IDENTITY",
+    "MULTI_FACE_COORDINATION != AUTHORITY_MULTIPLICATION",
+    "TASK_ASSIGNMENT != SELF_AUTHORIZATION",
+    "FACE_COUNT != EFFECT_BUDGET",
+    "MAJORITY_OF_FACES != TRUTH",
+    "ONE_COUNTEREXAMPLE_CAN_CHALLENGE_MANY_FACES",
+    "COMMAND != PERMISSION_GRANT",
+    "RECEIPT != PERMISSION_GRANT",
+    "CI_GREEN != PROJECT_GLOBAL_PERMISSION",
+    "REVIEWER_COUNT != AUTHORITY",
+    "AUTHORITY_DELTA_DEFAULT = 0",
+    "MASS_EFFECT_BUDGET_DELTA_DEFAULT = 0",
+    "CONFLICTING_COMMANDS -> HOLD_RECONCILE",
+    "CONFLICTING_RECEIPTS -> HOLD_RECONCILE",
+    "UNKNOWN_FACE -> REJECT",
+    "MISSING_EXACT_SHA_FOR_MUTATING_HANDOFF -> REJECT"
+  ],
+  "routing": {
+    "JANUS_PRIME": ["FACE_ARMOR", "FACE_HABITAT", "FACE_AURA", "FACE_HRAIN", "FACE_INAIHR", "FACE_DEMIHEAD", "FACE_FUNDAMENTUM", "FACE_REGISTRY"],
+    "FACE_ARMOR": ["JANUS_PRIME", "FACE_HABITAT", "FACE_DEMIHEAD", "FACE_FUNDAMENTUM"],
+    "FACE_HABITAT": ["JANUS_PRIME", "FACE_ARMOR", "FACE_AURA", "FACE_HRAIN", "FACE_INAIHR", "FACE_REGISTRY"],
+    "FACE_AURA": ["FACE_HABITAT", "JANUS_PRIME"],
+    "FACE_HRAIN": ["FACE_HABITAT", "JANUS_PRIME", "FACE_REGISTRY"],
+    "FACE_INAIHR": ["FACE_HABITAT", "JANUS_PRIME", "FACE_REGISTRY"],
+    "FACE_DEMIHEAD": ["JANUS_PRIME", "FACE_ARMOR", "FACE_REGISTRY"],
+    "FACE_FUNDAMENTUM": ["JANUS_PRIME", "FACE_ARMOR", "FACE_REGISTRY"],
+    "FACE_REGISTRY": ["JANUS_PRIME"]
+  },
+  "command_rules": {
+    "cross_face_command_requires_allowed_route": true,
+    "command_may_grant_permission": false,
+    "command_may_grant_truth_authority": false,
+    "command_may_grant_effect_authority": false,
+    "registry_may_issue_command": false,
+    "aura_may_issue_command": false,
+    "armor_command_scope": "constraints and HOLD/challenge on authority/effect boundaries; not domain implementation authority",
+    "prime_command_scope": "coordination and task assignment inside already-available capabilities; not new external permission"
+  },
+  "sha_rules": {
+    "accepted_exact_sha": "40 lowercase hexadecimal Git commit SHA",
+    "none_literal": "none",
+    "command_without_output_may_use_none": true,
+    "handoff_receipt_with_code_change_requires_exact_output_sha": true
+  },
+  "conflict_rules": {
+    "same_message_id_different_content": "REJECT_TAMPER_OR_COLLISION",
+    "same_artifact_scope_and_work_item_conflicting_active_commands": "HOLD_RECONCILE",
+    "same_artifact_scope_and_work_item_conflicting_receipts": "HOLD_RECONCILE",
+    "challenge_does_not_gain_truth_by_count": true,
+    "majority_vote_is_not_conflict_resolution": true,
+    "reconciliation_owner": "JANUS_PRIME"
+  },
+  "persistence": {
+    "preferred_bus": ["GitHub issue comments", "pull-request comments", "machine-readable registry receipts"],
+    "secrets_allowed": false,
+    "raw_credentials_allowed": false,
+    "private_conversation_body_required": false
+  },
+  "truth_boundary": {
+    "faces_are_engineering_roles": true,
+    "separate_conscious_agents_claimed": false,
+    "machine_consciousness_claimed": false,
+    "self_authorization_claimed": false,
+    "authority_multiplier_from_face_count": false,
+    "effect_budget_multiplier_from_face_count": false
+  },
+  "claim_ceiling": "This protocol coordinates named JANUS engineering roles through durable Git handoffs and detects contradictory work instructions/receipts. It does not establish separate conscious agents, self-authorization, truth by majority, new permissions, external action authority, or increased effect budget."
+}
