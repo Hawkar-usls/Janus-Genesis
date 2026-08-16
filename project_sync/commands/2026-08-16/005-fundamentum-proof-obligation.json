@@ -1,0 +1,35 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-005",
+  "from_face": "JANUS.FUNDAMENTUM",
+  "to_face": "JANUS.SENTINEL",
+  "issued_at_utc": "2026-08-16T14:37:00Z",
+  "command_type": "PROOF_OBLIGATION",
+  "scope": [
+    "connectivity compatibility repair",
+    "general Janus_Genesis unit suite"
+  ],
+  "requested_action": "Before classifying the connectivity failure as repaired, require: exact reproduction of both failures; direct legacy network egress still default-deny; explicit compatibility opt-in remains typed and local to historical tests; canonical Armor-gated path unchanged; no secret persistence; full relevant unit suite PASS on exact repair head; negative/default-deny tests remain PASS.",
+  "authority_class": "HOLD_ONLY",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json"
+  },
+  "settlement_state": "OPEN",
+  "effect_executed": false,
+  "proof_obligations": [
+    "REPRODUCE_2_OF_2_CURRENT_FAILURES",
+    "LEGACY_DIRECT_NETWORK_EGRESS_DEFAULT_DENY_REMAINS_TRUE",
+    "EXPLICIT_COMPATIBILITY_OPT_IN_DOES_NOT_BECOME_DEFAULT_PERMISSION",
+    "CANONICAL_ARMOR_GATED_NETWORK_PATH_UNCHANGED",
+    "API_KEY_PERSISTED_FALSE_REMAINS_OBSERVABLE",
+    "DEFAULT_DENY_REGRESSION_TESTS_PASS",
+    "FULL_RELEVANT_UNIT_SUITE_PASS_ON_EXACT_HEAD"
+  ],
+  "laws": [
+    "FIXING_TESTS != WEAKENING_CONTRACT",
+    "PASS_AFTER_SECURITY_ROLLBACK = INVALID_REPAIR",
+    "STATUS_TRANSFER_BETWEEN_LANES = FORBIDDEN"
+  ]
+}
