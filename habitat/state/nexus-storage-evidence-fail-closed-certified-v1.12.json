@@ -1,0 +1,51 @@
+{
+  "schema": "janus.git_habitat.nexus_storage_evidence_state.v1",
+  "state_id": "NEXUS-STORAGE-EVIDENCE-FAIL-CLOSED-CERTIFIED-v1.12",
+  "recorded_at_local": "2026-08-17T02:52:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "7bbacfdc78766638572f00ea0ac1f71fc1a5672c",
+  "parent_durability_exact_head": "3b7d9e2e1b65c9217e05e9281f2447164d18e659",
+  "status": "CERTIFIED_FAIL_CLOSED_STORAGE_EVIDENCE_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-STORAGE-EVIDENCE-FAIL-CLOSED-EXACT-HEAD-CI-CERTIFICATE-v1.12.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-STORAGE-AUTHORITY-v1.json",
+  "frozen_holdout": {
+    "path": "fixtures/nexus_storage_fault_holdout_v1.json",
+    "cases": 10,
+    "freeze_sha256": "1e7939a1572d7b91fc9711041153b1ad1f32be496f92015287d979ef44662046",
+    "unchanged_across_negative_to_repair_cycle": true
+  },
+  "negative_to_repair_provenance": {
+    "negative_candidate": "5e42a256c848f59c12969511a5a0e59399665cc4",
+    "failure": "WAL_MASKED_MAIN_DB_CORRUPTION_OR_TRUNCATION",
+    "repair_head": "7bbacfdc78766638572f00ea0ac1f71fc1a5672c",
+    "repair": "PHYSICAL_MAIN_SQLITE_ENVELOPE_BEFORE_WAL_AWARE_OPEN",
+    "test_expectations_changed": false
+  },
+  "certified_path": [
+    "READ_ONLY_EVIDENCE_PREFLIGHT",
+    "MAIN_DB_SQLITE_MAGIC_AND_PAGE_ENVELOPE",
+    "WAL_SHM_SIDECAR_INVENTORY",
+    "READ_ONLY_SQLITE_QUICK_CHECK",
+    "REQUIRED_TABLE_SCHEMA_CHECK",
+    "ALL_THREE_STORES_HEALTHY",
+    "V1_10_MANUAL_RECOVERY_IF_REQUESTED"
+  ],
+  "boundaries": {
+    "storage_repair": false,
+    "schema_auto_migration": false,
+    "future_write_success_proven": false,
+    "real_enospc_tested": false,
+    "real_read_only_filesystem_tested": false,
+    "wal_corruption_recovery_tested": false,
+    "power_loss_tested": false,
+    "automatic_recovery": false,
+    "automatic_restart": false,
+    "automatic_retry": false,
+    "cross_host_transport": false,
+    "persistent_daemon": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "WRITE_SIDE_STORAGE_FAILURE_AND_WAL_FAULT_HOLDOUT"
+}
