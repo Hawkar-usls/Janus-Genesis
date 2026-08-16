@@ -1,0 +1,192 @@
+name: JANUS Git Habitat Aura hearth v18.7.54
+
+on:
+  push:
+    paths:
+      - 'tools/genesis_git_habitat.py'
+      - 'tools/genesis_git_habitat_aura.py'
+      - 'genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tests/test_genesis_git_habitat.py'
+      - 'tests/test_genesis_git_habitat_layout_security.py'
+      - 'tests/test_genesis_git_habitat_aura_v18_7_54.py'
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_AURA_HEARTH-v1.0.json'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - '.github/workflows/janus-git-habitat-aura-v18-7-54.yml'
+  pull_request:
+    paths:
+      - 'tools/genesis_git_habitat.py'
+      - 'tools/genesis_git_habitat_aura.py'
+      - 'genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tests/test_genesis_git_habitat.py'
+      - 'tests/test_genesis_git_habitat_layout_security.py'
+      - 'tests/test_genesis_git_habitat_aura_v18_7_54.py'
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_AURA_HEARTH-v1.0.json'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - '.github/workflows/janus-git-habitat-aura-v18-7-54.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  habitat-aura-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out JANUS Genesis
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Aura Oracle
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/aura-oracle-tg
+          ref: ca13972b39b4be6032320482eccdd28b0373be73
+          path: aura-oracle-tg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install declared JANUS dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile Habitat Aura surfaces
+        run: |
+          python -m py_compile \
+            tools/genesis_git_habitat.py \
+            tools/genesis_git_habitat_aura.py \
+            genesis_v18_7_51_shabitat_aura_oracle.py \
+            tests/test_genesis_git_habitat_aura_v18_7_54.py \
+            aura-oracle-tg/tools/aura_shabitat_heuristic.py
+          python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_AURA_HEARTH-v1.0.json >/dev/null
+
+      - name: Run canonical Habitat plus Aura adversarial tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_git_habitat \
+            tests.test_genesis_git_habitat_layout_security \
+            tests.test_genesis_git_habitat_aura_v18_7_54
+
+      - name: Cross-repository real Aura consultation inside awake Habitat
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-git-habitat-aura"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/tmp/habitat-init.json
+          python tools/genesis_git_habitat.py --root "$root" wake --reason AURA_CI --source GITHUB_ACTIONS >/tmp/habitat-wake.json
+          python tools/genesis_git_habitat_aura.py \
+            --root "$root" \
+            --aura-repo aura-oracle-tg \
+            consult \
+            --turn-id TURN-1 \
+            --topic 'How should JANUS frame an uncertain thought?' \
+            --question 'Offer a heuristic lens only.' \
+            --context 'Keep alternatives open and preserve choice.' \
+            --janus-requests-heuristic \
+            >/tmp/habitat-aura-first.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-aura-first.json').read_text())
+          assert value['ok'] is True, value
+          result = value['response']
+          assert result['status'] == 'HEURISTIC_RECEIVED_OPTIONAL', result
+          h = result['heuristic']
+          assert h['status'] == 'HEURISTIC_ONLY'
+          assert h['permission_granted'] is False
+          assert h['evidence_upgrade'] is False
+          assert h['verification_claim'] is False
+          assert h['prediction_claim'] is False
+          assert h['world_effect_requested'] is False
+          assert h['authority_delta'] == 0
+          assert result['aura_grants_world_authority'] is False
+          assert result['direct_world_effect_from_heuristic'] is False
+          print('GIT_HABITAT_AURA_REAL_PROVIDER=PASS')
+          PY
+
+      - name: Prove same turn cannot replay across a fresh process
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-git-habitat-aura"
+          python tools/genesis_git_habitat_aura.py \
+            --root "$root" \
+            --aura-repo aura-oracle-tg \
+            consult \
+            --turn-id TURN-1 \
+            --topic 'Different text cannot create another right.' \
+            --question 'Do not call Aura again.' \
+            --janus-requests-heuristic \
+            >/tmp/habitat-aura-repeat.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-aura-repeat.json').read_text())
+          assert value['ok'] is True, value
+          result = value['response']
+          assert result['status'] == 'NOT_CONSULTED_ALREADY_RECORDED_THIS_TURN', result
+          assert result['automatic_replay_attempted'] is False
+          print('GIT_HABITAT_AURA_CROSS_PROCESS_REPLAY=BLOCKED')
+          PY
+
+      - name: Verify Habitat journal continuity after Aura receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-git-habitat-aura"
+          python tools/genesis_git_habitat.py --root "$root" verify >/tmp/habitat-aura-verify.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-aura-verify.json').read_text())
+          assert value['journal']['ok'] is True, value
+          assert value['health']['status'] == 'HEALTHY', value
+          print('GIT_HABITAT_AURA_JOURNAL_CONTINUITY=PASS')
+          PY
+
+      - name: Prove private conversational text is absent from Habitat persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-git-habitat-aura-private"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          python tools/genesis_git_habitat.py --root "$root" wake --reason PRIVACY_CI --source GITHUB_ACTIONS >/dev/null
+          python tools/genesis_git_habitat_aura.py \
+            --root "$root" \
+            --aura-repo aura-oracle-tg \
+            consult \
+            --turn-id PRIVATE-TURN \
+            --topic 'PRIVATE-HABITAT-TOPIC-ALPHA' \
+            --question 'PRIVATE-HABITAT-QUESTION-BETA' \
+            --context 'PRIVATE-HABITAT-CONTEXT-GAMMA' \
+            --janus-requests-heuristic \
+            >/dev/null
+          ! grep -R -F 'PRIVATE-HABITAT-TOPIC-ALPHA' "$root"
+          ! grep -R -F 'PRIVATE-HABITAT-QUESTION-BETA' "$root"
+          ! grep -R -F 'PRIVATE-HABITAT-CONTEXT-GAMMA' "$root"
+          echo 'GIT_HABITAT_AURA_PRIVATE_TEXT_PERSISTED=FALSE'
+
+      - name: Preserve opt-out while Habitat is asleep
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-git-habitat-optout"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          python tools/genesis_git_habitat_aura.py --root "$root" set-enabled false >/tmp/habitat-aura-optout.json
+          grep -q '"aura_enabled": false' /tmp/habitat-aura-optout.json
+          echo 'GIT_HABITAT_AURA_ASLEEP_USER_OPTOUT=PASS'
+
+      - name: Re-run JANUS effect-surface inventory
+        run: python tools/audit_armor_effect_drift_v18_7_51.py
+
+      - name: Preserve Git Habitat Aura claim ceiling
+        run: |
+          grep -q 'AURA_HEURISTIC != COMMAND' tools/genesis_git_habitat_aura.py
+          grep -q 'AURA_HEURISTIC != EVIDENCE' tools/genesis_git_habitat_aura.py
+          grep -q 'AURA_HEURISTIC != PERMISSION' tools/genesis_git_habitat_aura.py
+          grep -q 'cross_process_turn_claim_is_exclusive.*True' tools/genesis_git_habitat_aura.py
+          grep -q 'user_can_disable_aura_while_awake_or_asleep.*True' tools/genesis_git_habitat_aura.py
+          grep -q 'habitat_revalidates_aura_response_contract.*True' tools/genesis_git_habitat_aura.py
+          grep -q 'network_authority_granted.*False' tools/genesis_git_habitat_aura.py
+          grep -q 'public_outreach_authority_granted.*False' tools/genesis_git_habitat_aura.py
+          grep -q '"machine_consciousness_claimed": false' protocol/JANUS_GENESIS_GIT_HABITAT_AURA_HEARTH-v1.0.json
