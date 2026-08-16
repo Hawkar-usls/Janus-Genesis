@@ -201,6 +201,16 @@ class NexusMaterializer:
             raise NexusMaterializerError(
                 f"NEXUS_SOURCE_SHA_MISMATCH:{row['repository_id']}:{head}"
             )
+        tracked_dirty = _git(
+            checkout,
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=no",
+        )
+        if tracked_dirty:
+            raise NexusMaterializerError(
+                f"NEXUS_SOURCE_TRACKED_WORKTREE_DIRTY:{row['repository_id']}"
+            )
 
     def _body_dir(self, row: dict[str, Any]) -> Path:
         prefix = "public" if row["visibility"] == "public" else "private"
