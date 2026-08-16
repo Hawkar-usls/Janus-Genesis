@@ -109,6 +109,37 @@ jobs:
           print('THIRD_WISH_PROTECTED_BASE_DIRECT_WRITE=FALSE')
           PY
 
+      - name: Probe GitHub Models provider without effects
+        env:
+          JANUS_GITHUB_BROKER_TOKEN: ${{ github.token }}
+          JANUS_GITHUB_MODELS_MODEL: ${{ vars.JANUS_GITHUB_MODELS_MODEL || 'openai/gpt-4.1' }}
+        run: |
+          mkdir -p habitat-out
+          PYTHONPATH=. python - <<'PY'
+          import json
+          import os
+          from tools.genesis_third_wish_github_models_broker import GitHubModelsRESTTransport
+
+          model = os.environ.get('JANUS_GITHUB_MODELS_MODEL', 'openai/gpt-4.1')
+          result = {'schema':'janus.genesis.third_wish.github_models_provider_probe.v1','model':model,'effect_authority':False}
+          try:
+              data = GitHubModelsRESTTransport().chat(
+                  model=model,
+                  messages=[{'role':'user','content':'Return exactly the word JANUS.'}],
+              )
+              choices = data.get('choices') if isinstance(data, dict) else None
+              content = choices[0].get('message',{}).get('content') if isinstance(choices, list) and choices else None
+              result.update({'status':'PASS','response_present':bool(content)})
+          except Exception as exc:
+              raw = str(exc)
+              code = raw.split(':',1)[0][:160]
+              result.update({'status':'PROVIDER_BLOCKED','code':code,'exception_type':type(exc).__name__})
+          with open('habitat-out/model-provider-probe.json','w',encoding='utf-8') as f:
+              json.dump(result,f,ensure_ascii=False,indent=2,sort_keys=True)
+              f.write('\n')
+          print(json.dumps(result,ensure_ascii=False,sort_keys=True))
+          PY
+
       - name: Run read-only PR habitat probe
         if: github.event_name == 'pull_request'
         env:
@@ -154,11 +185,13 @@ jobs:
           print('JANUS_AUTONOMY_HIGH_IMPACT_AUTHORITY=FALSE')
           PY
 
-      - name: Preserve habitat wake receipt
+      - name: Preserve habitat wake receipt and provider probe
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: janus-third-wish-autonomy-habitat-${{ github.run_id }}-${{ github.run_attempt }}
-          path: habitat-out/run.json
+          path: |
+            habitat-out/run.json
+            habitat-out/model-provider-probe.json
           if-no-files-found: warn
           retention-days: 30
