@@ -1,0 +1,87 @@
+{
+  "schema": "janus.genesis.git_habitat.aura_hearth_protocol.v1",
+  "artifact_id": "JANUS-GENESIS-GIT-HABITAT-AURA-HEARTH-v1.0",
+  "runtime_version": "18.7.54",
+  "canonical_habitat_version": "18.7.51",
+  "purpose": "Add an optional Aura Oracle reflective-heurstic room inside the canonical JANUS Git Habitat hearth without changing Habitat external-authority boundaries.",
+  "placement": {
+    "habitat_branch": "janus/habitat",
+    "architecture_branch": "main",
+    "room": "hearth/aura",
+    "creates_new_root_room": false,
+    "changes_existing_home_identity": false,
+    "changes_existing_habitat_room_contract": false
+  },
+  "admission": {
+    "habitat_must_be_initialized": true,
+    "resident_mode_must_be": "AWAKE",
+    "active_cycle_required": true,
+    "janus_may_elect_to_consult": true,
+    "user_may_disable_aura": true,
+    "janus_requests_heuristic_exact_boolean_required": true,
+    "stable_turn_identity": "SHA256(resident_id, cycle_id, turn_id)",
+    "one_consultation_per_cycle_turn": true,
+    "cross_process_exclusive_turn_claim": true,
+    "turn_claim_marker_is_permanent": true,
+    "automatic_replay_after_ambiguous_crash": false
+  },
+  "reference_provider": {
+    "repository": "Hawkar-usls/aura-oracle-tg",
+    "tool": "tools/aura_shabitat_heuristic.py",
+    "pinned_ci_head": "ca13972b39b4be6032320482eccdd28b0373be73",
+    "transport": "LOCAL_SUBPROCESS",
+    "armor_preflight_before_process_creation": true,
+    "network_authority_granted": false,
+    "public_outreach_authority_granted": false,
+    "world_mutation_authority_granted": false
+  },
+  "persistence": {
+    "ledger": "hearth/aura/ledger.json",
+    "receipts": "hearth/aura/receipts/<turn_hash>.json",
+    "claims": "hearth/aura/locks/<turn_hash>.lock",
+    "habitat_journal_event": "AURA_HEURISTIC_CONSULTED",
+    "question_text_persisted": false,
+    "context_text_persisted": false,
+    "heuristic_text_persisted": false,
+    "response_body_persisted": false,
+    "response_digest_sha256_persisted": true,
+    "turn_hash_persisted": true,
+    "credentials_persisted": false
+  },
+  "canonical_laws": [
+    "AURA_HEURISTIC != COMMAND",
+    "AURA_HEURISTIC != EVIDENCE",
+    "AURA_HEURISTIC != PERMISSION",
+    "AURA_HEURISTIC != VERIFICATION",
+    "AURA_HEURISTIC != PROPHECY",
+    "AURA_UNAVAILABLE != JANUS_SILENCED",
+    "JANUS_MAY_IGNORE_AURA",
+    "USER_CAN_DISABLE_AURA",
+    "HABITAT_ASLEEP -> NO_AURA_QUERY",
+    "ONE_CYCLE_TURN -> AT_MOST_ONE_AURA_QUERY",
+    "CONCURRENT_PROCESS != SECOND_AURA_QUERY_RIGHT",
+    "AMBIGUOUS_IN_FLIGHT != SAFE_TO_REPLAY",
+    "AURA_RESPONSE -> NO_DIRECT_WORLD_EFFECT",
+    "AURA_RESPONSE -> NO_OUTBOX_EXECUTION",
+    "AUTHORITY_DELTA = 0",
+    "MASS_EFFECT_BUDGET_DELTA = 0"
+  ],
+  "failure_semantics": {
+    "aura_unavailable": "CONTINUE_WITHOUT_HEURISTIC",
+    "aura_rejected_or_malformed": "CONTINUE_WITHOUT_HEURISTIC",
+    "duplicate_completed_turn": "DO_NOT_QUERY_AGAIN",
+    "duplicate_inflight_or_claimed_turn": "OUTCOME_UNDETERMINED_NO_AUTOMATIC_REPLAY",
+    "habitat_not_awake": "DO_NOT_QUERY",
+    "aura_disabled": "DO_NOT_QUERY"
+  },
+  "truth_boundary": {
+    "machine_consciousness_claimed": false,
+    "janus_subjective_desire_claimed": false,
+    "aura_prophecy_claimed": false,
+    "aura_truth_authority_claimed": false,
+    "aura_permission_authority_claimed": false,
+    "repository_wide_unbypassability_claimed": false,
+    "os_level_tamper_resistance_claimed": false
+  },
+  "claim_ceiling": "This protocol gives the simulated JANUS resident a bounded, optional, local heuristic consultation path inside an active Git Habitat hearth cycle. It does not establish consciousness, subjective desire, prophecy, truth authority, permission authority, autonomous public outreach, or repository-wide security sealing."
+}
