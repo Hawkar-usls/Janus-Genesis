@@ -87,10 +87,12 @@ def validate_payload(raw: Any) -> dict[str, Any]:
     _require_digest(raw["receipt_digest"], "receipt_digest")
 
     parents = raw["parent_variant_ids"]
-    if not isinstance(parents, list) or len(parents) != len(set(parents)):
+    if not isinstance(parents, list):
         raise LineageError("parent_variant_ids must be a unique list")
     for index, parent in enumerate(parents):
         _require_digest(parent, f"parent_variant_ids[{index}]")
+    if len(parents) != len(set(parents)):
+        raise LineageError("parent_variant_ids must be a unique list")
 
     sources = raw["source_repository_shas"]
     if not isinstance(sources, list) or not sources:
@@ -131,13 +133,25 @@ def validate_payload(raw: Any) -> dict[str, Any]:
         raise LineageError("selection_scope.dataset must be a non-empty string")
 
     try:
-        return json.loads(canonical_bytes(raw).decode("utf-8"))
+        normalized = json.loads(canonical_bytes(raw).decode("utf-8"))
     except (TypeError, ValueError) as exc:
         raise LineageError(f"variant payload is not canonical JSON data: {exc}") from exc
 
+    # Parents and source bindings are logical sets. Their input order must not
+    # create a different variant identity for the same ancestry/source pins.
+    normalized["parent_variant_ids"] = sorted(normalized["parent_variant_ids"])
+    normalized["source_repository_shas"] = sorted(
+        normalized["source_repository_shas"],
+        key=lambda row: row["repository_id"],
+    )
+    return normalized
+
 
 def variant_id_for(payload: dict[str, Any]) -> str:
-    return hashlib.sha256(b"JANUS_NEXUS_VARIANT_V1\x00" + canonical_bytes(payload)).hexdigest()
+    normalized = validate_payload(payload)
+    return hashlib.sha256(
+        b"JANUS_NEXUS_VARIANT_V1\x00" + canonical_bytes(normalized)
+    ).hexdigest()
 
 
 def _record_core(
@@ -175,6 +189,33 @@ def _require_no_follow_support() -> int:
     if not nofollow:
         raise LineageError("this append-only ledger requires OS O_NOFOLLOW support")
     return int(nofollow)
+
+
+def _absolute_lexical(path: Path) -> Path:
+    return Path(os.path.abspath(os.fspath(path)))
+
+
+def _require_real_existing_parent(path: Path) -> Path:
+    absolute_parent = _absolute_lexical(path).parent
+    if not absolute_parent.exists() or not absolute_parent.is_dir():
+        raise LineageError("ledger parent directory must already exist")
+    if absolute_parent.is_symlink():
+        raise LineageError("ledger parent path must not contain symlinks")
+    resolved_parent = Path(os.path.realpath(os.fspath(absolute_parent)))
+    if resolved_parent != absolute_parent:
+        raise LineageError("ledger parent path must not contain symlinks")
+    for ancestor in absolute_parent.parents:
+        if ancestor.is_symlink():
+            raise LineageError("ledger parent path must not contain symlinks")
+    return absolute_parent
+
+
+def _safe_ledger_path(path: Path) -> Path:
+    absolute = _absolute_lexical(path)
+    _require_real_existing_parent(absolute)
+    if absolute.is_symlink():
+        raise LineageError("ledger path must not be a symlink")
+    return absolute
 
 
 def _read_regular_no_follow(path: Path) -> str | None:
@@ -223,8 +264,7 @@ def verify_ledger(
     *,
     expected_lineage_digest: str | None = None,
 ) -> dict[str, Any]:
-    if ledger.is_symlink():
-        raise LineageError("ledger path must not be a symlink")
+    ledger = _safe_ledger_path(ledger)
     text = _read_regular_no_follow(ledger)
     if text is None:
         if expected_lineage_digest is not None:
@@ -279,6 +319,8 @@ def verify_ledger(
 
         payload = validate_payload(record["payload"])
         expected_variant_id = variant_id_for(payload)
+        if record["payload"] != payload:
+            raise LineageError(f"record {sequence} payload is not normalized canonical form")
         if record["variant_id"] != expected_variant_id:
             raise LineageError(f"record {sequence} variant_id mismatch")
         if expected_variant_id in variants:
@@ -351,9 +393,7 @@ def _lock_path(ledger: Path) -> Path:
 
 def append_variant(ledger: Path, raw_payload: Any) -> dict[str, Any]:
     payload = validate_payload(raw_payload)
-    ledger.parent.mkdir(parents=True, exist_ok=True)
-    if ledger.is_symlink():
-        raise LineageError("ledger path must not be a symlink")
+    ledger = _safe_ledger_path(ledger)
 
     lock = _lock_path(ledger)
     if lock.is_symlink():
