@@ -23,6 +23,8 @@
     "storage": "append_only_jsonl",
     "event": "FACE_MESSAGE_APPEND",
     "message_validation": "existing janus.project.face_handoff_message.v1 validator",
+    "persisted_message": "exact canonical cleaned validator output",
+    "unknown_or_unvalidated_persisted_fields": "reject_on_verify",
     "sequence": "strict_monotonic_zero_based",
     "hash_chain": "sha256(canonical_record_without_record_digest)",
     "message_id_replay": "same_id_same_digest_is_idempotent",
@@ -32,15 +34,20 @@
     "majority_vote_used": false
   },
   "durability_boundary": {
-    "ledger_open": "O_NOFOLLOW + regular-file fstat",
+    "ledger_leaf_open": "O_NOFOLLOW + regular-file fstat",
+    "parent_directory_must_preexist": true,
+    "parent_path_symlinks_admitted": false,
+    "implicit_parent_directory_creation": false,
     "append_lock": "local O_EXCL fail-closed lock",
     "stale_lock_auto_takeover": false,
     "distributed_lease_claimed": false,
-    "valid_prefix_truncation_detection": "requires externally retained expected ledger digest"
+    "valid_prefix_truncation_detection": "requires externally retained expected ledger digest",
+    "claim_of_hostile_namespace_race_proof": false
   },
   "privacy_boundary": {
     "existing_protocol_secrets_allowed": false,
     "durable_secret_marker_canary": true,
+    "secret_marker_scan_scope": "all strings in canonical cleaned message",
     "secret_marker_canary_is_complete_secret_detection": false,
     "secret_shaped_text_action": "refuse_persistence"
   },
@@ -72,10 +79,12 @@
   "claim_ceiling": {
     "FACE_HANDOFF_LEDGER_V1": "IMPLEMENTATION_PRIMITIVE",
     "APPEND_ONLY_VALIDATED_MESSAGE_PERSISTENCE": "EXECUTABLE_LOCAL_PRIMITIVE",
+    "CANONICAL_CLEANED_MESSAGE_PERSISTENCE": "EXECUTABLE_LOCAL_PRIMITIVE",
     "IDEMPOTENT_MESSAGE_REPLAY": "EXECUTABLE_LOCAL_PRIMITIVE",
     "MESSAGE_ID_REBINDING_REJECTION": "EXECUTABLE_LOCAL_PRIMITIVE",
     "CONFLICT_PRESERVATION_AND_RECONCILIATION_VIEW": "EXECUTABLE_LOCAL_PRIMITIVE",
     "VALID_PREFIX_TRUNCATION_DETECTION_WITHOUT_EXTERNAL_RECEIPT": false,
+    "HOSTILE_FILESYSTEM_NAMESPACE_RACE_PROOF": false,
     "DISTRIBUTED_LEASE_SAFETY": false,
     "LEASE_CONFLICT_TESTS": false,
     "SESSION_DROP_RECOVERY_TEST": false,
