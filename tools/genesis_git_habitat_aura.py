@@ -66,13 +66,23 @@ def _sha256(value: Any) -> str:
 
 
 def _ensure_real_dir(path: Path) -> None:
-    if path.exists():
-        if path.is_symlink():
-            raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
-        if not path.is_dir():
-            raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
-    else:
+    """Prepare a shared real directory without turning creation into a mutex.
+
+    Multiple Habitat processes may legitimately prepare the same Aura hearth
+    directory at once.  Directory creation therefore tolerates another process
+    winning the mkdir race; per-turn exclusivity remains exclusively enforced by
+    the O_EXCL lock file in `_claim_turn_once`.
+    """
+    try:
         path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        # A concurrently-created directory is normal shared-state preparation,
+        # not a turn-claim result.  Validate the settled filesystem object below.
+        pass
+    if path.is_symlink():
+        raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
+    if not path.is_dir():
+        raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
 
 
 def _write_json_atomic(path: Path, value: Any) -> None:
