@@ -6,43 +6,20 @@ import unittest
 
 from tools.janus_preservation_integration_evidence import (
     PreservationEvidenceError,
-    evaluate,
+    digest,
+    evaluate as evaluate_evidence,
 )
 
 
 class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
     def refs(self) -> dict[str, dict[str, object]]:
         return {
-            "materializer": {
-                "repository": "Hawkar-usls/Janus_Genesis",
-                "pull_request": 122,
-                "sha": "1" * 40,
-            },
-            "privacy_projection": {
-                "repository": "Hawkar-usls/Janus_Genesis",
-                "pull_request": 125,
-                "sha": "2" * 40,
-            },
-            "source_pin_contract": {
-                "repository": "Hawkar-usls/Janus_Genesis",
-                "pull_request": 126,
-                "sha": "6" * 40,
-            },
-            "variant_lineage": {
-                "repository": "Hawkar-usls/Janus_Genesis",
-                "pull_request": 123,
-                "sha": "3" * 40,
-            },
-            "handoff_ledger": {
-                "repository": "Hawkar-usls/Janus_Genesis",
-                "pull_request": 124,
-                "sha": "4" * 40,
-            },
-            "swarm_recovery": {
-                "repository": "Hawkar-usls/janus-distributed-ai-swarm",
-                "pull_request": 5,
-                "sha": "5" * 40,
-            },
+            "materializer": {"repository": "Hawkar-usls/Janus_Genesis", "pull_request": 122, "sha": "1" * 40},
+            "privacy_projection": {"repository": "Hawkar-usls/Janus_Genesis", "pull_request": 125, "sha": "2" * 40},
+            "source_pin_contract": {"repository": "Hawkar-usls/Janus_Genesis", "pull_request": 126, "sha": "6" * 40},
+            "variant_lineage": {"repository": "Hawkar-usls/Janus_Genesis", "pull_request": 123, "sha": "3" * 40},
+            "handoff_ledger": {"repository": "Hawkar-usls/Janus_Genesis", "pull_request": 124, "sha": "4" * 40},
+            "swarm_recovery": {"repository": "Hawkar-usls/janus-distributed-ai-swarm", "pull_request": 5, "sha": "5" * 40},
         }
 
     def lock(self) -> dict[str, object]:
@@ -108,8 +85,13 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
             },
         }
 
+    def evaluate(self, bundle=None, lock=None, expected_lock_digest=None):
+        actual_lock = lock if lock is not None else self.lock()
+        pinned = expected_lock_digest if expected_lock_digest is not None else digest(actual_lock)
+        return evaluate_evidence(bundle if bundle is not None else self.bundle(), actual_lock, pinned)
+
     def test_complete_preregistered_evidence_bundle_is_consistent(self) -> None:
-        result = evaluate(self.bundle(), self.lock())
+        result = self.evaluate()
         self.assertEqual(result["decision"], "EVIDENCE_BUNDLE_CONSISTENT")
         self.assertTrue(result["clean_target_rebuild_exercised"])
         self.assertTrue(result["typed_source_pin_contract_passed"])
@@ -120,119 +102,122 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         self.assertFalse(result["empirical_replay_claimed_by_this_verifier"])
         self.assertFalse(result["merge_permission_granted"])
 
+    def test_out_of_band_lock_digest_is_mandatory(self) -> None:
+        with self.assertRaisesRegex(PreservationEvidenceError, "external producer lock digest mismatch"):
+            self.evaluate(expected_lock_digest="0" * 64)
+        with self.assertRaisesRegex(PreservationEvidenceError, "lowercase 64-hex"):
+            self.evaluate(expected_lock_digest="not-a-digest")
+
     def test_producer_refs_must_match_external_lock(self) -> None:
         bundle = self.bundle()
         bundle["producer_refs"]["materializer"]["sha"] = "7" * 40  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "producer refs do not match"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
     def test_repository_identity_is_bound_per_producer_role(self) -> None:
         lock = self.lock()
-        lock["producer_refs"]["swarm_recovery"]["repository"] = (  # type: ignore[index]
-            "Hawkar-usls/Janus_Genesis"
-        )
+        lock["producer_refs"]["swarm_recovery"]["repository"] = "Hawkar-usls/Janus_Genesis"  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "janus-distributed-ai-swarm"):
-            evaluate(self.bundle(), lock)
+            self.evaluate(lock=lock)
 
     def test_malformed_producer_sha_and_pr_fail_closed(self) -> None:
         lock = self.lock()
         lock["producer_refs"]["swarm_recovery"]["sha"] = "main"  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "exact lowercase 40-hex"):
-            evaluate(self.bundle(), lock)
+            self.evaluate(lock=lock)
 
         lock = self.lock()
         lock["producer_refs"]["materializer"]["pull_request"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "positive integer PR"):
-            evaluate(self.bundle(), lock)
+            self.evaluate(lock=lock)
 
     def test_source_pin_contract_is_mandatory_and_never_inferred(self) -> None:
         inferred = self.bundle()
         inferred["source_pins"]["type_inference_used"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
-            evaluate(inferred, self.lock())
+            self.evaluate(bundle=inferred)
 
         wrong_kind = self.bundle()
         wrong_kind["source_pins"]["git_commit_kind"] = "OPAQUE_VERSION_TOKEN"  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be GIT_COMMIT_SHA1"):
-            evaluate(wrong_kind, self.lock())
+            self.evaluate(bundle=wrong_kind)
 
         leaked = self.bundle()
         leaked["source_pins"]["private_exact_pin_publication"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
-            evaluate(leaked, self.lock())
+            self.evaluate(bundle=leaked)
 
     def test_independent_rebuild_digest_mismatch_is_rejected(self) -> None:
         bundle = self.bundle()
         bundle["materializer"]["rebuild_b_digest"] = "7" * 64  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "rebuild digests differ"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
     def test_missing_or_malformed_failed_variant_evidence_is_rejected(self) -> None:
         bundle = self.bundle()
         bundle["lineage"]["failed_variant_ids"] = []  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "at least one retained failed variant"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
         malformed = self.bundle()
         malformed["lineage"]["failed_variant_ids"] = [{"not": "hashable-as-id"}]  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be lowercase 64-hex"):
-            evaluate(malformed, self.lock())
+            self.evaluate(bundle=malformed)
 
     def test_lineage_head_mismatch_is_rejected(self) -> None:
         bundle = self.bundle()
         bundle["lineage"]["observed_head_digest"] = "8" * 64  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "lineage expected/observed"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
     def test_handoff_must_reconstruct_hold_without_majority_vote(self) -> None:
         not_hold = self.bundle()
         not_hold["handoff"]["reconciliation_status"] = "CONSISTENT"  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be HOLD_RECONCILE"):
-            evaluate(not_hold, self.lock())
+            self.evaluate(bundle=not_hold)
 
         majority = self.bundle()
         majority["handoff"]["majority_vote_used"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
-            evaluate(majority, self.lock())
+            self.evaluate(bundle=majority)
 
         malformed = self.bundle()
         malformed["handoff"]["conflict_message_ids"] = ["MSG-A", {"bad": "id"}]  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be a non-empty string"):
-            evaluate(malformed, self.lock())
+            self.evaluate(bundle=malformed)
 
     def test_swarm_session_drop_and_resume_are_mandatory(self) -> None:
         bundle = self.bundle()
         bundle["swarm"]["session_drop_exercised"] = False  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be True"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
         bundle = self.bundle()
         bundle["swarm"]["resume_decision"] = "HOLD"  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be RESUME"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
     def test_source_identity_change_or_writeback_is_rejected(self) -> None:
         changed = self.bundle()
         changed["source_guard"]["after_identity_digest"] = "0" * 64  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "source identity changed"):
-            evaluate(changed, self.lock())
+            self.evaluate(bundle=changed)
 
         wrote = self.bundle()
         wrote["source_guard"]["writeback_observed"] = True  # type: ignore[index]
         with self.assertRaisesRegex(PreservationEvidenceError, "must be False"):
-            evaluate(wrote, self.lock())
+            self.evaluate(bundle=wrote)
 
     def test_unknown_bundle_fields_are_rejected(self) -> None:
         bundle = self.bundle()
         bundle["permission_granted"] = True
         with self.assertRaisesRegex(PreservationEvidenceError, "bundle keys mismatch"):
-            evaluate(bundle, self.lock())
+            self.evaluate(bundle=bundle)
 
     def test_public_summary_does_not_echo_local_sensitive_evidence(self) -> None:
         bundle = self.bundle()
-        result = evaluate(bundle, self.lock())
+        result = self.evaluate(bundle=bundle)
         serialized = json.dumps(result, sort_keys=True)
-
         local_sensitive = {
             bundle["materializer"]["rebuild_a_digest"],  # type: ignore[index]
             bundle["lineage"]["expected_head_digest"],  # type: ignore[index]
@@ -249,14 +234,15 @@ class PreservationIntegrationEvidenceV1Tests(unittest.TestCase):
         self.assertFalse(result["local_sensitive_evidence_persisted_in_summary"])
         self.assertEqual(result["producer_refs"], self.refs())
 
-    def test_lock_is_external_and_exact_not_self_declared(self) -> None:
+    def test_lock_digest_and_refs_are_preserved_in_public_summary(self) -> None:
         bundle = self.bundle()
         lock = self.lock()
         bundle_refs = copy.deepcopy(bundle["producer_refs"])
         lock["producer_refs"] = bundle_refs
-        result = evaluate(bundle, lock)
+        pinned_digest = digest(lock)
+        result = self.evaluate(bundle=bundle, lock=lock, expected_lock_digest=pinned_digest)
         self.assertEqual(result["producer_refs"], self.refs())
-        self.assertRegex(result["producer_lock_digest"], r"^[0-9a-f]{64}$")
+        self.assertEqual(result["producer_lock_digest"], pinned_digest)
 
 
 if __name__ == "__main__":
