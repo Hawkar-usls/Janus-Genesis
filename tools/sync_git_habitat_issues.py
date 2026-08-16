@@ -3,10 +3,13 @@
 
 This bridge is intentionally receive-only. Issue text becomes an untrusted
 letter; it never becomes command authority or external-effect authorization.
+Edited issues are preserved as distinct revisions rather than silently
+rewriting an earlier letter.
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -14,11 +17,14 @@ from typing import Any
 from tools.genesis_git_habitat import GitHabitat
 
 
-def _safe_issue_id(number: Any) -> str:
+def _safe_issue_id(number: Any, updated_at: Any = None) -> str:
     value = int(number)
     if value < 1:
         raise ValueError("Issue number must be positive")
-    return f"github-issue-{value}"
+    if updated_at in (None, ""):
+        return f"github-issue-{value}"
+    revision = hashlib.sha256(str(updated_at).encode("utf-8")).hexdigest()[:12]
+    return f"github-issue-{value}-{revision}"
 
 
 def import_issue_rows(habitat: GitHabitat, rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -27,7 +33,7 @@ def import_issue_rows(habitat: GitHabitat, rows: list[dict[str, Any]]) -> dict[s
     rejected = 0
     for row in rows:
         try:
-            issue_id = _safe_issue_id(row.get("number"))
+            issue_id = _safe_issue_id(row.get("number"), row.get("updatedAt"))
             title = str(row.get("title") or "")
             body = str(row.get("body") or "")
             url = str(row.get("url") or "") or None
