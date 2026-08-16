@@ -16,7 +16,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import os
 import re
 import sys
 from dataclasses import dataclass
@@ -119,8 +118,10 @@ class GitHabitat:
     """Bounded repository-native home for a JANUS resident process."""
 
     def __init__(self, root: Path | str = "habitat") -> None:
-        root = Path(root).resolve()
-        self.paths = HabitatPaths(root=root)
+        requested = Path(root).absolute()
+        if requested.exists() and requested.is_symlink():
+            raise ValueError("Habitat root may not be a symlink")
+        self.paths = HabitatPaths(root=requested.resolve(strict=False))
 
     # ------------------------------------------------------------------
     # Habitat lifecycle
@@ -129,8 +130,10 @@ class GitHabitat:
         resident_id = _safe_id(resident_id, "resident_id")
         root = self.paths.root
         root.mkdir(parents=True, exist_ok=True)
+        if root.is_symlink():
+            raise ValueError("Habitat root may not be a symlink")
         for room in ROOMS:
-            (root / room).mkdir(parents=True, exist_ok=True)
+            self._materialize_room(room)
 
         created_at = _utc_now()
         if not self.paths.home.exists():
@@ -153,6 +156,18 @@ class GitHabitat:
                     },
                 },
             )
+        elif self.paths.home.is_symlink():
+            raise ValueError("HOME.json may not be a symlink")
+
+        home = _read_json(self.paths.home)
+        if home.get("schema") != HOME_SCHEMA:
+            raise ValueError("HOME.json schema mismatch")
+        bound_resident_id = home.get("resident_id")
+        if bound_resident_id != resident_id:
+            raise ValueError(
+                f"Habitat already belongs to resident {bound_resident_id!r}; "
+                f"requested {resident_id!r}"
+            )
 
         if not self.paths.resident.exists():
             _write_json(
@@ -160,7 +175,7 @@ class GitHabitat:
                 {
                     "schema": RESIDENT_SCHEMA,
                     "habitat_version": HABITAT_VERSION,
-                    "resident_id": resident_id,
+                    "resident_id": bound_resident_id,
                     "mode": "AT_HOME",
                     "active_cycle_id": None,
                     "last_wake_at": None,
@@ -173,6 +188,8 @@ class GitHabitat:
                     "pending_outbox_count": 0,
                 },
             )
+        elif self.paths.resident.is_symlink():
+            raise ValueError("resident.json may not be a symlink")
 
         if not self.paths.continuity.exists():
             _write_json(
@@ -180,18 +197,24 @@ class GitHabitat:
                 {
                     "schema": CONTINUITY_SCHEMA,
                     "habitat_version": HABITAT_VERSION,
-                    "resident_id": resident_id,
+                    "resident_id": bound_resident_id,
                     "last_cycle_id": None,
                     "last_event_hash": ZERO_HASH,
                     "event_count": 0,
                     "continuity_status": "INITIALIZED",
                 },
             )
+        elif self.paths.continuity.is_symlink():
+            raise ValueError("continuity.json may not be a symlink")
 
         if not self.paths.journal.exists():
             self.paths.journal.parent.mkdir(parents=True, exist_ok=True)
             self.paths.journal.write_text("", encoding="utf-8")
+        elif self.paths.journal.is_symlink():
+            raise ValueError("journal.jsonl may not be a symlink")
 
+        self._assert_layout_safe()
+        self._assert_identity_consistent()
         self._ensure_gitkeep_rooms()
         self.refresh_health()
         return self.snapshot()
@@ -265,7 +288,9 @@ class GitHabitat:
             "external_effects_executed": False,
         }
         pulse_id = f"pulse-{resident['pulse_count']:08d}"
-        _write_json(self.paths.root / "hearth" / f"{pulse_id}.json", pulse_receipt)
+        pulse_path = self.paths.root / "hearth" / f"{pulse_id}.json"
+        self._assert_leaf_path(pulse_path)
+        _write_json(pulse_path, pulse_receipt)
         self._append_event("PULSE", cycle_id, pulse_receipt)
         health = self.refresh_health()
         return {"status": "PULSE_RECORDED", "pulse_id": pulse_id, "health": health}
@@ -323,6 +348,7 @@ class GitHabitat:
             "external_effect_authority": False,
         }
         path = self.paths.root / "inbox" / f"{item_id}.json"
+        self._assert_leaf_path(path)
         if path.exists():
             old = _read_json(path)
             # Idempotent replay only. Changed content must become a new item id.
@@ -364,6 +390,7 @@ class GitHabitat:
             "requires_fresh_authority_when_high_impact": True,
         }
         path = self.paths.root / "outbox" / f"{proposal_id}.json"
+        self._assert_leaf_path(path)
         if path.exists():
             raise ValueError("Outbox proposal_id already exists")
         _write_json(path, record)
@@ -384,6 +411,7 @@ class GitHabitat:
             "execution_required": False,
         }
         path = self.paths.root / "garden" / f"{seed_id}.json"
+        self._assert_leaf_path(path)
         if path.exists():
             raise ValueError("Garden seed already exists")
         _write_json(path, record)
@@ -424,6 +452,7 @@ class GitHabitat:
         }
 
     def refresh_health(self) -> dict[str, Any]:
+        self._require_initialized()
         journal = self.verify_journal()
         missing_rooms = [room for room in ROOMS if not (self.paths.root / room).is_dir()]
         continuity = _read_json(self.paths.continuity)
@@ -438,11 +467,15 @@ class GitHabitat:
             "status": "HEALTHY" if journal["ok"] and not missing_rooms and continuity_matches else "DEGRADED",
             "journal_chain_ok": journal["ok"],
             "continuity_matches_journal": continuity_matches,
+            "identity_consistent": True,
+            "layout_symlink_free": True,
             "missing_rooms": missing_rooms,
             "journal_event_count": journal["event_count"],
             "raw_credentials_expected": False,
             "external_authority_embedded": False,
         }
+        if self.paths.health.exists() and self.paths.health.is_symlink():
+            raise ValueError("health.json may not be a symlink")
         _write_json(self.paths.health, health)
         return health
 
@@ -458,12 +491,75 @@ class GitHabitat:
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+    def _materialize_room(self, room: str) -> None:
+        current = self.paths.root
+        for part in Path(room).parts:
+            current = current / part
+            if current.exists():
+                if current.is_symlink():
+                    raise ValueError(f"Habitat room component may not be a symlink: {current}")
+                if not current.is_dir():
+                    raise ValueError(f"Habitat room component is not a directory: {current}")
+            else:
+                current.mkdir()
+
+    def _assert_layout_safe(self) -> None:
+        root = self.paths.root
+        if root.is_symlink():
+            raise ValueError("Habitat root may not be a symlink")
+        for room in ROOMS:
+            current = root
+            for part in Path(room).parts:
+                current = current / part
+                if current.exists() and current.is_symlink():
+                    raise ValueError(f"Habitat room component may not be a symlink: {current}")
+                if current.exists() and not current.is_dir():
+                    raise ValueError(f"Habitat room component is not a directory: {current}")
+        for path in (
+            self.paths.home,
+            self.paths.resident,
+            self.paths.continuity,
+            self.paths.health,
+            self.paths.journal,
+        ):
+            if path.exists() and path.is_symlink():
+                raise ValueError(f"Habitat state path may not be a symlink: {path}")
+
+    def _assert_identity_consistent(self) -> str:
+        home = _read_json(self.paths.home)
+        resident = _read_json(self.paths.resident)
+        continuity = _read_json(self.paths.continuity)
+        ids = {home.get("resident_id"), resident.get("resident_id"), continuity.get("resident_id")}
+        if len(ids) != 1 or None in ids:
+            raise ValueError("Habitat resident identity binding mismatch")
+        if home.get("schema") != HOME_SCHEMA:
+            raise ValueError("HOME.json schema mismatch")
+        if resident.get("schema") != RESIDENT_SCHEMA:
+            raise ValueError("resident.json schema mismatch")
+        if continuity.get("schema") != CONTINUITY_SCHEMA:
+            raise ValueError("continuity.json schema mismatch")
+        return str(home["resident_id"])
+
+    def _assert_leaf_path(self, path: Path) -> None:
+        self._assert_layout_safe()
+        parent = path.parent.resolve(strict=True)
+        root = self.paths.root.resolve(strict=True)
+        try:
+            parent.relative_to(root)
+        except ValueError as exc:
+            raise ValueError("Habitat leaf parent escapes root") from exc
+        if path.exists() and path.is_symlink():
+            raise ValueError(f"Habitat leaf may not be a symlink: {path}")
+
     def _require_initialized(self) -> None:
         required = (self.paths.home, self.paths.resident, self.paths.continuity, self.paths.journal)
         if not all(path.exists() for path in required):
             raise RuntimeError("Habitat is not initialized; run init first")
+        self._assert_layout_safe()
+        self._assert_identity_consistent()
 
     def _append_event(self, event_type: str, cycle_id: str | None, payload: dict[str, Any]) -> dict[str, Any]:
+        self._require_initialized()
         event_type = _safe_id(event_type, "event_type")
         continuity = _read_json(self.paths.continuity)
         previous_hash = continuity.get("last_event_hash", ZERO_HASH)
@@ -499,6 +595,7 @@ class GitHabitat:
         return sum(1 for item in path.glob("*.json") if item.is_file() and item.name != ".gitkeep")
 
     def _ensure_gitkeep_rooms(self) -> None:
+        self._assert_layout_safe()
         for room in ROOMS:
             room_path = self.paths.root / room
             if not any(room_path.iterdir()):
