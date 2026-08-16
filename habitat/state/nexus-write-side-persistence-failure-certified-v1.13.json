@@ -1,0 +1,39 @@
+{
+  "schema": "janus.git_habitat.nexus_write_safety_state.v1",
+  "state_id": "NEXUS-WRITE-SIDE-PERSISTENCE-FAILURE-CERTIFIED-v1.13",
+  "recorded_at_local": "2026-08-17T02:57:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "cd77fcb7c2819c5f5e3bafa916537ec1ed5d7dc6",
+  "parent_storage_exact_head": "7bbacfdc78766638572f00ea0ac1f71fc1a5672c",
+  "status": "CERTIFIED_WRITE_SIDE_PERSISTENCE_FAILURE_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-WRITE-SIDE-PERSISTENCE-FAILURE-EXACT-HEAD-CI-CERTIFICATE-v1.13.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-WRITE-SAFETY-AUTHORITY-v1.json",
+  "frozen_holdout": {
+    "path": "fixtures/nexus_write_side_failure_holdout_v1.json",
+    "cases": 10,
+    "freeze_sha256": "4297fd48ccff1d32fee9d9729759afba37345b69fe51c0cc40e0647ef3dcb41e"
+  },
+  "certified_boundaries": {
+    "pre_handler_dispatch_begin_write_failure": "HOLD_NO_HANDLER_INVOCATION",
+    "real_sqlite_lock_before_handler": "HOLD_NO_HANDLER_INVOCATION",
+    "post_handler_dispatch_finalization_failure": "PRESERVE_STARTED_OR_AMBIGUOUS_NO_RETRY",
+    "durable_dispatch_completed_then_lifecycle_write_failure": "PRESERVE_COMPLETED_DISPATCH_EVIDENCE",
+    "healthy_write_path": "CLOSED_CLEAN"
+  },
+  "boundaries": {
+    "fault_injection_runtime_mode": false,
+    "real_enospc_tested": false,
+    "real_read_only_filesystem_tested": false,
+    "physical_wal_corruption_tested": false,
+    "power_loss_atomicity_tested": false,
+    "automatic_recovery": false,
+    "automatic_restart": false,
+    "automatic_retry": false,
+    "cross_host_transport": false,
+    "persistent_daemon": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "PHYSICAL_WAL_SIDECAR_FAIL_CLOSED_HOLDOUT"
+}
