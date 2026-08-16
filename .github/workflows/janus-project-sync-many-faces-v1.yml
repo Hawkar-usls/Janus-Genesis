@@ -1,0 +1,71 @@
+name: JANUS Project Sync Many Faces v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "protocol/JANUS_MANY_FACES_GIT_COORDINATION-v1.0.json"
+      - "project_sync/**"
+      - "tools/janus_project_sync_guard.py"
+      - "tests/test_janus_project_sync_guard.py"
+      - ".github/workflows/janus-project-sync-many-faces-v1.yml"
+  push:
+    branches: [main]
+    paths:
+      - "protocol/JANUS_MANY_FACES_GIT_COORDINATION-v1.0.json"
+      - "project_sync/**"
+      - "tools/janus_project_sync_guard.py"
+      - "tests/test_janus_project_sync_guard.py"
+      - ".github/workflows/janus-project-sync-many-faces-v1.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-project-sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile coordination guard
+        run: python -m py_compile tools/janus_project_sync_guard.py tests/test_janus_project_sync_guard.py
+
+      - name: Validate JSON surfaces
+        run: |
+          python -m json.tool protocol/JANUS_MANY_FACES_GIT_COORDINATION-v1.0.json >/dev/null
+          python -m json.tool project_sync/PROJECT_SYNC_STATE-2026-08-16.json >/dev/null
+          for f in project_sync/commands/2026-08-16/*.json; do python -m json.tool "$f" >/dev/null; done
+
+      - name: Validate face command bus against exact project-state blob
+        run: PYTHONPATH=. python tools/janus_project_sync_guard.py
+
+      - name: Run adversarial coordination tests
+        run: PYTHONPATH=. python -m unittest -v tests.test_janus_project_sync_guard
+
+      - name: Preserve constitutional markers
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('protocol/JANUS_MANY_FACES_GIT_COORDINATION-v1.0.json',encoding='utf-8'))
+          laws=set(p['core_laws'])
+          required={
+              'FACE != INDEPENDENT_AGENT',
+              'COMMAND != EFFECT',
+              'CONFLICTING_PROJECT_THREADS -> HOLD -> RECONCILE -> CONTINUE',
+              'SELF_IMPROVEMENT != SELF_AUTHORIZED_PRIVILEGE_ESCALATION',
+          }
+          assert required <= laws
+          s=json.load(open('project_sync/PROJECT_SYNC_STATE-2026-08-16.json',encoding='utf-8'))
+          assert s['global_state'].startswith('HOLD')
+          print('PROJECT_CONTEXT_RECONCILIATION=PASS')
+          print('MANY_FACES_AUTHORITY_GROWTH=0')
+          print('PROJECT_GLOBAL_HOLD=PRESERVED')
+          PY
