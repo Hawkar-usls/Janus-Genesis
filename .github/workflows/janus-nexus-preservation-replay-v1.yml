@@ -5,10 +5,12 @@ on:
     paths:
       - "tools/janus_nexus_materializer.py"
       - "tools/janus_nexus_preservation_replay.py"
-      - "tests/test_janus_nexus_materializer*.py"
-      - "tests/test_janus_nexus_preservation_replay_v1.py"
+      - "tests/test_janus_nexus_*.py"
+      - "protocol/JANUS_NEXUS_MATERIALIZER-v1.0.json"
+      - "protocol/JANUS_NEXUS_MANIFEST-v1.0.schema.json"
       - "protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json"
       - "protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json"
+      - ".github/workflows/janus-nexus-materializer-v1.yml"
       - ".github/workflows/janus-nexus-preservation-replay-v1.yml"
   workflow_dispatch:
 
@@ -30,19 +32,21 @@ jobs:
 
       - name: Validate protocol JSON
         run: |
+          python -m json.tool protocol/JANUS_NEXUS_MATERIALIZER-v1.0.json >/dev/null
+          python -m json.tool protocol/JANUS_NEXUS_MANIFEST-v1.0.schema.json >/dev/null
           python -m json.tool protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
           python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json >/dev/null
 
-      - name: Compile preservation surface
+      - name: Compile complete stacked Nexus contract
         run: |
           python -m py_compile tools/janus_nexus_materializer.py
           python -m py_compile tools/janus_nexus_preservation_replay.py
-          python -m py_compile tests/test_janus_nexus_preservation_replay_v1.py
+          python -m py_compile tests/test_janus_nexus_*.py
 
-      - name: Replay inherited Nexus materializer regressions
-        run: python -m unittest discover -s tests -p 'test_janus_nexus_materializer*.py' -v
+      - name: Replay complete inherited Nexus P0 contract
+        run: python -m unittest discover -s tests -p 'test_janus_nexus_*.py' -v
 
-      - name: Run synthetic complete 44-slot preservation replay
+      - name: Reassert synthetic complete 44-slot preservation replay
         run: python -m unittest -v tests.test_janus_nexus_preservation_replay_v1
 
       - name: Enforce privacy and authority boundary
@@ -54,6 +58,7 @@ jobs:
           grep -F '"private_tree_digest_allowed": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
           grep -F '"whole_nexus_digest_allowed": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
           grep -F '"source_writeback": false' protocol/JANUS_NEXUS_PRESERVATION_REPLAY-v1.0.json >/dev/null
+          echo 'PRESERVATION_INHERITED_NEXUS_CONTRACT=COMPLETE'
           echo 'PRESERVATION_PRIVATE_PIN_PUBLICATION=FALSE'
           echo 'PRESERVATION_WHOLE_NEXUS_DIGEST_PUBLICATION=FALSE'
           echo 'PRESERVATION_SOURCE_WRITEBACK=FALSE'
