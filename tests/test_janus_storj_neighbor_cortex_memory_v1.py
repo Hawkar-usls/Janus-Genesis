@@ -4,6 +4,7 @@ import asyncio
 import sqlite3
 import sys
 import tempfile
+import threading
 import time
 import unittest
 from pathlib import Path
@@ -51,7 +52,8 @@ class JanusStorjNeighborCortexMemoryTests(unittest.IsolatedAsyncioTestCase):
             with sqlite3.connect(memory.db_path) as conn:
                 mode = conn.execute("PRAGMA journal_mode").fetchone()[0]
                 indexes = {
-                    row[1] for row in conn.execute("PRAGMA index_list('memories')").fetchall()
+                    row[1]
+                    for row in conn.execute("PRAGMA index_list('memories')").fetchall()
                 }
             self.assertEqual(str(mode).lower(), "wal")
             self.assertIn("idx_memories_tag", indexes)
@@ -91,6 +93,18 @@ class JanusStorjNeighborCortexMemoryTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.sleep(0.18)
             self.assertEqual(await memory.count_durable_rows(), 1)
             self.assertEqual(memory.buffered_rows, 0)
+            await memory.close()
+
+    async def test_new_remember_resets_idle_deadline(self):
+        with tempfile.TemporaryDirectory() as directory:
+            memory = self.make_memory(Path(directory), flush_timeout=0.08)
+            await memory.remember("idle", "first")
+            await asyncio.sleep(0.05)
+            await memory.remember("idle", "second resets deadline")
+            await asyncio.sleep(0.045)
+            self.assertEqual(await memory.count_durable_rows(), 0)
+            await asyncio.sleep(0.08)
+            self.assertEqual(await memory.count_durable_rows(), 2)
             await memory.close()
 
     async def test_flush_disk_io_does_not_block_event_loop(self):
@@ -142,6 +156,59 @@ class JanusStorjNeighborCortexMemoryTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(await memory.count_durable_rows(), 1)
             await memory.close()
 
+    async def test_close_waits_for_active_idle_disk_worker_without_duplicate(self):
+        with tempfile.TemporaryDirectory() as directory:
+            memory = self.make_memory(Path(directory), flush_timeout=0.03)
+            original = memory._persist_batch_sync
+            started = threading.Event()
+            release = threading.Event()
+
+            def blocked_persist(batch):
+                started.set()
+                if not release.wait(2.0):
+                    raise RuntimeError("test did not release disk worker")
+                original(batch)
+
+            memory._persist_batch_sync = blocked_persist  # type: ignore[method-assign]
+            await memory.remember("shutdown-race", "exactly once")
+            self.assertTrue(await asyncio.to_thread(started.wait, 1.0))
+
+            close_task = asyncio.create_task(memory.close())
+            await asyncio.sleep(0.04)
+            self.assertFalse(
+                close_task.done(),
+                "close must join an active SQLite worker instead of cancelling it",
+            )
+            release.set()
+            receipt = await asyncio.wait_for(close_task, timeout=2.0)
+            self.assertEqual(receipt.rows, 0)
+            self.assertEqual(memory.buffered_rows, 0)
+            self.assertEqual(await memory.count_durable_rows(), 1)
+
+    async def test_failed_close_is_retryable_and_retains_memory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            memory = self.make_memory(Path(directory), flush_timeout=10.0)
+            original = memory._persist_batch_sync
+            calls = 0
+
+            def fail_once(batch):
+                nonlocal calls
+                calls += 1
+                if calls == 1:
+                    raise sqlite3.OperationalError("synthetic close failure")
+                original(batch)
+
+            memory._persist_batch_sync = fail_once  # type: ignore[method-assign]
+            await memory.remember("close-retry", "must remain after failed close")
+            with self.assertRaises(CortexFlushError):
+                await memory.close()
+            self.assertEqual(memory.buffered_rows, 1)
+            self.assertFalse(memory._closed)
+            self.assertFalse(memory._closing)
+            receipt = await memory.close()
+            self.assertEqual(receipt.rows, 1)
+            self.assertEqual(await memory.count_durable_rows(), 1)
+
     async def test_recall_combines_ram_and_hdd_with_one_global_limit(self):
         with tempfile.TemporaryDirectory() as directory:
             memory = self.make_memory(Path(directory), batch_size=3)
@@ -157,10 +224,10 @@ class JanusStorjNeighborCortexMemoryTests(unittest.IsolatedAsyncioTestCase):
 
             hits = await memory.recall_hits("Janus", limit=3)
             self.assertEqual(len(hits), 3)
-            self.assertEqual([hit.content for hit in hits[:2]], [
-                "Janus RAM fifth",
-                "Janus RAM fourth",
-            ])
+            self.assertEqual(
+                [hit.content for hit in hits[:2]],
+                ["Janus RAM fifth", "Janus RAM fourth"],
+            )
             self.assertEqual(hits[2].content, "Janus durable third")
             self.assertEqual([hit.source for hit in hits], ["RAM", "RAM", "HDD"])
             formatted = await memory.recall("Janus", limit=2)
