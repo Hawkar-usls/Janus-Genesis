@@ -1,0 +1,77 @@
+name: JANUS project sync state ledger v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'project_sync/**'
+      - 'tools/janus_project_sync_state.py'
+      - 'tests/test_janus_project_sync_state.py'
+      - '.github/workflows/janus-project-sync-state-ledger-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'project_sync/**'
+      - 'tools/janus_project_sync_state.py'
+      - 'tests/test_janus_project_sync_state.py'
+      - '.github/workflows/janus-project-sync-state-ledger-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-ledger:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile and validate JSON
+        run: |
+          python -m py_compile tools/janus_project_sync_state.py tests/test_janus_project_sync_state.py
+          python -m json.tool project_sync/CURRENT.json >/dev/null
+          for f in project_sync/states/*.json project_sync/messages/*/*.json; do python -m json.tool "$f" >/dev/null; done
+
+      - name: Validate through canonical face-handoff contract
+        run: |
+          PYTHONPATH=. python tools/janus_project_sync_state.py
+          PYTHONPATH=. python -m unittest -v tests.test_janus_project_sync_state
+
+      - name: Require fresh project-main reconciliation on pull request
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          STATE_MAIN=$(python - <<'PY'
+          import json
+          print(json.load(open('project_sync/CURRENT.json', encoding='utf-8'))['state_main_sha'])
+          PY
+          )
+          git fetch origin main --depth=1
+          LIVE_MAIN=$(git rev-parse origin/main)
+          echo "PROJECT_SYNC_STATE_MAIN=$STATE_MAIN"
+          echo "LIVE_MAIN=$LIVE_MAIN"
+          test "$STATE_MAIN" = "$LIVE_MAIN"
+
+      - name: Preserve no-authority and no-rewrite boundaries
+        run: |
+          python - <<'PY'
+          import json
+          c=json.load(open('project_sync/CURRENT.json', encoding='utf-8'))
+          s=json.load(open(c['state_path'], encoding='utf-8'))
+          assert s['project_context_policy']['face_is_independent_agent'] is False
+          assert s['project_context_policy']['role_output_is_independent_evidence'] is False
+          assert 'LOCAL_CHAT_CONTEXT != PROJECT_GLOBAL_STATE' in s['claim_boundaries']
+          assert 'CI_PASS != TRUTH' in s['claim_boundaries']
+          print('PROJECT_CHAT_RECONCILIATION=BOUND')
+          print('FACE_AUTHORITY_DELTA=0')
+          print('CURRENT_POINTER_REWRITES_HISTORY=FALSE')
+          PY
