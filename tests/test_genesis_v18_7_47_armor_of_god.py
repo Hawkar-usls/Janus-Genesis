@@ -35,7 +35,7 @@ class ArmorOfGodGateTests(unittest.TestCase):
             parameters=parameters,
         )
 
-    def test_manifest_binds_current_v1_14_and_zero_mass_effect(self):
+    def test_manifest_binds_bootstrap_v1_14_and_zero_mass_effect(self):
         self.assertEqual(self.gate.authority_version, "v1.14")
         self.assertEqual(self.gate.mass_effect_budget, 0)
         historical = self.gate.manifest["historical_policy"]
@@ -128,6 +128,12 @@ class ArmorOfGodGateTests(unittest.TestCase):
         )
         self.assertEqual(passed.decision, ArmorDecision.PASS)
 
+    def test_control_context_can_be_stripped_without_mutating_original(self):
+        original = self.intent(context={"user_initiated": True})
+        sanitized = self.gate.strip_control_context(original)
+        self.assertIn("_armor_context", original.parameters)
+        self.assertNotIn("_armor_context", sanitized.parameters)
+
 
 class ArmoredFabricTests(unittest.TestCase):
     def make_fabric(self):
@@ -182,20 +188,24 @@ class ArmoredFabricTests(unittest.TestCase):
         self.assertEqual(response["status"], "PRE_EFFECT_REJECTED")
         self.assertEqual(calls, [])
 
-    def test_existing_adapter_preflight_is_composed_before_armor(self):
+    def test_strict_adapter_and_handler_never_receive_armor_metadata(self):
         fabric = self.make_fabric()
         order = []
 
-        def adapter_preflight(intent):
+        def strict_adapter_preflight(intent):
             order.append("adapter")
+            self.assertEqual(set(intent.parameters), {"payload"})
+            self.assertNotIn("_armor_context", intent.parameters)
             return {"adapter": "pass"}
 
-        def handler(intent):
+        def strict_handler(intent):
             order.append("handler")
+            self.assertEqual(set(intent.parameters), {"payload"})
+            self.assertNotIn("_armor_context", intent.parameters)
             return {"ok": True}
 
         fabric.register_handler(
-            "WEB.HTTP.POST", handler, preflight=adapter_preflight
+            "WEB.HTTP.POST", strict_handler, preflight=strict_adapter_preflight
         )
         response = fabric.execute(
             self.make_intent(
@@ -217,6 +227,7 @@ class ArmoredFabricTests(unittest.TestCase):
         calls = []
 
         def reject_adapter(intent):
+            self.assertNotIn("_armor_context", intent.parameters)
             raise ValueError("SYNTHETIC_ADAPTER_REJECT")
 
         def handler(intent):
