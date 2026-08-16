@@ -1,0 +1,52 @@
+{
+  "schema": "janus.git_habitat.nexus_one_shot_lifecycle_state.v1",
+  "state_id": "NEXUS-ONE-SHOT-RESPONSE-AMBIGUITY-LIFECYCLE-CERTIFIED-v1.9",
+  "recorded_at_local": "2026-08-17T02:24:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "21f2e21129971abf45ab76833fd31a61a202ba03",
+  "parent_exchange_exact_head": "2cc74bccae6105364dd1eab95d9cb95105c95620",
+  "status": "CERTIFIED_ONE_SHOT_RESPONSE_AMBIGUITY_AND_LIFECYCLE_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-ONE-SHOT-RESPONSE-AMBIGUITY-AND-LIFECYCLE-EXACT-HEAD-CI-CERTIFICATE-v1.9.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-LIFECYCLE-AUTHORITY-v1.json",
+  "frozen_holdout": {
+    "path": "fixtures/nexus_one_shot_lifecycle_holdout_v1.json",
+    "cases": 9,
+    "freeze_sha256": "21b49045bea3853f53112f1ec4917d40b37a9fc4a13ce63dea80a19bb09e1dd6"
+  },
+  "certified_path": [
+    "EXPLICIT_START_GRANT",
+    "PERSISTENT_SINGLE_INSTANCE_LIFECYCLE_LEASE",
+    "LITERAL_LOOPBACK_BIND",
+    "BOUNDED_ACCEPT",
+    "BOUNDED_REQUEST_READ",
+    "AUTHENTICATED_TRANSPORT_WITH_PERSISTENT_REPLAY",
+    "INTENT_GUARDED_LOCAL_DISPATCH",
+    "RECEIPT_PENDING",
+    "BOUNDED_RECEIPT_WRITE",
+    "CLOSED_CLEAN_OR_CLOSED_AMBIGUOUS"
+  ],
+  "ambiguity_rule": {
+    "trigger": "DISPATCH_COMPLETED_AND_RECEIPT_SEND_UNCONFIRMED",
+    "terminal_state": "CLOSED_AMBIGUOUS",
+    "manual_ack_required": true,
+    "automatic_retry": false,
+    "dispatch_intent_guard_preserved_after_ack": true
+  },
+  "boundaries": {
+    "startup_default": "DISABLED",
+    "automatic_start": false,
+    "automatic_restart": false,
+    "automatic_retry": false,
+    "connections_per_instance": 1,
+    "requests_per_connection": 1,
+    "cross_host_transport": false,
+    "general_network_service": false,
+    "persistent_daemon": false,
+    "response_delivery_guarantee": false,
+    "exactly_once_delivery": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "PHASE_BOUNDARY_CRASH_INJECTION_AND_OPERATOR_RECOVERY_SEMANTICS"
+}
