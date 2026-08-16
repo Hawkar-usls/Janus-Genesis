@@ -27,6 +27,7 @@
     "sources": {
       "type": "array",
       "minItems": 1,
+      "x-janus-uniqueBy": "repository_id",
       "items": {
         "oneOf": [
           {
@@ -39,7 +40,7 @@
       }
     }
   },
-  "additionalProperties": true,
+  "additionalProperties": false,
   "$defs": {
     "repositoryId": {
       "type": "string",
@@ -47,7 +48,7 @@
     },
     "branch": {
       "type": "string",
-      "pattern": "^[A-Za-z0-9._/+-]{1,240}$"
+      "pattern": "^(?!.*\\.\\.)[A-Za-z0-9._/+-]{1,240}$"
     },
     "commitSha": {
       "type": "string",
@@ -113,6 +114,8 @@
     "source_writeback_default": "DENY",
     "private_repository_name_is_public_manifest_metadata": false,
     "manifest_is_permission": false,
+    "semantic_validator_required": true,
+    "repository_id_uniqueness_enforced_by_runtime": true,
     "authority_delta": 0
   }
 }
