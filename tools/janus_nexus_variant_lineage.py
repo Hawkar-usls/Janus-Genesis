@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Append-only JANUS NEXUS variant lineage ledger.
 
-This module is deliberately authority-neutral.  It records immutable variant
+This module is deliberately authority-neutral. It records immutable variant
 facts and derives graph views; it does not execute variants, select winners,
 mutate source repositories, or grant writeback permission.
 
-A hash chain detects mutation/reordering of retained records.  Detecting a
+A hash chain detects mutation/reordering of retained records. Detecting a
 valid-prefix truncation requires an externally retained ``lineage_digest``
 receipt and ``verify --expected-lineage-digest``.
 """
@@ -16,6 +16,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import sys
 from pathlib import Path
 from typing import Any
@@ -129,7 +130,6 @@ def validate_payload(raw: Any) -> dict[str, Any]:
     if not isinstance(scope["dataset"], str) or not scope["dataset"].strip():
         raise LineageError("selection_scope.dataset must be a non-empty string")
 
-    # Round-trip through canonical JSON to reject non-JSON values and detach callers.
     try:
         return json.loads(canonical_bytes(raw).decode("utf-8"))
     except (TypeError, ValueError) as exc:
@@ -170,6 +170,54 @@ def _lineage_digest(record_digests: list[str], variant_ids: list[str]) -> str:
     )
 
 
+def _require_no_follow_support() -> int:
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    if not nofollow:
+        raise LineageError("this append-only ledger requires OS O_NOFOLLOW support")
+    return int(nofollow)
+
+
+def _read_regular_no_follow(path: Path) -> str | None:
+    flags = os.O_RDONLY | _require_no_follow_support()
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        raise LineageError(f"cannot open ledger without following links: {exc}") from exc
+    try:
+        mode = os.fstat(fd).st_mode
+        if not stat.S_ISREG(mode):
+            raise LineageError("ledger path must be a regular file")
+        with os.fdopen(fd, "r", encoding="utf-8", closefd=False) as handle:
+            return handle.read()
+    except UnicodeDecodeError as exc:
+        raise LineageError(f"ledger is not valid UTF-8: {exc}") from exc
+    finally:
+        os.close(fd)
+
+
+def _append_regular_no_follow(path: Path, encoded: bytes) -> None:
+    flags = os.O_APPEND | os.O_CREAT | os.O_WRONLY | _require_no_follow_support()
+    try:
+        fd = os.open(path, flags, 0o600)
+    except OSError as exc:
+        raise LineageError(f"cannot open ledger for append without following links: {exc}") from exc
+    try:
+        mode = os.fstat(fd).st_mode
+        if not stat.S_ISREG(mode):
+            raise LineageError("ledger path must be a regular file")
+        remaining = memoryview(encoded)
+        while remaining:
+            written = os.write(fd, remaining)
+            if written <= 0:
+                raise LineageError("short/zero append write")
+            remaining = remaining[written:]
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def verify_ledger(
     ledger: Path,
     *,
@@ -177,7 +225,8 @@ def verify_ledger(
 ) -> dict[str, Any]:
     if ledger.is_symlink():
         raise LineageError("ledger path must not be a symlink")
-    if not ledger.exists():
+    text = _read_regular_no_follow(ledger)
+    if text is None:
         if expected_lineage_digest is not None:
             _require_digest(expected_lineage_digest, "expected_lineage_digest")
         empty_digest = _lineage_digest([], [])
@@ -191,10 +240,7 @@ def verify_ledger(
             "lineage_digest": empty_digest,
             "variants": {},
         }
-    if not ledger.is_file():
-        raise LineageError("ledger path must be a regular file")
 
-    text = ledger.read_text(encoding="utf-8")
     if text and not text.endswith("\n"):
         raise LineageError("ledger ends with a partial/non-newline record")
 
@@ -312,10 +358,13 @@ def append_variant(ledger: Path, raw_payload: Any) -> dict[str, Any]:
     lock = _lock_path(ledger)
     if lock.is_symlink():
         raise LineageError("append lock path must not be a symlink")
+    lock_flags = os.O_CREAT | os.O_EXCL | os.O_WRONLY | _require_no_follow_support()
     try:
-        lock_fd = os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        lock_fd = os.open(lock, lock_flags, 0o600)
     except FileExistsError as exc:
         raise LineageError("append lock already exists; reconcile instead of racing") from exc
+    except OSError as exc:
+        raise LineageError(f"cannot create append lock: {exc}") from exc
 
     try:
         os.write(lock_fd, f"pid={os.getpid()}\n".encode("ascii"))
@@ -343,9 +392,7 @@ def append_variant(ledger: Path, raw_payload: Any) -> dict[str, Any]:
         record = dict(core)
         record["record_digest"] = digest(core)
         encoded = canonical_bytes(record) + b"\n"
-        with ledger.open("ab", buffering=0) as handle:
-            handle.write(encoded)
-            os.fsync(handle.fileno())
+        _append_regular_no_follow(ledger, encoded)
         verified = verify_ledger(ledger)
         return {
             "ok": True,
