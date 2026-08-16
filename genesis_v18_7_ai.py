@@ -4,6 +4,13 @@
 External models may propose language and actions, but they never write Genesis
 state directly. Every proposed action must still pass through the real runtime.
 API keys are read from environment variables and are never serialized.
+
+v18.7.56 hardening note: the built-in historical provider HTTP adapters are
+remote-boundary default-deny. Direct provider use requires the exact legacy
+compatibility opt-in ``JANUS_LEGACY_AI_DIRECT_EGRESS=1``. The canonical
+ArmoredGenesisAIBridge instead grants a transient internal admission only after
+Armor PASS and clears it after the exact proposal call. Compatibility opt-in is
+not Armor-equivalent and is not the recommended production path.
 """
 from __future__ import annotations
 
@@ -16,6 +23,7 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 AI_BRIDGE_SCHEMA = "janus.genesis.ai_bridge.v1"
+LEGACY_AI_DIRECT_EGRESS_ENV = "JANUS_LEGACY_AI_DIRECT_EGRESS"
 
 
 @dataclass(frozen=True, slots=True)
@@ -41,13 +49,38 @@ class ChatProvider(Protocol):
     def chat(self, messages: list[dict[str, str]]) -> str: ...
 
 
+def _legacy_ai_direct_egress_opt_in() -> bool:
+    """Exact compatibility opt-in; generic truthy strings are not permission."""
+    return os.environ.get(LEGACY_AI_DIRECT_EGRESS_ENV) == "1"
+
+
+class _BuiltInProviderEgressAdmission:
+    """Per-provider transient admission consumed by built-in HTTP adapters."""
+
+    def __init__(self) -> None:
+        self._armor_egress_admitted = False
+
+    def _direct_egress_admitted(self) -> bool:
+        return (
+            type(getattr(self, "_armor_egress_admitted", False)) is bool
+            and getattr(self, "_armor_egress_admitted", False) is True
+        ) or _legacy_ai_direct_egress_opt_in()
+
+
 def _json_request(
     url: str,
     payload: dict[str, Any],
     *,
     headers: dict[str, str] | None = None,
     timeout: float = 45.0,
+    egress_admitted: bool = False,
 ) -> dict[str, Any]:
+    if type(egress_admitted) is not bool or egress_admitted is not True:
+        raise RuntimeError(
+            "LEGACY_DIRECT_AI_EGRESS_DEFAULT_DENY: use the canonical Armor-gated "
+            "AI bridge or explicitly set JANUS_LEGACY_AI_DIRECT_EGRESS=1 for "
+            "historical compatibility"
+        )
     request_headers = {"Content-Type": "application/json"}
     request_headers.update(headers or {})
     request = urllib.request.Request(
@@ -73,10 +106,11 @@ def _json_request(
     return result
 
 
-class OllamaChatProvider:
+class OllamaChatProvider(_BuiltInProviderEgressAdmission):
     """Ollama `/api/chat` adapter; local installations normally need no key."""
 
     def __init__(self, config: AIProviderConfig) -> None:
+        super().__init__()
         self.config = config
 
     def chat(self, messages: list[dict[str, str]]) -> str:
@@ -93,6 +127,7 @@ class OllamaChatProvider:
                 "options": {"temperature": 0.78},
             },
             timeout=self.config.timeout_seconds,
+            egress_admitted=self._direct_egress_admitted(),
         )
         message = result.get("message")
         if not isinstance(message, dict) or not isinstance(message.get("content"), str):
@@ -100,10 +135,11 @@ class OllamaChatProvider:
         return message["content"]
 
 
-class OpenAICompatibleChatProvider:
+class OpenAICompatibleChatProvider(_BuiltInProviderEgressAdmission):
     """Generic `/v1/chat/completions` adapter for user-selected providers."""
 
     def __init__(self, config: AIProviderConfig) -> None:
+        super().__init__()
         self.config = config
 
     def chat(self, messages: list[dict[str, str]]) -> str:
@@ -122,6 +158,7 @@ class OpenAICompatibleChatProvider:
             },
             headers=headers,
             timeout=self.config.timeout_seconds,
+            egress_admitted=self._direct_egress_admitted(),
         )
         choices = result.get("choices")
         if not isinstance(choices, list) or not choices:
