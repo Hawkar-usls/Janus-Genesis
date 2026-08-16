@@ -1,0 +1,33 @@
+{
+  "schema": "janus.git_habitat.nexus_one_shot_loopback_exchange_state.v1",
+  "state_id": "NEXUS-ONE-SHOT-AUTHENTICATED-LOOPBACK-EXCHANGE-CERTIFIED-v1.8",
+  "recorded_at_local": "2026-08-17T00:22:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "2cc74bccae6105364dd1eab95d9cb95105c95620",
+  "status": "CERTIFIED_ONE_SHOT_AUTHENTICATED_LOOPBACK_EXCHANGE_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-ONE-SHOT-AUTHENTICATED-LOOPBACK-EXCHANGE-EXACT-HEAD-CI-CERTIFICATE-v1.8.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-LOOPBACK-EXCHANGE-AUTHORITY-v1.json",
+  "certified_path": [
+    "LITERAL_LOOPBACK_ACCEPT",
+    "BOUNDED_WIRE_PARSE",
+    "HMAC_EPOCH_FRESHNESS_REPLAY_ADMISSION",
+    "CURRENT_PRINCIPAL_REVALIDATION",
+    "PAYLOAD_SHA256_BINDING",
+    "INTENT_GUARDED_LOCAL_DISPATCH",
+    "COMPACT_RECEIPT_SEND",
+    "CONNECTION_AND_LISTENER_CLOSE"
+  ],
+  "boundaries": {
+    "connections_per_listener": 1,
+    "requests_per_connection": 1,
+    "handler_output_transmitted": false,
+    "cross_host_transport": false,
+    "general_network_service": false,
+    "automatic_retry": false,
+    "response_delivery_guarantee": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "ONE_SHOT_TRANSPORT_RESPONSE_AMBIGUITY_REPLAY_STORE_FAILURE_ACCEPT_TIMEOUT_AND_STARTUP_LIFECYCLE_ADVERSARIAL_GATE"
+}
