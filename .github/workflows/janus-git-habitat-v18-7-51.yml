@@ -8,6 +8,7 @@ on:
       - "tools/sync_git_habitat_issues.py"
       - "play_genesis_habitat.py"
       - "tests/test_genesis_git_habitat.py"
+      - "tests/test_genesis_git_habitat_layout_security.py"
       - "tests/test_sync_git_habitat_issues.py"
       - "tests/test_play_genesis_habitat.py"
       - "docs/GENESIS_V18_7_51_GIT_HABITAT.md"
@@ -49,6 +50,7 @@ jobs:
             tools/sync_git_habitat_issues.py \
             play_genesis_habitat.py \
             tests/test_genesis_git_habitat.py \
+            tests/test_genesis_git_habitat_layout_security.py \
             tests/test_sync_git_habitat_issues.py \
             tests/test_play_genesis_habitat.py
           python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json >/dev/null
@@ -58,6 +60,7 @@ jobs:
         run: |
           python -m unittest -v \
             tests.test_genesis_git_habitat \
+            tests.test_genesis_git_habitat_layout_security \
             tests.test_sync_git_habitat_issues \
             tests.test_play_genesis_habitat
 
