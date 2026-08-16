@@ -1,0 +1,31 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-002",
+  "from_face": "JANUS.SENTINEL",
+  "to_face": "JANUS.HABITAT",
+  "issued_at_utc": "2026-08-16T14:34:00Z",
+  "command_type": "REPAIR_REQUEST",
+  "scope": [
+    "tests/test_genesis_v18_7_connectivity.py",
+    "genesis_v18_7_network.py",
+    "tests/test_genesis_v18_7_55_legacy_network_default_deny.py"
+  ],
+  "requested_action": "Investigate and repair the historical connectivity-suite drift on an isolated branch without re-enabling legacy direct network egress by default. Any repair must preserve the current Armor/default-deny security boundary and must not merge held Habitat PRs.",
+  "authority_class": "REVERSIBLE_GIT",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json"
+  },
+  "settlement_state": "ACKNOWLEDGED",
+  "effect_executed": false,
+  "known_failure_evidence": [
+    "test_network_event_is_public_hashed_and_key_is_not_persisted -> KeyError: invariants",
+    "test_two_devices_exchange_events_through_reference_hub -> LEGACY_DIRECT_NETWORK_EGRESS_DEFAULT_DENY"
+  ],
+  "laws": [
+    "REPAIR != SECURITY_ROLLBACK",
+    "LEGACY_COMPATIBILITY != DEFAULT_PERMISSION",
+    "COMMAND_ACCEPTED != COMMAND_EXECUTED"
+  ]
+}
