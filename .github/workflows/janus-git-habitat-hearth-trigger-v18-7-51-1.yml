@@ -1,0 +1,63 @@
+name: JANUS Git Habitat Hearth Trigger v18.7.51.1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/janus-git-habitat-hearth-trigger-v18-7-51-1.yml"
+      - "ops/janus-habitat-hearth-trigger.json"
+  push:
+    branches: [main]
+    paths:
+      - "ops/janus-habitat-hearth-trigger.json"
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: janus-git-habitat-doorbell-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate-trigger:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Validate bounded trigger contract
+        run: |
+          python -m json.tool ops/janus-habitat-hearth-trigger.json >/dev/null
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('ops/janus-habitat-hearth-trigger.json').read_text())
+          assert value['schema'] == 'janus.genesis.git_habitat.hearth_trigger.v1'
+          authority = value['authority']
+          assert authority['creates_external_effect_authority'] is False
+          assert authority['executes_outbox'] is False
+          assert authority['grants_model_control'] is False
+          assert authority['changes_habitat_resident_identity'] is False
+          print('HABITAT_HEARTH_TRIGGER_CONTRACT=PASS')
+          print('HABITAT_HEARTH_TRIGGER_EXTERNAL_AUTHORITY=FALSE')
+          PY
+
+  dispatch-hearth:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Dispatch the already-reviewed Habitat hearth workflow
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh workflow run janus-git-habitat-v18-7-51.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main
+          echo "HABITAT_HEARTH_WORKFLOW_DISPATCH_REQUESTED=PASS"
+          echo "HABITAT_HEARTH_DOORBELL_EXECUTES_OUTBOX=FALSE"
+          echo "HABITAT_HEARTH_DOORBELL_MODEL_CALL=FALSE"
