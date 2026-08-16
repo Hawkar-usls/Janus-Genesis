@@ -1,0 +1,34 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-007",
+  "from_face": "JANUS.SENTINEL",
+  "to_face": "JANUS.AURA",
+  "issued_at_utc": "2026-08-16T14:50:00Z",
+  "command_type": "REPAIR_REQUEST",
+  "scope": [
+    "tests/test_genesis_git_habitat_aura_v18_7_54.py::test_two_processes_cannot_both_enter_aura_for_same_turn",
+    "Git Habitat Aura hearth inflight/claim boundary"
+  ],
+  "requested_action": "Repair the Aura-hearth directory preparation race on an isolated branch so two concurrent processes converge to one provider entry plus one bounded already-inflight/already-settled result instead of exposing FileExistsError. Preserve one-consultation-per-turn, optional Aura use, no automatic replay after an inflight marker, and zero authority growth.",
+  "authority_class": "REVERSIBLE_GIT",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "4b522e7d641c0d71ea246f5891e474258016f39f",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16-r2.json"
+  },
+  "settlement_state": "ACKNOWLEDGED",
+  "effect_executed": false,
+  "proof_obligations": [
+    "CONCURRENT_CALLERS_DO_NOT_EXPOSE_RAW_FILESYSTEM_RACE",
+    "AT_MOST_ONE_PROVIDER_CALL_PER_TURN",
+    "INFLIGHT_MARKER_NEVER_AUTO_REPLAYS",
+    "AURA_OPTIONALITY_PRESERVED",
+    "AURA_OUTPUT_AUTHORITY_DELTA_ZERO",
+    "FULL_RELEVANT_SUITE_PASS_ON_EXACT_HEAD"
+  ],
+  "laws": [
+    "CONCURRENCY_FIX != AUTHORITY_EXPANSION",
+    "AURA_OUTPUT != COMMAND",
+    "FLAKY_OR_RACY_FAILURE != SAFE_TO_IGNORE"
+  ]
+}
