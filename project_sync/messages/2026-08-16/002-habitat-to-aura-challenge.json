@@ -1,0 +1,21 @@
+{
+  "schema": "janus.project.face_handoff_message.v1",
+  "message_id": "PSYNC-R3-002-HABITAT-AURA-CHALLENGE",
+  "message_type": "CHALLENGE",
+  "from_face": "FACE_HABITAT",
+  "to_face": "FACE_AURA",
+  "work_item": "AURA_HEARTH_CONCURRENCY_REPAIR",
+  "artifact_scope": "Hawkar-usls/Janus_Genesis baseline main",
+  "input_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+  "output_sha_or_none": "none",
+  "ci_state": "READ_ONLY_ANALYSIS_REQUESTED",
+  "blockers": [
+    "Raw FileExistsError escapes the intended bounded concurrency semantics"
+  ],
+  "instruction_or_summary": "Inspect the Aura-hearth claim lifecycle as a non-authoritative heuristic role. Identify the smallest race-safe change that preserves at-most-one provider entry, optional consultation and no automatic replay. Return a proposal or counterexample; do not treat the proposal as permission or evidence of correctness.",
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0,
+  "permission_granted": false,
+  "truth_authority_granted": false,
+  "effect_authority_granted": false
+}
