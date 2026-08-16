@@ -121,7 +121,19 @@ class LocalCheckoutSourcePinCollectorTests(unittest.TestCase):
             (sources / missing).rmdir()
             output = root / "pinset.json"
 
+            def fake_checkout(sources_root: Path, source_id: str) -> Path:
+                checkout = sources_root / source_id
+                if not checkout.is_dir():
+                    raise collector.LocalCheckoutPinCollectorError(
+                        f"SOURCE_CHECKOUT_MUST_BE_REAL_DIRECTORY:{source_id}"
+                    )
+                return checkout
+
             with mock.patch.object(
+                collector,
+                "_checkout_for",
+                side_effect=fake_checkout,
+            ), mock.patch.object(
                 collector,
                 "_exact_head_commit",
                 return_value="a" * 40,
@@ -157,7 +169,15 @@ class LocalCheckoutSourcePinCollectorTests(unittest.TestCase):
                     return "b" * 40
                 return "a" * 40
 
-            with mock.patch.object(collector, "_exact_head_commit", side_effect=fake_head):
+            with mock.patch.object(
+                collector,
+                "_checkout_for",
+                side_effect=lambda sources_root, source_id: sources_root / source_id,
+            ), mock.patch.object(
+                collector,
+                "_exact_head_commit",
+                side_effect=fake_head,
+            ):
                 with self.assertRaisesRegex(
                     collector.LocalCheckoutPinCollectorError,
                     f"SOURCE_HEAD_CHANGED_DURING_COLLECTION:{target}",
@@ -180,6 +200,10 @@ class LocalCheckoutSourcePinCollectorTests(unittest.TestCase):
             output = root / "sensitive" / "exact-pinset.json"
 
             with mock.patch.object(
+                collector,
+                "_checkout_for",
+                side_effect=lambda sources_root, source_id: sources_root / source_id,
+            ), mock.patch.object(
                 collector,
                 "_exact_head_commit",
                 return_value="c" * 40,
