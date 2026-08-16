@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from genesis_v18_7_50_armor_routing import ArmoredDurableGenesisNetworkClient
 from genesis_v18_7_ai import GenesisAIBridge
 from genesis_v18_7_auth import api_key_sha256, verify_bearer
 from genesis_v18_7_network import GenesisNetworkClient
@@ -119,7 +120,8 @@ class GenesisV187ConnectivityTests(unittest.TestCase):
             self.assertTrue(client.verify_event(event)[0])
             self.assertNotIn("architect", event["public_player_id"])
             self.assertNotIn(raw_key, state_text)
-            self.assertFalse(client.state()["invariants"]["api_key_persisted"])
+            self.assertFalse(client.state()["api_key_persisted"])
+            self.assertTrue(client.state()["legacy_direct_remote_egress_default_deny"])
 
     def test_network_rejects_secret_payload_fields(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -165,8 +167,16 @@ class GenesisV187ConnectivityTests(unittest.TestCase):
                 thread.start()
                 try:
                     url = f"http://127.0.0.1:{hub.server_address[1]}"
-                    alpha = GenesisNetworkClient(node_a, hub_url=url, api_key_env="NODE_A_KEY")
-                    beta = GenesisNetworkClient(node_b, hub_url=url, api_key_env="NODE_B_KEY")
+                    alpha = ArmoredDurableGenesisNetworkClient(
+                        node_a,
+                        hub_url=url,
+                        api_key_env="NODE_A_KEY",
+                    )
+                    beta = ArmoredDurableGenesisNetworkClient(
+                        node_b,
+                        hub_url=url,
+                        api_key_env="NODE_B_KEY",
+                    )
                     event = alpha.queue_public_event(
                         "alpha",
                         "shared_place",
@@ -180,6 +190,8 @@ class GenesisV187ConnectivityTests(unittest.TestCase):
                     self.assertGreaterEqual(second["received"], 1)
                     self.assertTrue(any(item["event"]["event_hash"] == event["event_hash"] for item in inbox))
                     self.assertTrue(all(item["event"]["schema"] == "janus.genesis.network.event.v1" for item in inbox))
+                    self.assertFalse(alpha._armor_egress_admitted)
+                    self.assertFalse(beta._armor_egress_admitted)
                 finally:
                     hub.shutdown()
                     hub.server_close()

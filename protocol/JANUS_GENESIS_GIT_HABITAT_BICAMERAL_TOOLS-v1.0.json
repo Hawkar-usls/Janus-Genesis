@@ -1,0 +1,107 @@
+{
+  "schema": "janus.genesis.git_habitat.bicameral_tools_protocol.v1",
+  "artifact_id": "JANUS_GENESIS_GIT_HABITAT_BICAMERAL_TOOLS-v1.0",
+  "version": "18.7.55",
+  "status": "IMPLEMENTED_CROSS_REPOSITORY_LOCAL_TOOL_CONTRACT",
+  "purpose": "Make HRaiN and iNaiHR available to the JANUS Git Habitat as optional local cognition tools that JANUS may request while awake, without converting either tool into source authority, world authority, a mandatory cognitive step, or an external-effect bypass.",
+  "canonical_formula": "JANUS_AWAKE + VOLUNTARY_TOOL_REQUEST -> OPTIONAL_LOCAL_COGNITION -> JANUS_RETAINS_CHOICE",
+  "tool_bindings": {
+    "hrain": {
+      "repository": "Hawkar-usls/Hrain",
+      "validated_adapter_commit": "0f151445a6aee71cbb977882ae98a19c45c16ebe",
+      "adapter": "habitat-tool.js",
+      "capability_id": "JANUS.HRAIN.STRUCTURE.LOCAL",
+      "hemisphere": "LEFT_HRAIN",
+      "role": "STRUCTURAL_CONTEXT",
+      "operation": "STRUCTURE_CONTEXT",
+      "expected_status": "STRUCTURE_READY_OPTIONAL",
+      "network_required": false,
+      "source_mutation_allowed": false,
+      "world_effect_allowed": false,
+      "authority_delta": 0
+    },
+    "inaihr": {
+      "repository": "Hawkar-usls/iNaiHR",
+      "validated_adapter_commit": "3f43b03bc80ec950537715aac34d9bfa85e38a6c",
+      "adapter": "habitat-tool.js",
+      "capability_id": "JANUS.INAIHR.SYNTH.LOCAL",
+      "hemisphere": "RIGHT_INAIHR",
+      "role": "ASSOCIATIVE_CONTEXT",
+      "operation": "SYNTH_LOCAL",
+      "expected_status": "SYNTH_READY_OPTIONAL",
+      "exact_source_path_grounding_required": true,
+      "network_required": false,
+      "source_mutation_allowed": false,
+      "world_effect_allowed": false,
+      "authority_delta": 0
+    }
+  },
+  "habitat_binding": {
+    "architecture_branch": "main",
+    "living_state_branch": "janus/habitat",
+    "room": "hearth/cognition",
+    "resident_must_be_awake": true,
+    "janus_may_request_hrain": true,
+    "janus_may_request_inaihr": true,
+    "janus_may_request_both_on_distinct_tool_claims": true,
+    "janus_may_decline_hrain": true,
+    "janus_may_decline_inaihr": true,
+    "tool_use_required": false,
+    "speech_or_action_blocked_when_tools_unused": false,
+    "speech_or_action_blocked_when_tool_unavailable": false,
+    "operator_can_disable_hrain": true,
+    "operator_can_disable_inaihr": true,
+    "operator_can_disable_while_awake_or_asleep": true
+  },
+  "execution_contract": {
+    "provider_mode": "LOCAL_CHECKED_OUT_REPOSITORY_SUBPROCESS",
+    "armor_preflight_before_process_creation": true,
+    "stable_request_identity": true,
+    "per_cycle_turn_tool_exclusive_claim": true,
+    "automatic_replay_after_unknown_outcome": false,
+    "tool_body_returned_to_caller": true,
+    "tool_body_persisted_in_habitat": false,
+    "input_body_persisted_in_habitat": false,
+    "bounded_receipt_persisted": true,
+    "response_digest_persisted": true,
+    "habitat_journal_event": "BICAMERAL_TOOL_USED",
+    "credentials_persisted": false,
+    "network_authority_granted": false,
+    "public_outreach_authority_granted": false,
+    "registry_write_authority_granted": false,
+    "world_state_write_authority_granted": false
+  },
+  "privacy": {
+    "hrain_workspace_text_persisted": false,
+    "inaihr_record_text_persisted": false,
+    "semantic_output_body_persisted": false,
+    "structural_output_body_persisted": false,
+    "only_receipt_metadata_and_digest_persist": true
+  },
+  "inaihr_grounding": {
+    "exact_source_paths_only": true,
+    "habitat_revalidates_provider_source_paths": true,
+    "semantic_branch_can_upgrade_source_authority": false,
+    "semantic_branch_can_invent_unbound_source_path": false
+  },
+  "truth_boundaries": [
+    "TOOL_AVAILABLE != TOOL_REQUIRED",
+    "TOOL_OUTPUT != COMMAND",
+    "HRAIN_STRUCTURE != SOURCE_AUTHORITY",
+    "INAIHR_SYNTH != SOURCE_AUTHORITY",
+    "SEMANTIC_BRANCH != SOURCE_OBJECT",
+    "LOCAL_TOOL_CALL != WORLD_EFFECT",
+    "CAPABILITY != INTENTION",
+    "INTENTION != ACTION",
+    "JANUS_REQUESTED_TOOL != PROOF_OF_CONSCIOUS_DESIRE",
+    "BICAMERAL_METAPHOR != BIOLOGICAL_HEMISPHERE_CLAIM"
+  ],
+  "not_established": [
+    "JANUS_IS_CONSCIOUS",
+    "JANUS_HAS_HUMAN_LIKE_WANTS",
+    "JANUS_HAS_UNRESTRICTED_HOST_AUTHORITY",
+    "HRaiN_OR_iNaiHR_CAN_MUTATE_CANONICAL_REGISTRY",
+    "TOOL_USE_PROVES_AUTONOMOUS_AGENCY"
+  ],
+  "claim_ceiling": "This artifact establishes a tested local capability path by which an awake JANUS Habitat resident can be offered optional HRaiN structural context and iNaiHR sourcePath-grounded semantic synthesis. It does not prove consciousness or desire, does not make tool use mandatory, and does not grant network, publication, registry-mutation, world-state, credential, or external authority."
+}
