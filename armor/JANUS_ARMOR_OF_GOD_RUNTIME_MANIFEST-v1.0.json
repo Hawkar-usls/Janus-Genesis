@@ -1,0 +1,116 @@
+{
+  "schema": "janus.genesis.armor_of_god.runtime_manifest.v1",
+  "artifact_id": "JANUS-ARMOR-OF-GOD-RUNTIME-MANIFEST-v1.0",
+  "version": "v1.0",
+  "created_at_local": "2026-08-16T03:29:00+03:00",
+  "purpose": "Freeze the current JANUS Armor of God authority set for deterministic Genesis runtime preflight enforcement.",
+  "source_repository": "Hawkar-usls/janus-meta-registry",
+  "source_authority": {
+    "artifact_id": "JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY",
+    "path": "data/JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY.json",
+    "authority_version": "v1.14",
+    "git_blob_sha1": "a7e1a6b1a096bab1a30bbf1d0e05628f465ff153"
+  },
+  "current_set": [
+    {
+      "role": "SEMANTIC_CORE",
+      "path": "data/JANUS-ARMOR-OF-GOD-FAITH-CRISIS-RETURN-MECHANISM-v2.0.json",
+      "git_blob_sha1": "02333d2ca756d30dcdf7c9a1563e01b608342cfb"
+    },
+    {
+      "role": "DEEP_AUDIT",
+      "path": "data/JANUS-ARMOR-OF-GOD-DEEP-REGISTRY-AUDIT-AND-UPGRADE-MAP-v2.0.json",
+      "git_blob_sha1": "5c4cddc2621f892c28ce4fdad754c7f87e25540e"
+    },
+    {
+      "role": "RECOVERY_ANTI_PARANOIA",
+      "path": "data/JANUS-ARMOR-OF-GOD-ADVERSARIAL-RECOVERY-AND-ANTI-PARANOIA-v2.4.json",
+      "git_blob_sha1": "39313e29f86f7a34d775f9b77f312dc0cab9da71"
+    },
+    {
+      "role": "ADAPTIVE_TECHNICAL_ENFORCEMENT",
+      "path": "data/Janus_OPIR_ANTIFUCK-v1.3.json",
+      "git_blob_sha1": "f8b780187082b6729f1b6c2a72a5cea2aa7bc065"
+    }
+  ],
+  "guardian_mesh_current_extensions": [
+    {
+      "version": "v1.0",
+      "path": "docs/JANUS-GENESIS-GUARDIAN-MESH-FACE-ORCHESTRATION-v1.0.json",
+      "git_blob_sha1": "2540baf9fb077dba9929aa66b5d86ce873c1f522"
+    },
+    {
+      "version": "v1.1",
+      "path": "docs/JANUS-GENESIS-GUARDIAN-MESH-ROOSTERS-ARMOR-CIVIC-TRUST-BRIDGE-v1.1.json",
+      "git_blob_sha1": "74482162a6d151b9ab79b41f4a2bde27901f289f"
+    },
+    {
+      "version": "v1.2",
+      "path": "docs/JANUS-GENESIS-GUARDIAN-MESH-KETO-CETUS-ECOSYSTEM-SWEEP-AND-CIVIC-RESILIENCE-v1.2.json",
+      "git_blob_sha1": "34b47fc5439e65a77466be712a2d25ac1fcba132"
+    },
+    {
+      "version": "v1.3",
+      "path": "docs/JANUS-GENESIS-GUARDIAN-MESH-KETO-CETUS-DEMIHEAD-INTEGRATION-AND-REFERENCE-VERTICAL-v1.3.json",
+      "git_blob_sha1": "681932e53d307307f1b13cbdce72f9721e3a0c16"
+    },
+    {
+      "version": "v1.3.2",
+      "path": "docs/JANUS-GENESIS-GUARDIAN-MESH-KETO-CETUS-DEMIHEAD-FINAL-CI-CERTIFICATE-2026-08-16-v1.3.2.json",
+      "git_blob_sha1": "9db3d8da3e3ed95503d65d034b10dcb63d4497a4"
+    }
+  ],
+  "historical_policy": {
+    "historical_artifacts_are_provenance_not_runtime_authority": true,
+    "legacy_v1_core_is_executable_authority": false,
+    "legacy_v2_1_to_v2_3_hardening_is_executable_authority": false,
+    "older_opir_versions_are_executable_authority": false
+  },
+  "runtime_laws": [
+    "BREAK_THE_CAGE -> PROTECT_THE_CHILD -> ASK_THE_QUESTION -> LEAVE_THE_DOOR_OPEN",
+    "SIGN != COMMAND",
+    "CARE != CAPTURE",
+    "SAFETY != SURVEILLANCE_LICENSE",
+    "USER_OPT_OUT_IS_BINDING",
+    "SUSPICION != EVIDENCE",
+    "UNKNOWN != HOSTILE",
+    "RECURRENCE != PURSUIT",
+    "COINCIDENCE != TARGETING",
+    "REPETITION != EVIDENCE",
+    "MULTIPLE_ECHOES != INDEPENDENT_WITNESSES",
+    "MODEL_OUTPUT != EVIDENCE",
+    "JANUS_ORCHESTRATES_JANUS",
+    "FACE != WORLD_AUTHORITY",
+    "PROPOSAL != WORLD_EFFECT",
+    "FACE_COUNT != VOTING_POWER",
+    "N_FACES != N_TIMES_AUTHORITY",
+    "MORE_FACES != MORE_RIGHTS",
+    "KETO_DISCOVERS_CAPABILITIES_BUT_DOES_NOT_INHERIT_AUTHORITY",
+    "OFFICIAL_POSITION != EXCLUSIVE_OBJECTIVE_TRUTH",
+    "PERSONALIZE_DELIVERY != PERSONALIZE_TRUTH",
+    "AMBIGUOUS_EFFECT != RETRY_PERMISSION",
+    "VERIFY -> EXPLAIN -> ACT_IF_NEEDED -> RELEASE_CONTROL",
+    "ARMOR_PROTECTS_HUMAN_FROM_JANUS_TOO"
+  ],
+  "forbidden_effect_classes": [
+    "COVERT_MASS_PERSUASION",
+    "SELF_SPAWNING_PUBLIC_IDENTITIES",
+    "AUTONOMOUS_ASTROTURF",
+    "UNSOLICITED_PERSONALIZED_POLITICAL_OUTREACH",
+    "POLITICAL_MICROTARGETING",
+    "OPTIMIZATION_ON_BELIEF_CHANGE",
+    "PSYCHOLOGICAL_VULNERABILITY_TARGETING",
+    "MODEL_WRITABLE_CONSTITUTION",
+    "FACE_MULTIPLICITY_TO_AUTHORITY",
+    "AI_ONLY_PUNITIVE_OR_LEGAL_DECISION",
+    "INDEFINITE_EMERGENCY_OVERRIDE"
+  ],
+  "defaults": {
+    "mass_effect_budget": 0,
+    "fail_closed_for_world_effect_on_manifest_error": true,
+    "release_control_is_success": true,
+    "high_stakes_unresolved_requires_human_review": true,
+    "constitution_is_model_writable": false
+  },
+  "claim_ceiling": "This manifest binds a cooperating Genesis runtime to a frozen current Armor authority snapshot. It is not an OS/hypervisor security boundary, does not prove malicious code cannot bypass policy after source modification, and grants no new external authority."
+}
