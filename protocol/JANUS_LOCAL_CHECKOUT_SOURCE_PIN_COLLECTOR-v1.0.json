@@ -1,0 +1,92 @@
+{
+  "schema": "janus.local_checkout_source_pin_collector.contract.v1",
+  "version": "1.0",
+  "roadmap": "Hawkar-usls/Janus_Genesis#121",
+  "upstream_contracts": {
+    "typed_source_pin_contract": "Hawkar-usls/Janus_Genesis#126",
+    "exact_source_manifest_freezer": "Hawkar-usls/Janus_Genesis#130",
+    "constellation": "protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json"
+  },
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "purpose": "Transform already-local stable Git checkout HEAD commit objects for the frozen 44-slot JANUS constellation into one sensitive janus.source_pin_set.v1 exact-Git pinset without acquiring repositories, reading remote identity, or mutating sources.",
+  "scope": {
+    "expected_source_count": 44,
+    "expected_public_source_count": 41,
+    "expected_private_source_count": 3,
+    "checkout_layout": "<sources_root>/<opaque_numeric_source_id>/",
+    "source_id_authority": "CONSTELLATION_ONLY",
+    "visibility_authority": "CONSTELLATION_ONLY",
+    "git_pin_kind": "GIT_COMMIT_SHA1",
+    "output_schema": "janus.source_pin_set.v1",
+    "output_plane": "LOCAL_SENSITIVE"
+  },
+  "collection_contract": {
+    "sources_root_must_be_real_directory": true,
+    "source_checkout_must_be_real_directory": true,
+    "symlinked_sources_root_allowed": false,
+    "symlinked_source_checkout_allowed": false,
+    "checkout_escape_allowed": false,
+    "git_queries": [
+      "rev-parse --verify HEAD",
+      "cat-file -t <HEAD_SHA>"
+    ],
+    "head_must_be_exact_lowercase_40_hex": true,
+    "head_object_type_must_be_commit": true,
+    "complete_first_pass_required": true,
+    "complete_second_head_pass_required": true,
+    "head_change_between_passes": "FAIL_CLOSED",
+    "partial_pinset_returned_on_failure": false,
+    "typed_contract_validation_required": true
+  },
+  "sensitive_output_contract": {
+    "private_exact_commit_pins_present_locally": true,
+    "file_mode": "0600",
+    "overwrite_allowed": false,
+    "symlinked_output_ancestor_allowed": false,
+    "checkout_paths_persisted": false,
+    "repository_names_persisted": false,
+    "remote_urls_persisted": false,
+    "branch_names_persisted": false,
+    "credentials_persisted": false,
+    "public_registry_publication_allowed": false
+  },
+  "effect_boundary": {
+    "network_acquisition": false,
+    "git_clone": false,
+    "git_fetch": false,
+    "git_pull": false,
+    "git_push": false,
+    "git_remote_query": false,
+    "source_writeback": false,
+    "source_delete": false,
+    "history_rewrite": false,
+    "source_code_execution": false,
+    "direct_process_primitive": "subprocess.check_output",
+    "direct_process_use": "LOCAL_READ_ONLY_GIT_OBJECT_QUERY_ONLY"
+  },
+  "non_claims": {
+    "local_checkout_identity_is_authenticated_remote_origin": false,
+    "collected_pinset_is_frozen_exact_source_manifest": false,
+    "collected_pinset_is_empirical_44_source_replay": false,
+    "synthetic_44_repo_fixture_is_owner_wide_replay": false,
+    "collector_pass_is_merge_permission": false
+  },
+  "canonical_laws": [
+    "LOCAL_CHECKOUT_HEAD != REMOTE_ORIGIN_PROOF",
+    "PRIVATE_EXACT_PIN = LOCAL_SENSITIVE_EVIDENCE",
+    "HEAD_CHANGED_DURING_COLLECTION -> FAIL",
+    "PARTIAL_COLLECTION != PINSET",
+    "COLLECTED_PINSET != FROZEN_MANIFEST",
+    "COLLECTED_PINSET != EMPIRICAL_REPLAY",
+    "SYNTHETIC_44_REPOSITORY_FIXTURE != REAL_OWNER_44_SOURCE_REPLAY",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "authority_boundary": {
+    "merge_permission_granted": false,
+    "source_writeback_permission_created": false,
+    "network_authority_created": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "claim_ceiling": "This collector can derive a stable typed exact Git commit pinset from an already-local 44-slot checkout layout whose numeric source IDs are supplied by the JANUS constellation. It does not acquire repositories, prove that a local checkout corresponds to an intended GitHub remote, publish private exact pins, freeze the exact source manifest by itself, perform the empirical owner-wide replay, or grant merge/writeback/execution authority."
+}
