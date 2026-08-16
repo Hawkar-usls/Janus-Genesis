@@ -26,6 +26,23 @@
     "symlinked_sources_root_allowed": false,
     "symlinked_source_checkout_allowed": false,
     "checkout_escape_allowed": false,
+    "ambient_git_context_sanitized": true,
+    "ambient_git_context_variables_removed": [
+      "GIT_DIR",
+      "GIT_WORK_TREE",
+      "GIT_COMMON_DIR",
+      "GIT_OBJECT_DIRECTORY",
+      "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+      "GIT_INDEX_FILE",
+      "GIT_GRAFT_FILE",
+      "GIT_NAMESPACE",
+      "GIT_CEILING_DIRECTORIES",
+      "GIT_DISCOVERY_ACROSS_FILESYSTEM",
+      "GIT_REPLACE_REF_BASE"
+    ],
+    "git_no_replace_objects": true,
+    "git_optional_locks_disabled": true,
+    "git_terminal_prompt_disabled": true,
     "git_queries": [
       "rev-parse --verify HEAD",
       "cat-file -t <HEAD_SHA>"
@@ -48,6 +65,7 @@
     "remote_urls_persisted": false,
     "branch_names_persisted": false,
     "credentials_persisted": false,
+    "failure_paths_persisted_in_public_summary": false,
     "public_registry_publication_allowed": false
   },
   "effect_boundary": {
@@ -62,7 +80,7 @@
     "history_rewrite": false,
     "source_code_execution": false,
     "direct_process_primitive": "subprocess.check_output",
-    "direct_process_use": "LOCAL_READ_ONLY_GIT_OBJECT_QUERY_ONLY"
+    "direct_process_use": "SANITIZED_LOCAL_READ_ONLY_GIT_OBJECT_QUERY_ONLY"
   },
   "non_claims": {
     "local_checkout_identity_is_authenticated_remote_origin": false,
@@ -73,6 +91,7 @@
   },
   "canonical_laws": [
     "LOCAL_CHECKOUT_HEAD != REMOTE_ORIGIN_PROOF",
+    "AMBIENT_GIT_CONTEXT != CHECKOUT_IDENTITY_AUTHORITY",
     "PRIVATE_EXACT_PIN = LOCAL_SENSITIVE_EVIDENCE",
     "HEAD_CHANGED_DURING_COLLECTION -> FAIL",
     "PARTIAL_COLLECTION != PINSET",
@@ -88,5 +107,5 @@
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
-  "claim_ceiling": "This collector can derive a stable typed exact Git commit pinset from an already-local 44-slot checkout layout whose numeric source IDs are supplied by the JANUS constellation. It does not acquire repositories, prove that a local checkout corresponds to an intended GitHub remote, publish private exact pins, freeze the exact source manifest by itself, perform the empirical owner-wide replay, or grant merge/writeback/execution authority."
+  "claim_ceiling": "This collector can derive a stable typed exact Git commit pinset from an already-local 44-slot checkout layout whose numeric source IDs are supplied by the JANUS constellation while sanitizing ambient Git context that could redirect repository identity. It does not acquire repositories, prove that a local checkout corresponds to an intended GitHub remote, publish private exact pins, freeze the exact source manifest by itself, perform the empirical owner-wide replay, or grant merge/writeback/execution authority."
 }
