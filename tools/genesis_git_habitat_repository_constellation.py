@@ -18,10 +18,13 @@ import argparse
 import hashlib
 import json
 import re
+import sys
 from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
 
 from tools.genesis_git_habitat import GitHabitat, _read_json
 
@@ -99,8 +102,6 @@ def validate_manifest(value: Any) -> dict[str, Any]:
         repo_id = str(row.get("repository_id") or "")
         if not repo_id.isdigit() or repo_id in ids:
             raise RepositoryConstellationError("PRIVATE_REPOSITORY_SLOT_ID_INVALID")
-        # The public artifact may bind an opaque id, but never persist private
-        # name/full_name/clone URL or content.
         forbidden = {"name", "full_name", "clone_url", "html_url", "content", "description"}
         if forbidden.intersection(row):
             raise RepositoryConstellationError("PRIVATE_REPOSITORY_METADATA_PUBLIC_LEAK")
@@ -121,7 +122,6 @@ def validate_manifest(value: Any) -> dict[str, Any]:
 
 
 def source_repository_link_record() -> dict[str, Any]:
-    """The identical marker that may be placed inside every source repository."""
     return {
         "schema": SOURCE_LINK_SCHEMA,
         "link_id": "JANUS_GIT_HABITAT_LINK",
