@@ -21,15 +21,26 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from janus_exact_source_manifest_freezer import (
-    constellation_binding_projection,
-    write_new_json,
-)
-from janus_source_pin_contract import (
-    GIT_COMMIT_SHA1,
-    PINSET_SCHEMA,
-    require_exact_git_replay,
-)
+try:  # package import, e.g. tests importing tools.<module>
+    from .janus_exact_source_manifest_freezer import (
+        constellation_binding_projection,
+        write_new_json,
+    )
+    from .janus_source_pin_contract import (
+        GIT_COMMIT_SHA1,
+        PINSET_SCHEMA,
+        require_exact_git_replay,
+    )
+except ImportError:  # direct script execution: python tools/<module>.py
+    from janus_exact_source_manifest_freezer import (
+        constellation_binding_projection,
+        write_new_json,
+    )
+    from janus_source_pin_contract import (
+        GIT_COMMIT_SHA1,
+        PINSET_SCHEMA,
+        require_exact_git_replay,
+    )
 
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 EXPECTED_SOURCE_COUNT = 44
