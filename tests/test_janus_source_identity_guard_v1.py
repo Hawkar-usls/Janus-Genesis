@@ -6,6 +6,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from tools.janus_source_identity_guard import (
     SourceIdentityGuardError,
@@ -25,12 +26,26 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
     def _make_repo(self, root: Path, repo_id: str, text: str = "alpha\n") -> Path:
         repo = root / repo_id
         repo.mkdir(parents=True)
-        subprocess.run(["git", "init", "-b", "main", str(repo)], check=True, stdout=subprocess.DEVNULL)
-        subprocess.run(["git", "-C", str(repo), "config", "user.email", "guard@example.invalid"], check=True)
-        subprocess.run(["git", "-C", str(repo), "config", "user.name", "JANUS Guard Test"], check=True)
+        subprocess.run(
+            ["git", "init", "-b", "main", str(repo)],
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
+        subprocess.run(
+            ["git", "-C", str(repo), "config", "user.email", "guard@example.invalid"],
+            check=True,
+        )
+        subprocess.run(
+            ["git", "-C", str(repo), "config", "user.name", "JANUS Guard Test"],
+            check=True,
+        )
         (repo / "tracked.txt").write_text(text, encoding="utf-8")
         subprocess.run(["git", "-C", str(repo), "add", "tracked.txt"], check=True)
-        subprocess.run(["git", "-C", str(repo), "commit", "-m", "fixture"], check=True, stdout=subprocess.DEVNULL)
+        subprocess.run(
+            ["git", "-C", str(repo), "commit", "-m", "fixture"],
+            check=True,
+            stdout=subprocess.DEVNULL,
+        )
         return repo
 
     def _config(self, *repo_ids: str) -> dict[str, object]:
@@ -55,7 +70,9 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
             receipt = compare(before, after)
             self.assertTrue(receipt["source_identity_unchanged"])
             self.assertFalse(receipt["source_identity_drift_observed"])
-            self.assertEqual(receipt["before_snapshot_digest"], receipt["after_snapshot_digest"])
+            self.assertEqual(
+                receipt["before_snapshot_digest"], receipt["after_snapshot_digest"]
+            )
             self.assertFalse(receipt["writeback_attribution_made"])
             self.assertFalse(receipt["transient_write_and_restore_ruled_out"])
 
@@ -66,7 +83,9 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
             config = self._config("1001")
             before = capture(config, root)
             original_head = self._git(repo, "rev-parse", "HEAD")
-            (repo / "tracked.txt").write_text("mutated but uncommitted\n", encoding="utf-8")
+            (repo / "tracked.txt").write_text(
+                "mutated but uncommitted\n", encoding="utf-8"
+            )
             after = capture(config, root)
             self.assertEqual(original_head, self._git(repo, "rev-parse", "HEAD"))
             receipt = compare(before, after)
@@ -104,10 +123,30 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
             before = capture(config, root)
             (repo / "tracked.txt").write_text("new committed bytes\n", encoding="utf-8")
             subprocess.run(["git", "-C", str(repo), "add", "tracked.txt"], check=True)
-            subprocess.run(["git", "-C", str(repo), "commit", "-m", "second"], check=True, stdout=subprocess.DEVNULL)
+            subprocess.run(
+                ["git", "-C", str(repo), "commit", "-m", "second"],
+                check=True,
+                stdout=subprocess.DEVNULL,
+            )
             after = capture(config, root)
-            self.assertNotEqual(before["sources"][0]["head_commit"], after["sources"][0]["head_commit"])
+            self.assertNotEqual(
+                before["sources"][0]["head_commit"],
+                after["sources"][0]["head_commit"],
+            )
             self.assertTrue(compare(before, after)["source_identity_drift_observed"])
+
+    def test_git_identity_change_during_capture_fails_closed(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sources"
+            self._make_repo(root, "1001")
+            with patch(
+                "tools.janus_source_identity_guard._git_readonly",
+                side_effect=["a" * 40, "b" * 40, "c" * 40, "b" * 40],
+            ):
+                with self.assertRaisesRegex(
+                    SourceIdentityGuardError, "Git identity changed during capture"
+                ):
+                    capture(self._config("1001"), root)
 
     def test_git_metadata_noise_is_excluded_from_worktree_identity(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -115,7 +154,9 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
             repo = self._make_repo(root, "1001")
             config = self._config("1001")
             before = capture(config, root)
-            (repo / ".git" / "JANUS_GUARD_NOISE").write_text("metadata only\n", encoding="utf-8")
+            (repo / ".git" / "JANUS_GUARD_NOISE").write_text(
+                "metadata only\n", encoding="utf-8"
+            )
             after = capture(config, root)
             self.assertEqual(before["snapshot_digest"], after["snapshot_digest"])
 
@@ -137,7 +178,9 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
             root = Path(tmp) / "sources"
             repo = self._make_repo(root, "1001")
             os.mkfifo(repo / "pipe")
-            with self.assertRaisesRegex(SourceIdentityGuardError, "unsupported special worktree"):
+            with self.assertRaisesRegex(
+                SourceIdentityGuardError, "unsupported special worktree"
+            ):
                 capture(self._config("1001"), root)
 
     def test_config_is_closed_and_repository_ids_are_opaque_numeric(self) -> None:
@@ -182,6 +225,25 @@ class JanusSourceIdentityGuardV1Tests(unittest.TestCase):
             snapshot["sources"][0]["worktree_digest"] = "0" * 64
             with self.assertRaisesRegex(SourceIdentityGuardError, "snapshot digest mismatch"):
                 compare(snapshot, capture(self._config("1001"), root))
+
+    def test_forged_compare_flags_are_rejected_before_public_projection(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "sources"
+            self._make_repo(root, "1001")
+            snapshot = capture(self._config("1001"), root)
+            receipt = compare(snapshot, snapshot)
+            receipt["after_snapshot_digest"] = "0" * 64
+            with self.assertRaisesRegex(
+                SourceIdentityGuardError, "digest/identity flags inconsistent"
+            ):
+                public_projection(receipt)
+
+            receipt = compare(snapshot, snapshot)
+            receipt["source_identity_unchanged"] = False
+            receipt["source_identity_drift_observed"] = True
+            receipt["drifted_repository_ids"] = []
+            with self.assertRaises(SourceIdentityGuardError):
+                public_projection(receipt)
 
 
 if __name__ == "__main__":
