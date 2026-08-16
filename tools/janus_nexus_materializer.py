@@ -2,13 +2,12 @@
 """JANUS NEXUS materializer v1.
 
 Build a disposable, reproducible multi-repository work body from *already local*
-Git checkouts pinned to exact commit SHAs. The materializer never clones,
-fetches, executes source code, writes to source repositories, or infers authority
-from repository content.
+Git repositories pinned to exact commit SHAs. Source bytes are read from the
+pinned Git commit object, never from mutable working-tree files.
 
-Acquisition is deliberately out of scope. An operator/worker may prepare local
-checkouts through a separately authorized path, then this module verifies each
-checkout HEAD and copies only Git-tracked regular files into the Nexus body.
+The materializer never clones, fetches, executes source code, writes to source
+repositories, or infers authority from repository content. Acquisition is
+intentionally outside this module.
 """
 from __future__ import annotations
 
@@ -17,7 +16,6 @@ import hashlib
 import json
 import os
 import re
-import shutil
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -29,6 +27,7 @@ SAFE_ID = re.compile(r"^[0-9]{1,32}$")
 SAFE_BRANCH = re.compile(r"^[A-Za-z0-9._/+-]{1,240}$")
 SAFE_PUBLIC_REPO = re.compile(r"^Hawkar-usls/[A-Za-z0-9._-]{1,200}$")
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
+REGULAR_BLOB_MODES = {"100644", "100755"}
 
 
 class NexusMaterializerError(RuntimeError):
@@ -138,28 +137,37 @@ def _checked_relative_path(raw: str) -> Path:
     return candidate
 
 
-def _tracked_files(repo: Path) -> list[Path]:
-    raw = _git(repo, "ls-files", "-z")
-    paths: list[Path] = []
-    for item in raw.decode("utf-8", errors="strict").split("\0"):
-        if not item:
+def _pinned_tree_blobs(repo: Path, commit_sha: str) -> list[tuple[Path, str, str]]:
+    raw = _git(repo, "ls-tree", "-r", "-z", "--full-tree", commit_sha)
+    rows: list[tuple[Path, str, str]] = []
+    for record in raw.split(b"\0"):
+        if not record:
             continue
-        rel = _checked_relative_path(item)
-        source = repo / rel
-        if source.is_symlink():
-            raise NexusMaterializerError(f"NEXUS_SOURCE_SYMLINK_REJECTED:{rel.as_posix()}")
-        if not source.is_file():
-            raise NexusMaterializerError(f"NEXUS_TRACKED_FILE_INVALID:{rel.as_posix()}")
-        paths.append(rel)
-    return sorted(paths, key=lambda p: p.as_posix())
+        try:
+            header, path_raw = record.split(b"\t", 1)
+            mode, object_type, object_sha = header.decode("ascii").split(" ", 2)
+            rel = _checked_relative_path(path_raw.decode("utf-8", errors="strict"))
+        except (ValueError, UnicodeDecodeError) as exc:
+            raise NexusMaterializerError("NEXUS_GIT_TREE_RECORD_INVALID") from exc
+        if object_type != "blob" or mode not in REGULAR_BLOB_MODES:
+            # Symlinks (120000), gitlinks/submodules (160000), and unusual tree
+            # entries are not admitted into the executable-looking lab body.
+            raise NexusMaterializerError(
+                f"NEXUS_SOURCE_ENTRY_TYPE_REJECTED:{rel.as_posix()}:{mode}:{object_type}"
+            )
+        if not FULL_SHA.fullmatch(object_sha):
+            raise NexusMaterializerError("NEXUS_GIT_BLOB_SHA_INVALID")
+        rows.append((rel, object_sha, mode))
+    return sorted(rows, key=lambda item: item[0].as_posix())
 
 
-def _file_record(path: Path, rel: Path) -> dict[str, Any]:
-    raw = path.read_bytes()
+def _file_record(raw: bytes, rel: Path, git_blob_sha: str, git_mode: str) -> dict[str, Any]:
     return {
         "path": rel.as_posix(),
         "bytes": len(raw),
         "sha256": _sha256_bytes(raw),
+        "git_blob_sha": git_blob_sha,
+        "git_mode": git_mode,
     }
 
 
@@ -201,15 +209,10 @@ class NexusMaterializer:
             raise NexusMaterializerError(
                 f"NEXUS_SOURCE_SHA_MISMATCH:{row['repository_id']}:{head}"
             )
-        tracked_dirty = _git(
-            checkout,
-            "status",
-            "--porcelain=v1",
-            "--untracked-files=no",
-        )
-        if tracked_dirty:
+        object_type = _git(checkout, "cat-file", "-t", row["sha"]).decode("ascii").strip()
+        if object_type != "commit":
             raise NexusMaterializerError(
-                f"NEXUS_SOURCE_TRACKED_WORKTREE_DIRTY:{row['repository_id']}"
+                f"NEXUS_SOURCE_PIN_NOT_COMMIT:{row['repository_id']}"
             )
 
     def _body_dir(self, row: dict[str, Any]) -> Path:
@@ -226,6 +229,8 @@ class NexusMaterializer:
             "tracked_file_count": len(files),
             "tree_sha256": _sha256_json(files),
             "files": files,
+            "source_bytes_read_from_pinned_git_objects": True,
+            "mutable_worktree_bytes_used": False,
             "source_history_remains_authoritative": True,
             "source_code_executed": False,
             "write_back_performed": False,
@@ -262,15 +267,15 @@ class NexusMaterializer:
         for row in self.manifest["sources"]:
             checkout = self._source_checkout(row)
             self._verify_checkout_pin(row, checkout)
-            tracked = _tracked_files(checkout)
+            tracked = _pinned_tree_blobs(checkout, row["sha"])
             body_dir = self._body_dir(row)
             body_dir.mkdir(parents=True, exist_ok=False)
             files: list[dict[str, Any]] = []
-            for rel in tracked:
-                source_path = checkout / rel
+            for rel, blob_sha, git_mode in tracked:
+                raw = _git(checkout, "cat-file", "blob", blob_sha)
                 destination = _safe_destination(body_dir, rel)
-                shutil.copyfile(source_path, destination)
-                files.append(_file_record(destination, rel))
+                destination.write_bytes(raw)
+                files.append(_file_record(raw, rel, blob_sha, git_mode))
             source_receipt = self._source_receipt(row, files)
             _write_json(body_dir / "SOURCE.json", source_receipt)
             source_receipts.append(source_receipt)
@@ -296,6 +301,8 @@ class NexusMaterializer:
             "sources": source_receipts,
             "source_history_merged": False,
             "source_history_remains_authoritative": True,
+            "source_bytes_read_from_pinned_git_objects": True,
+            "mutable_worktree_bytes_used": False,
             "source_code_executed": False,
             "network_access_performed": False,
             "source_write_back_performed": False,
@@ -310,6 +317,7 @@ class NexusMaterializer:
             "source_count": len(source_receipts),
             "source_write_back_performed": False,
             "source_code_executed": False,
+            "mutable_worktree_bytes_used": False,
         }
 
     def verify(self) -> dict[str, Any]:
@@ -327,6 +335,8 @@ class NexusMaterializer:
             errors.append("NEXUS_SOURCE_WRITE_BACK_CLAIM_INVALID")
         if receipt.get("source_code_executed") is not False:
             errors.append("NEXUS_SOURCE_EXECUTION_CLAIM_INVALID")
+        if receipt.get("mutable_worktree_bytes_used") is not False:
+            errors.append("NEXUS_MUTABLE_WORKTREE_CLAIM_INVALID")
 
         basis_sources: list[dict[str, Any]] = []
         source_rows = receipt.get("sources")
@@ -356,7 +366,15 @@ class NexusMaterializer:
                 if path.is_symlink() or not path.is_file():
                     errors.append(f"NEXUS_BODY_FILE_MISSING:{repo_id}:{rel.as_posix()}")
                     continue
-                recomputed.append(_file_record(path, rel))
+                raw = path.read_bytes()
+                recomputed.append(
+                    _file_record(
+                        raw,
+                        rel,
+                        str(item.get("git_blob_sha") or ""),
+                        str(item.get("git_mode") or ""),
+                    )
+                )
             if recomputed != file_rows:
                 errors.append(f"NEXUS_BODY_FILE_DIGEST_MISMATCH:{repo_id}")
             tree_sha = _sha256_json(recomputed)
