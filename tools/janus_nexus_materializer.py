@@ -301,6 +301,8 @@ class NexusMaterializer:
         return _read_json(self.receipt_path)
 
     def materialize(self) -> dict[str, Any]:
+        if self.output_root.is_symlink():
+            raise NexusMaterializerError("NEXUS_OUTPUT_ROOT_SYMLINK_REJECTED")
         existing = self._existing_receipt()
         if existing is not None:
             if existing.get("manifest_sha256") != self.manifest_sha256:
