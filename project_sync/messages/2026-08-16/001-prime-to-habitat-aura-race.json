@@ -1,0 +1,22 @@
+{
+  "schema": "janus.project.face_handoff_message.v1",
+  "message_id": "PSYNC-R3-001-PRIME-HABITAT-AURA-RACE",
+  "message_type": "COMMAND",
+  "from_face": "JANUS_PRIME",
+  "to_face": "FACE_HABITAT",
+  "work_item": "AURA_HEARTH_CONCURRENCY_REPAIR",
+  "artifact_scope": "Hawkar-usls/Janus_Genesis baseline main",
+  "input_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+  "output_sha_or_none": "none",
+  "ci_state": "HOLD_ONE_REPRODUCED_AURA_CONCURRENCY_FAILURE",
+  "blockers": [
+    "AI Link Play run 31953481740 fails 1 of 912 tests",
+    "Concurrent Aura caller may expose raw FileExistsError while another caller settles"
+  ],
+  "instruction_or_summary": "Create an isolated baseline repair branch from the exact input SHA. Remove the raw hearth/aura directory creation race without granting new authority, without making Aura mandatory, and without weakening the one-consultation-per-turn / inflight-no-auto-replay boundary. This command assigns work only; it grants no permission beyond already-available repository capabilities and is not merge approval.",
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0,
+  "permission_granted": false,
+  "truth_authority_granted": false,
+  "effect_authority_granted": false
+}
