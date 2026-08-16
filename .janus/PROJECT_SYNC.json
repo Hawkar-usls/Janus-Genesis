@@ -1,0 +1,42 @@
+{
+  "schema": "janus.project.sync_pointer.v1",
+  "status": "ACTIVE",
+  "master_coordination_issue": "Hawkar-usls/Janus_Genesis#102",
+  "registry_state": "Hawkar-usls/janus-meta-registry:data/JANUS-PROJECT-SYNC-STATE-2026-08-16-v1.1.json",
+  "coordination_protocol": "protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json",
+  "handoff_validator": "tools/janus_project_face_handoff.py",
+  "required_preflight": [
+    "READ_RELEVANT_PROJECT_CHAT_CONTEXT",
+    "READ_MASTER_COORDINATION_ISSUE",
+    "READ_CURRENT_REGISTRY_SYNC_STATE",
+    "CHECK_LIVE_GITHUB_HEADS_AND_CI",
+    "RECONCILE_CHAT_STATE_WITH_REPO_STATE_BEFORE_MUTATION"
+  ],
+  "faces": [
+    "JANUS_PRIME",
+    "FACE_ARMOR",
+    "FACE_HABITAT",
+    "FACE_AURA",
+    "FACE_HRAIN",
+    "FACE_INAIHR",
+    "FACE_DEMIHEAD",
+    "FACE_FUNDAMENTUM",
+    "FACE_REGISTRY"
+  ],
+  "laws": [
+    "LOCAL_CHAT_CONTEXT != PROJECT_GLOBAL_STATE",
+    "BEFORE_REPO_MUTATION -> PROJECT_CONTEXT_RECONCILIATION",
+    "CONFLICTING_PROJECT_THREADS -> HOLD -> RECONCILE -> CONTINUE",
+    "FACE != NEW_IDENTITY",
+    "MULTI_FACE_COORDINATION != AUTHORITY_MULTIPLICATION",
+    "FACE_COUNT != EFFECT_BUDGET",
+    "CI_GREEN != PROJECT_GLOBAL_PERMISSION"
+  ],
+  "truth_boundary": {
+    "chat_threads_are_live_independent_agents": false,
+    "faces_are_engineering_roles": true,
+    "self_authorization_created": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  }
+}
