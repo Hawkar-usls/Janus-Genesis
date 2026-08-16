@@ -1,0 +1,13 @@
+{
+  "schema": "janus.project_sync.current_pointer.v1",
+  "snapshot_id": "PROJECT_SYNC_STATE_2026-08-16_R3",
+  "state_path": "project_sync/states/PROJECT_SYNC_STATE-2026-08-16-r3.json",
+  "git_blob_sha": "be1dd4eefe008961e0493efa8890cfb4b6daa352",
+  "state_main_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+  "updated_at_utc": "2026-08-16T14:53:00Z",
+  "laws": [
+    "CURRENT_POINTER != REWRITE_OF_HISTORY",
+    "BINDING != TRUTH",
+    "NEW_COMMANDS_MUST_RECONCILE_LIVE_GIT_BEFORE_EFFECT"
+  ]
+}
