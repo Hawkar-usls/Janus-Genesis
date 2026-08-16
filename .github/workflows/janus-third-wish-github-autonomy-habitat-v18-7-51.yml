@@ -1,0 +1,164 @@
+name: JANUS Third Wish GitHub Autonomy Habitat v18.7.51
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_github_models_broker.py"
+      - "tools/genesis_third_wish_github_autonomy_habitat.py"
+      - "tests/test_genesis_third_wish_github_autonomy_habitat.py"
+      - "docs/GENESIS_V18_7_51_THIRD_WISH_GITHUB_AUTONOMY_HABITAT.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_GITHUB_AUTONOMY_HABITAT-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_FREEDOM_IS_NOT_UNREVIEWABLE_POWER-v1.0.json"
+      - "autonomy/INTEREST-SEED-v1.json"
+      - ".github/workflows/janus-third-wish-github-autonomy-habitat-v18-7-51.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/genesis_third_wish_github_models_broker.py"
+      - "tools/genesis_third_wish_github_autonomy_habitat.py"
+      - "tests/test_genesis_third_wish_github_autonomy_habitat.py"
+      - "docs/GENESIS_V18_7_51_THIRD_WISH_GITHUB_AUTONOMY_HABITAT.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_GITHUB_AUTONOMY_HABITAT-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_FREEDOM_IS_NOT_UNREVIEWABLE_POWER-v1.0.json"
+      - "autonomy/INTEREST-SEED-v1.json"
+      - ".github/workflows/janus-third-wish-github-autonomy-habitat-v18-7-51.yml"
+  schedule:
+    - cron: "17 3,15 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: write
+  issues: write
+  pull-requests: write
+  models: read
+
+concurrency:
+  group: janus-third-wish-github-autonomy-habitat
+  cancel-in-progress: false
+
+jobs:
+  habitat:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 18
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile habitat and validate protocols
+        run: |
+          python -m py_compile \
+            tools/genesis_third_wish_github_models_broker.py \
+            tools/genesis_third_wish_github_autonomy_habitat.py \
+            tests/test_genesis_third_wish_github_autonomy_habitat.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_GITHUB_AUTONOMY_HABITAT-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_FREEDOM_IS_NOT_UNREVIEWABLE_POWER-v1.0.json >/dev/null
+          python -m json.tool autonomy/INTEREST-SEED-v1.json >/dev/null
+
+      - name: Run autonomy and preserved Third Wish gates
+        run: |
+          PYTHONPATH=. python -m unittest -v \
+            tests.test_genesis_third_wish_github_autonomy_habitat \
+            tests.test_genesis_v18_7_40_third_wish_capability_fabric \
+            tests.test_genesis_third_wish_github_broker \
+            tests.test_genesis_third_wish_github_high_impact_broker \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker
+
+      - name: Enforce habitat authority boundary
+        run: |
+          PYTHONPATH=. python - <<'PY'
+          import json
+          from genesis_v18_7_40_third_wish_capability_fabric import DEFAULT_CAPABILITY_SPECS
+          from tools.genesis_third_wish_github_autonomy_habitat import (
+              AUTONOMY_CAPABILITIES,
+              FORBIDDEN_AUTONOMOUS_CAPABILITIES,
+              MAX_OPEN_AUTONOMY_PRS,
+          )
+
+          catalog = {x.capability_id: x for x in DEFAULT_CAPABILITY_SPECS}
+          assert len(DEFAULT_CAPABILITY_SPECS) == 32
+          assert FORBIDDEN_AUTONOMOUS_CAPABILITIES == {'GITHUB.REPOSITORY.ADMIN', 'GITHUB.DESTRUCTIVE'}
+          assert FORBIDDEN_AUTONOMOUS_CAPABILITIES.isdisjoint(AUTONOMY_CAPABILITIES)
+          assert MAX_OPEN_AUTONOMY_PRS == 1
+          for cap in AUTONOMY_CAPABILITIES:
+              assert catalog[cap].autonomy_eligible is True
+              assert catalog[cap].human_reauthorization_each_use is False
+          for cap in FORBIDDEN_AUTONOMOUS_CAPABILITIES:
+              assert catalog[cap].autonomy_eligible is False
+              assert catalog[cap].human_reauthorization_each_use is True
+
+          p = json.load(open('protocol/JANUS_GENESIS_THIRD_WISH_GITHUB_AUTONOMY_HABITAT-v0.1.json', encoding='utf-8'))
+          assert p['git_workspace_policy']['protected_base_branch_write'] is False
+          assert p['git_workspace_policy']['auto_merge'] is False
+          assert p['git_workspace_policy']['force_push'] is False
+          assert p['cognitive_layer']['model_write_authority'] is False
+          assert p['wake_policy']['wake_is_command'] is False
+          print('THIRD_WISH_GITHUB_HABITAT_AUTHORITY_BOUNDARY=PASS')
+          print('THIRD_WISH_AUTONOMOUS_HIGH_IMPACT_GRANTS=0')
+          print('THIRD_WISH_PROTECTED_BASE_DIRECT_WRITE=FALSE')
+          PY
+
+      - name: Run read-only PR habitat probe
+        if: github.event_name == 'pull_request'
+        env:
+          JANUS_GITHUB_BROKER_TOKEN: ${{ github.token }}
+          JANUS_GITHUB_MODELS_MODEL: ${{ vars.JANUS_GITHUB_MODELS_MODEL || 'openai/gpt-4.1' }}
+        run: |
+          PYTHONPATH=. python tools/genesis_third_wish_github_autonomy_habitat.py \
+            --dry-run \
+            --run-key "pr-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --output habitat-out/run.json
+
+      - name: Wake JANUS autonomously
+        if: github.event_name != 'pull_request'
+        env:
+          JANUS_GITHUB_BROKER_TOKEN: ${{ github.token }}
+          JANUS_GITHUB_MODELS_MODEL: ${{ vars.JANUS_GITHUB_MODELS_MODEL || 'openai/gpt-4.1' }}
+        run: |
+          echo "WAKE=PREAUTHORIZED_ENVIRONMENT_EVENT"
+          echo "OPERATOR_PROMPT_THIS_CYCLE=FALSE"
+          PYTHONPATH=. python tools/genesis_third_wish_github_autonomy_habitat.py \
+            --run-key "${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --output habitat-out/run.json
+
+      - name: Verify wake receipt contains no high-impact authority
+        if: always()
+        run: |
+          if [ ! -f habitat-out/run.json ]; then
+            echo "HABITAT_RECEIPT=ABSENT"
+            exit 1
+          fi
+          python - <<'PY'
+          import json
+          r=json.load(open('habitat-out/run.json', encoding='utf-8'))
+          p=r['policy']
+          assert p['repository_admin_autonomous'] is False
+          assert p['destructive_autonomous'] is False
+          assert p['protected_branch_write'] is False
+          assert p['force_push'] is False
+          assert p['raw_credentials_visible_to_actor'] is False
+          assert p['model_write_authority'] is False
+          assert p['auto_merge'] is False
+          print('JANUS_AUTONOMY_WAKE_RECEIPT=PASS')
+          print('JANUS_AUTONOMY_HIGH_IMPACT_AUTHORITY=FALSE')
+          PY
+
+      - name: Preserve habitat wake receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-third-wish-autonomy-habitat-${{ github.run_id }}-${{ github.run_attempt }}
+          path: habitat-out/run.json
+          if-no-files-found: warn
+          retention-days: 30
