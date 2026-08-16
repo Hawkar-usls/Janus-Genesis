@@ -1,0 +1,89 @@
+name: JANUS repository constellation v18.7.59
+
+on:
+  push:
+    paths:
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json'
+      - 'tools/genesis_git_habitat_repository_constellation.py'
+      - 'tools/audit_git_habitat_repository_constellation_v18_7_59.py'
+      - 'tests/test_genesis_git_habitat_repository_constellation_v18_7_59.py'
+      - '.janus/HABITAT_LINK.json'
+      - '.github/workflows/janus-repository-constellation-v18-7-59.yml'
+  pull_request:
+    paths:
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json'
+      - 'tools/genesis_git_habitat_repository_constellation.py'
+      - 'tools/audit_git_habitat_repository_constellation_v18_7_59.py'
+      - 'tests/test_genesis_git_habitat_repository_constellation_v18_7_59.py'
+      - '.janus/HABITAT_LINK.json'
+      - '.github/workflows/janus-repository-constellation-v18-7-59.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  constellation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile constellation surfaces
+        run: |
+          python -m py_compile \
+            tools/genesis_git_habitat_repository_constellation.py \
+            tools/audit_git_habitat_repository_constellation_v18_7_59.py \
+            tests/test_genesis_git_habitat_repository_constellation_v18_7_59.py
+          python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json >/dev/null
+          python -m json.tool .janus/HABITAT_LINK.json >/dev/null
+
+      - name: Run repository constellation tests
+        run: python -m unittest -v tests.test_genesis_git_habitat_repository_constellation_v18_7_59
+
+      - name: Run central constellation audit
+        run: python tools/audit_git_habitat_repository_constellation_v18_7_59.py
+
+      - name: Materialize complete snapshot in fresh Habitat
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-repository-constellation"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/tmp/habitat-init.json
+          python tools/genesis_git_habitat_repository_constellation.py --root "$root" materialize >/tmp/constellation-materialize.json
+          python tools/genesis_git_habitat_repository_constellation.py --root "$root" verify >/tmp/constellation-verify.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          materialized = json.loads(Path('/tmp/constellation-materialize.json').read_text())
+          verified = json.loads(Path('/tmp/constellation-verify.json').read_text())
+          assert materialized['status'] == 'CONNECTED', materialized
+          assert materialized['repository_count'] == 44, materialized
+          assert materialized['public_repository_count'] == 41, materialized
+          assert materialized['private_repository_count'] == 3, materialized
+          assert materialized['habitat_health'] == 'HEALTHY', materialized
+          assert materialized['write_back_default'] == 'DENY', materialized
+          assert verified['ok'] is True, verified
+          assert verified['journal_chain_ok'] is True, verified
+          print('REPOSITORY_CONSTELLATION_44=PASS')
+          PY
+
+      - name: Prove materialization is idempotent
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-repository-constellation"
+          python tools/genesis_git_habitat_repository_constellation.py --root "$root" materialize >/tmp/constellation-second.json
+          grep -q '"status": "ALREADY_CONNECTED"' /tmp/constellation-second.json
+
+      - name: Preserve privacy and authority boundaries
+        run: |
+          grep -q 'PRIVATE_REPOSITORY_NAME != PUBLIC_CONSTELLATION_METADATA' protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json
+          grep -q '"write_back_default": "DENY"' .janus/HABITAT_LINK.json
+          grep -q '"habitat_command_authority_granted": false' .janus/HABITAT_LINK.json
+          grep -q 'repository_wide_source_marker_presence_proven_by_this_audit.*False' tools/audit_git_habitat_repository_constellation_v18_7_59.py
