@@ -92,7 +92,7 @@ class GitHabitatAuraHearthTests(unittest.TestCase):
         habitat.wake("TEST", "UNIT")
         return habitat
 
-    def test_habitat_must_be_awake(self) -> None:
+    def test_habitat_must_be_awake_to_consult(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             habitat = GitHabitat(tmp)
             habitat.initialize("JANUS")
@@ -127,6 +127,17 @@ class GitHabitatAuraHearthTests(unittest.TestCase):
             self.assertEqual(disabled["status"], "NOT_CONSULTED_AURA_DISABLED")
             self.assertTrue(disabled["speech_may_continue_without_aura"])
             self.assertEqual(provider.calls, 0)
+
+    def test_user_opt_out_can_be_changed_while_habitat_is_asleep(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            habitat = GitHabitat(tmp)
+            habitat.initialize("JANUS")
+            bridge = GitHabitatAuraHearth(habitat, FakeProvider())
+            state = bridge.set_enabled(False)
+            self.assertEqual(state["resident_mode"], "AT_HOME")
+            self.assertFalse(state["aura_enabled"])
+            restarted = GitHabitatAuraHearth(GitHabitat(tmp), FakeProvider())
+            self.assertFalse(restarted.state()["aura_enabled"])
 
     def test_completed_turn_survives_bridge_restart_and_preserves_journal(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -196,6 +207,20 @@ class GitHabitatAuraHearthTests(unittest.TestCase):
             self.assertTrue(result["speech_may_continue_without_aura"])
             self.assertFalse(result["direct_world_effect_from_heuristic"])
 
+    def test_authority_shaped_provider_is_rejected_by_habitat_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            bridge = GitHabitatAuraHearth(self._awake(tmp), AuthorityShapedProvider())
+            result = bridge.consult(
+                turn_id="T1",
+                topic="x",
+                question="y",
+                janus_requests_heuristic=True,
+            )
+            self.assertEqual(result["status"], "AURA_UNAVAILABLE_CONTINUE_WITHOUT_HEURISTIC")
+            self.assertIsNone(result["heuristic"])
+            self.assertFalse(result["aura_grants_permission"])
+            self.assertFalse(result["direct_world_effect_from_heuristic"])
+
     def test_inflight_or_claim_marker_never_replays_automatically(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             habitat = self._awake(tmp)
@@ -232,8 +257,19 @@ class GitHabitatAuraHearthTests(unittest.TestCase):
             results = [queue.get(timeout=2), queue.get(timeout=2)]
             entries = Path(marker).read_text(encoding="utf-8").splitlines()
             self.assertEqual(len(entries), 1, results)
-            self.assertTrue(any(row[0] == "RETURN" for row in results), results)
-            self.assertTrue(any(row[0] in {"HabitatAuraInFlight", "HabitatAuraError"} for row in results), results)
+            successful_queries = [
+                row for row in results
+                if row == ("RETURN", "HEURISTIC_RECEIVED_OPTIONAL")
+            ]
+            self.assertEqual(len(successful_queries), 1, results)
+            for row in results:
+                if row == ("RETURN", "HEURISTIC_RECEIVED_OPTIONAL"):
+                    continue
+                self.assertTrue(
+                    row[0] in {"HabitatAuraInFlight", "HabitatAuraError"}
+                    or row == ("RETURN", "NOT_CONSULTED_ALREADY_RECORDED_THIS_TURN"),
+                    results,
+                )
 
     def test_string_false_cannot_masquerade_as_janus_intent(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -245,21 +281,6 @@ class GitHabitatAuraHearthTests(unittest.TestCase):
                     question="y",
                     janus_requests_heuristic="false",  # type: ignore[arg-type]
                 )
-
-    def test_authority_shaped_provider_is_not_a_safe_production_provider(self) -> None:
-        # The canonical LocalAuraOracleProvider validates this before returning.
-        # This test freezes the Habitat-side claim ceiling: arbitrary fake
-        # providers are not asserted equivalent to that canonical provider.
-        with tempfile.TemporaryDirectory() as tmp:
-            bridge = GitHabitatAuraHearth(self._awake(tmp), AuthorityShapedProvider())
-            result = bridge.consult(
-                turn_id="T1",
-                topic="x",
-                question="y",
-                janus_requests_heuristic=True,
-            )
-            self.assertTrue(result["aura_grants_permission"] is False)
-            self.assertFalse(result["direct_world_effect_from_heuristic"])
 
 
 if __name__ == "__main__":
