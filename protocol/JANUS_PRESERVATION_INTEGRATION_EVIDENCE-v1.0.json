@@ -7,13 +7,34 @@
   "status": "IMPLEMENTATION_PRIMITIVE",
   "purpose": "Admit a locally produced cross-lane evidence bundle only when it is internally consistent with an independently supplied exact producer-reference lock, an out-of-band expected digest of that lock, and the pre-registered P0 preservation conditions; then emit a privacy-safe public summary.",
   "producer_lanes": {
-    "materializer": "Hawkar-usls/Janus_Genesis",
-    "privacy_projection": "Hawkar-usls/Janus_Genesis",
-    "source_pin_contract": "Hawkar-usls/Janus_Genesis",
-    "variant_lineage": "Hawkar-usls/Janus_Genesis",
-    "handoff_ledger": "Hawkar-usls/Janus_Genesis",
-    "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm",
-    "source_identity_guard": "Hawkar-usls/Janus_Genesis"
+    "materializer": {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "canonical_pull_request": 122
+    },
+    "privacy_projection": {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "canonical_pull_request": 125
+    },
+    "source_pin_contract": {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "canonical_pull_request": 126
+    },
+    "variant_lineage": {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "canonical_pull_request": 123
+    },
+    "handoff_ledger": {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "canonical_pull_request": 124
+    },
+    "swarm_recovery": {
+      "repository": "Hawkar-usls/janus-distributed-ai-swarm",
+      "canonical_pull_request": 5
+    },
+    "source_identity_guard": {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "canonical_pull_request": 133
+    }
   },
   "external_lock": {
     "required": true,
@@ -27,6 +48,9 @@
     "producer_sha_format": "exact_lowercase_40_hex_git_sha",
     "producer_pull_request_format": "positive_integer",
     "producer_repository_must_match_role": true,
+    "producer_pull_request_must_match_role": true,
+    "producer_sha_membership_in_named_pull_request_verified_offline": false,
+    "producer_sha_membership_must_be_witnessed_by_live_git_freeze": true,
     "bundle_must_match_lock_exactly": true,
     "source_identity_guard_producer_ref_required": true,
     "self_declared_bundle_refs_are_sufficient": false,
@@ -91,6 +115,8 @@
   "canonical_laws": [
     "BUNDLE_CONSISTENCY != EMPIRICAL_REPLAY",
     "SHA_WITHOUT_REPOSITORY_IDENTITY != COMPLETE_PRODUCER_REFERENCE",
+    "REPOSITORY_MATCH_WITHOUT_CANONICAL_PR_MATCH != ROLE_BOUND_PRODUCER_REFERENCE",
+    "SHA_SHAPE_AND_ROLE_MATCH != PROOF_SHA_BELONGS_TO_PR",
     "LOCK_FILE_WITHOUT_OUT_OF_BAND_DIGEST != EXTERNALLY_ANCHORED_LOCK",
     "PIN_STRING_SHAPE != PIN_SEMANTICS",
     "OPAQUE_VERSION_TOKEN != GIT_COMMIT_SHA1",
@@ -115,5 +141,5 @@
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
-  "claim_ceiling": "This verifier can establish only that a supplied local cross-lane evidence bundle is internally consistent with an out-of-band-digest-bound external exact producer-reference lock, now including the source-identity-guard producer, and the pre-registered P0 conditions. It cannot establish that producer harnesses honestly generated the evidence, that all real owner repositories were replayed, or that any merge, source mutation, execution, or external-effect authority exists."
+  "claim_ceiling": "This verifier can establish only that a supplied local cross-lane evidence bundle is internally consistent with an out-of-band-digest-bound external exact producer-reference lock whose seven roles are restricted to their canonical repositories and pull requests, and with the pre-registered P0 conditions. It cannot establish offline that each exact SHA belongs to the named pull request, that producer harnesses honestly generated the evidence, that all real owner repositories were replayed, or that any merge, source mutation, execution, or external-effect authority exists."
 }
