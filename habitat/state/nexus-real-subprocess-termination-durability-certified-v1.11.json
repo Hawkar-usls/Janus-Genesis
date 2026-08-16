@@ -1,0 +1,48 @@
+{
+  "schema": "janus.git_habitat.nexus_real_subprocess_termination_state.v1",
+  "state_id": "NEXUS-REAL-SUBPROCESS-TERMINATION-DURABILITY-CERTIFIED-v1.11",
+  "recorded_at_local": "2026-08-17T02:43:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "3b7d9e2e1b65c9217e05e9281f2447164d18e659",
+  "parent_recovery_exact_head": "971dedcea1c1d984f980f17dd52f39ddd4ed424f",
+  "status": "CERTIFIED_POSIX_REAL_SUBPROCESS_TERMINATION_DURABILITY_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-REAL-SUBPROCESS-TERMINATION-DURABILITY-EXACT-HEAD-CI-CERTIFICATE-v1.11.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-DURABILITY-AUTHORITY-v1.json",
+  "frozen_holdout": {
+    "path": "fixtures/nexus_real_subprocess_termination_holdout_v1.json",
+    "cases": 5,
+    "freeze_sha256": "0b815e6864bedcba152add9c17861cb30115f24d772ce3a01b3613868ec9f159"
+  },
+  "certified_path": [
+    "SPAWN_CHILD_PROCESS",
+    "DURABLY_PERSIST_LIFECYCLE_STATE",
+    "OPTIONALLY_PERSIST_DISPATCH_EVIDENCE",
+    "FSYNC_READY_MARKER",
+    "PARENT_KILLS_CHILD_ABRUPTLY",
+    "PARENT_REOPENS_PERSISTENT_STATE",
+    "SEPARATE_RECOVERY_PROCESS_REOPENS_SQLITE_EVIDENCE",
+    "V1_10_MANUAL_RECOVERY_SEMANTICS_APPLY"
+  ],
+  "special_real_resource_case": {
+    "literal_loopback_listener": "127.0.0.1 ephemeral port",
+    "child_termination": "subprocess.Popen.kill() on POSIX",
+    "operating_system_socket_release_verified": true,
+    "lifecycle_row_persisted_for_recovery": true
+  },
+  "boundaries": {
+    "platform_scope": "POSIX_UBUNTU_GITHUB_ACTIONS",
+    "power_loss_tested": false,
+    "kernel_panic_tested": false,
+    "filesystem_corruption_tested": false,
+    "container_host_reboot_tested": false,
+    "automatic_recovery": false,
+    "automatic_restart": false,
+    "automatic_retry": false,
+    "cross_host_transport": false,
+    "persistent_daemon": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "STORAGE_FAULT_INJECTION_FAIL_CLOSED_HOLDOUT"
+}
