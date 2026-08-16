@@ -5,6 +5,11 @@ v18.7.51 adds the Shabitat ↔ Aura local subprocess bridge. The bridge is
 classified separately because it performs a selected direct process primitive,
 but its tests must independently establish Armor-before-process ordering.
 Classification alone never means admission or safety.
+
+A separately checked-out Aura repository used by cross-repository CI is excluded
+from the JANUS source inventory. Aura has its own repository CI and boundary
+contract; vendored/foreign checkout contents must not be silently reclassified
+as JANUS production surfaces.
 """
 from __future__ import annotations
 
@@ -55,6 +60,7 @@ EXCLUDED_PATTERNS = (
     "tests/*",
     "test_*",
     "examples/*",
+    "aura-oracle-tg/*",
     "tools/audit_armor_effect_drift_v18_7_50.py",
     "tools/audit_armor_effect_drift_v18_7_51.py",
 )
@@ -144,16 +150,19 @@ def main() -> int:
         "shabitat_aura_surface_classified": (
             shabitat.get("classification") == "ARMOR_GATED_LOCAL_SHABITAT_AURA_HEURISTIC_BRIDGE"
         ),
+        "foreign_ci_checkout_excluded": "aura-oracle-tg/*",
         "legacy_migration_debt": migration_debt,
         "unclassified": unclassified,
         "classification_is_security_certification": False,
         "classified_surface_is_armored_by_classification_alone": False,
         "repository_wide_complete_routing_coverage_proven": False,
         "claim_ceiling": (
-            "This AST canary inventories selected direct network/process primitives. "
-            "The Shabitat Aura subprocess is explicitly classified, but only executable "
-            "tests can establish Armor-before-process ordering for the reference bridge. "
-            "The canary does not prove absence of dynamic/native effects or repository-wide unbypassability."
+            "This AST canary inventories selected direct network/process primitives in JANUS source. "
+            "The Shabitat Aura subprocess is explicitly classified, but only executable tests can "
+            "establish Armor-before-process ordering for the reference bridge. A separately checked-out "
+            "Aura repository is outside this JANUS inventory and is validated by its own CI plus the "
+            "cross-repository contract smoke. The canary does not prove absence of dynamic/native effects "
+            "or repository-wide unbypassability."
         ),
     }
     print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
