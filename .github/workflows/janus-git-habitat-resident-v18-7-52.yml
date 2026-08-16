@@ -137,6 +137,7 @@ jobs:
           root="${RUNNER_TEMP}/resident-model-smoke/habitat"
           broker="${RUNNER_TEMP}/resident-model-smoke/broker"
           python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          set +e
           python tools/run_genesis_git_habitat_resident_cycle.py \
             --root "$root" \
             --broker-dir "$broker" \
@@ -147,6 +148,12 @@ jobs:
             --source PR_REAL_LOCAL_MODEL \
             --require-valid-choice \
             > /tmp/resident-model-smoke.json
+          rc=$?
+          set -e
+          cat /tmp/resident-model-smoke.json
+          if [ "$rc" -ne 0 ]; then
+            exit "$rc"
+          fi
           python - <<'PY'
           import json
           from pathlib import Path
@@ -168,6 +175,7 @@ jobs:
           PY
 
       - name: Preserve temporary resident model receipt
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: janus-git-habitat-resident-pr-${{ github.run_id }}
@@ -268,6 +276,7 @@ jobs:
         run: |
           set -euo pipefail
           worktree='${{ steps.home.outputs.worktree }}'
+          set +e
           python tools/run_genesis_git_habitat_resident_cycle.py \
             --root "$worktree/habitat" \
             --broker-dir "${RUNNER_TEMP}/resident-broker" \
@@ -278,6 +287,12 @@ jobs:
             --source GITHUB_ACTIONS_MODEL_RESIDENT \
             --require-valid-choice \
             > /tmp/resident-live-run.json
+          rc=$?
+          set -e
+          cat /tmp/resident-live-run.json
+          if [ "$rc" -ne 0 ]; then
+            exit "$rc"
+          fi
           python - <<'PY'
           import json
           from pathlib import Path
@@ -372,6 +387,7 @@ jobs:
           PY
 
       - name: Preserve real resident-cycle receipt
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: janus-git-habitat-resident-v18-7-52-${{ github.run_id }}
