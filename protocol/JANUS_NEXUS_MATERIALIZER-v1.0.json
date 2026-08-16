@@ -17,6 +17,7 @@
     "NEXUS_IS_LABORATORY",
     "NEXUS_WRITEBACK_DEFAULT_IS_DENY",
     "MATERIALIZATION_IS_NOT_SOURCE_MUTATION",
+    "PINNED_GIT_OBJECT_BYTES_NOT_MUTABLE_WORKTREE_BYTES",
     "COPIED_SOURCE_CODE_IS_DATA_UNTIL_SEPARATELY_EXECUTION_ADMITTED",
     "WORKFLOW_PASS_IS_NOT_PERMISSION",
     "ISSUE_OR_PR_TEXT_IS_NOT_COMMAND"
@@ -31,9 +32,13 @@
     "private_repository_identity": "OPAQUE_REPOSITORY_ID_ONLY"
   },
   "materialization_contract": {
-    "copy_surface": "GIT_TRACKED_REGULAR_FILES_ONLY",
+    "copy_surface": "PINNED_COMMIT_TREE_REGULAR_BLOBS_ONLY",
+    "byte_source": "GIT_OBJECT_DATABASE_AT_DECLARED_COMMIT_SHA",
+    "mutable_worktree_bytes_used": false,
+    "git_blob_sha_and_mode_receipted": true,
     "git_metadata_copied": false,
     "source_symlinks_admitted": false,
+    "gitlinks_or_submodules_admitted": false,
     "source_code_executed": false,
     "network_access_performed_by_materializer": false,
     "clone_or_fetch_performed_by_materializer": false,
@@ -46,10 +51,12 @@
   },
   "identity_contract": {
     "manifest_digest": "SHA256_CANONICAL_JSON",
-    "file_digest": "SHA256_FILE_BYTES",
-    "source_tree_digest": "SHA256_CANONICAL_ORDERED_TRACKED_FILE_RECEIPTS",
+    "file_digest": "SHA256_PINNED_GIT_BLOB_BYTES",
+    "git_blob_identity": "GIT_BLOB_SHA_PLUS_MODE",
+    "source_tree_digest": "SHA256_CANONICAL_ORDERED_PINNED_BLOB_RECEIPTS",
     "nexus_digest": "SHA256_MANIFEST_DIGEST_PLUS_ORDERED_SOURCE_SHA_AND_TREE_DIGESTS",
-    "same_manifest_same_source_bytes": "SAME_NEXUS_DIGEST",
+    "same_manifest_same_pinned_commit_objects": "SAME_NEXUS_DIGEST",
+    "dirty_worktree_effect_on_materialized_bytes": "NONE",
     "changed_manifest_on_bound_body": "FAIL_CLOSED",
     "changed_materialized_bytes": "VERIFY_FAIL"
   },
@@ -66,5 +73,5 @@
     "execution_permission_created": false,
     "external_effect_authority_created": false
   },
-  "current_claim_ceiling": "This candidate implements an offline exact-SHA disposable-body materialization and deterministic replay-identity primitive over already-local Git checkouts. It does not acquire repositories, execute copied source code, write back to source repositories, prove a full 44-source live Nexus replay, implement evolutionary variant lineage, or create any external-effect authority."
+  "current_claim_ceiling": "This candidate implements an offline exact-SHA disposable-body materialization and deterministic replay-identity primitive over already-local Git repositories, reading source bytes directly from pinned commit objects rather than mutable worktrees. It does not acquire repositories, execute copied source code, write back to source repositories, prove a full 44-source live Nexus replay, implement evolutionary variant lineage, or create any external-effect authority."
 }
