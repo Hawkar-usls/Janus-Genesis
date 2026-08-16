@@ -28,6 +28,9 @@ SAFE_BRANCH = re.compile(r"^[A-Za-z0-9._/+-]{1,240}$")
 SAFE_PUBLIC_REPO = re.compile(r"^Hawkar-usls/[A-Za-z0-9._-]{1,200}$")
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 REGULAR_BLOB_MODES = {"100644", "100755"}
+MANIFEST_TOP_LEVEL_FIELDS = frozenset(
+    {"schema", "artifact_id", "write_back_default", "source_code_execution", "sources"}
+)
 
 
 class NexusMaterializerError(RuntimeError):
@@ -77,6 +80,8 @@ def _write_json(path: Path, value: Any) -> None:
 def validate_manifest(value: Any) -> dict[str, Any]:
     if not isinstance(value, dict) or value.get("schema") != MANIFEST_SCHEMA:
         raise NexusMaterializerError("NEXUS_MANIFEST_SCHEMA_INVALID")
+    if set(value) - MANIFEST_TOP_LEVEL_FIELDS:
+        raise NexusMaterializerError("NEXUS_MANIFEST_TOP_LEVEL_FIELD_INVALID")
     if value.get("write_back_default") != "DENY":
         raise NexusMaterializerError("NEXUS_WRITE_BACK_MUST_DEFAULT_DENY")
     if value.get("source_code_execution") is not False:
@@ -149,6 +154,10 @@ def _pinned_tree_blobs(repo: Path, commit_sha: str) -> list[tuple[Path, str, str
             rel = _checked_relative_path(path_raw.decode("utf-8", errors="strict"))
         except (ValueError, UnicodeDecodeError) as exc:
             raise NexusMaterializerError("NEXUS_GIT_TREE_RECORD_INVALID") from exc
+        if len(rel.parts) == 1 and rel.name.casefold() == "source.json":
+            raise NexusMaterializerError(
+                f"NEXUS_SOURCE_RESERVED_PATH_REJECTED:{rel.as_posix()}"
+            )
         if object_type != "blob" or mode not in REGULAR_BLOB_MODES:
             raise NexusMaterializerError(
                 f"NEXUS_SOURCE_ENTRY_TYPE_REJECTED:{rel.as_posix()}:{mode}:{object_type}"
