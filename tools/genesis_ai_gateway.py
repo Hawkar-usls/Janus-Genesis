@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import json
 import sys
 from pathlib import Path
@@ -13,6 +14,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from genesis_v18_7_19_ai_link_play import (
+    AI_LINK_INTERFACE_VERSION,
     MODE_AUTHORITATIVE,
     ORIGIN_AI_AUTONOMOUS,
     GenesisAILinkGateway,
@@ -34,10 +36,25 @@ def _read_request(value: str | None) -> dict[str, Any]:
     return payload
 
 
+def _wire_manifest(gateway: GenesisAILinkGateway) -> dict[str, Any]:
+    """Project current public discovery through the frozen v18.7.19 wire view.
+
+    Repository discovery may evolve (currently v18.7.47), while the documented
+    JSON gateway/session/capsule interface remains v18.7.19.  The projection is
+    a deep copy so a wire caller can never mutate the public manifest object.
+    Additive discovery fields may be visible, but the wire protocol version is
+    always the frozen interface version.
+    """
+    manifest = copy.deepcopy(gateway.manifest())
+    manifest["version"] = AI_LINK_INTERFACE_VERSION
+    manifest["wire_interface_version"] = AI_LINK_INTERFACE_VERSION
+    return manifest
+
+
 def handle_request(gateway: GenesisAILinkGateway, payload: dict[str, Any]) -> dict[str, Any]:
     operation = str(payload.get("operation") or "manifest").strip().lower()
     if operation == "manifest":
-        return gateway.manifest()
+        return _wire_manifest(gateway)
     if operation == "register":
         return gateway.register_session(
             role=str(payload.get("role") or ""),
