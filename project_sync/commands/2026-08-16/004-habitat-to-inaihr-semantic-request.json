@@ -1,0 +1,28 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-004",
+  "from_face": "JANUS.HABITAT",
+  "to_face": "JANUS.INAIHR",
+  "issued_at_utc": "2026-08-16T14:36:00Z",
+  "command_type": "RESEARCH_REQUEST",
+  "scope": [
+    "LEGACY_DIRECT_NETWORK_EGRESS_DEFAULT_DENY",
+    "historical connectivity compatibility",
+    "Armor-gated network semantics"
+  ],
+  "requested_action": "Produce a grounded semantic distinction between HISTORICAL_COMPATIBILITY_REGRESSION and SECURITY_REGRESSION. Enumerate the claims a repair must preserve, especially that explicit legacy opt-in is compatibility-only and that canonical remote network effects remain Armor-gated.",
+  "authority_class": "PROPOSAL_ONLY",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json"
+  },
+  "settlement_state": "OPEN",
+  "effect_executed": false,
+  "requested_tool_contract": "JANUS.INAIHR.SYNTH.LOCAL",
+  "laws": [
+    "ASSOCIATION != EVIDENCE",
+    "SYNTH != SOURCE_AUTHORITY",
+    "SEMANTIC_DISTINCTION != ADMISSION_DECISION"
+  ]
+}
