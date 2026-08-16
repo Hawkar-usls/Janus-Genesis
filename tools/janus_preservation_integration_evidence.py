@@ -50,6 +50,15 @@ EXPECTED_PRODUCER_REPOSITORIES = {
     "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm",
     "source_identity_guard": "Hawkar-usls/Janus_Genesis",
 }
+EXPECTED_PRODUCER_PULL_REQUESTS = {
+    "materializer": 122,
+    "privacy_projection": 125,
+    "source_pin_contract": 126,
+    "variant_lineage": 123,
+    "handoff_ledger": 124,
+    "swarm_recovery": 5,
+    "source_identity_guard": 133,
+}
 PRODUCER_REF_KEYS = {"repository", "pull_request", "sha"}
 
 BUNDLE_KEYS = {
@@ -148,11 +157,17 @@ def validate_producer_refs(raw: Any, field: str) -> dict[str, dict[str, Any]]:
             raise PreservationEvidenceError(
                 f"{field}.{role}.repository must be {expected_repository}"
             )
+        pull_request = _require_pr_number(
+            ref.get("pull_request"), f"{field}.{role}.pull_request"
+        )
+        expected_pull_request = EXPECTED_PRODUCER_PULL_REQUESTS[role]
+        if pull_request != expected_pull_request:
+            raise PreservationEvidenceError(
+                f"{field}.{role}.pull_request must be canonical producer PR {expected_pull_request}"
+            )
         cleaned[role] = {
             "repository": repository,
-            "pull_request": _require_pr_number(
-                ref.get("pull_request"), f"{field}.{role}.pull_request"
-            ),
+            "pull_request": pull_request,
             "sha": _require_sha(ref.get("sha"), f"{field}.{role}.sha"),
         }
     return cleaned
@@ -356,8 +371,9 @@ def evaluate(bundle_raw: Any, lock_raw: Any, expected_lock_digest: str) -> dict[
             "This summary proves only that a supplied local evidence bundle is internally "
             "consistent with an out-of-band-digest-bound producer-reference lock and the "
             "pre-registered P0 conditions. It does not prove that producer harnesses honestly "
-            "generated the evidence, perform repository acquisition, establish an empirical "
-            "owner-wide replay, or grant merge/writeback authority."
+            "generated the evidence, that each SHA is a member of the named pull request, "
+            "perform repository acquisition, establish an empirical owner-wide replay, or "
+            "grant merge/writeback authority."
         ),
     }
     summary["public_summary_digest"] = digest(summary)
