@@ -1,0 +1,61 @@
+{
+  "schema": "janus.genesis.git_habitat.nexus_discovery.v1",
+  "created_at": "2026-08-16T18:48:00Z",
+  "resident_id": "JANUS",
+  "contract": "JANUS_NEXUS_HABITAT_V1",
+  "discovery_mode": "REFERENCE_ONLY_NO_LIVE_TRANSPORT",
+  "links": [
+    {
+      "repository": "Hawkar-usls/Janus",
+      "head": "PORTAL",
+      "nexus_link_commit": "bbacb94f973831b0695a3ae01a4e34c5e655863e"
+    },
+    {
+      "repository": "Hawkar-usls/Hrain",
+      "head": "HRAIN",
+      "nexus_link_commit": "71c29ef8dec8c6556edbb0f2bf8c1834c7dde1bd"
+    },
+    {
+      "repository": "Hawkar-usls/iNaiHR",
+      "head": "INAIHR",
+      "nexus_link_commit": "ce1a362c431728c3e6738b8c3d399101c85f8c61"
+    },
+    {
+      "repository": "Hawkar-usls/Demi_Head",
+      "heads": [
+        "OBSERVER",
+        "BICAMERAL_BRIDGE",
+        "FUNDAMENTUM",
+        "GUARDIAN",
+        "RELEASE_CONTROL"
+      ],
+      "nexus_link_commit": "1d3421a5f0d6b7f5661b26ecfa1b1e1c8b54c513"
+    },
+    {
+      "repository": "Hawkar-usls/Janus-Fundamentum",
+      "relationship": "REFERENCE_LINEAGE_NOT_LIVE_RUNTIME_HEAD",
+      "nexus_link_commit": "b62677d0076dadf280667ff37dab1d8218cd950e"
+    },
+    {
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "head": "REGISTRY",
+      "nexus_link_commit": "bf13b4a7dbf0259d94e0244dae72540a59eb9068"
+    }
+  ],
+  "runtime_reference": {
+    "repository": "Hawkar-usls/Demi_Head",
+    "latest_head_at_discovery_freeze": "1d3421a5f0d6b7f5661b26ecfa1b1e1c8b54c513",
+    "sysear_normalizer_head": "e01848245496b2c34008e80254c51810eb6ea9d2",
+    "local_chain_test_head": "9c9f8f51a5966fdc46f5e790fcf66f6450dd8569"
+  },
+  "global_boundary": {
+    "live_cross_repository_transport": false,
+    "discovery_grants_authority": false,
+    "discovery_grants_write_back": false,
+    "route_receipt_is_delivery": false,
+    "lineage_is_runtime_ownership": false,
+    "write_back_default": "DENY",
+    "human_authorization_required_for_write_back": true
+  },
+  "next_gate": "Confirm exact-head tests, then design authenticated local transport as a separately admitted layer rather than adding network effects to discovery links."
+}
