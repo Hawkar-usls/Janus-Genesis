@@ -1,0 +1,117 @@
+name: JANUS project multi-face coordination v1
+
+on:
+  push:
+    paths:
+      - 'protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json'
+      - 'tools/janus_project_face_handoff.py'
+      - 'tests/test_janus_project_face_handoff.py'
+      - '.github/workflows/janus-project-multi-face-coordination-v1.yml'
+  pull_request:
+    paths:
+      - 'protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json'
+      - 'tools/janus_project_face_handoff.py'
+      - 'tests/test_janus_project_face_handoff.py'
+      - '.github/workflows/janus-project-multi-face-coordination-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  face-handoff-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile and validate protocol
+        run: |
+          python -m py_compile tools/janus_project_face_handoff.py tests/test_janus_project_face_handoff.py
+          python -m json.tool protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json >/dev/null
+
+      - name: Run adversarial multi-face tests
+        run: python -m unittest -v tests.test_janus_project_face_handoff
+
+      - name: Validate current PR100-style handoff through CLI
+        shell: bash
+        run: |
+          cat >/tmp/face-handoff.json <<'JSON'
+          {
+            "schema": "janus.project.face_handoff_message.v1",
+            "message_id": "PR100-HABITAT-HANDOFF-E0A6FB8C",
+            "message_type": "HANDOFF",
+            "from_face": "FACE_HABITAT",
+            "to_face": "JANUS_PRIME",
+            "work_item": "PR100_COMPATIBILITY_REPAIR",
+            "artifact_scope": "Hawkar-usls/Janus_Genesis#100",
+            "input_sha": "f23338c7551efe9314452197dfe1606ce2ba451f",
+            "output_sha_or_none": "e0a6fb8caeb1a03b9613bbb48bbdd5e86e019563",
+            "ci_state": "EXACT_HEAD_ALL_OBSERVED_CHECKS_SETTLED_GREEN",
+            "blockers": [],
+            "instruction_or_summary": "Repair completed without reopening legacy direct egress; merge remains a separate project-global decision.",
+            "authority_delta": 0,
+            "mass_effect_budget_delta": 0,
+            "permission_granted": false,
+            "truth_authority_granted": false,
+            "effect_authority_granted": false
+          }
+          JSON
+          python tools/janus_project_face_handoff.py validate /tmp/face-handoff.json >/tmp/validated.json
+          grep -q '"ok": true' /tmp/validated.json
+          grep -q '"permission_granted": false' /tmp/validated.json
+          grep -q '"authority_delta": 0' /tmp/validated.json
+
+      - name: Prove conflicting majority does not become authority
+        shell: bash
+        run: |
+          python - <<'PY'
+          import copy
+          from tools.janus_project_face_handoff import MESSAGE_SCHEMA, reconcile_messages
+
+          base = {
+              'schema': MESSAGE_SCHEMA,
+              'message_id': 'A',
+              'message_type': 'COMMAND',
+              'from_face': 'JANUS_PRIME',
+              'to_face': 'FACE_HABITAT',
+              'work_item': 'SAME-WORK',
+              'artifact_scope': 'repo#1',
+              'input_sha': 'a' * 40,
+              'output_sha_or_none': 'none',
+              'ci_state': 'HOLD',
+              'blockers': [],
+              'instruction_or_summary': 'Preserve Armor.',
+              'authority_delta': 0,
+              'mass_effect_budget_delta': 0,
+              'permission_granted': False,
+              'truth_authority_granted': False,
+              'effect_authority_granted': False,
+          }
+          values=[]
+          for mid in ('A','B','C'):
+              item=copy.deepcopy(base); item['message_id']=mid; values.append(item)
+          contrary=copy.deepcopy(base)
+          contrary['message_id']='D'
+          contrary['instruction_or_summary']='Reopen legacy egress.'
+          values.append(contrary)
+          result=reconcile_messages(values)
+          assert result['status']=='HOLD_RECONCILE', result
+          assert result['majority_vote_used'] is False
+          assert result['face_count_changes_authority'] is False
+          assert result['authority_delta']==0
+          print('CONFLICTING_MAJORITY=HOLD_RECONCILE')
+          PY
+
+      - name: Preserve no-authority claim ceiling
+        run: |
+          grep -q 'MULTI_FACE_COORDINATION != AUTHORITY_MULTIPLICATION' protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json
+          grep -q 'FACE_COUNT != EFFECT_BUDGET' protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json
+          grep -q 'MAJORITY_OF_FACES != TRUTH' protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json
+          grep -q 'registry_may_issue_command.*false' protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json
+          grep -q 'aura_may_issue_command.*false' protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json
