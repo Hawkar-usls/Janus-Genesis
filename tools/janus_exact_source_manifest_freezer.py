@@ -6,10 +6,15 @@ repository constellation. It performs no network acquisition. A sensitive
 local frozen manifest may contain private exact Git pins; the public receipt is
 derived separately and intentionally omits every private pin and every digest
 that commits to private source history.
+
+The constellation binding is deliberately calculated from a closed,
+privacy-safe projection of the already-public repository inventory rather than
+from arbitrary caller-supplied top-level metadata.
 """
 from __future__ import annotations
 
 import argparse
+import errno
 import json
 import os
 import stat
@@ -24,13 +29,17 @@ from janus_source_pin_contract import (
 )
 
 CONSTELLATION_SCHEMA = "janus.genesis.git_habitat.repository_constellation.v1"
+CONSTELLATION_BINDING_SCHEMA = "janus.nexus.constellation_binding.v1"
 LOCAL_SCHEMA = "janus.nexus.exact_source_manifest.local.v1"
 PUBLIC_SCHEMA = "janus.nexus.exact_source_manifest.public_receipt.v1"
-
+PUBLIC_CONSTELLATION_ROW_FIELDS = frozenset({"id", "name", "default_branch"})
+PRIVATE_CONSTELLATION_ROW_FIELDS = frozenset(
+    {"repository_id", "visibility", "resolution"}
+)
 LOCAL_FIELDS = frozenset(
     {
         "schema",
-        "constellation_sha256",
+        "constellation_binding_sha256",
         "source_count",
         "public_source_count",
         "private_source_count",
@@ -52,7 +61,13 @@ def _read_json(path: str | Path) -> Any:
         raise ExactSourceManifestError(f"JSON_UNREADABLE:{path}") from exc
 
 
-def _constellation_index(value: Any) -> dict[str, dict[str, str]]:
+def constellation_binding_projection(value: Any) -> dict[str, Any]:
+    """Return the closed public-safe inventory projection used for binding.
+
+    Arbitrary top-level metadata is intentionally outside this digest domain.
+    Public/private source rows themselves use closed surfaces so a caller cannot
+    hide a private fingerprint in an otherwise accepted repository row.
+    """
     if not isinstance(value, dict) or value.get("schema") != CONSTELLATION_SCHEMA:
         raise ExactSourceManifestError("CONSTELLATION_SCHEMA_INVALID")
     public = value.get("public_repositories")
@@ -60,43 +75,90 @@ def _constellation_index(value: Any) -> dict[str, dict[str, str]]:
     if not isinstance(public, list) or not isinstance(private, list):
         raise ExactSourceManifestError("CONSTELLATION_SOURCE_LISTS_REQUIRED")
 
-    index: dict[str, dict[str, str]] = {}
+    normalized_public: list[dict[str, str]] = []
+    normalized_private: list[dict[str, str]] = []
+    seen: set[str] = set()
+
     for row in public:
-        if not isinstance(row, dict):
-            raise ExactSourceManifestError("CONSTELLATION_PUBLIC_ROW_INVALID")
-        source_id = str(row.get("id") or "")
-        repository = str(row.get("name") or "")
-        if not source_id.isdigit() or not repository:
+        if not isinstance(row, dict) or set(row) != PUBLIC_CONSTELLATION_ROW_FIELDS:
+            raise ExactSourceManifestError("CONSTELLATION_PUBLIC_ROW_FIELDS_INVALID")
+        source_id = row.get("id")
+        repository = row.get("name")
+        default_branch = row.get("default_branch")
+        if not isinstance(source_id, str) or not source_id.isdigit():
             raise ExactSourceManifestError("CONSTELLATION_PUBLIC_IDENTITY_INVALID")
-        if source_id in index:
+        if not isinstance(repository, str) or not repository:
+            raise ExactSourceManifestError("CONSTELLATION_PUBLIC_IDENTITY_INVALID")
+        if not isinstance(default_branch, str) or not default_branch:
+            raise ExactSourceManifestError("CONSTELLATION_PUBLIC_IDENTITY_INVALID")
+        if source_id in seen:
             raise ExactSourceManifestError("CONSTELLATION_SOURCE_ID_DUPLICATE")
-        index[source_id] = {
-            "visibility": "public",
-            "repository": repository,
-        }
+        seen.add(source_id)
+        normalized_public.append(
+            {
+                "id": source_id,
+                "name": repository,
+                "default_branch": default_branch,
+            }
+        )
 
     for row in private:
-        if not isinstance(row, dict):
-            raise ExactSourceManifestError("CONSTELLATION_PRIVATE_ROW_INVALID")
-        source_id = str(row.get("repository_id") or "")
-        if not source_id.isdigit():
+        if not isinstance(row, dict) or set(row) != PRIVATE_CONSTELLATION_ROW_FIELDS:
+            raise ExactSourceManifestError("CONSTELLATION_PRIVATE_ROW_FIELDS_INVALID")
+        source_id = row.get("repository_id")
+        visibility = row.get("visibility")
+        resolution = row.get("resolution")
+        if not isinstance(source_id, str) or not source_id.isdigit():
             raise ExactSourceManifestError("CONSTELLATION_PRIVATE_IDENTITY_INVALID")
-        if source_id in index:
+        if visibility != "private":
+            raise ExactSourceManifestError("CONSTELLATION_PRIVATE_VISIBILITY_INVALID")
+        if resolution != "AUTHENTICATED_RESOLUTION_REQUIRED":
+            raise ExactSourceManifestError("CONSTELLATION_PRIVATE_RESOLUTION_INVALID")
+        if source_id in seen:
             raise ExactSourceManifestError("CONSTELLATION_SOURCE_ID_DUPLICATE")
-        forbidden = {"name", "full_name", "clone_url", "html_url", "content"}
-        if forbidden.intersection(row):
-            raise ExactSourceManifestError("CONSTELLATION_PRIVATE_METADATA_LEAK")
-        index[source_id] = {"visibility": "private"}
+        seen.add(source_id)
+        normalized_private.append(
+            {
+                "repository_id": source_id,
+                "visibility": "private",
+                "resolution": "AUTHENTICATED_RESOLUTION_REQUIRED",
+            }
+        )
 
-    expected_total = len(index)
-    expected_public = len(public)
-    expected_private = len(private)
+    normalized_public.sort(key=lambda row: int(row["id"]))
+    normalized_private.sort(key=lambda row: int(row["repository_id"]))
+    expected_total = len(normalized_public) + len(normalized_private)
     if int(value.get("repository_count", -1)) != expected_total:
         raise ExactSourceManifestError("CONSTELLATION_TOTAL_COUNT_MISMATCH")
-    if int(value.get("public_repository_count", -1)) != expected_public:
+    if int(value.get("public_repository_count", -1)) != len(normalized_public):
         raise ExactSourceManifestError("CONSTELLATION_PUBLIC_COUNT_MISMATCH")
-    if int(value.get("private_repository_count", -1)) != expected_private:
+    if int(value.get("private_repository_count", -1)) != len(normalized_private):
         raise ExactSourceManifestError("CONSTELLATION_PRIVATE_COUNT_MISMATCH")
+
+    return {
+        "schema": CONSTELLATION_BINDING_SCHEMA,
+        "repository_count": expected_total,
+        "public_repository_count": len(normalized_public),
+        "private_repository_count": len(normalized_private),
+        "public_repositories": normalized_public,
+        "private_repository_slots": normalized_private,
+    }
+
+
+def constellation_binding_digest(value: Any) -> str:
+    return canonical_digest(constellation_binding_projection(value))
+
+
+def _constellation_index(value: Any) -> dict[str, dict[str, str]]:
+    projection = constellation_binding_projection(value)
+    index: dict[str, dict[str, str]] = {}
+    for row in projection["public_repositories"]:
+        index[row["id"]] = {
+            "visibility": "public",
+            "repository": row["name"],
+        }
+    for row in projection["private_repository_slots"]:
+        index[row["repository_id"]] = {"visibility": "private"}
     return index
 
 
@@ -126,9 +188,7 @@ def freeze_exact_source_manifest(pinset: Any, constellation: Any) -> dict[str, A
             )
         expected_visibility = index[source_id]["visibility"]
         if row["visibility"] != expected_visibility:
-            raise ExactSourceManifestError(
-                f"SOURCE_VISIBILITY_MISMATCH:{source_id}"
-            )
+            raise ExactSourceManifestError(f"SOURCE_VISIBILITY_MISMATCH:{source_id}")
         if row["source_kind"] != "GIT_REPOSITORY":
             raise ExactSourceManifestError(f"SOURCE_KIND_NOT_GIT:{source_id}")
         if row["pin"]["kind"] != GIT_COMMIT_SHA1:
@@ -150,7 +210,7 @@ def freeze_exact_source_manifest(pinset: Any, constellation: Any) -> dict[str, A
     private_count = sum(row["visibility"] == "private" for row in sources)
     core = {
         "schema": LOCAL_SCHEMA,
-        "constellation_sha256": canonical_digest(constellation),
+        "constellation_binding_sha256": constellation_binding_digest(constellation),
         "source_count": len(sources),
         "public_source_count": public_count,
         "private_source_count": private_count,
@@ -165,8 +225,10 @@ def verify_frozen_manifest(value: Any, constellation: Any) -> dict[str, Any]:
         raise ExactSourceManifestError("LOCAL_FROZEN_MANIFEST_FIELDS_INVALID")
     if value.get("schema") != LOCAL_SCHEMA:
         raise ExactSourceManifestError("LOCAL_FROZEN_MANIFEST_SCHEMA_INVALID")
-    if value.get("constellation_sha256") != canonical_digest(constellation):
-        raise ExactSourceManifestError("LOCAL_CONSTELLATION_DIGEST_MISMATCH")
+    if value.get("constellation_binding_sha256") != constellation_binding_digest(
+        constellation
+    ):
+        raise ExactSourceManifestError("LOCAL_CONSTELLATION_BINDING_DIGEST_MISMATCH")
 
     pinset = {
         "schema": PINSET_SCHEMA,
@@ -212,7 +274,7 @@ def build_public_receipt(local_manifest: Any, constellation: Any) -> dict[str, A
     private_sources.sort(key=lambda row: int(row["source_id"]))
     return {
         "schema": PUBLIC_SCHEMA,
-        "constellation_sha256": canonical_digest(constellation),
+        "constellation_binding_sha256": constellation_binding_digest(constellation),
         "source_count": frozen["source_count"],
         "public_source_count": frozen["public_source_count"],
         "private_source_count": frozen["private_source_count"],
@@ -227,36 +289,58 @@ def build_public_receipt(local_manifest: Any, constellation: Any) -> dict[str, A
     }
 
 
-def _require_safe_existing_parent(path: Path) -> Path:
+def _open_safe_parent(path: Path) -> tuple[Path, int]:
+    """Pin every parent path component with O_NOFOLLOW directory descriptors."""
     absolute = Path(os.path.abspath(os.fspath(path)))
-    parent = absolute.parent
-    if not parent.exists() or not parent.is_dir():
-        raise ExactSourceManifestError("OUTPUT_PARENT_MUST_ALREADY_EXIST")
-    if parent.is_symlink() or Path(os.path.realpath(os.fspath(parent))) != parent:
-        raise ExactSourceManifestError("OUTPUT_PARENT_MUST_NOT_CONTAIN_SYMLINKS")
-    for ancestor in parent.parents:
-        if ancestor.is_symlink():
-            raise ExactSourceManifestError("OUTPUT_PARENT_MUST_NOT_CONTAIN_SYMLINKS")
-    return absolute
+    if not absolute.name or absolute.name in {".", ".."}:
+        raise ExactSourceManifestError("OUTPUT_BASENAME_INVALID")
+    nofollow = getattr(os, "O_NOFOLLOW", 0)
+    directory = getattr(os, "O_DIRECTORY", 0)
+    if not nofollow or not directory:
+        raise ExactSourceManifestError("O_NOFOLLOW_AND_O_DIRECTORY_REQUIRED")
+    dir_flags = os.O_RDONLY | nofollow | directory
+
+    try:
+        current_fd = os.open(os.path.sep, dir_flags)
+    except OSError as exc:
+        raise ExactSourceManifestError(f"OUTPUT_ROOT_OPEN_FAILED:{exc}") from exc
+
+    try:
+        for component in absolute.parent.parts[1:]:
+            try:
+                next_fd = os.open(component, dir_flags, dir_fd=current_fd)
+            except FileNotFoundError as exc:
+                raise ExactSourceManifestError("OUTPUT_PARENT_MUST_ALREADY_EXIST") from exc
+            except OSError as exc:
+                if exc.errno in {errno.ELOOP, errno.ENOTDIR}:
+                    raise ExactSourceManifestError(
+                        "OUTPUT_PARENT_MUST_NOT_CONTAIN_SYMLINKS"
+                    ) from exc
+                raise ExactSourceManifestError(f"OUTPUT_PARENT_OPEN_FAILED:{exc}") from exc
+            os.close(current_fd)
+            current_fd = next_fd
+        return absolute, current_fd
+    except Exception:
+        os.close(current_fd)
+        raise
 
 
 def write_new_json(path: str | Path, value: Any, *, mode: int) -> None:
-    """Create a new regular JSON file without overwrite or symlink following."""
-    target = _require_safe_existing_parent(Path(path))
+    """Create a new regular JSON file under a pinned no-symlink parent directory."""
+    target, parent_fd = _open_safe_parent(Path(path))
     nofollow = getattr(os, "O_NOFOLLOW", 0)
-    if not nofollow:
-        raise ExactSourceManifestError("O_NOFOLLOW_REQUIRED")
     flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | nofollow
     payload = (
         json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n"
     ).encode("utf-8")
+    fd: int | None = None
     try:
-        fd = os.open(target, flags, mode)
-    except FileExistsError as exc:
-        raise ExactSourceManifestError("OUTPUT_ALREADY_EXISTS") from exc
-    except OSError as exc:
-        raise ExactSourceManifestError(f"OUTPUT_OPEN_FAILED:{exc}") from exc
-    try:
+        try:
+            fd = os.open(target.name, flags, mode, dir_fd=parent_fd)
+        except FileExistsError as exc:
+            raise ExactSourceManifestError("OUTPUT_ALREADY_EXISTS") from exc
+        except OSError as exc:
+            raise ExactSourceManifestError(f"OUTPUT_OPEN_FAILED:{exc}") from exc
         if not stat.S_ISREG(os.fstat(fd).st_mode):
             raise ExactSourceManifestError("OUTPUT_MUST_BE_REGULAR_FILE")
         remaining = memoryview(payload)
@@ -267,7 +351,9 @@ def write_new_json(path: str | Path, value: Any, *, mode: int) -> None:
             remaining = remaining[written:]
         os.fsync(fd)
     finally:
-        os.close(fd)
+        if fd is not None:
+            os.close(fd)
+        os.close(parent_fd)
 
 
 def _safe_summary(local: dict[str, Any]) -> dict[str, Any]:
