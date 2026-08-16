@@ -1,0 +1,30 @@
+{
+  "schema": "janus.git_habitat.nexus_localhost_socket_admission_state.v1",
+  "state_id": "NEXUS-LOCALHOST-SOCKET-ADMISSION-CERTIFIED-v1.7",
+  "recorded_at_local": "2026-08-17T00:21:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "c7a951ecec6b1e9817668fa93871764d81eaa9f6",
+  "status": "CERTIFIED_LOCALHOST_BIND_LISTEN_ADMISSION_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-LOCALHOST-SOCKET-ADMISSION-EXACT-HEAD-CI-CERTIFICATE-v1.7.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-SOCKET-ADMISSION-AUTHORITY-v1.json",
+  "certified_boundary": {
+    "checked_in_listener_enabled": false,
+    "explicit_runtime_enable_required": true,
+    "literal_loopback_only": ["127.0.0.1", "::1"],
+    "bind": true,
+    "listen": true,
+    "accept": false,
+    "frame_receive": false,
+    "frame_send": false,
+    "socket_dispatch": false
+  },
+  "boundaries": {
+    "network_delivery": false,
+    "cross_host_delivery": false,
+    "external_effect_authority": false,
+    "automatic_retry": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "ONE_SHOT_AUTHENTICATED_LOOPBACK_FRAME_EXCHANGE_HOLDOUT"
+}
