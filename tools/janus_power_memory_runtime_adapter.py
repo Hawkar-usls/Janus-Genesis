@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 """Bounded runtime adapter for exact JANUS Memory + Power components.
 
-This layer owns lifecycle ordering only:
+Lifecycle ordering:
 
     MEMORY.start -> POWER.start -> work -> POWER.shutdown -> MEMORY.close
 
-It does not promote RAM-buffered telemetry to persisted evidence. Power may
-complete even when telemetry admission/persistence fails; that failure remains
-visible through Power metrics and/or Memory state.
+The adapter also adds one integration-only consistency barrier: Power's compute
+``done_event`` and its terminal Memory telemetry attempt are distinct events.
+For non-cancelled executed tasks, adapter ``get_result(wait=True)`` waits for
+both, then re-reads the task so a telemetry error metric cannot race the result.
+
+RAM-buffered telemetry is still not persisted evidence. Persistence remains an
+explicit ``force_memory_save`` / final Memory-close boundary.
 """
 from __future__ import annotations
 
@@ -41,16 +45,47 @@ class RuntimePins:
     integration_parent_sha: str = "19d2809e698d397090a0b92d25403da1bbb27e0f"
 
 
+class _RuntimeBoundPowerCore(JanusPowerCoreV11):
+    """Power v1.1 with an integration-local telemetry completion witness."""
+
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._terminal_telemetry_events: dict[str, asyncio.Event] = {}
+
+    def _terminal_telemetry_event(self, task_id: str) -> asyncio.Event:
+        return self._terminal_telemetry_events.setdefault(task_id, asyncio.Event())
+
+    async def _remember_event(self, event: dict[str, Any]) -> None:
+        task_id = str(event.get("task_id", ""))
+        is_terminal = event.get("event") == "COMPUTE_TERMINAL" and bool(task_id)
+        marker = self._terminal_telemetry_event(task_id) if is_terminal else None
+        try:
+            await super()._remember_event(event)
+        finally:
+            # This means the terminal telemetry ATTEMPT settled. It does not mean
+            # the record persisted to SQLite; Memory may still hold it only in RAM
+            # or may have rejected it and Power may carry memory_log_error.
+            if marker is not None:
+                marker.set()
+
+    async def wait_terminal_telemetry(self, task_id: str, timeout: float) -> bool:
+        marker = self._terminal_telemetry_event(task_id)
+        try:
+            await asyncio.wait_for(marker.wait(), timeout=max(timeout, 0.001))
+            return True
+        except asyncio.TimeoutError:
+            return False
+
+
 class JanusPowerMemoryRuntimeAdapter:
     """Lifecycle binder for the tested Memory and Power primitives.
 
-    The adapter intentionally exposes no cloud/GPU/distributed registration
-    helper and no source-writeback capability. ``compute`` delegates to the
-    bounded Power core. Memory persistence remains explicit via
-    ``force_memory_save`` or final shutdown.
+    The adapter exposes no cloud/GPU/distributed registration helper and no
+    source-writeback capability. Memory persistence remains explicit.
     """
 
     PINS = RuntimePins()
+    _EXECUTED_TERMINAL_STATES = frozenset({"completed", "failed", "timeout"})
 
     def __init__(
         self,
@@ -69,7 +104,7 @@ class JanusPowerMemoryRuntimeAdapter:
         self.worker_count = worker_count
         self.kernel = kernel if kernel is not None else SimpleNamespace()
         self.memory: Optional[JanusHippocampusBufferedJournal] = None
-        self.power: Optional[JanusPowerCoreV11] = None
+        self.power: Optional[_RuntimeBoundPowerCore] = None
         self._start_lock = asyncio.Lock()
         self._shutdown_lock = asyncio.Lock()
         self._started = False
@@ -95,11 +130,11 @@ class JanusPowerMemoryRuntimeAdapter:
             memory = JanusHippocampusBufferedJournal(
                 self.db_path, **self.memory_options
             )
-            power: Optional[JanusPowerCoreV11] = None
+            power: Optional[_RuntimeBoundPowerCore] = None
             try:
                 await memory.start()
                 self.kernel.memory = memory
-                power = JanusPowerCoreV11(self.kernel, **self.power_options)
+                power = _RuntimeBoundPowerCore(self.kernel, **self.power_options)
                 await power.start(worker_count=self.worker_count)
                 self.kernel.power = power
             except Exception:
@@ -107,8 +142,6 @@ class JanusPowerMemoryRuntimeAdapter:
                     try:
                         await power.shutdown()
                     except Exception:
-                        # If Power cannot prove it stopped, keep Memory open; a
-                        # later writer must never target an already-closed journal.
                         self.memory = memory
                         self.power = power
                         raise RuntimeAdapterShutdownError(
@@ -121,7 +154,7 @@ class JanusPowerMemoryRuntimeAdapter:
             self.power = power
             self._started = True
 
-    def _require_started(self) -> tuple[JanusHippocampusBufferedJournal, JanusPowerCoreV11]:
+    def _require_started(self) -> tuple[JanusHippocampusBufferedJournal, _RuntimeBoundPowerCore]:
         if self._closed:
             raise RuntimeAdapterClosedError("RUNTIME_ADAPTER_CLOSED")
         if not self._started or self.memory is None or self.power is None:
@@ -140,7 +173,29 @@ class JanusPowerMemoryRuntimeAdapter:
         timeout: float = 30.0,
     ) -> dict[str, Any]:
         _, power = self._require_started()
-        return await power.get_result(task_id, wait=wait, timeout=timeout)
+        started = asyncio.get_running_loop().time()
+        payload = await power.get_result(task_id, wait=wait, timeout=timeout)
+        if not wait or "task" not in payload or "error" in payload:
+            return payload
+
+        status = payload["task"].get("status")
+        telemetry_required = status in self._EXECUTED_TERMINAL_STATES
+        telemetry_settled: Optional[bool] = None
+        if telemetry_required:
+            elapsed = asyncio.get_running_loop().time() - started
+            remaining = max(0.001, timeout - elapsed)
+            telemetry_settled = await power.wait_terminal_telemetry(task_id, remaining)
+            # Re-read after the terminal telemetry attempt so memory_log_error, if
+            # any, is visible in the returned metrics.
+            payload = await power.get_result(task_id, wait=False)
+
+        payload["adapter"] = {
+            "terminal_telemetry_attempt_required": telemetry_required,
+            "terminal_telemetry_attempt_settled": telemetry_settled,
+            "telemetry_persisted": False,
+            "persistence_requires_memory_flush": True,
+        }
+        return payload
 
     async def cancel(self, task_id: str) -> bool:
         _, power = self._require_started()
@@ -194,13 +249,11 @@ class JanusPowerMemoryRuntimeAdapter:
                 return
             assert self.power is not None
             assert self.memory is not None
-
-            # Ordering is the safety property: no component capable of emitting
-            # Power telemetry may remain live after Memory's final close/flush.
             try:
                 await self.power.shutdown()
             except Exception as exc:
-                # Fail closed: do NOT close Memory if Power stop is unconfirmed.
+                # Fail closed: do not close Memory while a telemetry emitter may
+                # still be alive.
                 raise RuntimeAdapterShutdownError(
                     f"POWER_SHUTDOWN_UNCONFIRMED_MEMORY_LEFT_OPEN:{type(exc).__name__}"
                 ) from exc
