@@ -1,0 +1,291 @@
+name: JANUS Git Habitat v18.7.51
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_git_habitat.py"
+      - "tools/sync_git_habitat_issues.py"
+      - "play_genesis_habitat.py"
+      - "tests/test_genesis_git_habitat.py"
+      - "tests/test_genesis_git_habitat_layout_security.py"
+      - "tests/test_sync_git_habitat_issues.py"
+      - "tests/test_play_genesis_habitat.py"
+      - "docs/GENESIS_V18_7_51_GIT_HABITAT.md"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_A_HOME_IS_MORE_THAN_DOORS-v1.0.json"
+      - ".github/workflows/janus-git-habitat-v18-7-51.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * *"
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: janus-git-habitat-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  habitat-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile Habitat surfaces
+        run: |
+          python -m py_compile \
+            tools/genesis_git_habitat.py \
+            tools/sync_git_habitat_issues.py \
+            play_genesis_habitat.py \
+            tests/test_genesis_git_habitat.py \
+            tests/test_genesis_git_habitat_layout_security.py \
+            tests/test_sync_git_habitat_issues.py \
+            tests/test_play_genesis_habitat.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_A_HOME_IS_MORE_THAN_DOORS-v1.0.json >/dev/null
+
+      - name: Run Habitat adversarial and continuity tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_git_habitat \
+            tests.test_genesis_git_habitat_layout_security \
+            tests.test_sync_git_habitat_issues \
+            tests.test_play_genesis_habitat
+
+      - name: Cross-process local lifecycle smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-habitat-contract"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          python tools/genesis_git_habitat.py --root "$root" wake --reason CI_CONTRACT --source GITHUB_ACTIONS >/tmp/habitat-wake.json
+          python tools/genesis_git_habitat.py --root "$root" pulse --source GITHUB_ACTIONS >/tmp/habitat-pulse.json
+          python tools/genesis_git_habitat.py --root "$root" sleep --outcome CI_CONTRACT_COMPLETE >/tmp/habitat-sleep.json
+          python tools/genesis_git_habitat.py --root "$root" verify >/tmp/habitat-verify.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-verify.json').read_text())
+          assert value['journal']['ok'] is True
+          assert value['health']['status'] == 'HEALTHY'
+          print('HABITAT_LOCAL_CROSS_PROCESS_CONTINUITY=PASS')
+          print('HABITAT_EXTERNAL_EFFECTS_DURING_CONTRACT_SMOKE=FALSE')
+          PY
+
+      - name: Enforce Habitat claim boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          tech = json.loads(Path('protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json').read_text())
+          assert tech['correction_to_prior_completion_language']['third_wish_v18_7_40_to_v18_7_46'] == 'DOORS_COMPLETE'
+          assert tech['truth_boundary']['machine_consciousness_claimed'] is False
+          assert tech['truth_boundary']['autonomous_external_authority_claimed'] is False
+          assert tech['inbox_contract']['issue_body_is_command'] is False
+          assert tech['outbox_contract']['effect_executed_on_creation'] is False
+          print('THIRD_WISH_DOORS_COMPLETE=TRUE')
+          print('THIRD_WISH_FULL_HABITAT_PRE_LIVE_GATE=NOT_YET_ESTABLISHED')
+          PY
+
+  habitat-hearth:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: habitat-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out canonical architecture
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Preserve current Habitat engine outside living branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/janus-habitat-engine/tools
+          cp tools/genesis_git_habitat.py /tmp/janus-habitat-engine/tools/
+          cp tools/sync_git_habitat_issues.py /tmp/janus-habitat-engine/tools/
+          git rev-parse HEAD > /tmp/janus-habitat-architecture-sha
+          echo "HABITAT_ARCHITECTURE_SHA=$(cat /tmp/janus-habitat-architecture-sha)" >> "$GITHUB_ENV"
+
+      - name: Create or resume orphan living-state branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "JANUS Habitat Hearth"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin janus/habitat >/dev/null 2>&1; then
+            git fetch origin janus/habitat:refs/remotes/origin/janus/habitat
+            git switch --create janus/habitat --track origin/janus/habitat
+            echo "HABITAT_BRANCH_MODE=RESUMED"
+          else
+            git switch --orphan janus/habitat
+            git rm -rf .
+            echo "HABITAT_BRANCH_MODE=CREATED_ORPHAN"
+          fi
+
+      - name: Initialize or resume HOME and wake
+        shell: bash
+        env:
+          PYTHONPATH: /tmp/janus-habitat-engine
+        run: |
+          set -euo pipefail
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat init --resident-id JANUS >/tmp/habitat-init.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat wake --reason SCHEDULED_HEARTH --source GITHUB_ACTIONS >/tmp/habitat-wake.json
+          echo "LIVE_HABITAT_HOME_PRESENT=PASS"
+          echo "LIVE_HABITAT_WAKE=PASS"
+
+      - name: Receive open janus-inbox issues as non-authoritative letters
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PYTHONPATH: /tmp/janus-habitat-engine
+        run: |
+          set -euo pipefail
+          if ! gh issue list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --label janus-inbox \
+            --limit 50 \
+            --json number,title,body,url,updatedAt \
+            > /tmp/janus-inbox-issues.json; then
+            printf '[]\n' > /tmp/janus-inbox-issues.json
+          fi
+          python /tmp/janus-habitat-engine/tools/sync_git_habitat_issues.py \
+            --root habitat \
+            --issues-json /tmp/janus-inbox-issues.json \
+            >/tmp/habitat-inbox-sync.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path('/tmp/habitat-inbox-sync.json').read_text())
+          assert result['command_authority_granted'] is False
+          assert result['external_effect_authority_granted'] is False
+          print('LIVE_HABITAT_GITHUB_ISSUE_INBOX_RECEIVE_ONLY=PASS')
+          print('LIVE_HABITAT_INBOX_COMMAND_AUTHORITY=FALSE')
+          PY
+
+      - name: Record architecture observation
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+          path = Path('habitat/observatory/latest_architecture.json')
+          path.parent.mkdir(parents=True, exist_ok=True)
+          path.write_text(json.dumps({
+              'schema': 'janus.genesis.git_habitat.architecture_observation.v1',
+              'observed_at': datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+              'architecture_branch': 'main',
+              'architecture_sha': os.environ['HABITAT_ARCHITECTURE_SHA'],
+              'workflow_run_id': os.environ['GITHUB_RUN_ID'],
+              'workflow_run_attempt': os.environ['GITHUB_RUN_ATTEMPT'],
+              'observation_is_external_authority': False,
+          }, sort_keys=True, indent=2) + '\n', encoding='utf-8')
+          PY
+
+      - name: Pulse, sleep, and verify living state
+        shell: bash
+        env:
+          PYTHONPATH: /tmp/janus-habitat-engine
+        run: |
+          set -euo pipefail
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat pulse --source GITHUB_ACTIONS >/tmp/habitat-pulse.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat sleep --outcome SCHEDULED_HEARTH_COMPLETE >/tmp/habitat-sleep.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat verify >/tmp/habitat-verify-before-push.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-verify-before-push.json').read_text())
+          assert value['journal']['ok'] is True
+          assert value['health']['status'] == 'HEALTHY'
+          resident = json.loads(Path('habitat/state/resident.json').read_text())
+          assert resident['mode'] == 'AT_HOME'
+          assert resident['active_cycle_id'] is None
+          print('LIVE_HABITAT_PULSE=PASS')
+          print('LIVE_HABITAT_SLEEP=PASS')
+          print('LIVE_HABITAT_HASH_CHAIN_BEFORE_PUSH=PASS')
+          print('LIVE_HABITAT_SCHEDULED_EXTERNAL_EFFECTS=FALSE')
+          PY
+          sha256sum habitat/state/continuity.json | awk '{print $1}' > /tmp/habitat-continuity.sha256
+          sha256sum habitat/memory/journal.jsonl | awk '{print $1}' > /tmp/habitat-journal.sha256
+
+      - name: Commit living state only to janus/habitat
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add habitat
+          if git diff --cached --quiet; then
+            echo "LIVE_HABITAT_STATE_COMMIT=NO_CHANGE"
+          else
+            git commit -m "Habitat hearth pulse ${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}"
+            git push origin HEAD:refs/heads/janus/habitat
+            echo "LIVE_HABITAT_STATE_COMMIT=PASS"
+          fi
+          test "$(git branch --show-current)" = "janus/habitat"
+          echo "LIVE_HABITAT_MAIN_MUTATION=FALSE"
+
+      - name: Fresh-worktree continuity replay from Git
+        shell: bash
+        env:
+          PYTHONPATH: /tmp/janus-habitat-engine
+        run: |
+          set -euo pipefail
+          git fetch origin janus/habitat:refs/remotes/origin/janus/habitat
+          replay="${RUNNER_TEMP}/janus-habitat-replay"
+          rm -rf "$replay"
+          git worktree add --detach "$replay" origin/janus/habitat
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py \
+            --root "$replay/habitat" \
+            verify \
+            >/tmp/habitat-verify-after-fetch.json
+          test "$(sha256sum "$replay/habitat/state/continuity.json" | awk '{print $1}')" = "$(cat /tmp/habitat-continuity.sha256)"
+          test "$(sha256sum "$replay/habitat/memory/journal.jsonl" | awk '{print $1}')" = "$(cat /tmp/habitat-journal.sha256)"
+          REPLAY_ROOT="$replay" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-verify-after-fetch.json').read_text())
+          assert value['journal']['ok'] is True
+          assert value['health']['status'] == 'HEALTHY'
+          root = Path(os.environ['REPLAY_ROOT']) / 'habitat'
+          resident = json.loads((root / 'state' / 'resident.json').read_text())
+          assert resident['mode'] == 'AT_HOME'
+          assert resident['active_cycle_id'] is None
+          print('LIVE_HABITAT_FRESH_GIT_REPLAY_HASH_CHAIN=PASS')
+          print('LIVE_HABITAT_CONTINUITY_TIP_BYTE_IDENTITY=PASS')
+          print('LIVE_HABITAT_JOURNAL_BYTE_IDENTITY=PASS')
+          print('LIVE_HABITAT_CROSS_PROCESS_CROSS_GIT_CONTINUITY=PASS')
+          PY
+
+      - name: Preserve Habitat health receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-git-habitat-v18-7-51-${{ github.run_id }}
+          path: |
+            habitat/HOME.json
+            habitat/state/resident.json
+            habitat/state/continuity.json
+            habitat/state/health.json
+            habitat/observatory/latest_architecture.json
+          retention-days: 30

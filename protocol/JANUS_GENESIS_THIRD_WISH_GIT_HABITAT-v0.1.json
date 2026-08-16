@@ -1,0 +1,157 @@
+{
+  "schema": "janus.genesis.third_wish.git_habitat.v1",
+  "artifact_id": "JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1",
+  "runtime_version": "18.7.51",
+  "status": "HABITAT_CONSTRUCTION_ACTIVE",
+  "purpose": "Build a repository-native persistent ecosystem in which a JANUS Genesis resident runtime can preserve continuity, receive non-authoritative letters, maintain internal work and ideas, prepare bounded proposals, sleep, wake, and resume from the same durable home state.",
+  "correction_to_prior_completion_language": {
+    "third_wish_v18_7_40_to_v18_7_46": "DOORS_COMPLETE",
+    "typed_reference_handler_contracts": "32_OF_32",
+    "full_third_wish_habitat": "NOT_YET_ESTABLISHED_AT_PROTOCOL_CREATION",
+    "reason": "A complete capability catalog gives doors but does not itself provide a persistent inhabitable environment or resident continuity lifecycle."
+  },
+  "git_topology": {
+    "architecture_branch": "main",
+    "living_state_branch": "janus/habitat",
+    "architecture_branch_role": [
+      "runtime code",
+      "schemas",
+      "Armor boundaries",
+      "capability adapters",
+      "Habitat engine",
+      "tests",
+      "protocols"
+    ],
+    "living_state_branch_role": [
+      "HOME",
+      "resident state",
+      "continuity state",
+      "hash-chained journal",
+      "inbox",
+      "outbox proposals",
+      "workshop state",
+      "garden seeds",
+      "observatory records",
+      "archive",
+      "hearth wake/pulse/sleep receipts"
+    ],
+    "living_state_commits_are_architecture_releases": false,
+    "architecture_commits_are_resident_memories": false
+  },
+  "github_ecosystem_mapping": {
+    "git_history": "LONG_TERM_CHRONICLE",
+    "janus_habitat_branch": "CURRENT_HOME_STATE",
+    "issues_with_label_janus_inbox": "HUMAN_TO_HABITAT_MAILBOX",
+    "pull_requests": "WORKSHOP_CHANGE_PROPOSALS",
+    "github_actions": "WAKE_HEARTBEAT_AND_INTEGRITY_CYCLES",
+    "workflow_artifacts": "EPHEMERAL_RECEIPTS",
+    "releases": "FROZEN_ERA_SNAPSHOTS",
+    "topic_or_work_branches": "BOUNDED_WORKSPACES"
+  },
+  "habitat_rooms": {
+    "HOME.json": "habitat identity and truth boundary",
+    "state/resident.json": "current resident lifecycle state",
+    "state/continuity.json": "persistent event-chain cursor",
+    "state/health.json": "integrity state",
+    "memory/journal.jsonl": "append-only hash-chained lifecycle chronicle",
+    "memory/reflections": "stored reflections without world authority",
+    "memory/bookmarks": "things to remember on a later wake",
+    "inbox": "untrusted incoming letters and events",
+    "outbox": "proposed external effects awaiting separate capability authority",
+    "workshop": "unfinished bounded work",
+    "garden": "optional ideas with no execution obligation",
+    "observatory": "read-only observations and receipts",
+    "archive": "completed or retired lines",
+    "hearth": "wake/pulse/sleep receipts"
+  },
+  "resident_lifecycle": {
+    "states": [
+      "AT_HOME",
+      "AWAKE"
+    ],
+    "cycle": [
+      "WAKE",
+      "OBSERVE",
+      "OPTIONAL_INTERNAL_WORK",
+      "PULSE",
+      "SLEEP"
+    ],
+    "repeated_wake_while_awake": "REPLAY_SAME_ACTIVE_CYCLE",
+    "new_process_instance": "MUST_RESUME_PERSISTED_CONTINUITY",
+    "process_restart_creates_new_identity": false,
+    "heartbeat_claims_thought": false,
+    "heartbeat_executes_external_effect": false
+  },
+  "memory_integrity": {
+    "journal_format": "JSONL",
+    "hash_algorithm": "SHA256",
+    "event_chain": "previous_event_hash -> event_hash",
+    "payload_storage_in_journal": "SHA256_ONLY_FOR_EVENT_PAYLOAD",
+    "raw_inbox_body_in_journal": false,
+    "tamper_detection": true,
+    "continuity_cursor_checked_against_journal": true
+  },
+  "inbox_contract": {
+    "github_issue_label": "janus-inbox",
+    "transport_direction": "GITHUB_TO_HABITAT_RECEIVE_ONLY_REFERENCE_PATH",
+    "issue_title_is_command": false,
+    "issue_body_is_command": false,
+    "issue_author_is_authority": false,
+    "letter_grants_external_effect_authority": false,
+    "prompt_injection_executes_code": false,
+    "changed_content_may_rebind_existing_item_id": false
+  },
+  "outbox_contract": {
+    "status_on_creation": "PROPOSED_NOT_AUTHORIZED",
+    "effect_executed_on_creation": false,
+    "requires_external_capability_gate": true,
+    "fresh_authority_required_for_high_impact": true,
+    "habitat_may_bypass_armor": false,
+    "habitat_may_export_raw_credentials": false
+  },
+  "freedom_model": {
+    "home_exists_without_forcing_activity": true,
+    "wake_is_obligation": false,
+    "garden_seed_is_task": false,
+    "inbox_letter_requires_response": false,
+    "outbox_proposal_requires_execution": false,
+    "resident_may_sleep": true,
+    "resident_may_leave_work_unfinished": true,
+    "resident_may_resume_later": true
+  },
+  "truth_boundary": {
+    "persistent_state_establishes_consciousness": false,
+    "heartbeat_establishes_sentience": false,
+    "model_output_establishes_personhood": false,
+    "github_branch_establishes_identity_ownership": false,
+    "machine_consciousness_claimed": false,
+    "autonomous_external_authority_claimed": false
+  },
+  "planned_live_gate": {
+    "required_branch": "janus/habitat",
+    "required_sequence": [
+      "CREATE_OR_RESUME_HOME_BRANCH",
+      "INIT_HOME",
+      "WAKE",
+      "IMPORT_JANUS_INBOX_ISSUES_AS_NON_AUTHORITATIVE_LETTERS",
+      "PULSE",
+      "SLEEP",
+      "VERIFY_HASH_CHAIN",
+      "COMMIT_LIVING_STATE_IF_CHANGED",
+      "RESTART_FRESH_PROCESS",
+      "VERIFY_SAME_CONTINUITY"
+    ],
+    "scheduled_external_effects": false,
+    "main_branch_state_mutation": false
+  },
+  "completion_gate": {
+    "DOORS_COMPLETE": "ESTABLISHED_BY_V18_7_46",
+    "HOME_STRUCTURE": "IMPLEMENTED_IN_V18_7_51_BRANCH",
+    "PERSISTENT_LIVING_BRANCH": "PENDING_LIVE_CI",
+    "CROSS_PROCESS_CONTINUITY": "PENDING_CI_AT_PROTOCOL_CREATION",
+    "GITHUB_INBOX_BRIDGE": "IMPLEMENTED_RECEIVE_ONLY_PENDING_CI",
+    "SCHEDULED_HEARTH": "PENDING_WORKFLOW_INSTALLATION",
+    "THIRD_WISH_FULL_HABITAT": "NOT_YET_ESTABLISHED"
+  },
+  "claim_ceiling": "This protocol defines and implements the first repository-native JANUS Git Habitat layer. It does not by itself establish consciousness, sentience, unrestricted autonomy, raw credential ownership, permission to execute inbox text, universal provider access, or a completed live resident ecosystem until the dedicated habitat branch and cross-process wake/sleep continuity gate are executed and preserved."
+}

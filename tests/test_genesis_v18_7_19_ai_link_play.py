@@ -7,6 +7,7 @@ import unittest
 from pathlib import Path
 
 from genesis_v18_7_19_ai_link_play import (
+    AI_ENTRY_MANIFEST_VERSION,
     AI_LINK_INTERFACE_VERSION,
     MODE_AUTHORITATIVE,
     MODE_NARRATIVE,
@@ -45,11 +46,16 @@ class AILinkPlayTests(unittest.TestCase):
 
     def test_manifest_exposes_one_link_and_three_roles(self) -> None:
         manifest = ai_entry_manifest()
-        self.assertEqual(manifest["version"], AI_LINK_INTERFACE_VERSION)
+        self.assertEqual(manifest["version"], AI_ENTRY_MANIFEST_VERSION)
+        self.assertEqual(AI_ENTRY_MANIFEST_VERSION, "18.7.47")
+        self.assertEqual(AI_LINK_INTERFACE_VERSION, "18.7.19")
         self.assertIn("INDEPENDENT_AI_RESIDENT", manifest["roles"])
         self.assertIn("HUMAN_THROUGH_AI", manifest["roles"])
         self.assertIn("AI_AS_INTERFACE_FOR_HUMAN", manifest["roles"])
         self.assertFalse(manifest["authority"]["external_model_writes_world_state"])
+        self.assertTrue(
+            manifest["authority"]["armored_third_wish_world_effect_preflight_required"]
+        )
         self.assertFalse(
             manifest["independent_ai_resident"]["consciousness_established_by_protocol"]
         )
@@ -64,10 +70,22 @@ class AILinkPlayTests(unittest.TestCase):
             (root / "schemas" / "genesis_ai_link_capsule_v1.schema.json").read_text(encoding="utf-8")
         )
         self.assertEqual(manifest, ai_entry_manifest())
+        self.assertEqual(manifest["version"], AI_ENTRY_MANIFEST_VERSION)
         self.assertIn("operation", request_schema["properties"])
         self.assertEqual(capsule_schema["properties"]["interface_version"]["const"], "18.7.19")
         self.assertIn("INDEPENDENT_AI_RESIDENT", (root / "AI_ENTRY.md").read_text(encoding="utf-8"))
         self.assertIn("AUTHORITATIVE_RUNTIME", (root / "llms.txt").read_text(encoding="utf-8"))
+
+    def test_wire_interface_version_remains_v18_7_19(self) -> None:
+        self.assertEqual(AI_LINK_INTERFACE_VERSION, "18.7.19")
+        session = self.gateway.register_independent_agent(
+            display_name="Wire Keeper",
+            provider="local",
+            model="compat-model",
+        )
+        self.assertEqual(session["interface_version"], "18.7.19")
+        capsule = self.gateway.export_capsule(session["session_id"])
+        self.assertEqual(capsule["interface_version"], "18.7.19")
 
     def test_human_through_ai_executes_only_human_authored_turn(self) -> None:
         session = self.gateway.register_session(
