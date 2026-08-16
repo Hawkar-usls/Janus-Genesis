@@ -1,0 +1,42 @@
+name: JANUS Infinite Faces Async Microstagger
+
+on:
+  push:
+    paths:
+      - "experiments/infinite_faces_async_microstagger.py"
+      - "tests/test_infinite_faces_async_microstagger.py"
+      - "protocol/JANUS_GENESIS_INFINITE_FACES_ASYNC_MICROSTAGGER-v0.1.json"
+      - ".github/workflows/janus-infinite-faces-async-microstagger.yml"
+  pull_request:
+    paths:
+      - "experiments/infinite_faces_async_microstagger.py"
+      - "tests/test_infinite_faces_async_microstagger.py"
+      - "protocol/JANUS_GENESIS_INFINITE_FACES_ASYNC_MICROSTAGGER-v0.1.json"
+      - ".github/workflows/janus-infinite-faces-async-microstagger.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate protocol JSON
+        run: python -m json.tool protocol/JANUS_GENESIS_INFINITE_FACES_ASYNC_MICROSTAGGER-v0.1.json >/dev/null
+
+      - name: Run focused unit tests
+        run: python -m unittest tests.test_infinite_faces_async_microstagger -v
+
+      - name: Run embedded deterministic self-test
+        run: python experiments/infinite_faces_async_microstagger.py --self-test --output /tmp/infinite-faces-async-self-test.json
+
+      - name: Run deterministic demo report
+        run: python experiments/infinite_faces_async_microstagger.py --output /tmp/infinite-faces-async-demo.json
