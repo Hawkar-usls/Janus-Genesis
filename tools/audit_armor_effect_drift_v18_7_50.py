@@ -40,7 +40,6 @@ SURFACE_CLASSIFICATIONS = (
     ("genesis_v18_7_network.py", "LEGACY_DIRECT_NETWORK_ADAPTER"),
     ("genesis_v18_7_38_durable_network_outbox.py", "LEGACY_DURABLE_NETWORK_ADAPTER"),
     ("janus_genesis.py", "LEGACY_ROOT_GEMINI_NARRATOR_EGRESS"),
-    ("tools/janus_nexus_materializer.py", "NEXUS_LOCAL_GIT_QUERY_PROCESS_SURFACE"),
     ("tools/genesis_third_wish_*.py", "THIRD_WISH_EFFECT_BROKER_ARMOR_SUBCLASS_COMPATIBLE"),
     ("tools/genesis_api_server.py", "LEGACY_LOCAL_MUTATION_SERVICE"),
     ("tools/genesis_hosted_gateway.py", "HOSTED_LOCAL_MUTATION_SERVICE"),
