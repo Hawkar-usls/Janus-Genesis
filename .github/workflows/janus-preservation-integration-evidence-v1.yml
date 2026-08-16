@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'tools/janus_preservation_integration_evidence.py'
-      - 'tests/test_janus_preservation_integration_evidence_v1.py'
+      - 'tests/test_janus_preservation_integration_*.py'
       - 'protocol/JANUS_PRESERVATION_INTEGRATION_EVIDENCE-v1.0.json'
       - '.github/workflows/janus-preservation-integration-evidence-v1.yml'
   workflow_dispatch:
@@ -28,14 +28,14 @@ jobs:
       - name: Validate contract JSON
         run: python -m json.tool protocol/JANUS_PRESERVATION_INTEGRATION_EVIDENCE-v1.0.json >/dev/null
 
-      - name: Compile verifier and tests
+      - name: Compile verifier and complete contract tests
         run: |
           python -m py_compile \
             tools/janus_preservation_integration_evidence.py \
-            tests/test_janus_preservation_integration_evidence_v1.py
+            tests/test_janus_preservation_integration_*.py
 
-      - name: Run evidence admission adversarial tests
-        run: python -m unittest -v tests.test_janus_preservation_integration_evidence_v1
+      - name: Run complete evidence admission adversarial contract
+        run: python -m unittest discover -s tests -p 'test_janus_preservation_integration_*.py' -v
 
       - name: Assert verifier has no network or subprocess primitive
         run: |
@@ -63,6 +63,8 @@ jobs:
       - name: Emit narrow claim receipt
         run: |
           echo 'PRESERVATION_INTEGRATION_EVIDENCE_V1=TESTED_LOCAL_PRIMITIVE'
+          echo 'PRODUCER_ROLE_COUNT=7'
+          echo 'CANONICAL_PRODUCER_PR_BINDING=TRUE'
           echo 'BUNDLE_CONSISTENCY_NOT_EMPIRICAL_REPLAY=TRUE'
           echo 'SOURCE_WRITEBACK=FALSE'
           echo 'MERGE_PERMISSION=FALSE'
