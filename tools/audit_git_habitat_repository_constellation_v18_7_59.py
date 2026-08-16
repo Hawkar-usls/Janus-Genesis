@@ -1,7 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Scope audit for JANUS Git Habitat repository constellation v18.7.59."""
+"""Scope audit for JANUS Git Habitat repository constellation v18.7.59.
+
+The audit reasons about executable Python structure rather than arbitrary words
+in comments, docstrings, or policy strings. A declaration that automatic issue
+creation is forbidden must not itself look like an issue-creation call.
+"""
 from __future__ import annotations
 
+import ast
 import json
 from pathlib import Path
 
@@ -9,6 +15,60 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "protocol" / "JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json"
 TOOL = ROOT / "tools" / "genesis_git_habitat_repository_constellation.py"
 SOURCE_LINK = ROOT / ".janus" / "HABITAT_LINK.json"
+
+FORBIDDEN_IMPORT_ROOTS = {
+    "requests",
+    "urllib",
+    "http",
+    "socket",
+    "subprocess",
+}
+FORBIDDEN_CALL_NAMES = {
+    "os.system",
+    "os.popen",
+    "subprocess.run",
+    "subprocess.Popen",
+    "subprocess.call",
+    "subprocess.check_call",
+    "subprocess.check_output",
+    "urllib.request.urlopen",
+    "socket.socket",
+    "socket.create_connection",
+    "create_pull_request",
+    "create_issue",
+    "workflow_dispatch",
+}
+
+
+def _dotted(node: ast.AST) -> str | None:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        parent = _dotted(node.value)
+        return f"{parent}.{node.attr}" if parent else node.attr
+    return None
+
+
+def executable_effect_findings(source: str) -> dict[str, list[str]]:
+    tree = ast.parse(source)
+    imports: list[str] = []
+    calls: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                root = alias.name.split(".", 1)[0]
+                if root in FORBIDDEN_IMPORT_ROOTS:
+                    imports.append(alias.name)
+        elif isinstance(node, ast.ImportFrom):
+            module = str(node.module or "")
+            root = module.split(".", 1)[0]
+            if root in FORBIDDEN_IMPORT_ROOTS:
+                imports.append(module)
+        elif isinstance(node, ast.Call):
+            name = _dotted(node.func)
+            if name in FORBIDDEN_CALL_NAMES:
+                calls.append(str(name))
+    return {"forbidden_imports": sorted(set(imports)), "forbidden_calls": sorted(set(calls))}
 
 
 def main() -> int:
@@ -18,6 +78,7 @@ def main() -> int:
     public = manifest.get("public_repositories", [])
     private = manifest.get("private_repository_slots", [])
     private_forbidden = {"name", "full_name", "clone_url", "html_url", "content", "description"}
+    effects = executable_effect_findings(tool)
     checks = {
         "complete_snapshot_count_44": manifest.get("repository_count") == 44,
         "public_count_41": manifest.get("public_repository_count") == 41 and len(public) == 41,
@@ -33,12 +94,8 @@ def main() -> int:
             row.get("resolution") == "AUTHENTICATED_RESOLUTION_REQUIRED" for row in private
         ),
         "write_back_default_deny_manifest": manifest.get("source_repository_link_contract", {}).get("write_back_default") == "DENY",
-        "materializer_has_no_network_client": all(
-            marker not in tool for marker in ("urllib.request", "requests.", "http.client", "socket.")
-        ),
-        "materializer_has_no_git_writeback": all(
-            marker not in tool for marker in ("git push", "create_pull_request", "create_issue", "workflow_dispatch")
-        ),
+        "materializer_has_no_network_or_process_effect_imports": not effects["forbidden_imports"],
+        "materializer_has_no_network_process_or_github_write_calls": not effects["forbidden_calls"],
         "source_link_denies_writeback": source_link.get("write_back_default") == "DENY",
         "source_link_requires_human_writeback_authorization": source_link.get("write_back_requires_explicit_human_authorization") is True,
         "source_link_grants_no_command_authority": source_link.get("habitat_command_authority_granted") is False,
@@ -48,7 +105,9 @@ def main() -> int:
     report = {
         "schema": "janus.genesis.git_habitat.repository_constellation_audit.v18_7_59",
         "runtime_version": "18.7.59",
+        "audit_method": "PYTHON_AST_EXECUTABLE_EFFECT_SCAN",
         "checks": checks,
+        "executable_effect_findings": effects,
         "scope_pass": ok,
         "repository_count": 44,
         "public_repository_count": 41,
@@ -63,7 +122,7 @@ def main() -> int:
         ],
         "repository_wide_source_marker_presence_proven_by_this_audit": False,
         "source_marker_rollout_requires_separate_cross_repository_verification": True,
-        "claim_ceiling": "This source audit verifies the central 44-node constellation contract, private-name non-disclosure, and default-deny write-back semantics. It does not by itself prove that every source repository already contains the reciprocal .janus/HABITAT_LINK.json marker; that is a separate cross-repository rollout check."
+        "claim_ceiling": "This AST-backed source audit verifies the central 44-node constellation contract, private-name non-disclosure, and absence of selected executable network/process/GitHub-write primitives in the materializer. It does not by itself prove that every source repository already contains the reciprocal .janus/HABITAT_LINK.json marker; that remains a separate cross-repository rollout check."
     }
     print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
     return 0 if ok else 1
