@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 from tools.janus_face_handoff_ledger import (
     HandoffLedgerError,
     append_message,
+    digest,
     verify_ledger,
 )
 
@@ -89,11 +91,25 @@ class JanusFaceHandoffLedgerV1Tests(unittest.TestCase):
             append_message(self.ledger, message)
         self.assertFalse(self.ledger.exists())
 
-    def test_secret_shaped_text_is_refused_for_durable_persistence(self) -> None:
-        message = self.message(summary="credential github_pat_EXAMPLE_NOT_A_REAL_TOKEN")
+    def test_secret_shaped_text_is_refused_across_canonical_message(self) -> None:
+        message = self.message(summary="ordinary summary")
+        message["work_item"] = "github_pat_EXAMPLE_NOT_A_REAL_TOKEN"
         with self.assertRaisesRegex(HandoffLedgerError, "SECRET_SHAPED_TEXT_REFUSED"):
             append_message(self.ledger, message)
         self.assertFalse(self.ledger.exists())
+
+    def test_persisted_message_must_equal_canonical_cleaned_form(self) -> None:
+        append_message(self.ledger, self.message())
+        record = json.loads(self.ledger.read_text(encoding="utf-8"))
+        record["message"]["unvalidated_extra"] = "smuggled durable field"
+        core = {key: value for key, value in record.items() if key != "record_digest"}
+        record["record_digest"] = digest(core)
+        self.ledger.write_text(
+            json.dumps(record, sort_keys=True, separators=(",", ":")) + "\n",
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(HandoffLedgerError, "not canonical cleaned form"):
+            verify_ledger(self.ledger)
 
     def test_retained_record_tamper_is_detected(self) -> None:
         append_message(self.ledger, self.message(summary="immutable summary"))
@@ -129,6 +145,25 @@ class JanusFaceHandoffLedgerV1Tests(unittest.TestCase):
         with self.assertRaisesRegex(HandoffLedgerError, "must not be a symlink"):
             append_message(self.ledger, self.message())
         self.assertEqual(target.read_text(encoding="utf-8"), "")
+
+    def test_parent_directory_symlink_is_rejected(self) -> None:
+        real_parent = self.root / "real-parent"
+        real_parent.mkdir()
+        linked_parent = self.root / "linked-parent"
+        linked_parent.symlink_to(real_parent, target_is_directory=True)
+        escaped_ledger = linked_parent / "FACE_HANDOFF_LEDGER.jsonl"
+
+        with self.assertRaisesRegex(HandoffLedgerError, "parent path must not contain symlinks"):
+            append_message(escaped_ledger, self.message())
+        with self.assertRaisesRegex(HandoffLedgerError, "parent path must not contain symlinks"):
+            verify_ledger(escaped_ledger)
+        self.assertFalse((real_parent / "FACE_HANDOFF_LEDGER.jsonl").exists())
+
+    def test_missing_parent_directory_is_not_created_implicitly(self) -> None:
+        missing_ledger = self.root / "missing" / "FACE_HANDOFF_LEDGER.jsonl"
+        with self.assertRaisesRegex(HandoffLedgerError, "parent directory must already exist"):
+            append_message(missing_ledger, self.message())
+        self.assertFalse(missing_ledger.parent.exists())
 
     def test_existing_append_lock_fails_closed(self) -> None:
         lock = self.ledger.with_name(self.ledger.name + ".append.lock")
