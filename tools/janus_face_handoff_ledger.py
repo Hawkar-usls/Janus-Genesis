@@ -19,7 +19,7 @@ import re
 import stat
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
 
 from tools.janus_project_face_handoff import (
     FaceHandoffError,
@@ -78,6 +78,33 @@ def _require_no_follow_support() -> int:
     return int(nofollow)
 
 
+def _absolute_lexical(path: Path) -> Path:
+    return Path(os.path.abspath(os.fspath(path)))
+
+
+def _require_real_existing_parent(path: Path) -> Path:
+    absolute_parent = _absolute_lexical(path).parent
+    if not absolute_parent.exists() or not absolute_parent.is_dir():
+        raise HandoffLedgerError("ledger parent directory must already exist")
+    if absolute_parent.is_symlink():
+        raise HandoffLedgerError("ledger parent path must not contain symlinks")
+    resolved_parent = Path(os.path.realpath(os.fspath(absolute_parent)))
+    if resolved_parent != absolute_parent:
+        raise HandoffLedgerError("ledger parent path must not contain symlinks")
+    for ancestor in absolute_parent.parents:
+        if ancestor.is_symlink():
+            raise HandoffLedgerError("ledger parent path must not contain symlinks")
+    return absolute_parent
+
+
+def _safe_ledger_path(path: Path) -> Path:
+    absolute = _absolute_lexical(path)
+    _require_real_existing_parent(absolute)
+    if absolute.is_symlink():
+        raise HandoffLedgerError("ledger path must not be a symlink")
+    return absolute
+
+
 def _read_regular_no_follow(path: Path) -> str | None:
     flags = os.O_RDONLY | _require_no_follow_support()
     try:
@@ -117,20 +144,20 @@ def _append_regular_no_follow(path: Path, encoded: bytes) -> None:
         os.close(fd)
 
 
-def _secret_texts(message: dict[str, Any]) -> list[str]:
-    texts = [
-        str(message.get("artifact_scope", "")),
-        str(message.get("ci_state", "")),
-        str(message.get("instruction_or_summary", "")),
-    ]
-    blockers = message.get("blockers", [])
-    if isinstance(blockers, list):
-        texts.extend(str(item) for item in blockers)
-    return texts
+def _iter_strings(value: Any) -> Iterator[str]:
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, list):
+        for item in value:
+            yield from _iter_strings(item)
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            yield str(key)
+            yield from _iter_strings(item)
 
 
 def _reject_secret_shaped_text(message: dict[str, Any]) -> None:
-    for text in _secret_texts(message):
+    for text in _iter_strings(message):
         upper = text.upper()
         if any(marker in upper for marker in _SECRET_MARKERS):
             raise HandoffLedgerError("SECRET_SHAPED_TEXT_REFUSED_FOR_DURABLE_PERSISTENCE")
@@ -179,8 +206,7 @@ def verify_ledger(
     *,
     expected_ledger_digest: str | None = None,
 ) -> dict[str, Any]:
-    if ledger.is_symlink():
-        raise HandoffLedgerError("ledger path must not be a symlink")
+    ledger = _safe_ledger_path(ledger)
     text = _read_regular_no_follow(ledger)
     if text is None:
         empty_digest = _ledger_digest([], [])
@@ -236,6 +262,8 @@ def verify_ledger(
             raise HandoffLedgerError(f"record {sequence} predecessor mismatch")
 
         cleaned = _clean_message(record["message"])
+        if record["message"] != cleaned:
+            raise HandoffLedgerError(f"record {sequence} message is not canonical cleaned form")
         if record["message_id"] != cleaned["message_id"]:
             raise HandoffLedgerError(f"record {sequence} message_id mismatch")
         if record["message_sha256"] != cleaned["message_sha256"]:
@@ -286,9 +314,7 @@ def _lock_path(ledger: Path) -> Path:
 
 def append_message(ledger: Path, raw_message: Any) -> dict[str, Any]:
     cleaned = _clean_message(raw_message)
-    ledger.parent.mkdir(parents=True, exist_ok=True)
-    if ledger.is_symlink():
-        raise HandoffLedgerError("ledger path must not be a symlink")
+    ledger = _safe_ledger_path(ledger)
 
     lock = _lock_path(ledger)
     if lock.is_symlink():
