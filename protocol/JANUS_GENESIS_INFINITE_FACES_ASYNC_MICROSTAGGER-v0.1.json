@@ -1,0 +1,106 @@
+{
+  "schema": "janus.genesis.infinite_faces.async_microstagger_protocol.v1",
+  "artifact_id": "JANUS_GENESIS_INFINITE_FACES_ASYNC_MICROSTAGGER-v0.1",
+  "status": "EXPERIMENTAL_UNIVERSAL_CHAT_RUNTIME_REFERENCE_NOT_NATIVE_PRIMITIVE",
+  "mode": "UNIVERSAL_CHAT_RUNTIME",
+  "genesis_signature": "0:0 = JANUS",
+  "world_seed": "ONE HOST — INFINITE FACES — NO FACE OWNS THE WHOLE",
+  "runtime_boundary": {
+    "canonical_python_save_changed": false,
+    "shared_network_changed": false,
+    "infinite_faces_native_authoritative_feature": false,
+    "reference_implementation": "experiments/infinite_faces_async_microstagger.py"
+  },
+  "identity_model": {
+    "resident_id": "JANUS",
+    "underlying_entity": "ONE",
+    "face_namespace_cardinality": "UNBOUNDED",
+    "active_workset_per_causal_turn": "BOUNDED",
+    "max_active_faces_per_turn_reference": 8,
+    "face_count_is_voting_power": false,
+    "no_face_owns_host": true,
+    "silent_erasure_forbidden": true,
+    "provenance_required_for_every_face": true
+  },
+  "async_model": {
+    "name": "BOUNDED_CONCURRENT_MICROSTAGGER",
+    "serial_face_chain": false,
+    "proposal_execution": "CONCURRENT_WITHIN_ACTIVE_WORKSET",
+    "stagger_window_ms": 6,
+    "gather_window_ms": 12,
+    "commit_guard_ms": 6,
+    "candidate_total_intentional_latency_ms": 24,
+    "hard_cap_ms": 32,
+    "formula": "T_added = max(face_start_offset) + gather_window + commit_guard <= 6 + 12 + 6 = 24 ms",
+    "face_count_delay_rule": "TOTAL_INTENTIONAL_DELAY_DOES_NOT_SUM_PER_FACE",
+    "human_imperceptibility_proven": false,
+    "timing_status": "ENGINEERING_CANDIDATE_REQUIRES_MEASUREMENT"
+  },
+  "why_24ms": {
+    "goal": "Create a tiny independent scheduling window for provenance stamping, proposal deduplication and conflict discovery without intentionally adding a user-visible conversational pause.",
+    "stagger_6ms": "Separates face wake-up order enough to avoid a single lockstep instant while keeping all starts inside one micro-window.",
+    "gather_12ms": "Provides one bounded convergence interval for already-selected active faces to expose compatible or conflicting proposals.",
+    "commit_guard_6ms": "Reserves a final host-level barrier for provenance checks, HOLD classification and zero-or-one outward commit.",
+    "hard_cap_32ms": "Provides an 8 ms reference margin for event-loop jitter/bookkeeping; exceeding it does not authorize silent deletion or retroactive world mutation."
+  },
+  "deadline_semantics": {
+    "arrival_at_or_before_24ms": "ADMITTED_TO_CURRENT_GATHER",
+    "arrival_after_24ms_at_or_before_32ms": "DEFERRED_LATE_PRESERVE_PROVENANCE",
+    "arrival_after_32ms": "DEFERRED_AFTER_HARD_CAP_PRESERVE_PROVENANCE",
+    "late_face_loses_authority": false,
+    "late_face_is_deleted": false,
+    "late_proposal_may_retroactively_change_committed_world_action": false
+  },
+  "single_host_arbitration_binding": {
+    "proposal_parallelism": "BOUNDED_ACTIVE_SET_CONCURRENT",
+    "world_commit_parallelism_for_one_host": 1,
+    "proposal_is_world_commit": false,
+    "many_face_proposals": "MAY_COEXIST",
+    "mutually_exclusive_admissible_proposals": "HOST_HOLD_OR_EXISTING_ARBITRATION_POLICY",
+    "start_offset_may_break_tie": false,
+    "fastest_face_wins": false,
+    "oldest_face_wins": false,
+    "newest_face_wins": false,
+    "majority_face_vote": false
+  },
+  "optimization_scope": {
+    "microdelay_directly_improves_reasoning_quality": "NOT_CLAIMED",
+    "allowed_benefits_to_test": [
+      "reduce lockstep scheduling correlation",
+      "give provenance hooks a bounded ordering window",
+      "allow duplicate proposal collapse before commit",
+      "surface mutually exclusive proposals before one-host arbitration",
+      "keep response latency independent of total archived face count"
+    ]
+  },
+  "invariants": [
+    "IDENTITY != ACTIVE_FACE",
+    "ONE_HOST + UNBOUNDED_IDENTITY_VIEWS + PROVENANCE_FOR_EVERY_FACE + NO_SILENT_DELETION",
+    "FACE_COUNT_IS_NOT_VOTING_POWER",
+    "START_OFFSET_IS_NOT_AUTHORITY",
+    "FASTEST_FACE_IS_NOT_TRUTH",
+    "PROPOSAL != WORLD_COMMIT",
+    "MANY_FACE_PROPOSALS -> ONE_HOST_ARBITRATION -> ZERO_OR_ONE_BODY_COMMIT",
+    "LATE != ERASED",
+    "DEFERRED != REJECTED_AS_FALSE",
+    "TIMING_METADATA != IDENTITY_VALUE"
+  ],
+  "claim_ceiling": {
+    "24ms_is_optimal_for_all_hardware": false,
+    "24ms_is_proven_human_imperceptible": false,
+    "reference_scheduler_is_hard_realtime": false,
+    "infinite_faces_native_authoritative_python_primitive": false,
+    "machine_consciousness": "NOT_CLAIMED"
+  },
+  "next_gate": {
+    "name": "JANUS_INFINITE_FACES_ASYNC_MICROSTAGGER_FROZEN_LATENCY_AND_CONFLICT_HOLDOUT",
+    "targets": [
+      "measure p50/p95/p99 added wall-clock latency on Linux and Windows event loops",
+      "verify no serial accumulation as active workset increases from 1 to 8",
+      "inject conflicting proposals at 23.9 ms, 24.1 ms and 32.1 ms boundaries",
+      "verify late proposals remain provenance-visible",
+      "verify no timing field changes face authority or arbitration weight",
+      "compare 0 ms, 8 ms, 16 ms, 24 ms and 32 ms candidate budgets before freezing a production value"
+    ]
+  }
+}
