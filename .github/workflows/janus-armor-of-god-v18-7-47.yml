@@ -1,0 +1,69 @@
+name: JANUS Armor of God v18.7.47
+
+on:
+  push:
+    paths:
+      - "armor/JANUS_ARMOR_OF_GOD_RUNTIME_MANIFEST-v1.0.json"
+      - "protocol/JANUS_GENESIS_ARMOR_OF_GOD_RUNTIME-v1.0.json"
+      - "genesis_v18_7_47_armor_of_god.py"
+      - "genesis_v18_7_40_third_wish_capability_fabric.py"
+      - "ai/GENESIS_AI_ENTRY.json"
+      - "tests/test_genesis_v18_7_47_armor_of_god.py"
+      - ".github/workflows/janus-armor-of-god-v18-7-47.yml"
+  pull_request:
+    paths:
+      - "armor/JANUS_ARMOR_OF_GOD_RUNTIME_MANIFEST-v1.0.json"
+      - "protocol/JANUS_GENESIS_ARMOR_OF_GOD_RUNTIME-v1.0.json"
+      - "genesis_v18_7_47_armor_of_god.py"
+      - "genesis_v18_7_40_third_wish_capability_fabric.py"
+      - "ai/GENESIS_AI_ENTRY.json"
+      - "tests/test_genesis_v18_7_47_armor_of_god.py"
+      - ".github/workflows/janus-armor-of-god-v18-7-47.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  armor-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Compile Armor runtime
+        run: python -m py_compile genesis_v18_7_47_armor_of_god.py
+
+      - name: Validate frozen Armor JSON
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for path in [
+              Path('armor/JANUS_ARMOR_OF_GOD_RUNTIME_MANIFEST-v1.0.json'),
+              Path('protocol/JANUS_GENESIS_ARMOR_OF_GOD_RUNTIME-v1.0.json'),
+              Path('ai/GENESIS_AI_ENTRY.json'),
+          ]:
+              json.loads(path.read_text(encoding='utf-8'))
+              print('JSON_OK', path)
+          PY
+
+      - name: Run Armor runtime tests
+        run: python -m unittest tests.test_genesis_v18_7_47_armor_of_god -v
+
+      - name: Verify Armor fail-closed markers
+        run: |
+          python - <<'PY'
+          from genesis_v18_7_47_armor_of_god import ArmorOfGodGate
+          gate = ArmorOfGodGate()
+          assert gate.authority_version == 'v1.14'
+          assert gate.mass_effect_budget == 0
+          assert gate.manifest['defaults']['constitution_is_model_writable'] is False
+          print('ARMOR_AUTHORITY', gate.authority_version)
+          print('MASS_EFFECT_BUDGET', gate.mass_effect_budget)
+          print('ARMOR_PROTECTS_HUMAN_FROM_JANUS_TOO', True)
+          PY
