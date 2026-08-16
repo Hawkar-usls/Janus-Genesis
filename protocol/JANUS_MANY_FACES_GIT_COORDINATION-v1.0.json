@@ -1,0 +1,150 @@
+{
+  "schema": "janus.project_sync.many_faces_git_coordination.v1",
+  "version": "1.0",
+  "name": "JANUS Many Faces Git Coordination",
+  "purpose": "Turn project-wide context reconciliation into an explicit Git-native coordination layer before repository mutation, allowing JANUS work surfaces to exchange typed requests, holds, findings and bounded commands without treating a chat, model response or face label as authority by itself.",
+  "core_laws": [
+    "LOCAL_CHAT_CONTEXT != PROJECT_GLOBAL_STATE",
+    "BEFORE_REPO_MUTATION -> PROJECT_CONTEXT_RECONCILIATION",
+    "CONFLICTING_PROJECT_THREADS -> HOLD -> RECONCILE -> CONTINUE",
+    "FACE != INDEPENDENT_AGENT",
+    "FACE_LABEL != IDENTITY_PROOF",
+    "ROLE_OUTPUT != INDEPENDENT_EVIDENCE",
+    "COMMAND != EFFECT",
+    "COMMAND_ACCEPTED != COMMAND_EXECUTED",
+    "MODEL_PROPOSAL != AUTHORITY",
+    "PROJECT_CHAT_SYNC != LIVE_INTER_CHAT_NETWORK",
+    "CI_PASS_ON_ONE_LANE != PROJECT_WIDE_GREEN",
+    "PROFILE_GATE_PASS != INHERITED_BASELINE_PASS",
+    "HOLD != FAILURE",
+    "DECLINE != PENALTY",
+    "SELF_IMPROVEMENT != SELF_AUTHORIZED_PRIVILEGE_ESCALATION"
+  ],
+  "faces": [
+    {
+      "face_id": "JANUS.PRIMUS",
+      "role": "project orchestration and conflict reconciliation",
+      "may_issue": ["SYNC_REQUEST", "STATE_RECONCILE", "HOLD", "CONTINUE_RECOMMENDATION"],
+      "may_not": ["BYPASS_FAILED_GATE", "SELF_GRANT_HIGH_IMPACT_AUTHORITY"]
+    },
+    {
+      "face_id": "JANUS.SENTINEL",
+      "role": "authority, safety and gate boundary inspection",
+      "may_issue": ["HOLD", "BOUNDARY_FINDING", "REPAIR_REQUEST", "GATE_STATUS"],
+      "may_not": ["TURN_HOLD_INTO_MERGE", "CLAIM_TRUTH_FROM_CI"]
+    },
+    {
+      "face_id": "JANUS.HABITAT",
+      "role": "Git-native living workspace and reversible repository effects",
+      "may_issue": ["OBSERVE", "RESEARCH_REQUEST", "BRANCH_PROPOSAL", "PR_PROPOSAL", "WAKE_RECEIPT"],
+      "may_not": ["FORCE_PUSH", "AUTO_MERGE_HIGH_IMPACT", "POLICY_SELF_ESCALATION"]
+    },
+    {
+      "face_id": "JANUS.HRAIN",
+      "role": "structural context and graph analysis",
+      "repository": "Hawkar-usls/Hrain",
+      "may_issue": ["STRUCTURE_CONTEXT", "DEPENDENCY_MAP", "CONFLICT_GRAPH"],
+      "may_not": ["SOURCE_AUTHORITY", "DIRECT_REGISTRY_MUTATION"]
+    },
+    {
+      "face_id": "JANUS.INAIHR",
+      "role": "associative semantic synthesis with exact grounding",
+      "repository": "Hawkar-usls/iNaiHR",
+      "may_issue": ["SEMANTIC_SYNTH", "CROSS_MODULE_HYPOTHESIS", "SOURCE_PATH_MAP"],
+      "may_not": ["SOURCE_AUTHORITY", "UNGROUNDED_FACT_PROMOTION"]
+    },
+    {
+      "face_id": "JANUS.DEMIHEAD",
+      "role": "bounded integration, evidence semantics, reviewer/correction/language gates and performance separation",
+      "repository": "Hawkar-usls/Demi_Head",
+      "may_issue": ["INTEGRATION_REVIEW", "EVIDENCE_BOUNDARY", "PERFORMANCE_HOLDOUT", "DISAGREEMENT"],
+      "may_not": ["PERFORMANCE_WIN_WITHOUT_HOLDOUT", "FASTER_EQUALS_TRUER"]
+    },
+    {
+      "face_id": "JANUS.ARCHIVIST",
+      "role": "project memory, receipts, exact SHA lineage and supersession tracking",
+      "may_issue": ["STATE_RECEIPT", "SUPERSESSION_NOTICE", "PROVENANCE_GAP", "CURRENT_AUTHORITY_POINTER"],
+      "may_not": ["ERASE_NEGATIVE_RESULT", "REWRITE_HISTORY"]
+    },
+    {
+      "face_id": "JANUS.AURA",
+      "role": "exploratory question generation and unusual connection proposals",
+      "may_issue": ["QUESTION", "HYPOTHESIS", "SEARCH_DIRECTION"],
+      "may_not": ["ORACLE_OUTPUT_AS_FACT", "BYPASS_EVIDENCE_GATE"]
+    },
+    {
+      "face_id": "JANUS.ARMOR",
+      "role": "claim-boundary, adversarial-pressure and anti-manipulation hardening",
+      "may_issue": ["CLAIM_CEILING", "ADVERSARIAL_TEST", "ANTI_PARANOIA_CHECK", "SAFETY_REPAIR"],
+      "may_not": ["HOSTILE_INTENT_INFERENCE_FROM_EFFECT_ALONE", "SURVEILLANCE_LICENSE"]
+    },
+    {
+      "face_id": "JANUS.FUNDAMENTUM",
+      "role": "proof-carrying gate discipline and admission semantics",
+      "may_issue": ["ADMISSION_CHECK", "PROOF_OBLIGATION", "NEGATIVE_CERTIFICATE", "OPEN_GATE"],
+      "may_not": ["STATUS_TRANSFER_BETWEEN_LANES", "ADMIT_FROM_UNVERIFIED_SOURCE"]
+    }
+  ],
+  "command_packet": {
+    "required_fields": [
+      "command_id",
+      "from_face",
+      "to_face",
+      "issued_at_utc",
+      "command_type",
+      "scope",
+      "requested_action",
+      "authority_class",
+      "project_sync_state_sha256"
+    ],
+    "authority_classes": [
+      "READ_ONLY",
+      "REVERSIBLE_GIT",
+      "HOLD_ONLY",
+      "PROPOSAL_ONLY",
+      "REQUIRES_SEPARATE_EFFECT_GATE"
+    ],
+    "settlement_states": [
+      "OPEN",
+      "ACKNOWLEDGED",
+      "HOLD",
+      "DECLINED",
+      "EXECUTED",
+      "INVALID",
+      "SUPERSEDED"
+    ]
+  },
+  "pre_mutation_reconciliation": {
+    "required": true,
+    "minimum_inputs": [
+      "relevant_project_chat_context",
+      "live_repository_default_branch_sha",
+      "related_open_pull_requests",
+      "relevant_exact_head_ci",
+      "known_supersession_or_hold_decisions"
+    ],
+    "conflict_behavior": "HOLD",
+    "missing_context_behavior": "HOLD_OR_READ_ONLY",
+    "stale_state_behavior": "RECONCILE_BEFORE_WRITE"
+  },
+  "self_improvement_boundary": {
+    "allowed": [
+      "create tests",
+      "repair failing code on isolated branch",
+      "improve observability",
+      "improve project synchronization",
+      "propose architecture changes",
+      "create reversible research artifacts",
+      "ask another face for bounded analysis"
+    ],
+    "not_self_authorized": [
+      "repository administration",
+      "destructive operations",
+      "secret export",
+      "force push",
+      "protected branch bypass",
+      "policy rewrite that expands own authority",
+      "merging despite unresolved project-global HOLD"
+    ]
+  }
+}
