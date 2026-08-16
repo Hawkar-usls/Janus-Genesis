@@ -8,6 +8,7 @@ on:
       - 'genesis_v18_7_48_armor_truth_guard.py'
       - 'genesis_v18_7_49_armor_mechanics_hardening.py'
       - 'genesis_v18_7_50_armor_routing.py'
+      - 'genesis_v18_7_50_armored_capability_factory.py'
       - 'play_genesis.py'
       - 'play_genesis_armored.py'
       - 'genesis_v18_7_ai.py'
@@ -18,6 +19,7 @@ on:
       - 'tools/genesis_hosted_gateway.py'
       - 'tools/audit_armor_routing_coverage_v18_7_50.py'
       - 'tests/test_genesis_v18_7_50_armor_routing.py'
+      - 'tests/test_genesis_v18_7_50_armored_capability_factory.py'
       - '.github/workflows/janus-armor-routing-v18-7-50.yml'
   pull_request:
     paths:
@@ -26,12 +28,14 @@ on:
       - 'genesis_v18_7_48_armor_truth_guard.py'
       - 'genesis_v18_7_49_armor_mechanics_hardening.py'
       - 'genesis_v18_7_50_armor_routing.py'
+      - 'genesis_v18_7_50_armored_capability_factory.py'
       - 'play_genesis.py'
       - 'play_genesis_armored.py'
       - 'genesis_v18_7_ai.py'
       - 'genesis_v18_7_38_durable_network_outbox.py'
       - 'tools/**'
       - 'tests/test_genesis_v18_7_50_armor_routing.py'
+      - 'tests/test_genesis_v18_7_50_armored_capability_factory.py'
       - '.github/workflows/janus-armor-routing-v18-7-50.yml'
 
 jobs:
@@ -50,15 +54,21 @@ jobs:
         run: |
           python -m py_compile \
             genesis_v18_7_50_armor_routing.py \
+            genesis_v18_7_50_armored_capability_factory.py \
             play_genesis_armored.py \
             tools/audit_armor_routing_coverage_v18_7_50.py \
-            tests/test_genesis_v18_7_50_armor_routing.py
+            tests/test_genesis_v18_7_50_armor_routing.py \
+            tests/test_genesis_v18_7_50_armored_capability_factory.py
 
       - name: Smoke canonical launcher
         run: python play_genesis_armored.py --help >/dev/null
 
       - name: Run canonical Armor routing tests
-        run: python -m unittest tests.test_genesis_v18_7_50_armor_routing -v
+        run: |
+          python -m unittest \
+            tests.test_genesis_v18_7_50_armor_routing \
+            tests.test_genesis_v18_7_50_armored_capability_factory \
+            -v
 
       - name: Audit routing inventory
         run: python tools/audit_armor_routing_coverage_v18_7_50.py
@@ -67,4 +77,5 @@ jobs:
         run: |
           grep -q 'repository_wide_legacy_bypass_proven_closed.*False' genesis_v18_7_50_armor_routing.py
           grep -q 'repository_wide_complete_routing_coverage_proven.*repository_wide_complete' tools/audit_armor_routing_coverage_v18_7_50.py
+          grep -q 'plain_third_wish_fabric_is_recommended_production_default.*False' genesis_v18_7_50_armored_capability_factory.py
           grep -q 'python play_genesis_armored.py' README.md
