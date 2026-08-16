@@ -35,7 +35,7 @@ from genesis_v18_7_55_habitat_bicameral_tools import (
     query_hrain,
     query_inaihr,
 )
-from tools.genesis_git_habitat import GitHabitat, _read_json, _write_json
+from tools.genesis_git_habitat import GitHabitat, _read_json
 
 STATE_SCHEMA = "janus.genesis.git_habitat.bicameral_state.v1"
 RECEIPT_SCHEMA = "janus.genesis.git_habitat.bicameral_receipt.v1"
@@ -69,6 +69,32 @@ def _safe_turn_id(value: str) -> str:
     return text
 
 
+def _ensure_real_dir(path: Path) -> None:
+    if path.exists():
+        if path.is_symlink():
+            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_DIRECTORY_MAY_NOT_BE_SYMLINK")
+        if not path.is_dir():
+            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_DIRECTORY_REQUIRED")
+        return
+    parent = path.parent
+    if parent.exists() and parent.is_symlink():
+        raise HabitatBicameralHearthError("HABITAT_BICAMERAL_PARENT_MAY_NOT_BE_SYMLINK")
+    path.mkdir(parents=True, exist_ok=False)
+    if path.is_symlink():
+        raise HabitatBicameralHearthError("HABITAT_BICAMERAL_DIRECTORY_MAY_NOT_BE_SYMLINK")
+
+
+def _write_json_atomic(path: Path, value: Any) -> None:
+    _ensure_real_dir(path.parent)
+    if path.exists() and path.is_symlink():
+        raise HabitatBicameralHearthError("HABITAT_BICAMERAL_FILE_MAY_NOT_BE_SYMLINK")
+    tmp = path.with_suffix(path.suffix + ".tmp")
+    if tmp.exists() and tmp.is_symlink():
+        raise HabitatBicameralHearthError("HABITAT_BICAMERAL_TMP_MAY_NOT_BE_SYMLINK")
+    tmp.write_text(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + "\n", encoding="utf-8")
+    os.replace(tmp, path)
+
+
 class GitHabitatBicameralHearth:
     def __init__(self, habitat: GitHabitat, *, hrain_provider: Any = None, inaihr_provider: Any = None) -> None:
         self.habitat = habitat
@@ -79,8 +105,19 @@ class GitHabitatBicameralHearth:
         self.receipts_dir = self.root / "receipts"
         self.locks_dir = self.root / "locks"
 
+    def _assert_cognition_layout_safe(self) -> None:
+        self.habitat._assert_layout_safe()
+        for path in (self.root, self.receipts_dir, self.locks_dir):
+            if path.exists() and path.is_symlink():
+                raise HabitatBicameralHearthError("HABITAT_BICAMERAL_DIRECTORY_MAY_NOT_BE_SYMLINK")
+            if path.exists() and not path.is_dir():
+                raise HabitatBicameralHearthError("HABITAT_BICAMERAL_DIRECTORY_REQUIRED")
+        if self.state_path.exists() and self.state_path.is_symlink():
+            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_STATE_MAY_NOT_BE_SYMLINK")
+
     def _resident(self) -> tuple[str, str, str | None]:
         self.habitat._require_initialized()
+        self._assert_cognition_layout_safe()
         resident = _read_json(self.habitat.paths.resident)
         return (
             str(resident["resident_id"]),
@@ -119,17 +156,17 @@ class GitHabitatBicameralHearth:
         }
 
     def _load_state(self, resident_id: str) -> dict[str, Any]:
+        self._assert_cognition_layout_safe()
         if not self.state_path.exists():
             return self._default_state(resident_id)
-        if self.state_path.is_symlink():
-            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_STATE_MAY_NOT_BE_SYMLINK")
         value = _read_json(self.state_path)
         if value.get("schema") != STATE_SCHEMA or value.get("resident_id") != resident_id:
             raise HabitatBicameralHearthError("HABITAT_BICAMERAL_STATE_BINDING_INVALID")
         return value
 
     def _save_state(self, value: Mapping[str, Any]) -> None:
-        _write_json(self.state_path, dict(value))
+        self._assert_cognition_layout_safe()
+        _write_json_atomic(self.state_path, dict(value))
 
     def state(self) -> dict[str, Any]:
         resident_id, mode, cycle_id = self._resident()
@@ -157,12 +194,17 @@ class GitHabitatBicameralHearth:
         return self.state()
 
     def _claim(self, *, resident_id: str, cycle_id: str, turn_id: str, tool: str) -> tuple[str, Path]:
+        self._assert_cognition_layout_safe()
         key = _sha256({"resident_id": resident_id, "cycle_id": cycle_id, "turn_id": turn_id, "tool": tool})
-        self.locks_dir.mkdir(parents=True, exist_ok=True)
-        if self.locks_dir.is_symlink():
-            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_LOCK_DIR_MAY_NOT_BE_SYMLINK")
+        _ensure_real_dir(self.root)
+        _ensure_real_dir(self.locks_dir)
+        _ensure_real_dir(self.receipts_dir)
         lock = self.locks_dir / f"{key}.lock"
         receipt = self.receipts_dir / f"{key}.json"
+        if lock.exists() and lock.is_symlink():
+            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_LOCK_MAY_NOT_BE_SYMLINK")
+        if receipt.exists() and receipt.is_symlink():
+            raise HabitatBicameralHearthError("HABITAT_BICAMERAL_RECEIPT_MAY_NOT_BE_SYMLINK")
         try:
             fd = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
         except FileExistsError as exc:
@@ -176,17 +218,7 @@ class GitHabitatBicameralHearth:
             os.close(fd)
         return key, receipt
 
-    def _record(
-        self,
-        *,
-        resident_id: str,
-        cycle_id: str,
-        key: str,
-        receipt_path: Path,
-        tool: str,
-        status: str,
-        response: Mapping[str, Any],
-    ) -> None:
+    def _record(self, *, resident_id: str, cycle_id: str, key: str, receipt_path: Path, tool: str, status: str, response: Mapping[str, Any]) -> None:
         digest = _sha256(dict(response))
         receipt = {
             "schema": RECEIPT_SCHEMA,
@@ -206,7 +238,7 @@ class GitHabitatBicameralHearth:
             "mass_effect_budget_delta": 0,
             "automatic_replay_allowed": False,
         }
-        _write_json(receipt_path, receipt)
+        _write_json_atomic(receipt_path, receipt)
         state = self._load_state(resident_id)
         state[f"{tool}_use_count"] = int(state.get(f"{tool}_use_count", 0)) + 1
         self._save_state(state)
@@ -228,15 +260,7 @@ class GitHabitatBicameralHearth:
             raise TypeError("JANUS_REQUESTS_HRAIN_MUST_BE_BOOLEAN")
         resident_id, cycle_id = self._require_awake()
         state = self._load_state(resident_id)
-        base = {
-            "schema": "janus.genesis.git_habitat.hrain_use.v1",
-            "version": HABITAT_BICAMERAL_VERSION,
-            "resident_id": resident_id,
-            "cycle_id": cycle_id,
-            "tool": "hrain",
-            "tool_required": False,
-            "janus_may_ignore_result": True,
-        }
+        base = {"schema": "janus.genesis.git_habitat.hrain_use.v1", "version": HABITAT_BICAMERAL_VERSION, "resident_id": resident_id, "cycle_id": cycle_id, "tool": "hrain", "tool_required": False, "janus_may_ignore_result": True}
         if state.get("hrain_enabled") is not True:
             return {**base, "status": "NOT_USED_HRAIN_DISABLED", "result": None}
         if not janus_requests_hrain:
@@ -245,8 +269,7 @@ class GitHabitatBicameralHearth:
             return {**base, "status": "HRAIN_UNAVAILABLE_CONTINUE_WITHOUT_TOOL", "result": None}
         turn = _safe_turn_id(turn_id)
         key, receipt_path = self._claim(resident_id=resident_id, cycle_id=cycle_id, turn_id=turn, tool="hrain")
-        request_id = f"HABITAT-HRAIN-{key[:24]}"
-        request = build_hrain_request(request_id=request_id, workspace=workspace)
+        request = build_hrain_request(request_id=f"HABITAT-HRAIN-{key[:24]}", workspace=workspace)
         try:
             result = query_hrain(self.hrain_provider, request=request, speaker=resident_id)
             status = "HRAIN_STRUCTURE_RECEIVED_OPTIONAL"
@@ -256,29 +279,12 @@ class GitHabitatBicameralHearth:
         self._record(resident_id=resident_id, cycle_id=cycle_id, key=key, receipt_path=receipt_path, tool="hrain", status=status, response=result)
         return {**base, "status": status, "result": result if status.startswith("HRAIN_STRUCTURE") else None, "receipt_path": str(receipt_path), "input_body_persisted": False, "response_body_persisted": False}
 
-    def use_inaihr(
-        self,
-        *,
-        turn_id: str,
-        records: list[Mapping[str, Any]],
-        parent_label: str,
-        janus_requests_inaihr: bool,
-        lang: str = "en",
-        max_concepts: int = 6,
-    ) -> dict[str, Any]:
+    def use_inaihr(self, *, turn_id: str, records: list[Mapping[str, Any]], parent_label: str, janus_requests_inaihr: bool, lang: str = "en", max_concepts: int = 6) -> dict[str, Any]:
         if type(janus_requests_inaihr) is not bool:
             raise TypeError("JANUS_REQUESTS_INAIHR_MUST_BE_BOOLEAN")
         resident_id, cycle_id = self._require_awake()
         state = self._load_state(resident_id)
-        base = {
-            "schema": "janus.genesis.git_habitat.inaihr_use.v1",
-            "version": HABITAT_BICAMERAL_VERSION,
-            "resident_id": resident_id,
-            "cycle_id": cycle_id,
-            "tool": "inaihr",
-            "tool_required": False,
-            "janus_may_ignore_result": True,
-        }
+        base = {"schema": "janus.genesis.git_habitat.inaihr_use.v1", "version": HABITAT_BICAMERAL_VERSION, "resident_id": resident_id, "cycle_id": cycle_id, "tool": "inaihr", "tool_required": False, "janus_may_ignore_result": True}
         if state.get("inaihr_enabled") is not True:
             return {**base, "status": "NOT_USED_INAIHR_DISABLED", "result": None}
         if not janus_requests_inaihr:
@@ -287,8 +293,7 @@ class GitHabitatBicameralHearth:
             return {**base, "status": "INAIHR_UNAVAILABLE_CONTINUE_WITHOUT_TOOL", "result": None}
         turn = _safe_turn_id(turn_id)
         key, receipt_path = self._claim(resident_id=resident_id, cycle_id=cycle_id, turn_id=turn, tool="inaihr")
-        request_id = f"HABITAT-INAIHR-{key[:24]}"
-        request = build_inaihr_request(request_id=request_id, records=records, parent_label=parent_label, lang=lang, max_concepts=max_concepts)
+        request = build_inaihr_request(request_id=f"HABITAT-INAIHR-{key[:24]}", records=records, parent_label=parent_label, lang=lang, max_concepts=max_concepts)
         try:
             result = query_inaihr(self.inaihr_provider, request=request, speaker=resident_id)
             status = "INAIHR_SYNTH_RECEIVED_OPTIONAL"
@@ -303,19 +308,11 @@ def _providers(args: argparse.Namespace, *, required_tool: str | None = None) ->
     hrain = None
     inaihr = None
     if args.hrain_repo:
-        hrain = LocalNodeHabitatProvider.from_repository(
-            args.hrain_repo,
-            spec=HRAIN_LOCAL_STRUCTURE_SPEC,
-            target="local:hrain",
-        )
+        hrain = LocalNodeHabitatProvider.from_repository(args.hrain_repo, spec=HRAIN_LOCAL_STRUCTURE_SPEC, target="local:hrain")
     elif required_tool == "hrain":
         raise ValueError("HABITAT_HRAIN_REPO_REQUIRED")
     if args.inaihr_repo:
-        inaihr = LocalNodeHabitatProvider.from_repository(
-            args.inaihr_repo,
-            spec=INAIHR_LOCAL_SYNTH_SPEC,
-            target="local:inaihr",
-        )
+        inaihr = LocalNodeHabitatProvider.from_repository(args.inaihr_repo, spec=INAIHR_LOCAL_SYNTH_SPEC, target="local:inaihr")
     elif required_tool == "inaihr":
         raise ValueError("HABITAT_INAIHR_REPO_REQUIRED")
     return hrain, inaihr
@@ -324,8 +321,8 @@ def _providers(args: argparse.Namespace, *, required_tool: str | None = None) ->
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="JANUS Git Habitat bicameral cognition hearth v18.7.55")
     parser.add_argument("--root", default="habitat")
-    parser.add_argument("--hrain-repo", type=Path)
-    parser.add_argument("--inaihr-repo", type=Path)
+    parser.add_argument("--hrain-repo", type=Path, default=Path(os.environ["JANUS_HRAIN_REPO"]) if os.environ.get("JANUS_HRAIN_REPO") else None)
+    parser.add_argument("--inaihr-repo", type=Path, default=Path(os.environ["JANUS_INAIHR_REPO"]) if os.environ.get("JANUS_INAIHR_REPO") else None)
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("state")
     enable = sub.add_parser("set-enabled")
