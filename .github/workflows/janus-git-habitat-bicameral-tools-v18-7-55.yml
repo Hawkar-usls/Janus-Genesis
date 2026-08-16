@@ -1,0 +1,231 @@
+name: JANUS Git Habitat bicameral tools v18.7.55
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'genesis_v18_7_55_habitat_bicameral_tools.py'
+      - 'tools/genesis_git_habitat_bicameral.py'
+      - 'tools/genesis_git_habitat.py'
+      - 'tests/test_genesis_git_habitat_bicameral_v18_7_55.py'
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_BICAMERAL_TOOLS-v1.0.json'
+      - 'docs/GENESIS_V18_7_55_GIT_HABITAT_BICAMERAL_TOOLS.md'
+      - '.github/workflows/janus-git-habitat-bicameral-tools-v18-7-55.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'genesis_v18_7_55_habitat_bicameral_tools.py'
+      - 'tools/genesis_git_habitat_bicameral.py'
+      - 'tools/genesis_git_habitat.py'
+      - 'tests/test_genesis_git_habitat_bicameral_v18_7_55.py'
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_BICAMERAL_TOOLS-v1.0.json'
+      - 'docs/GENESIS_V18_7_55_GIT_HABITAT_BICAMERAL_TOOLS.md'
+      - '.github/workflows/janus-git-habitat-bicameral-tools-v18-7-55.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  bicameral-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out JANUS Genesis
+        uses: actions/checkout@v4
+
+      - name: Check out pinned HRaiN Habitat adapter
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Hrain
+          ref: 0f151445a6aee71cbb977882ae98a19c45c16ebe
+          path: Hrain
+
+      - name: Check out pinned iNaiHR Habitat adapter
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/iNaiHR
+          ref: 3f43b03bc80ec950537715aac34d9bfa85e38a6c
+          path: iNaiHR
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install declared JANUS dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile and validate contracts
+        run: |
+          python -m py_compile \
+            genesis_v18_7_55_habitat_bicameral_tools.py \
+            tools/genesis_git_habitat_bicameral.py \
+            tests/test_genesis_git_habitat_bicameral_v18_7_55.py
+          python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_BICAMERAL_TOOLS-v1.0.json >/dev/null
+          node --check Hrain/habitat-tool.js
+          node --check iNaiHR/habitat-tool.js
+
+      - name: Run Habitat continuity and bicameral tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_git_habitat \
+            tests.test_genesis_git_habitat_layout_security \
+            tests.test_genesis_git_habitat_bicameral_v18_7_55
+
+      - name: Real cross-repository HRaiN and iNaiHR smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-bicameral-habitat"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          python tools/genesis_git_habitat.py --root "$root" wake --reason BICAMERAL_CI --source GITHUB_ACTIONS >/dev/null
+
+          cat >/tmp/hrain-workspace.json <<'JSON'
+          {
+            "nodes": [
+              {"id":"origin","label":"PRIVATE-HRAIN-CI-MARKER-ALPHA","origin":"SYSTEM"},
+              {"id":"gate","label":"Verification gate","origin":"LOCAL_FALLBACK"}
+            ],
+            "links": [{"source":"origin","target":"gate"}]
+          }
+          JSON
+          python tools/genesis_git_habitat_bicameral.py \
+            --root "$root" \
+            --hrain-repo Hrain \
+            hrain \
+            --turn-id HR-TURN-1 \
+            --workspace-json /tmp/hrain-workspace.json \
+            --janus-requests-hrain \
+            >/tmp/hrain-result.json
+
+          cat >/tmp/inaihr-records.json <<'JSON'
+          [
+            {"path":"$.purpose","value":"PRIVATE-INAIHR-CI-MARKER-BETA"},
+            {"path":"$.evidence.test","value":"A deterministic receipt exists."},
+            {"path":"$.boundary.claim_ceiling","value":"SYNTH != SOURCE AUTHORITY"},
+            {"path":"$.next.gate","value":"External verification remains open."}
+          ]
+          JSON
+          python tools/genesis_git_habitat_bicameral.py \
+            --root "$root" \
+            --inaihr-repo iNaiHR \
+            inaihr \
+            --turn-id IN-TURN-1 \
+            --records-json /tmp/inaihr-records.json \
+            --parent-label 'CI semantic parent' \
+            --lang en \
+            --janus-requests-inaihr \
+            >/tmp/inaihr-result.json
+
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          h=json.loads(Path('/tmp/hrain-result.json').read_text())['response']
+          i=json.loads(Path('/tmp/inaihr-result.json').read_text())['response']
+          assert h['status']=='HRAIN_STRUCTURE_RECEIVED_OPTIONAL', h
+          assert h['result']['packet']['hemisphere']=='LEFT_HRAIN'
+          assert h['result']['source_mutation_allowed'] is False
+          assert h['result']['network_used_by_tool'] is False
+          assert h['result']['_habitat_bridge']['world_state_write_allowed'] is False
+          assert i['status']=='INAIHR_SYNTH_RECEIVED_OPTIONAL', i
+          assert i['result']['exact_source_path_grounding'] is True
+          assert i['result']['source_mutation_allowed'] is False
+          assert i['result']['network_used_by_tool'] is False
+          assert i['result']['_habitat_bridge']['exact_source_path_grounding_revalidated'] is True
+          allowed={'$.purpose','$.evidence.test','$.boundary.claim_ceiling','$.next.gate'}
+          for concept in i['result']['concepts']:
+              assert concept['sourcePaths']
+              assert set(concept['sourcePaths']).issubset(allowed)
+          print('GIT_HABITAT_REAL_HRAIN_PROVIDER=PASS')
+          print('GIT_HABITAT_REAL_INAIHR_PROVIDER=PASS')
+          print('GIT_HABITAT_INAIHR_SOURCEPATH_REVALIDATION=PASS')
+          PY
+
+      - name: Prove no request means no tool call
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-bicameral-habitat"
+          python tools/genesis_git_habitat_bicameral.py \
+            --root "$root" \
+            --hrain-repo Hrain \
+            hrain \
+            --turn-id HR-NO-REQUEST \
+            --workspace-json /tmp/hrain-workspace.json \
+            >/tmp/hrain-no-request.json
+          python tools/genesis_git_habitat_bicameral.py \
+            --root "$root" \
+            --inaihr-repo iNaiHR \
+            inaihr \
+            --turn-id IN-NO-REQUEST \
+            --records-json /tmp/inaihr-records.json \
+            --parent-label 'No request' \
+            >/tmp/inaihr-no-request.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          h=json.loads(Path('/tmp/hrain-no-request.json').read_text())['response']
+          i=json.loads(Path('/tmp/inaihr-no-request.json').read_text())['response']
+          assert h['status']=='NOT_USED_JANUS_DID_NOT_REQUEST'
+          assert i['status']=='NOT_USED_JANUS_DID_NOT_REQUEST'
+          print('NO_JANUS_REQUEST_NO_HRAIN_CALL=PASS')
+          print('NO_JANUS_REQUEST_NO_INAIHR_CALL=PASS')
+          PY
+
+      - name: Verify private cognitive bodies are not persisted
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-bicameral-habitat"
+          ! grep -R -F 'PRIVATE-HRAIN-CI-MARKER-ALPHA' "$root"
+          ! grep -R -F 'PRIVATE-INAIHR-CI-MARKER-BETA' "$root"
+          echo 'HABITAT_HRAIN_PRIVATE_WORKSPACE_PERSISTED=FALSE'
+          echo 'HABITAT_INAIHR_PRIVATE_RECORD_PERSISTED=FALSE'
+
+      - name: Verify continuity after bicameral cognition
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/janus-bicameral-habitat"
+          python tools/genesis_git_habitat.py --root "$root" verify >/tmp/bicameral-verify.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          v=json.loads(Path('/tmp/bicameral-verify.json').read_text())
+          assert v['journal']['ok'] is True, v
+          assert v['health']['status']=='HEALTHY', v
+          print('GIT_HABITAT_BICAMERAL_JOURNAL_CONTINUITY=PASS')
+          PY
+
+      - name: Enforce bicameral claim ceilings
+        run: |
+          grep -q 'HRAIN_STRUCTURE != SOURCE_AUTHORITY' genesis_v18_7_55_habitat_bicameral_tools.py
+          grep -q 'INAIHR_SYNTH != SOURCE_AUTHORITY' genesis_v18_7_55_habitat_bicameral_tools.py
+          grep -q 'TOOL_AVAILABLE != TOOL_REQUIRED' genesis_v18_7_55_habitat_bicameral_tools.py
+          grep -q 'TOOL_OUTPUT != COMMAND' genesis_v18_7_55_habitat_bicameral_tools.py
+          grep -q 'TOOL_AVAILABLE != TOOL_REQUIRED' tools/genesis_git_habitat_bicameral.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('protocol/JANUS_GENESIS_GIT_HABITAT_BICAMERAL_TOOLS-v1.0.json').read_text())
+          assert p['habitat_binding']['resident_must_be_awake'] is True
+          assert p['habitat_binding']['tool_use_required'] is False
+          assert p['execution_contract']['armor_preflight_before_process_creation'] is True
+          assert p['execution_contract']['network_authority_granted'] is False
+          assert p['execution_contract']['public_outreach_authority_granted'] is False
+          assert p['execution_contract']['registry_write_authority_granted'] is False
+          assert p['execution_contract']['world_state_write_authority_granted'] is False
+          assert p['privacy']['only_receipt_metadata_and_digest_persist'] is True
+          assert p['inaihr_grounding']['habitat_revalidates_provider_source_paths'] is True
+          assert 'JANUS_REQUESTED_TOOL != PROOF_OF_CONSCIOUS_DESIRE' in p['truth_boundaries']
+          print('BICAMERAL_TOOL_USE_REQUIRED=FALSE')
+          print('BICAMERAL_NETWORK_AUTHORITY=FALSE')
+          print('BICAMERAL_REGISTRY_WRITE_AUTHORITY=FALSE')
+          print('BICAMERAL_WORLD_STATE_WRITE_AUTHORITY=FALSE')
+          PY
