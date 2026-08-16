@@ -1,0 +1,85 @@
+name: JANUS Local Checkout Source Pin Collector v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_local_checkout_source_pin_collector.py'
+      - 'tests/test_janus_local_checkout_source_pin_collector*.py'
+      - 'tools/janus_source_pin_contract.py'
+      - 'tests/test_janus_source_pin_contract_v1.py'
+      - 'tools/janus_exact_source_manifest_freezer.py'
+      - 'tests/test_janus_exact_source_manifest_freezer_v1.py'
+      - 'protocol/JANUS_LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR-v1.0.json'
+      - 'protocol/JANUS_SOURCE_PIN_CONTRACT-v1.0.json'
+      - 'protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json'
+      - 'protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json'
+      - '.github/workflows/janus-local-checkout-source-pin-collector-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-checkout-source-pin-collector:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR state
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Validate machine-readable contracts
+        run: |
+          python -m json.tool protocol/JANUS_LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR-v1.0.json >/dev/null
+          python -m json.tool protocol/JANUS_SOURCE_PIN_CONTRACT-v1.0.json >/dev/null
+          python -m json.tool protocol/JANUS_EXACT_SOURCE_MANIFEST_FREEZER-v1.0.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json >/dev/null
+
+      - name: Compile collector and inherited contracts
+        run: |
+          python -m py_compile \
+            tools/janus_local_checkout_source_pin_collector.py \
+            tools/janus_source_pin_contract.py \
+            tools/janus_exact_source_manifest_freezer.py \
+            tests/test_janus_local_checkout_source_pin_collector*.py \
+            tests/test_janus_source_pin_contract_v1.py \
+            tests/test_janus_exact_source_manifest_freezer_v1.py
+
+      - name: Run complete local collector adversarial contract
+        run: python -m unittest discover -s tests -p 'test_janus_local_checkout_source_pin_collector*.py' -v
+
+      - name: Replay typed source pin contract
+        run: python -m unittest -v tests.test_janus_source_pin_contract_v1
+
+      - name: Replay exact source manifest freezer contract
+        run: python -m unittest -v tests.test_janus_exact_source_manifest_freezer_v1
+
+      - name: Enforce acquisition-free collector surface
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -Eq 'requests\.|urllib\.request|httpx\.|curl[[:space:]]|wget[[:space:]]|git[[:space:]]+(clone|fetch|pull|push)|gh[[:space:]]' tools/janus_local_checkout_source_pin_collector.py
+          grep -F '"network_acquisition": false' protocol/JANUS_LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR-v1.0.json >/dev/null
+          grep -F '"git_remote_query": false' protocol/JANUS_LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR-v1.0.json >/dev/null
+          grep -F '"source_writeback": false' protocol/JANUS_LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR-v1.0.json >/dev/null
+          grep -F '"public_registry_publication_allowed": false' protocol/JANUS_LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR-v1.0.json >/dev/null
+
+      - name: Emit narrow claim receipt
+        run: |
+          echo 'LOCAL_CHECKOUT_SOURCE_PIN_COLLECTOR=TESTED_LOCAL_PRIMITIVE'
+          echo 'EXPECTED_SOURCE_COUNT=44'
+          echo 'EXPECTED_PUBLIC_SOURCE_COUNT=41'
+          echo 'EXPECTED_PRIVATE_SOURCE_COUNT=3'
+          echo 'PRIVATE_EXACT_PINS=LOCAL_SENSITIVE_ONLY'
+          echo 'AMBIENT_GIT_CONTEXT_SANITIZED=TRUE'
+          echo 'LOCAL_CHECKOUT_HEAD_IS_REMOTE_ORIGIN_PROOF=FALSE'
+          echo 'NETWORK_ACQUISITION=FALSE'
+          echo 'SOURCE_WRITEBACK=FALSE'
+          echo 'EMPIRICAL_OWNER_WIDE_REPLAY_ESTABLISHED=FALSE'
+          echo 'MERGE_PERMISSION=FALSE'
+          echo 'AUTHORITY_DELTA=0'
+          echo 'MASS_EFFECT_BUDGET_DELTA=0'
