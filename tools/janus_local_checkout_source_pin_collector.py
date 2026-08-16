@@ -19,29 +19,26 @@ import json
 import os
 import re
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
-try:  # package import, e.g. tests importing tools.<module>
-    from .janus_exact_source_manifest_freezer import (
-        constellation_binding_projection,
-        write_new_json,
-    )
-    from .janus_source_pin_contract import (
-        GIT_COMMIT_SHA1,
-        PINSET_SCHEMA,
-        require_exact_git_replay,
-    )
-except ImportError:  # direct script execution: python tools/<module>.py
-    from janus_exact_source_manifest_freezer import (
-        constellation_binding_projection,
-        write_new_json,
-    )
-    from janus_source_pin_contract import (
-        GIT_COMMIT_SHA1,
-        PINSET_SCHEMA,
-        require_exact_git_replay,
-    )
+# The admitted upstream #126/#130 tools use script-local imports. Add only this
+# module's own tools directory so the same upstream files can be reused from
+# package-imported tests without modifying their frozen producer history.
+TOOLS_DIR = Path(__file__).resolve().parent
+if str(TOOLS_DIR) not in sys.path:
+    sys.path.insert(0, str(TOOLS_DIR))
+
+from janus_exact_source_manifest_freezer import (  # noqa: E402
+    constellation_binding_projection,
+    write_new_json,
+)
+from janus_source_pin_contract import (  # noqa: E402
+    GIT_COMMIT_SHA1,
+    PINSET_SCHEMA,
+    require_exact_git_replay,
+)
 
 FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 EXPECTED_SOURCE_COUNT = 44
