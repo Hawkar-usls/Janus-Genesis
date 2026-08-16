@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'README.md'
+      - 'requirements.txt'
       - 'genesis_v18_7_47_armor_of_god.py'
       - 'genesis_v18_7_48_armor_truth_guard.py'
       - 'genesis_v18_7_49_armor_mechanics_hardening.py'
@@ -24,6 +25,7 @@ on:
   pull_request:
     paths:
       - 'README.md'
+      - 'requirements.txt'
       - 'genesis_v18_7_47_armor_of_god.py'
       - 'genesis_v18_7_48_armor_truth_guard.py'
       - 'genesis_v18_7_49_armor_mechanics_hardening.py'
@@ -49,6 +51,9 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Install declared runtime dependencies
+        run: python -m pip install -r requirements.txt
 
       - name: Compile routing layer
         run: |
