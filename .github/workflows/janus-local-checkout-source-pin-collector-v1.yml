@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'tools/janus_local_checkout_source_pin_collector.py'
-      - 'tests/test_janus_local_checkout_source_pin_collector_v1.py'
+      - 'tests/test_janus_local_checkout_source_pin_collector*.py'
       - 'tools/janus_source_pin_contract.py'
       - 'tests/test_janus_source_pin_contract_v1.py'
       - 'tools/janus_exact_source_manifest_freezer.py'
@@ -45,12 +45,12 @@ jobs:
             tools/janus_local_checkout_source_pin_collector.py \
             tools/janus_source_pin_contract.py \
             tools/janus_exact_source_manifest_freezer.py \
-            tests/test_janus_local_checkout_source_pin_collector_v1.py \
+            tests/test_janus_local_checkout_source_pin_collector*.py \
             tests/test_janus_source_pin_contract_v1.py \
             tests/test_janus_exact_source_manifest_freezer_v1.py
 
-      - name: Run local collector adversarial contract
-        run: python -m unittest -v tests.test_janus_local_checkout_source_pin_collector_v1
+      - name: Run complete local collector adversarial contract
+        run: python -m unittest discover -s tests -p 'test_janus_local_checkout_source_pin_collector*.py' -v
 
       - name: Replay typed source pin contract
         run: python -m unittest -v tests.test_janus_source_pin_contract_v1
@@ -75,6 +75,7 @@ jobs:
           echo 'EXPECTED_PUBLIC_SOURCE_COUNT=41'
           echo 'EXPECTED_PRIVATE_SOURCE_COUNT=3'
           echo 'PRIVATE_EXACT_PINS=LOCAL_SENSITIVE_ONLY'
+          echo 'AMBIENT_GIT_CONTEXT_SANITIZED=TRUE'
           echo 'LOCAL_CHECKOUT_HEAD_IS_REMOTE_ORIGIN_PROOF=FALSE'
           echo 'NETWORK_ACQUISITION=FALSE'
           echo 'SOURCE_WRITEBACK=FALSE'
