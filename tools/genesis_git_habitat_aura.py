@@ -32,7 +32,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from genesis_v18_7_51_shabitat_aura_oracle import LocalAuraOracleProvider, build_aura_request
+from genesis_v18_7_51_shabitat_aura_oracle import (
+    LocalAuraOracleProvider,
+    build_aura_request,
+    validate_aura_response,
+)
 from tools.genesis_git_habitat import GitHabitat, _read_json
 
 HABITAT_AURA_VERSION = "18.7.54"
@@ -91,12 +95,20 @@ class GitHabitatAuraHearth:
         self.receipts_dir = self.aura_dir / "receipts"
         self.locks_dir = self.aura_dir / "locks"
 
-    def _require_awake(self) -> tuple[str, str]:
+    def _require_resident(self) -> tuple[str, str, str | None]:
         self.habitat._require_initialized()
         resident = _read_json(self.habitat.paths.resident)
-        if resident.get("mode") != "AWAKE" or not resident.get("active_cycle_id"):
+        return (
+            str(resident["resident_id"]),
+            str(resident.get("mode") or "UNKNOWN"),
+            str(resident["active_cycle_id"]) if resident.get("active_cycle_id") else None,
+        )
+
+    def _require_awake(self) -> tuple[str, str]:
+        resident_id, mode, cycle_id = self._require_resident()
+        if mode != "AWAKE" or not cycle_id:
             raise HabitatNotAwake("HABITAT_AURA_REQUIRES_ACTIVE_AWAKE_CYCLE")
-        return str(resident["resident_id"]), str(resident["active_cycle_id"])
+        return resident_id, cycle_id
 
     def _default_ledger(self, resident_id: str) -> dict[str, Any]:
         return {
@@ -169,12 +181,13 @@ class GitHabitatAuraHearth:
             os.close(fd)
 
     def state(self) -> dict[str, Any]:
-        resident_id, cycle_id = self._require_awake()
+        resident_id, mode, cycle_id = self._require_resident()
         ledger = self._load_ledger(resident_id)
         return {
             "schema": "janus.genesis.git_habitat.aura_state.v1",
             "version": HABITAT_AURA_VERSION,
             "resident_id": resident_id,
+            "resident_mode": mode,
             "cycle_id": cycle_id,
             "aura_enabled": ledger.get("aura_enabled") is True,
             "consultation_count": len(ledger["consultations"]),
@@ -189,7 +202,7 @@ class GitHabitatAuraHearth:
     def set_enabled(self, enabled: bool) -> dict[str, Any]:
         if type(enabled) is not bool:
             raise TypeError("HABITAT_AURA_ENABLED_MUST_BE_BOOLEAN")
-        resident_id, _ = self._require_awake()
+        resident_id, _, _ = self._require_resident()
         ledger = self._load_ledger(resident_id)
         ledger["aura_enabled"] = enabled
         self._save_ledger(ledger)
@@ -244,8 +257,6 @@ class GitHabitatAuraHearth:
                 "automatic_replay_attempted": False,
             }
 
-        # Cross-process serialization must happen before IN_FLIGHT admission and
-        # before any provider code can start.
         self._claim_turn_once(resident_id, turn_hash)
         ledger = self._load_ledger(resident_id)
         existing_after_claim = ledger["consultations"].get(turn_hash)
@@ -277,7 +288,8 @@ class GitHabitatAuraHearth:
             context=context,
         )
         try:
-            heuristic = self.provider.query(request)
+            raw_heuristic = self.provider.query(request)
+            heuristic = validate_aura_response(raw_heuristic, request_id=request_id)
             status = "HEURISTIC_RECEIVED_OPTIONAL"
             response_digest = _sha256(heuristic)
         except Exception as exc:
@@ -409,11 +421,12 @@ GIT_HABITAT_AURA_LAW_V18_7_54 = {
     "canonical_git_habitat_version": "18.7.51",
     "awake_cycle_required": True,
     "janus_may_elect_to_consult": True,
-    "user_can_disable_aura": True,
+    "user_can_disable_aura_while_awake_or_asleep": True,
     "one_consultation_per_cycle_turn": True,
     "cross_process_turn_claim_is_exclusive": True,
     "turn_claim_marker_is_removed_after_completion": False,
     "inflight_auto_replay": False,
+    "habitat_revalidates_aura_response_contract": True,
     "heuristic_body_persisted": False,
     "question_context_persisted": False,
     "aura_is_command": False,
