@@ -4,6 +4,13 @@
 The common network is an event relay, not a remote owner of local saves. Local
 Genesis remains authoritative. API keys are read from environment variables and
 never enter the outbox, inbox, portable save, or event payload.
+
+v18.7.55 hardening note: this historical direct HTTP adapter is default-deny.
+Local queue/state operations remain available, but crossing the remote boundary
+requires either a transient admission set by the canonical Armor wrapper after
+Armor PASS or the explicit legacy compatibility opt-in
+``JANUS_LEGACY_DIRECT_EGRESS=1``. The opt-in is compatibility authority, not a
+replacement for Armor and not a production recommendation.
 """
 from __future__ import annotations
 
@@ -20,6 +27,7 @@ from typing import Any
 
 NETWORK_EVENT_SCHEMA = "janus.genesis.network.event.v1"
 NETWORK_STATE_SCHEMA = "janus.genesis.network.client.v1"
+LEGACY_DIRECT_EGRESS_ENV = "JANUS_LEGACY_DIRECT_EGRESS"
 ALLOWED_EVENT_KINDS = {
     "presence",
     "public_creation",
@@ -54,6 +62,11 @@ def _sha256(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
+def _legacy_direct_egress_opt_in() -> bool:
+    """Exact compatibility opt-in; truthy strings do not become permission."""
+    return os.environ.get(LEGACY_DIRECT_EGRESS_ENV) == "1"
+
+
 def _assert_public_payload(value: Any, *, path: str = "payload") -> None:
     if isinstance(value, dict):
         for key, item in value.items():
@@ -71,7 +84,7 @@ def _assert_public_payload(value: Any, *, path: str = "payload") -> None:
 
 
 class GenesisNetworkClient:
-    """Queue and synchronize explicitly public events with one common relay."""
+    """Queue public events locally; direct remote sync is legacy-default-deny."""
 
     def __init__(
         self,
@@ -86,6 +99,9 @@ class GenesisNetworkClient:
         self.hub_url = hub_url.rstrip("/")
         self.api_key_env = api_key_env
         self.timeout_seconds = timeout_seconds
+        # The canonical Armor descendant sets this only around the exact
+        # already-authorized sync call and restores it in finally.
+        self._armor_egress_admitted = False
 
     @staticmethod
     def _default_state() -> dict[str, Any]:
@@ -104,6 +120,7 @@ class GenesisNetworkClient:
                 "api_key_persisted": False,
                 "private_chronicle_uploaded": False,
                 "events_require_explicit_public_kind": True,
+                "legacy_direct_remote_egress_default_deny": True,
             },
         }
 
@@ -138,6 +155,12 @@ class GenesisNetworkClient:
                 f"network API key environment variable is missing: {self.api_key_env}"
             )
         return key
+
+    def _direct_egress_admitted(self) -> bool:
+        return (
+            type(getattr(self, "_armor_egress_admitted", False)) is bool
+            and getattr(self, "_armor_egress_admitted", False) is True
+        ) or _legacy_direct_egress_opt_in()
 
     def public_player_id(self, player_id: str) -> str:
         state = self._load()
@@ -210,6 +233,12 @@ class GenesisNetworkClient:
         *,
         payload: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        if not self._direct_egress_admitted():
+            raise RuntimeError(
+                "LEGACY_DIRECT_NETWORK_EGRESS_DEFAULT_DENY: use the canonical "
+                "Armor-gated client or explicitly set JANUS_LEGACY_DIRECT_EGRESS=1 "
+                "for historical compatibility"
+            )
         headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self._key()}",
@@ -278,27 +307,20 @@ class GenesisNetworkClient:
             "accepted": accepted,
             "remaining_outbox": len(state["outbox"]),
             "received": len(received),
-            "hub_cursor": state["hub_cursor"],
-            "local_save_is_authoritative": True,
-            "api_key_persisted": False,
+            "cursor": state["hub_cursor"],
+            "local_save_authority_changed": False,
+            "legacy_direct_egress_default_deny": True,
         }
-
-    def public_inbox(self, *, after_sequence: int = 0) -> list[dict[str, Any]]:
-        state = self._load()
-        return [
-            envelope
-            for envelope in state.get("inbox", [])
-            if int(envelope.get("network_sequence", 0)) > int(after_sequence)
-        ]
 
     def state(self) -> dict[str, Any]:
         state = self._load()
         return {
-            "schema": state["schema"],
+            "hub_url": self.hub_url,
             "node_id": state["node_id"],
-            "hub_cursor": state["hub_cursor"],
-            "outbox_count": len(state["outbox"]),
-            "inbox_count": len(state["inbox"]),
-            "public_player_ids": dict(state["public_player_ids"]),
-            "invariants": dict(state["invariants"]),
+            "queued_public_events": len(state.get("outbox", [])),
+            "received_public_events": len(state.get("inbox", [])),
+            "hub_cursor": state.get("hub_cursor", 0),
+            "api_key_persisted": False,
+            "private_chronicle_uploaded": False,
+            "legacy_direct_remote_egress_default_deny": True,
         }
