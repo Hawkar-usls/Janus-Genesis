@@ -1,0 +1,102 @@
+{
+  "schema": "janus.genesis.demiurge_boot_controller_contract.v1.1",
+  "artifact_id": "JANUS-DEMIURGE-BOOT-CONTROLLER-2026-08-16-v1.1",
+  "parent_durability": {
+    "pull_request": 157,
+    "head": "400e15d8398bc69a1578b26e47d867a9b824151f",
+    "dedicated_ci": "SUCCESS",
+    "armor": "SUCCESS",
+    "full_test": "SUCCESS"
+  },
+  "supervisor_source": {
+    "repository": "Hawkar-usls/Janus-Demiurge",
+    "pull_request": 4,
+    "head": "74c8a9dc090dba4d3bd7d497e1ff75223e6fe6c0",
+    "state": "SUPERVISOR_COMPONENT_PASS"
+  },
+  "boot_cycle": [
+    "RECOVER_DURABLE_OBJECTIVE",
+    "RECOVER_LATEST_DURABLE_CHECKPOINT_IF_ANY",
+    "RUN_OR_RESUME_LOCAL_INJECTED_SUPERVISOR",
+    "VALIDATE_SUPERVISOR_RESULT",
+    "FORCE_SAVE_CHECKPOINT",
+    "REPEAT_UNTIL_WAIT_OR_CONTROLLER_BUDGET"
+  ],
+  "objective_admission": {
+    "persist_before_first_compute_window": true,
+    "force_save_and_hdd_verify": true,
+    "self_generated_objective": false,
+    "same_objective_id_different_payload": "HOLD_RECONCILE",
+    "process_restart_before_first_checkpoint": "START_FROM_DURABLE_OBJECTIVE",
+    "objective_external_action_authority": false
+  },
+  "restart_semantics": {
+    "no_checkpoint": "START_ADMITTED_OBJECTIVE",
+    "budget_exhausted_checkpoint": "RESUME_SAME_OBJECTIVE",
+    "wait_plateau_checkpoint": "RETURN_WAIT_WITHOUT_NEW_WORK",
+    "wait_fixed_point_checkpoint": "RETURN_WAIT_WITHOUT_NEW_WORK",
+    "manual_continue_between_segments": false
+  },
+  "serialization": {
+    "scope": "ONE_PYTHON_PROCESS_PER_HIPPOCAMPUS_DB_IDENTITY",
+    "mechanism": "PROCESS_WIDE_THREADING_LOCK_ASYNC_ACQUIRE",
+    "objective_registration_serialized": true,
+    "controller_run_chain_serialized": true,
+    "cross_process_exclusive_lease": false,
+    "distributed_exclusive_lease": false
+  },
+  "dependency_binding": {
+    "supervisor_is_dependency_injected": true,
+    "dynamic_repo_import": false,
+    "network_fetch_or_install": false,
+    "declared_source_head_required": true,
+    "python_object_identity_proves_git_membership": false,
+    "live_deployment_package_binding": false
+  },
+  "controller_budget": {
+    "max_segments_per_call": 64,
+    "budget_exhaustion_preserves_latest_checkpoint": true,
+    "budget_exhaustion_is_not_failure": true
+  },
+  "memory_routing": {
+    "objective": "HIPPOCAMPUS_OPERATIONAL_JOURNAL",
+    "checkpoint": "HIPPOCAMPUS_OPERATIONAL_JOURNAL",
+    "counterfactual_episode": "CORTEX_EPISODIC_SEARCH_STORE",
+    "automatic_cross_memory_mirror": false,
+    "dual_write_default": "DENY"
+  },
+  "autonomy": {
+    "automatic_local_supervisor_execution_within_admitted_objective": true,
+    "manual_continue_between_segments_required": false,
+    "self_generated_purpose": false,
+    "autonomous_external_action": false,
+    "automatic_source_mutation": false,
+    "automatic_merge": false
+  },
+  "laws": [
+    "NO_DURABLE_OBJECTIVE -> WAIT",
+    "DURABLE_OBJECTIVE_WITHOUT_CHECKPOINT -> START_LOCALLY",
+    "BUDGET_CHECKPOINT -> RESUME_LOCALLY",
+    "PLATEAU_OR_FIXED_POINT -> WAIT",
+    "AUTONOMY != BUSY_LOOP",
+    "AUTONOMY != SELF_GENERATED_PURPOSE",
+    "LOCAL_SUPERVISOR_EXECUTION != EXTERNAL_EFFECT_AUTHORITY",
+    "DEPENDENCY_INJECTION != GIT_MEMBERSHIP_PROOF",
+    "PROCESS_LOCAL_SERIALIZATION != DISTRIBUTED_LEASE",
+    "RECOVERED_CHECKPOINT != EXTERNAL_EXECUTION_PERMISSION",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "claim_ceiling": {
+    "closed_local_boot_loop_without_manual_continue": true,
+    "process_restart_before_first_checkpoint_recovery": true,
+    "process_restart_after_checkpoint_recovery": true,
+    "distributed_multi_process_coordination": false,
+    "host_power_loss_proof": false,
+    "live_nas_deployment": false,
+    "self_generated_objective": false,
+    "autonomous_external_action": false,
+    "source_writeback": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  }
+}
