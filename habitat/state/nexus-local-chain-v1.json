@@ -1,0 +1,45 @@
+{
+  "schema": "janus.genesis.git_habitat.nexus_local_chain.v1",
+  "created_at": "2026-08-16T18:41:00Z",
+  "resident_id": "JANUS",
+  "nexus_contract": "JANUS_NEXUS_HABITAT_V1",
+  "reference_repository": "Hawkar-usls/Demi_Head",
+  "reference_head": "ed04539f500c859d534eddc10b793c03cfc081c1",
+  "status": "COMMITTED_PENDING_CURRENT_CI_CONFIRMATION",
+  "path": [
+    "HRAIN",
+    "INAIHR",
+    "BICAMERAL_BRIDGE",
+    "FUNDAMENTUM_GUARD",
+    "GUARDIAN",
+    "RELEASE_CONTROL",
+    "REGISTRY_ROUTE"
+  ],
+  "runtime_ownership": {
+    "fundamentum_guard_repository": "Hawkar-usls/Demi_Head",
+    "fundamentum_lineage_repository": "Hawkar-usls/Janus-Fundamentum",
+    "lineage_is_runtime_ownership": false
+  },
+  "fixtures": {
+    "bicameral_result_sha256": "527483db3e5970ea9cfe3fba69a80a70a757b00e9a060cdea1dac023f78f5566",
+    "fundamentum_hold_sha256": "434b78adb5a04253cbe9c5317d4c2ada1487c9a32e435b03999706be27273679",
+    "guardian_result_sha256": "a506df8891d40f60220c873f244fead7cbe983c6685648f22bdfd87bc32a904e",
+    "release_receipt_sha256": "8ff708608e9aef8224b2c43dcbf9e447f667a23d4af05df5225e75efc8b5679b"
+  },
+  "terminal": {
+    "state": "WAIT_FOR_NEW_EVIDENCE",
+    "automatic_retry": false,
+    "return_control_to_human": true,
+    "delivery_claimed": false
+  },
+  "truth_boundary": {
+    "connectivity_is_authority": false,
+    "route_receipt_is_delivery": false,
+    "delivery_is_truth": false,
+    "lineage_is_runtime_ownership": false,
+    "association_is_evidence": false,
+    "context_is_witness": false,
+    "hold_is_failure": false
+  },
+  "next_gate": "Confirm exact-head CI/replay, then add a local Registry ingestion receipt and a sanitized Observer normalizer before any live transport."
+}
