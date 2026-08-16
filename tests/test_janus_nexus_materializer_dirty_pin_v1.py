@@ -6,11 +6,11 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.janus_nexus_materializer import NexusMaterializer, NexusMaterializerError
+from tools.janus_nexus_materializer import NexusMaterializer
 
 
-class JanusNexusDirtyPinTests(unittest.TestCase):
-    def test_dirty_tracked_checkout_is_rejected_under_exact_head_pin(self) -> None:
+class JanusNexusPinnedObjectTests(unittest.TestCase):
+    def test_dirty_worktree_cannot_change_materialized_pinned_commit_bytes(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             sources = root / "sources"
@@ -25,7 +25,7 @@ class JanusNexusDirtyPinTests(unittest.TestCase):
             subprocess.run(["git", "-C", str(repo), "commit", "-m", "fixture"], check=True, stdout=subprocess.DEVNULL)
             sha = subprocess.check_output(["git", "-C", str(repo), "rev-parse", "HEAD"]).decode("ascii").strip()
 
-            # HEAD is still the exact declared pin, but worktree bytes no longer match it.
+            # HEAD remains the exact declared pin, but mutable worktree bytes diverge.
             tracked.write_text("dirty-uncommitted\n", encoding="utf-8")
             manifest = {
                 "schema": "janus.nexus.manifest.v1",
@@ -42,12 +42,13 @@ class JanusNexusDirtyPinTests(unittest.TestCase):
                 ],
             }
             output = root / "nexus"
-            with self.assertRaisesRegex(
-                NexusMaterializerError,
-                "NEXUS_SOURCE_TRACKED_WORKTREE_DIRTY:1001",
-            ):
-                NexusMaterializer(manifest, sources, output).materialize()
-            self.assertFalse((output / "faces").exists())
+            result = NexusMaterializer(manifest, sources, output).materialize()
+            self.assertEqual(result["status"], "MATERIALIZED")
+            self.assertFalse(result["mutable_worktree_bytes_used"])
+            copied = output / "faces" / "public-1001" / "tracked.txt"
+            self.assertEqual(copied.read_text(encoding="utf-8"), "committed\n")
+            self.assertNotEqual(copied.read_text(encoding="utf-8"), tracked.read_text(encoding="utf-8"))
+            self.assertTrue(NexusMaterializer(manifest, sources, output).verify()["ok"])
 
 
 if __name__ == "__main__":
