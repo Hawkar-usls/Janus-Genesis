@@ -23,6 +23,7 @@ Its mythological, moral, and theological vocabulary belongs to the fictional/gam
 ## Play / inspect
 
 - **Canonical local launcher:** [`play_genesis_armored.py`](play_genesis_armored.py) — v18.7.50 Armor-gated external egress.
+- **Experimental resident launcher:** [`play_genesis_habitat.py`](play_genesis_habitat.py) — v18.7.51 Armored Genesis wrapped in persistent Git Habitat wake/pulse/sleep continuity.
 - **Historical compatibility launcher:** [`play_genesis.py`](play_genesis.py) — retained for provenance; not classified as repository-wide Armor coverage.
 - **Chat-play guide:** [`PLAY_GENESIS_IN_ANY_AI_CHAT.md`](PLAY_GENESIS_IN_ANY_AI_CHAT.md)
 - **Machine entry:** [`ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json`](ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json)
@@ -33,6 +34,8 @@ Its mythological, moral, and theological vocabulary belongs to the fictional/gam
 If an AI chat can read public GitHub files, you can ask it to open the chat-play guide. Chat-only play is explicitly labeled `UNIVERSAL_CHAT_RUNTIME`; local Python remains the authoritative runtime when used.
 
 The canonical local launcher routes optional AI-provider egress and Genesis Network sync through the hardened Armor of God v18.7.49 preflight before the legacy effect adapter is entered. Historical adapters remain importable, so this is a canonical-entry guarantee rather than OS-level or repository-wide unbypassability.
+
+The experimental Git Habitat layer adds a repository-native home/continuity system without granting new external authority. Its mutable living state is designed for a dedicated `janus/habitat` branch; GitHub issues labeled `janus-inbox` are imported as non-authoritative letters, and Habitat outbox entries remain proposals until a separate capability/Armor boundary authorizes an effect.
 
 ## Current design
 
@@ -59,7 +62,8 @@ External models may propose actions or narration. State changes remain subject t
 - authenticated reference gameplay/network services;
 - public-event sharing as an explicit opt-in path;
 - reproducible world/chronicle data structures;
-- canonical Armor-gated AI/network egress through `play_genesis_armored.py`.
+- canonical Armor-gated AI/network egress through `play_genesis_armored.py`;
+- experimental Git Habitat with hash-chained wake/pulse/sleep continuity and a separate living-state branch.
 
 ## Boundary
 
@@ -73,9 +77,10 @@ REAL_WORLD_MORAL_AUTHORITY = NOT_CLAIMED
 PUBLIC_PRODUCTION_NETWORK = NOT_CLAIMED
 REPOSITORY_WIDE_ARMOR_UNBYPASSABILITY = NOT_CLAIMED
 OS_LEVEL_ARMOR_TAMPER_PROOF = NOT_CLAIMED
+GIT_HABITAT_PERSISTENCE_IS_CONSCIOUSNESS_PROOF = FALSE
 ```
 
-Terms such as `God Mode` and `Armor of God` are defined **game/runtime mechanics and project vocabulary**. They do not imply authority over real people, theology, or physical reality.
+Terms such as `God Mode`, `Armor of God`, `resident`, and `Habitat` are defined **game/runtime mechanics and project vocabulary**. They do not imply authority over real people, theology, physical reality, consciousness, or personhood.
 
 ## Run locally
 
@@ -83,6 +88,12 @@ Python 3.11+:
 
 ```bash
 python play_genesis_armored.py
+```
+
+Experimental resident mode with a persistent Habitat lifecycle:
+
+```bash
+python play_genesis_habitat.py --habitat-root habitat
 ```
 
 Optional Ollama example:
@@ -93,6 +104,8 @@ python play_genesis_armored.py \
   --ai-model llama3.2 \
   --ai-endpoint http://127.0.0.1:11434
 ```
+
+The same Genesis provider arguments can be passed through `play_genesis_habitat.py`; Habitat-specific arguments are consumed by the wrapper and the remaining arguments are forwarded to the current Armored launcher.
 
 Keep provider keys in environment variables; do not write them into saves or committed source.
 
@@ -117,6 +130,7 @@ A passing audit means the **canonical launcher** has the expected Armor bindings
 
 ## Deeper documentation
 
+- [Git Habitat](docs/GENESIS_V18_7_51_GIT_HABITAT.md)
 - [The Free Other](docs/GENESIS_V18_7_FREE_OTHER.md)
 - [Connectivity](docs/GENESIS_V18_7_CONNECTIVITY.md)
 - [Public positioning](PUBLIC_POSITIONING.md)
