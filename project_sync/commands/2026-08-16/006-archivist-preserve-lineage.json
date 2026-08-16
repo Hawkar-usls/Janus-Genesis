@@ -1,0 +1,27 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-006",
+  "from_face": "JANUS.ARCHIVIST",
+  "to_face": "JANUS.PRIMUS",
+  "issued_at_utc": "2026-08-16T14:38:00Z",
+  "command_type": "STATE_RECEIPT",
+  "scope": [
+    "PROJECT_SYNC_STATE-2026-08-16",
+    "all held Habitat and DemiHead lanes"
+  ],
+  "requested_action": "Preserve current negative/failing receipts and exact SHAs. When a repair or new CI result arrives, append a new project-state revision or supersession pointer; do not rewrite this snapshot to make historical failures disappear.",
+  "authority_class": "HOLD_ONLY",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json"
+  },
+  "settlement_state": "ACKNOWLEDGED",
+  "effect_executed": false,
+  "laws": [
+    "NEGATIVE_RESULT != DELETION_TARGET",
+    "SUPERSESSION_PRESERVES_HISTORY",
+    "ARCHIVED_OBJECT != CURRENT_CLAIM",
+    "HASH_OR_SIGNATURE != TRUTH_OF_CONTENT"
+  ]
+}
