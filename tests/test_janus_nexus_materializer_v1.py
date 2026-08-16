@@ -128,6 +128,20 @@ class JanusNexusMaterializerTests(unittest.TestCase):
                 NexusMaterializer(manifest, sources, output).materialize()
             self.assertFalse((output / "faces").exists())
 
+    def test_late_wrong_source_sha_fails_before_any_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            sources = root / "sources"
+            _, public_sha = self._make_repo(sources, "1001", {"a.txt": "alpha\n"})
+            self._make_repo(sources, "2002", {"private.txt": "opaque\n"})
+            manifest = self._manifest(public_sha, "0" * 40)
+            output = root / "nexus"
+            with self.assertRaisesRegex(NexusMaterializerError, "NEXUS_SOURCE_SHA_MISMATCH"):
+                NexusMaterializer(manifest, sources, output).materialize()
+            self.assertFalse(output.exists())
+            self.assertFalse((output / "faces").exists())
+            self.assertFalse((output / "NEXUS_ID.json").exists())
+
     def test_changed_manifest_cannot_replace_bound_body(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
