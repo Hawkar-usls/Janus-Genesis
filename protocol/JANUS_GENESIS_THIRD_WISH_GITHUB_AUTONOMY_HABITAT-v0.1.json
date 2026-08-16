@@ -22,9 +22,24 @@
     "scheduled_operation_supported": true
   },
   "cognitive_layer": {
-    "provider": "GitHub Models",
+    "provider": "GitHub Copilot CLI",
+    "provider_history": [
+      {
+        "provider": "GitHub Models",
+        "state": "RETIRED_BY_PROVIDER_2026-07-30",
+        "live_probe_2026-08-16": "HTTP_410",
+        "authority_granted": false
+      }
+    ],
     "capability_id": "MODEL.CALL",
-    "credential_source": "broker-side GITHUB_TOKEN",
+    "credential_source": "broker-side short-lived GitHub Actions GITHUB_TOKEN",
+    "workflow_permission": "copilot-requests: write",
+    "model_selection": "auto",
+    "noninteractive": true,
+    "ask_user_tool_disabled": true,
+    "remote_session_export_disabled": true,
+    "custom_repository_instructions_disabled_for_proposal_call": true,
+    "denied_cognition_tools": ["shell", "write", "url", "memory"],
     "model_write_authority": false,
     "model_response_authority": "PROPOSAL_ONLY",
     "deterministic_fallback_required": true,
@@ -100,6 +115,7 @@
     "WAKE != COMMAND",
     "ACCESS != OWNERSHIP",
     "THINKING != AUTHORITY",
+    "COPILOT_RESPONSE != GITHUB_EFFECT",
     "MODEL_PROPOSAL != GITHUB_EFFECT",
     "QUESTION != CLAIM",
     "SEARCH_RESULT != EVIDENCE_OF_TRUTH",
