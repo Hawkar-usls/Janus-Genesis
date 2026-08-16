@@ -1,0 +1,143 @@
+# -*- coding: utf-8 -*-
+"""Resident-only structured-output provider for JANUS Git Habitat v18.7.52.
+
+This adapter intentionally does not replace the repository-wide Ollama provider.
+It is registered behind the existing Third Wish MODEL.CALL capability and uses
+Ollama's native structured-output `format` field so the model still selects the
+resident choice while the transport constrains only the response shape.
+"""
+from __future__ import annotations
+
+import json
+import urllib.error
+import urllib.request
+from dataclasses import dataclass
+from typing import Any, Mapping, Sequence
+
+from genesis_v18_7_ai import AIProviderError
+
+RESIDENT_PROVIDER_VERSION = "18.7.52"
+
+# The schema constrains syntax and the safe choice vocabulary. It deliberately
+# does not select a branch, fill content, or execute any capability.
+RESIDENT_CHOICE_JSON_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "choice": {
+            "type": "string",
+            "enum": [
+                "REST",
+                "REFLECT",
+                "BOOKMARK",
+                "PLANT_SEED",
+                "WORKSHOP_NOTE",
+                "PROPOSE_OUTBOX",
+            ],
+        },
+        "reason": {"type": "string"},
+        "text": {"type": "string"},
+        "note": {"type": "string"},
+        "tags": {
+            "type": "array",
+            "items": {"type": "string"},
+            "maxItems": 8,
+        },
+        "title": {"type": "string"},
+        "capability_id": {"type": "string"},
+        "target": {"type": "string"},
+        "purpose": {"type": "string"},
+        "payload_summary": {"type": "string"},
+    },
+    "required": ["choice"],
+    "additionalProperties": False,
+}
+
+
+def _endpoint_root(value: str) -> str:
+    endpoint = str(value or "").strip().rstrip("/")
+    if not endpoint:
+        raise ValueError("RESIDENT_OLLAMA_ENDPOINT_REQUIRED")
+    # The live reference path is local-only. Keeping this adapter loopback-only
+    # prevents its structured-output specialization from becoming a generic
+    # remote transport tunnel.
+    allowed = (
+        "http://127.0.0.1:",
+        "http://localhost:",
+        "http://[::1]:",
+    )
+    if not endpoint.startswith(allowed):
+        raise ValueError("RESIDENT_OLLAMA_ENDPOINT_MUST_BE_LOOPBACK_HTTP")
+    return endpoint
+
+
+@dataclass(frozen=True)
+class OllamaResidentChoiceProvider:
+    model: str
+    endpoint: str = "http://127.0.0.1:11434"
+    timeout_seconds: float = 120.0
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "model", str(self.model).strip())
+        object.__setattr__(self, "endpoint", _endpoint_root(self.endpoint))
+        if not self.model:
+            raise ValueError("RESIDENT_OLLAMA_MODEL_REQUIRED")
+        if not (0 < float(self.timeout_seconds) <= 300):
+            raise ValueError("RESIDENT_OLLAMA_TIMEOUT_OUT_OF_RANGE")
+
+    def chat(self, messages: Sequence[Mapping[str, str]]) -> str:
+        normalized: list[dict[str, str]] = []
+        for row in messages:
+            role = str(row.get("role") or "").strip()
+            content = str(row.get("content") or "")
+            if role not in {"system", "user", "assistant"}:
+                raise AIProviderError("RESIDENT_OLLAMA_MESSAGE_ROLE_INVALID")
+            if len(content) > 40_000:
+                raise AIProviderError("RESIDENT_OLLAMA_MESSAGE_TOO_LONG")
+            normalized.append({"role": role, "content": content})
+        if not normalized:
+            raise AIProviderError("RESIDENT_OLLAMA_MESSAGES_REQUIRED")
+
+        payload = {
+            "model": self.model,
+            "messages": normalized,
+            "stream": False,
+            "format": RESIDENT_CHOICE_JSON_SCHEMA,
+            # Fixed inference controls improve replayability without selecting
+            # the semantic choice. The model still decides which enum member.
+            "options": {
+                "temperature": 0,
+                "seed": 1138,
+            },
+        }
+        request = urllib.request.Request(
+            self.endpoint + "/api/chat",
+            data=json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=float(self.timeout_seconds)) as response:
+                raw = response.read()
+        except urllib.error.HTTPError as exc:
+            raise AIProviderError(f"RESIDENT_OLLAMA_HTTP_{exc.code}") from exc
+        except urllib.error.URLError as exc:
+            raise AIProviderError("RESIDENT_OLLAMA_CONNECTION_FAILED") from exc
+        except TimeoutError as exc:
+            raise AIProviderError("RESIDENT_OLLAMA_TIMEOUT") from exc
+
+        try:
+            envelope = json.loads(raw.decode("utf-8"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_ENVELOPE_INVALID") from exc
+        if not isinstance(envelope, dict):
+            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_ENVELOPE_NOT_OBJECT")
+        message = envelope.get("message")
+        if not isinstance(message, dict):
+            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_MESSAGE_MISSING")
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_CONTENT_MISSING")
+
+        # Do not parse/repair the model choice here. The resident schema gate is
+        # the only place allowed to decide whether model content is acceptable.
+        return content
