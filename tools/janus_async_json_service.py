@@ -2,7 +2,7 @@
 """JANUS async JSON service v1.
 
 Fast JSON serialization/deserialization with a deliberately separate trusted-
-object codec boundary.  The normal JSON surface is suitable for untrusted input
+object codec boundary. The normal JSON surface is suitable for untrusted input
 subject to configured byte limits; jsonpickle is never reachable through that
 surface.
 
@@ -10,6 +10,7 @@ Security/semantic boundaries:
 - JSON != Python object graph.
 - PARSE_SUCCESS != TRUST.
 - JSONPICKLE_DECODE != SAFE_UNTRUSTED_DESERIALIZATION.
+- FAST_PARSE != IDENTITY_CANONICALIZATION.
 - FINGERPRINT == SHA256(canonical strict JSON bytes), not ordinary dump bytes.
 - ASYNC_API != THREAD_OFFLOAD_REQUIRED_FOR_EVERY_CALL.
 """
@@ -44,6 +45,7 @@ logger = logging.getLogger("JANUS_JSON")
 DEFAULT_MAX_JSON_BYTES = 16 * 1024 * 1024
 DEFAULT_THREAD_OFFLOAD_THRESHOLD = 256 * 1024
 DEFAULT_MAX_CANONICAL_DEPTH = 128
+CANONICAL_BACKEND = "python-stdlib-json-sortkeys-v1"
 
 
 class JsonServiceError(RuntimeError):
@@ -69,6 +71,7 @@ class OptionalBackendUnavailableError(JsonServiceError):
 @dataclass(frozen=True)
 class JsonBackendInfo:
     json_backend: str
+    canonical_backend: str
     jsonpickle_available: bool
     jsondiff_available: bool
     max_json_bytes: int
@@ -80,7 +83,7 @@ class AsyncJsonService:
 
     The coroutine API is integration-friendly, but small JSON calls are executed
     directly because dispatching every micro-operation through ``to_thread`` is
-    usually slower.  Large *known-size input* may be offloaded automatically;
+    usually slower. Large *known-size input* may be offloaded automatically;
     callers can explicitly request offload for serialization when event-loop
     latency matters more than per-call overhead.
     """
@@ -106,6 +109,7 @@ class AsyncJsonService:
     def backend_info(self) -> JsonBackendInfo:
         return JsonBackendInfo(
             json_backend="orjson" if _orjson is not None else "stdlib-json",
+            canonical_backend=CANONICAL_BACKEND,
             jsonpickle_available=_jsonpickle is not None,
             jsondiff_available=_jsondiff is not None,
             max_json_bytes=self.max_json_bytes,
@@ -155,8 +159,15 @@ class AsyncJsonService:
         )
 
     @staticmethod
-    def _stdlib_loads(raw: bytes) -> Any:
-        return json.loads(raw.decode("utf-8"))
+    def _reject_nonstandard_constant(value: str) -> None:
+        raise ValueError(f"non-standard JSON constant rejected:{value}")
+
+    @classmethod
+    def _stdlib_loads(cls, raw: bytes) -> Any:
+        return json.loads(
+            raw.decode("utf-8"),
+            parse_constant=cls._reject_nonstandard_constant,
+        )
 
     @staticmethod
     def _stdlib_dumps(value: Any, *, pretty: bool, canonical: bool) -> bytes:
@@ -174,17 +185,28 @@ class AsyncJsonService:
             return _orjson.loads(raw)
         return self._stdlib_loads(raw)
 
-    def _dumps_sync(self, value: Any, *, pretty: bool, canonical: bool) -> bytes:
+    def _loads_exact_sync(self, raw: bytes) -> Any:
+        """Stable strict parser for identity/protocol-sensitive inputs.
+
+        It intentionally avoids optional accelerator-dependent number semantics.
+        """
+        value = self._stdlib_loads(raw)
+        self._validate_json_domain(value)
+        return value
+
+    def _dumps_sync(self, value: Any, *, pretty: bool) -> bytes:
         self._validate_json_domain(value)
         if _orjson is not None:
-            option = 0
-            if pretty:
-                option |= _orjson.OPT_INDENT_2
-            if canonical:
-                option |= _orjson.OPT_SORT_KEYS
+            option = _orjson.OPT_INDENT_2 if pretty else 0
             raw = _orjson.dumps(value, option=option)
         else:
-            raw = self._stdlib_dumps(value, pretty=pretty, canonical=canonical)
+            raw = self._stdlib_dumps(value, pretty=pretty, canonical=False)
+        return self._bounded_output(raw)
+
+    def _canonical_dumps_sync(self, value: Any) -> bytes:
+        """Backend-independent canonicalizer used for fingerprints/bindings."""
+        self._validate_json_domain(value)
+        raw = self._stdlib_dumps(value, pretty=False, canonical=True)
         return self._bounded_output(raw)
 
     async def loads_fast(
@@ -193,10 +215,11 @@ class AsyncJsonService:
         *,
         offload: bool | None = None,
     ) -> Any:
-        """Parse bounded JSON.
+        """Parse bounded JSON through the fastest available JSON backend.
 
         ``offload=None`` automatically offloads only large known-size inputs.
-        Parse success grants no trust or command authority.
+        Parse success grants no trust or command authority. Identity-sensitive
+        protocol inputs should use :meth:`loads_exact` instead.
         """
         raw = self._bounded_input_bytes(json_data)
         should_offload = (
@@ -205,6 +228,21 @@ class AsyncJsonService:
         if should_offload:
             return await asyncio.to_thread(self._loads_sync, raw)
         return self._loads_sync(raw)
+
+    async def loads_exact(
+        self,
+        json_data: bytes | bytearray | memoryview | str,
+        *,
+        offload: bool | None = None,
+    ) -> Any:
+        """Parse strict JSON using the frozen canonical stdlib semantics."""
+        raw = self._bounded_input_bytes(json_data)
+        should_offload = (
+            len(raw) >= self.thread_offload_threshold if offload is None else bool(offload)
+        )
+        if should_offload:
+            return await asyncio.to_thread(self._loads_exact_sync, raw)
+        return self._loads_exact_sync(raw)
 
     async def dumps_fast(
         self,
@@ -223,20 +261,19 @@ class AsyncJsonService:
                 self._dumps_sync,
                 python_obj,
                 pretty=pretty,
-                canonical=False,
             )
-        return self._dumps_sync(python_obj, pretty=pretty, canonical=False)
+        return self._dumps_sync(python_obj, pretty=pretty)
 
     async def canonical_bytes(self, data: Any, *, offload: bool = False) -> bytes:
-        """Return strict deterministic JSON bytes for hashing/binding."""
+        """Return strict deterministic JSON bytes for hashing/binding.
+
+        This path intentionally ignores the optional orjson accelerator so the
+        same value receives the same service-level fingerprint on nodes with or
+        without optional performance packages.
+        """
         if offload:
-            return await asyncio.to_thread(
-                self._dumps_sync,
-                data,
-                pretty=False,
-                canonical=True,
-            )
-        return self._dumps_sync(data, pretty=False, canonical=True)
+            return await asyncio.to_thread(self._canonical_dumps_sync, data)
+        return self._canonical_dumps_sync(data)
 
     async def calculate_fingerprint(self, data: Any, *, offload: bool = False) -> str:
         """SHA-256 over strict canonical JSON bytes."""
@@ -256,16 +293,14 @@ class AsyncJsonService:
             return True, result, None
         except JsonTooLargeError:
             return False, None, "JSON_INPUT_TOO_LARGE"
-        except (UnicodeDecodeError, TypeError, ValueError, json.JSONDecodeError) as exc:
-            if _orjson is not None and isinstance(exc, _orjson.JSONDecodeError):
-                return False, None, "JSON_DECODE_ERROR"
+        except (UnicodeDecodeError, TypeError, ValueError, json.JSONDecodeError):
             return False, None, "JSON_DECODE_ERROR"
 
     async def encode_trusted_object(self, obj: Any, *, trusted: bool = False) -> str:
         """Encode a trusted Python object graph with jsonpickle.
 
         This output is not canonical JSON and must never be used as a cryptographic
-        identity surface.  Explicit trust admission is required even for encode,
+        identity surface. Explicit trust admission is required even for encode,
         because custom object handlers may execute Python code.
         """
         if trusted is not True:
@@ -278,7 +313,7 @@ class AsyncJsonService:
         """Decode jsonpickle only after explicit trusted-data admission.
 
         Never call this method for user/network/repository text merely because the
-        text is valid JSON.  JSON syntax validity does not make an object graph safe.
+        text is valid JSON. JSON syntax validity does not make an object graph safe.
         """
         if trusted is not True:
             raise TrustedObjectRequiredError("TRUSTED_OBJECT_ADMISSION_REQUIRED")
@@ -298,7 +333,7 @@ class AsyncJsonService:
         """Return a JSON-safe state difference.
 
         ``jsondiff`` is requested with ``marshal=True`` so symbol keys are mapped
-        onto JSON-safe string keys.  The builtin engine is deterministic and has
+        onto JSON-safe string keys. The builtin engine is deterministic and has
         no optional dependency.
         """
         if engine not in {"auto", "builtin", "jsondiff"}:
@@ -354,8 +389,9 @@ async def run_service(core: Any) -> AsyncJsonService:
     else:
         setattr(core, "json_service", service)
     logger.info(
-        "AsyncJsonService activated backend=%s jsonpickle=%s jsondiff=%s",
+        "AsyncJsonService activated backend=%s canonical=%s jsonpickle=%s jsondiff=%s",
         service.backend_info.json_backend,
+        service.backend_info.canonical_backend,
         service.backend_info.jsonpickle_available,
         service.backend_info.jsondiff_available,
     )
