@@ -66,13 +66,30 @@ def _sha256(value: Any) -> str:
 
 
 def _ensure_real_dir(path: Path) -> None:
+    """Create a real directory without leaking benign cross-process mkdir races.
+
+    Two Habitat processes may both observe a missing Aura directory before one
+    creates it. The loser may see ``FileExistsError`` from ``mkdir``; that is not
+    itself a security or consultation failure. After that race we revalidate the
+    final filesystem object and still reject symlinks/non-directories. Other OS
+    errors remain visible and fail closed.
+    """
     if path.exists():
         if path.is_symlink():
             raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
         if not path.is_dir():
             raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
-    else:
+        return
+    try:
         path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        # Benign TOCTOU is allowed only when another process materialized the
+        # exact directory we wanted. The object is revalidated below.
+        pass
+    if path.is_symlink():
+        raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
+    if not path.is_dir():
+        raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
 
 
 def _write_json_atomic(path: Path, value: Any) -> None:
@@ -424,6 +441,7 @@ GIT_HABITAT_AURA_LAW_V18_7_54 = {
     "user_can_disable_aura_while_awake_or_asleep": True,
     "one_consultation_per_cycle_turn": True,
     "cross_process_turn_claim_is_exclusive": True,
+    "directory_creation_race_is_revalidated": True,
     "turn_claim_marker_is_removed_after_completion": False,
     "inflight_auto_replay": False,
     "habitat_revalidates_aura_response_contract": True,
