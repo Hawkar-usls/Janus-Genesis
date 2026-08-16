@@ -12,7 +12,8 @@
     "source_pin_contract": "Hawkar-usls/Janus_Genesis",
     "variant_lineage": "Hawkar-usls/Janus_Genesis",
     "handoff_ledger": "Hawkar-usls/Janus_Genesis",
-    "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm"
+    "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm",
+    "source_identity_guard": "Hawkar-usls/Janus_Genesis"
   },
   "external_lock": {
     "required": true,
@@ -27,6 +28,7 @@
     "producer_pull_request_format": "positive_integer",
     "producer_repository_must_match_role": true,
     "bundle_must_match_lock_exactly": true,
+    "source_identity_guard_producer_ref_required": true,
     "self_declared_bundle_refs_are_sufficient": false,
     "unanchored_lock_file_alone_is_sufficient": false,
     "expected_source_count": 44,
@@ -93,6 +95,7 @@
     "PIN_STRING_SHAPE != PIN_SEMANTICS",
     "OPAQUE_VERSION_TOKEN != GIT_COMMIT_SHA1",
     "SELF_DECLARED_REF != EXTERNAL_PRODUCER_LOCK",
+    "SOURCE_GUARD_EVIDENCE_WITHOUT_GUARD_PRODUCER_REF != PROVENANCE_BOUND_EVIDENCE",
     "PUBLIC_SUMMARY != PRIVATE_EVIDENCE_DUMP",
     "EXPECTED_DIGEST != OBSERVED_DIGEST -> REJECT",
     "FAILED_VARIANT_RETENTION_REQUIRED",
@@ -112,5 +115,5 @@
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
-  "claim_ceiling": "This verifier can establish only that a supplied local cross-lane evidence bundle is internally consistent with an out-of-band-digest-bound external exact producer-reference lock and the pre-registered P0 conditions. It cannot establish that producer harnesses honestly generated the evidence, that all real owner repositories were replayed, or that any merge, source mutation, execution, or external-effect authority exists."
+  "claim_ceiling": "This verifier can establish only that a supplied local cross-lane evidence bundle is internally consistent with an out-of-band-digest-bound external exact producer-reference lock, now including the source-identity-guard producer, and the pre-registered P0 conditions. It cannot establish that producer harnesses honestly generated the evidence, that all real owner repositories were replayed, or that any merge, source mutation, execution, or external-effect authority exists."
 }
