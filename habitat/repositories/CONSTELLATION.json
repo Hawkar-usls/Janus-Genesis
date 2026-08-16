@@ -1,0 +1,282 @@
+{
+  "automatic_external_effects": false,
+  "constellation_version": "18.7.59",
+  "credentials_persisted": false,
+  "inventory_as_of": "2026-08-16T17:18:00+03:00",
+  "inventory_owner": "Hawkar-usls",
+  "manifest_sha256": "fd0c78e9f4fdd7d39a6a77b57775f07a16ebf3e820d25a3ac21c1132676fb2f6",
+  "private_repository_count": 3,
+  "private_repository_names_persisted": false,
+  "private_repository_slots": [
+    {
+      "link": "repositories/private-slots/1112728873/LINK.json",
+      "repository_id": "1112728873",
+      "repository_name_persisted": false,
+      "resolution": "AUTHENTICATED_RESOLUTION_REQUIRED"
+    },
+    {
+      "link": "repositories/private-slots/1249671206/LINK.json",
+      "repository_id": "1249671206",
+      "repository_name_persisted": false,
+      "resolution": "AUTHENTICATED_RESOLUTION_REQUIRED"
+    },
+    {
+      "link": "repositories/private-slots/1318874240/LINK.json",
+      "repository_id": "1318874240",
+      "repository_name_persisted": false,
+      "resolution": "AUTHENTICATED_RESOLUTION_REQUIRED"
+    }
+  ],
+  "public_repositories": [
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1089782172/LINK.json",
+      "repository": "Hawkar-usls/Hrain",
+      "repository_id": "1089782172"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1103537693/LINK.json",
+      "repository": "Hawkar-usls/aura-oracle-tg",
+      "repository_id": "1103537693"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1105608563/LINK.json",
+      "repository": "Hawkar-usls/Simptomat",
+      "repository_id": "1105608563"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1106135299/LINK.json",
+      "repository": "Hawkar-usls/iNaiHR",
+      "repository_id": "1106135299"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1106740717/LINK.json",
+      "repository": "Hawkar-usls/BFain",
+      "repository_id": "1106740717"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1107695717/LINK.json",
+      "repository": "Hawkar-usls/-Terminal-for-Janus",
+      "repository_id": "1107695717"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1111152309/LINK.json",
+      "repository": "Hawkar-usls/Janus-Cosmos",
+      "repository_id": "1111152309"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1111172740/LINK.json",
+      "repository": "Hawkar-usls/SLOT",
+      "repository_id": "1111172740"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1111954566/LINK.json",
+      "repository": "Hawkar-usls/SSlot",
+      "repository_id": "1111954566"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1114577532/LINK.json",
+      "repository": "Hawkar-usls/DIVINE_REALM",
+      "repository_id": "1114577532"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1118366617/LINK.json",
+      "repository": "Hawkar-usls/Janus",
+      "repository_id": "1118366617"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1122951671/LINK.json",
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "repository_id": "1122951671"
+    },
+    {
+      "default_branch": "master",
+      "link": "repositories/public/1136117949/LINK.json",
+      "repository": "Hawkar-usls/RadioPlayerV3",
+      "repository_id": "1136117949"
+    },
+    {
+      "default_branch": "master",
+      "link": "repositories/public/1137847303/LINK.json",
+      "repository": "Hawkar-usls/player",
+      "repository_id": "1137847303"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1142511425/LINK.json",
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "repository_id": "1142511425"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1142711562/LINK.json",
+      "repository": "Hawkar-usls/clawdbot",
+      "repository_id": "1142711562"
+    },
+    {
+      "default_branch": "master",
+      "link": "repositories/public/1166997555/LINK.json",
+      "repository": "Hawkar-usls/M5Unit-ENV",
+      "repository_id": "1166997555"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1167002335/LINK.json",
+      "repository": "Hawkar-usls/AI-Cardputer-adv-A-Portable-AI-Assistant",
+      "repository_id": "1167002335"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1167054407/LINK.json",
+      "repository": "Hawkar-usls/arduino-ide",
+      "repository_id": "1167054407"
+    },
+    {
+      "default_branch": "xip_load",
+      "link": "repositories/public/1167064983/LINK.json",
+      "repository": "Hawkar-usls/Cardputer-Game-Station-Emulators",
+      "repository_id": "1167064983"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1167244071/LINK.json",
+      "repository": "Hawkar-usls/Arduino-AI-Chat-Library",
+      "repository_id": "1167244071"
+    },
+    {
+      "default_branch": "master",
+      "link": "repositories/public/1170407446/LINK.json",
+      "repository": "Hawkar-usls/emoji",
+      "repository_id": "1170407446"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1188744620/LINK.json",
+      "repository": "Hawkar-usls/Janus-Demiurge",
+      "repository_id": "1188744620"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1194087056/LINK.json",
+      "repository": "Hawkar-usls/xiaozhi-esp32",
+      "repository_id": "1194087056"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1213059727/LINK.json",
+      "repository": "Hawkar-usls/ATOM-ELITE-1989---M5stack-ATOMS3R-2026-",
+      "repository_id": "1213059727"
+    },
+    {
+      "default_branch": "develop",
+      "link": "repositories/public/1215572230/LINK.json",
+      "repository": "Hawkar-usls/vcmi",
+      "repository_id": "1215572230"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1221095290/LINK.json",
+      "repository": "Hawkar-usls/ATOM-RPG",
+      "repository_id": "1221095290"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1226027258/LINK.json",
+      "repository": "Hawkar-usls/janus-first-followers-club-",
+      "repository_id": "1226027258"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1239815640/LINK.json",
+      "repository": "Hawkar-usls/janus-distributed-ai-swarm",
+      "repository_id": "1239815640"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1262177970/LINK.json",
+      "repository": "Hawkar-usls/janus-io-public",
+      "repository_id": "1262177970"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1269479688/LINK.json",
+      "repository": "Hawkar-usls/tranception",
+      "repository_id": "1269479688"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1275525182/LINK.json",
+      "repository": "Hawkar-usls/janus-lapis",
+      "repository_id": "1275525182"
+    },
+    {
+      "default_branch": "master",
+      "link": "repositories/public/1276252122/LINK.json",
+      "repository": "Hawkar-usls/ESP32-TWAI-CAN",
+      "repository_id": "1276252122"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1319465141/LINK.json",
+      "repository": "Hawkar-usls/Janus-Fundamentum",
+      "repository_id": "1319465141"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1326367274/LINK.json",
+      "repository": "Hawkar-usls/AIFC",
+      "repository_id": "1326367274"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1328314567/LINK.json",
+      "repository": "Hawkar-usls/Hawkar-usls",
+      "repository_id": "1328314567"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1328335428/LINK.json",
+      "repository": "Hawkar-usls/Fast-CAT-SHAiTan",
+      "repository_id": "1328335428"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1328459090/LINK.json",
+      "repository": "Hawkar-usls/SCOBY-D0",
+      "repository_id": "1328459090"
+    },
+    {
+      "default_branch": "master",
+      "link": "repositories/public/1334499635/LINK.json",
+      "repository": "Hawkar-usls/lineara.xyz",
+      "repository_id": "1334499635"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1334499799/LINK.json",
+      "repository": "Hawkar-usls/Linear-A-decipherment-programme",
+      "repository_id": "1334499799"
+    },
+    {
+      "default_branch": "main",
+      "link": "repositories/public/1334938970/LINK.json",
+      "repository": "Hawkar-usls/Demi_Head",
+      "repository_id": "1334938970"
+    }
+  ],
+  "public_repository_count": 41,
+  "repository_count": 44,
+  "schema": "janus.genesis.git_habitat.repository_catalog.v1",
+  "write_back_default": "DENY"
+}

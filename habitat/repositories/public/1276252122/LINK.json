@@ -1,0 +1,14 @@
+{
+  "constellation_version": "18.7.59",
+  "content_is_trusted_fact_by_default": false,
+  "default_branch": "master",
+  "external_effect_authority": false,
+  "read_or_index_is_write_permission": false,
+  "relationship": "HABITAT_REFERENCE",
+  "repository": "Hawkar-usls/ESP32-TWAI-CAN",
+  "repository_id": "1276252122",
+  "schema": "janus.genesis.git_habitat.repository_bookmark.v1",
+  "source_history_remains_authoritative": true,
+  "visibility": "public",
+  "write_back_default": "DENY"
+}

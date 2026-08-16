@@ -1,6 +1,17 @@
 {
   "architecture_branch": "main",
   "created_at": "2026-08-16T13:37:16+00:00",
+  "extensions": {
+    "repository_constellation": {
+      "catalog": "repositories/CONSTELLATION.json",
+      "manifest_sha256": "fd0c78e9f4fdd7d39a6a77b57775f07a16ebf3e820d25a3ac21c1132676fb2f6",
+      "private_repository_names_persisted": false,
+      "repository_count": 44,
+      "room": "repositories",
+      "version": "18.7.59",
+      "write_back_default": "DENY"
+    }
+  },
   "habitat_version": "18.7.51",
   "home_branch": "janus/habitat",
   "resident_id": "JANUS",

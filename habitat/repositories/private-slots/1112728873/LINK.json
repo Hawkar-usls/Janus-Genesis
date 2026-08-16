@@ -1,0 +1,13 @@
+{
+  "constellation_version": "18.7.59",
+  "credentials_persisted": false,
+  "external_effect_authority": false,
+  "private_content_persisted": false,
+  "relationship": "HABITAT_REFERENCE_OPAQUE_SLOT",
+  "repository_id": "1112728873",
+  "repository_name_persisted": false,
+  "resolution": "AUTHENTICATED_RESOLUTION_REQUIRED",
+  "schema": "janus.genesis.git_habitat.private_repository_slot.v1",
+  "visibility": "private",
+  "write_back_default": "DENY"
+}
