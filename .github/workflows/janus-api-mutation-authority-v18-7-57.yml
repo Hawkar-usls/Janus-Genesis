@@ -65,7 +65,7 @@ jobs:
           print(hashlib.sha256(b'test-key').hexdigest())
           PY
           )
-          actual=$(python tools/genesis_api_server.py --hash-key test-key)
+          actual=$(python -m tools.genesis_api_server --hash-key test-key)
           test "$actual" = "$expected"
 
       - name: Preserve v18.7.57 claim ceiling
