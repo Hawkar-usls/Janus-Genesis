@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import subprocess
 from pathlib import Path
@@ -46,6 +47,21 @@ FULL_SHA = re.compile(r"^[0-9a-f]{40}$")
 EXPECTED_SOURCE_COUNT = 44
 EXPECTED_PUBLIC_COUNT = 41
 EXPECTED_PRIVATE_COUNT = 3
+GIT_CONTEXT_ENV_KEYS = frozenset(
+    {
+        "GIT_DIR",
+        "GIT_WORK_TREE",
+        "GIT_COMMON_DIR",
+        "GIT_OBJECT_DIRECTORY",
+        "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+        "GIT_INDEX_FILE",
+        "GIT_GRAFT_FILE",
+        "GIT_NAMESPACE",
+        "GIT_CEILING_DIRECTORIES",
+        "GIT_DISCOVERY_ACROSS_FILESYSTEM",
+        "GIT_REPLACE_REF_BASE",
+    }
+)
 
 
 class LocalCheckoutPinCollectorError(RuntimeError):
@@ -56,7 +72,17 @@ def _read_json(path: str | Path) -> Any:
     try:
         return json.loads(Path(path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        raise LocalCheckoutPinCollectorError(f"JSON_UNREADABLE:{path}") from exc
+        raise LocalCheckoutPinCollectorError("CONSTELLATION_JSON_UNREADABLE") from exc
+
+
+def _sanitized_git_env() -> dict[str, str]:
+    env = os.environ.copy()
+    for key in GIT_CONTEXT_ENV_KEYS:
+        env.pop(key, None)
+    env["GIT_NO_REPLACE_OBJECTS"] = "1"
+    env["GIT_OPTIONAL_LOCKS"] = "0"
+    env["GIT_TERMINAL_PROMPT"] = "0"
+    return env
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -64,6 +90,7 @@ def _git(repo: Path, *args: str) -> str:
         raw = subprocess.check_output(
             ["git", "-C", str(repo), *args],
             stderr=subprocess.STDOUT,
+            env=_sanitized_git_env(),
         )
     except (OSError, subprocess.CalledProcessError) as exc:
         raise LocalCheckoutPinCollectorError(
@@ -153,9 +180,6 @@ def collect_exact_git_pinset(
         checkouts[source_id] = checkout
         first_pass[source_id] = _exact_head_commit(checkout, source_id)
 
-    # Re-read every HEAD after all 44 repositories have been inspected. This
-    # catches a repository moving while collection is in progress without
-    # requiring or performing any source mutation/locking.
     for row in expected:
         source_id = row["source_id"]
         observed = _exact_head_commit(checkouts[source_id], source_id)
@@ -204,7 +228,7 @@ def collect_and_write(
         write_new_json(Path(output_path), pinset, mode=0o600)
     except Exception as exc:
         raise LocalCheckoutPinCollectorError(
-            f"SENSITIVE_PINSET_WRITE_FAILED:{exc}"
+            f"SENSITIVE_PINSET_WRITE_FAILED:{type(exc).__name__}"
         ) from exc
     return {
         "status": "LOCAL_EXACT_PINSET_WRITTEN",
