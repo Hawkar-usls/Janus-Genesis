@@ -97,10 +97,10 @@ def _git(repo: Path, *args: str) -> str:
             f"LOCAL_GIT_QUERY_FAILED:{repo.name}:{' '.join(args)}"
         ) from exc
     try:
-        return raw.decode("ascii").strip().lower()
+        return raw.decode("utf-8", errors="strict").strip()
     except UnicodeDecodeError as exc:
         raise LocalCheckoutPinCollectorError(
-            f"LOCAL_GIT_QUERY_NON_ASCII:{repo.name}"
+            f"LOCAL_GIT_QUERY_NON_UTF8:{repo.name}"
         ) from exc
 
 
@@ -134,21 +134,38 @@ def _checkout_for(sources_root: Path, source_id: str) -> Path:
             f"SOURCE_CHECKOUT_MUST_BE_REAL_DIRECTORY:{source_id}"
         )
     try:
-        checkout.resolve().relative_to(sources_root.resolve())
+        checkout_resolved = checkout.resolve()
+        checkout_resolved.relative_to(sources_root.resolve())
     except (OSError, ValueError) as exc:
         raise LocalCheckoutPinCollectorError(
             f"SOURCE_CHECKOUT_ESCAPE_REJECTED:{source_id}"
         ) from exc
+
+    # `git -C child rev-parse HEAD` walks upward and can silently bind a plain
+    # child directory to its parent's repository. Require every opaque source
+    # slot to be the actual root of its own Git worktree. Linked worktrees remain
+    # valid because --show-toplevel resolves to the linked worktree directory.
+    top_level = _git(checkout, "rev-parse", "--show-toplevel")
+    try:
+        top_level_resolved = Path(top_level).resolve()
+    except OSError as exc:
+        raise LocalCheckoutPinCollectorError(
+            f"SOURCE_CHECKOUT_GIT_ROOT_UNRESOLVABLE:{source_id}"
+        ) from exc
+    if top_level_resolved != checkout_resolved:
+        raise LocalCheckoutPinCollectorError(
+            f"SOURCE_CHECKOUT_NOT_GIT_ROOT:{source_id}"
+        )
     return checkout
 
 
 def _exact_head_commit(checkout: Path, source_id: str) -> str:
-    head = _git(checkout, "rev-parse", "--verify", "HEAD")
+    head = _git(checkout, "rev-parse", "--verify", "HEAD").lower()
     if not FULL_SHA.fullmatch(head):
         raise LocalCheckoutPinCollectorError(
             f"SOURCE_HEAD_NOT_EXACT_LOWERCASE_SHA1:{source_id}"
         )
-    object_type = _git(checkout, "cat-file", "-t", head)
+    object_type = _git(checkout, "cat-file", "-t", head).lower()
     if object_type != "commit":
         raise LocalCheckoutPinCollectorError(
             f"SOURCE_HEAD_NOT_COMMIT_OBJECT:{source_id}"
