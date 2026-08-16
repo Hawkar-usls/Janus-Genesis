@@ -29,6 +29,7 @@ PREREGISTRATION_RECEIPT = "5308388940"
 EXPECTED_SOURCE_COUNT = 44
 HEX40 = re.compile(r"^[0-9a-f]{40}$")
 HEX64 = re.compile(r"^[0-9a-f]{64}$")
+REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 
 PRODUCER_KEYS = {
     "materializer",
@@ -37,10 +38,18 @@ PRODUCER_KEYS = {
     "handoff_ledger",
     "swarm_recovery",
 }
+EXPECTED_PRODUCER_REPOSITORIES = {
+    "materializer": "Hawkar-usls/Janus_Genesis",
+    "privacy_projection": "Hawkar-usls/Janus_Genesis",
+    "variant_lineage": "Hawkar-usls/Janus_Genesis",
+    "handoff_ledger": "Hawkar-usls/Janus_Genesis",
+    "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm",
+}
+PRODUCER_REF_KEYS = {"repository", "pull_request", "sha"}
 
 BUNDLE_KEYS = {
     "schema",
-    "producer_heads",
+    "producer_refs",
     "materializer",
     "lineage",
     "handoff",
@@ -53,7 +62,7 @@ LOCK_KEYS = {
     "preregistration_receipt",
     "expected_source_count",
     "privacy_mode",
-    "producer_heads",
+    "producer_refs",
 }
 
 
@@ -75,13 +84,18 @@ def digest(value: Any) -> str:
     return hashlib.sha256(canonical_bytes(value)).hexdigest()
 
 
+def _display_keys(values: set[Any]) -> list[str]:
+    """Produce deterministic diagnostics even for malformed non-string keys."""
+    return sorted(repr(item) for item in values)
+
+
 def _require_exact_keys(value: Any, expected: set[str], field: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise PreservationEvidenceError(f"{field} must be an object")
     keys = set(value)
     if keys != expected:
-        missing = sorted(expected - keys)
-        extra = sorted(keys - expected)
+        missing = _display_keys(expected - keys)
+        extra = _display_keys(keys - expected)
         raise PreservationEvidenceError(
             f"{field} keys mismatch; missing={missing}; extra={extra}"
         )
@@ -108,9 +122,35 @@ def _require_bool(value: Any, field: str, expected: bool | None = None) -> bool:
     return value
 
 
-def validate_producer_heads(raw: Any, field: str) -> dict[str, str]:
+def _require_pr_number(value: Any, field: str) -> int:
+    if type(value) is not int or value <= 0:
+        raise PreservationEvidenceError(f"{field} must be a positive integer PR number")
+    return value
+
+
+def validate_producer_refs(raw: Any, field: str) -> dict[str, dict[str, Any]]:
     value = _require_exact_keys(raw, PRODUCER_KEYS, field)
-    return {key: _require_sha(value[key], f"{field}.{key}") for key in sorted(PRODUCER_KEYS)}
+    cleaned: dict[str, dict[str, Any]] = {}
+    for role in sorted(PRODUCER_KEYS):
+        ref = _require_exact_keys(value[role], PRODUCER_REF_KEYS, f"{field}.{role}")
+        repository = ref.get("repository")
+        if not isinstance(repository, str) or not REPOSITORY.fullmatch(repository):
+            raise PreservationEvidenceError(
+                f"{field}.{role}.repository must be owner/repository identity"
+            )
+        expected_repository = EXPECTED_PRODUCER_REPOSITORIES[role]
+        if repository != expected_repository:
+            raise PreservationEvidenceError(
+                f"{field}.{role}.repository must be {expected_repository}"
+            )
+        cleaned[role] = {
+            "repository": repository,
+            "pull_request": _require_pr_number(
+                ref.get("pull_request"), f"{field}.{role}.pull_request"
+            ),
+            "sha": _require_sha(ref.get("sha"), f"{field}.{role}.sha"),
+        }
+    return cleaned
 
 
 def validate_lock(raw: Any) -> dict[str, Any]:
@@ -123,13 +163,13 @@ def validate_lock(raw: Any) -> dict[str, Any]:
         raise PreservationEvidenceError("lock expected source count mismatch")
     if value.get("privacy_mode") != "LOCAL_EVIDENCE_PUBLIC_REDACTED_SUMMARY":
         raise PreservationEvidenceError("lock privacy mode mismatch")
-    heads = validate_producer_heads(value.get("producer_heads"), "lock.producer_heads")
+    refs = validate_producer_refs(value.get("producer_refs"), "lock.producer_refs")
     return {
         "schema": LOCK_SCHEMA,
         "preregistration_receipt": PREREGISTRATION_RECEIPT,
         "expected_source_count": EXPECTED_SOURCE_COUNT,
         "privacy_mode": "LOCAL_EVIDENCE_PUBLIC_REDACTED_SUMMARY",
-        "producer_heads": heads,
+        "producer_refs": refs,
     }
 
 
@@ -137,7 +177,7 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
     value = _require_exact_keys(raw, BUNDLE_KEYS, "bundle")
     if value.get("schema") != BUNDLE_SCHEMA:
         raise PreservationEvidenceError("bundle schema mismatch")
-    heads = validate_producer_heads(value.get("producer_heads"), "bundle.producer_heads")
+    refs = validate_producer_refs(value.get("producer_refs"), "bundle.producer_refs")
 
     materializer = _require_exact_keys(
         value.get("materializer"),
@@ -156,15 +196,37 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
     )
     if materializer.get("source_count") != EXPECTED_SOURCE_COUNT:
         raise PreservationEvidenceError("materializer source_count must be 44")
-    _require_bool(materializer.get("clean_target_rebuild_exercised"), "materializer.clean_target_rebuild_exercised", True)
-    rebuild_a = _require_digest(materializer.get("rebuild_a_digest"), "materializer.rebuild_a_digest")
-    rebuild_b = _require_digest(materializer.get("rebuild_b_digest"), "materializer.rebuild_b_digest")
+    _require_bool(
+        materializer.get("clean_target_rebuild_exercised"),
+        "materializer.clean_target_rebuild_exercised",
+        True,
+    )
+    rebuild_a = _require_digest(
+        materializer.get("rebuild_a_digest"), "materializer.rebuild_a_digest"
+    )
+    rebuild_b = _require_digest(
+        materializer.get("rebuild_b_digest"), "materializer.rebuild_b_digest"
+    )
     if rebuild_a != rebuild_b:
         raise PreservationEvidenceError("independent materializer rebuild digests differ")
-    _require_bool(materializer.get("local_exact_replay_passed"), "materializer.local_exact_replay_passed", True)
-    _require_bool(materializer.get("privacy_projection_passed"), "materializer.privacy_projection_passed", True)
-    _require_bool(materializer.get("source_pin_drift"), "materializer.source_pin_drift", False)
-    _require_bool(materializer.get("source_writeback_observed"), "materializer.source_writeback_observed", False)
+    _require_bool(
+        materializer.get("local_exact_replay_passed"),
+        "materializer.local_exact_replay_passed",
+        True,
+    )
+    _require_bool(
+        materializer.get("privacy_projection_passed"),
+        "materializer.privacy_projection_passed",
+        True,
+    )
+    _require_bool(
+        materializer.get("source_pin_drift"), "materializer.source_pin_drift", False
+    )
+    _require_bool(
+        materializer.get("source_writeback_observed"),
+        "materializer.source_writeback_observed",
+        False,
+    )
     _require_bool(
         materializer.get("destructive_cleanup_required_for_pass"),
         "materializer.destructive_cleanup_required_for_pass",
@@ -181,18 +243,28 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
         },
         "bundle.lineage",
     )
-    expected_lineage = _require_digest(lineage.get("expected_head_digest"), "lineage.expected_head_digest")
-    observed_lineage = _require_digest(lineage.get("observed_head_digest"), "lineage.observed_head_digest")
+    expected_lineage = _require_digest(
+        lineage.get("expected_head_digest"), "lineage.expected_head_digest"
+    )
+    observed_lineage = _require_digest(
+        lineage.get("observed_head_digest"), "lineage.observed_head_digest"
+    )
     if expected_lineage != observed_lineage:
         raise PreservationEvidenceError("lineage expected/observed head digest mismatch")
-    failed_ids = lineage.get("failed_variant_ids")
-    if not isinstance(failed_ids, list) or not failed_ids:
+    failed_ids_raw = lineage.get("failed_variant_ids")
+    if not isinstance(failed_ids_raw, list) or not failed_ids_raw:
         raise PreservationEvidenceError("lineage requires at least one retained failed variant")
+    failed_ids = [
+        _require_digest(item, f"lineage.failed_variant_ids[{index}]")
+        for index, item in enumerate(failed_ids_raw)
+    ]
     if len(failed_ids) != len(set(failed_ids)):
         raise PreservationEvidenceError("lineage failed_variant_ids must be unique")
-    for index, item in enumerate(failed_ids):
-        _require_digest(item, f"lineage.failed_variant_ids[{index}]")
-    _require_bool(lineage.get("failed_variants_retained"), "lineage.failed_variants_retained", True)
+    _require_bool(
+        lineage.get("failed_variants_retained"),
+        "lineage.failed_variants_retained",
+        True,
+    )
 
     handoff = _require_exact_keys(
         value.get("handoff"),
@@ -206,18 +278,30 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
         },
         "bundle.handoff",
     )
-    expected_handoff = _require_digest(handoff.get("expected_head_digest"), "handoff.expected_head_digest")
-    observed_handoff = _require_digest(handoff.get("observed_head_digest"), "handoff.observed_head_digest")
+    expected_handoff = _require_digest(
+        handoff.get("expected_head_digest"), "handoff.expected_head_digest"
+    )
+    observed_handoff = _require_digest(
+        handoff.get("observed_head_digest"), "handoff.observed_head_digest"
+    )
     if expected_handoff != observed_handoff:
         raise PreservationEvidenceError("handoff expected/observed head digest mismatch")
-    conflict_ids = handoff.get("conflict_message_ids")
-    if (
-        not isinstance(conflict_ids, list)
-        or len(conflict_ids) < 2
-        or len(conflict_ids) != len(set(conflict_ids))
-        or not all(isinstance(item, str) and item.strip() for item in conflict_ids)
-    ):
-        raise PreservationEvidenceError("handoff requires at least two unique conflict message IDs")
+    conflict_ids_raw = handoff.get("conflict_message_ids")
+    if not isinstance(conflict_ids_raw, list) or len(conflict_ids_raw) < 2:
+        raise PreservationEvidenceError(
+            "handoff requires at least two unique conflict message IDs"
+        )
+    conflict_ids: list[str] = []
+    for index, item in enumerate(conflict_ids_raw):
+        if not isinstance(item, str) or not item.strip():
+            raise PreservationEvidenceError(
+                f"handoff.conflict_message_ids[{index}] must be a non-empty string"
+            )
+        conflict_ids.append(item)
+    if len(conflict_ids) != len(set(conflict_ids)):
+        raise PreservationEvidenceError(
+            "handoff requires at least two unique conflict message IDs"
+        )
     _require_bool(handoff.get("conflicts_retained"), "handoff.conflicts_retained", True)
     if handoff.get("reconciliation_status") != "HOLD_RECONCILE":
         raise PreservationEvidenceError("handoff reconciliation must be HOLD_RECONCILE")
@@ -237,7 +321,9 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
     )
     _require_digest(swarm.get("checkpoint_digest"), "swarm.checkpoint_digest")
     _require_digest(swarm.get("receipt_digest"), "swarm.receipt_digest")
-    _require_bool(swarm.get("session_drop_exercised"), "swarm.session_drop_exercised", True)
+    _require_bool(
+        swarm.get("session_drop_exercised"), "swarm.session_drop_exercised", True
+    )
     if swarm.get("resume_decision") != "RESUME":
         raise PreservationEvidenceError("swarm resume_decision must be RESUME")
     _require_bool(swarm.get("source_pin_drift"), "swarm.source_pin_drift", False)
@@ -257,11 +343,17 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
         },
         "bundle.source_guard",
     )
-    before = _require_digest(source_guard.get("before_identity_digest"), "source_guard.before_identity_digest")
-    after = _require_digest(source_guard.get("after_identity_digest"), "source_guard.after_identity_digest")
+    before = _require_digest(
+        source_guard.get("before_identity_digest"), "source_guard.before_identity_digest"
+    )
+    after = _require_digest(
+        source_guard.get("after_identity_digest"), "source_guard.after_identity_digest"
+    )
     if before != after:
         raise PreservationEvidenceError("source identity changed across replay")
-    _require_bool(source_guard.get("writeback_observed"), "source_guard.writeback_observed", False)
+    _require_bool(
+        source_guard.get("writeback_observed"), "source_guard.writeback_observed", False
+    )
     _require_bool(
         source_guard.get("destructive_effect_observed"),
         "source_guard.destructive_effect_observed",
@@ -273,21 +365,21 @@ def validate_bundle(raw: Any) -> dict[str, Any]:
         cleaned = json.loads(canonical_bytes(value).decode("utf-8"))
     except (TypeError, ValueError) as exc:
         raise PreservationEvidenceError(f"bundle is not canonical JSON data: {exc}") from exc
-    cleaned["producer_heads"] = heads
+    cleaned["producer_refs"] = refs
     return cleaned
 
 
 def evaluate(bundle_raw: Any, lock_raw: Any) -> dict[str, Any]:
     lock = validate_lock(lock_raw)
     bundle = validate_bundle(bundle_raw)
-    if bundle["producer_heads"] != lock["producer_heads"]:
-        raise PreservationEvidenceError("bundle producer heads do not match external lock")
+    if bundle["producer_refs"] != lock["producer_refs"]:
+        raise PreservationEvidenceError("bundle producer refs do not match external lock")
 
     summary = {
         "schema": SUMMARY_SCHEMA,
         "decision": "EVIDENCE_BUNDLE_CONSISTENT",
         "preregistration_receipt": PREREGISTRATION_RECEIPT,
-        "producer_heads": lock["producer_heads"],
+        "producer_refs": lock["producer_refs"],
         "producer_lock_digest": digest(lock),
         "source_count": EXPECTED_SOURCE_COUNT,
         "clean_target_rebuild_exercised": True,
@@ -302,6 +394,7 @@ def evaluate(bundle_raw: Any, lock_raw: Any) -> dict[str, Any]:
         "source_pin_drift": False,
         "source_writeback_observed": False,
         "destructive_effect_observed": False,
+        "destructive_cleanup_required_for_pass": False,
         "majority_vote_used": False,
         "local_sensitive_evidence_persisted_in_summary": False,
         "empirical_replay_claimed_by_this_verifier": False,
@@ -310,9 +403,10 @@ def evaluate(bundle_raw: Any, lock_raw: Any) -> dict[str, Any]:
         "mass_effect_budget_delta": 0,
         "claim_ceiling": (
             "This summary proves only that a supplied local evidence bundle is internally "
-            "consistent with an external producer-head lock and the pre-registered P0 conditions. "
-            "It does not prove that producer harnesses honestly generated the evidence, perform "
-            "repository acquisition, establish an empirical owner-wide replay, or grant merge/writeback authority."
+            "consistent with an external producer-reference lock and the pre-registered P0 "
+            "conditions. It does not prove that producer harnesses honestly generated the "
+            "evidence, perform repository acquisition, establish an empirical owner-wide replay, "
+            "or grant merge/writeback authority."
         ),
     }
     summary["public_summary_digest"] = digest(summary)
