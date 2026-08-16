@@ -10,13 +10,17 @@ The important boundary is deliberately narrow:
     ARMOR GATE PRECEDES EXTERNAL CALL
     ARMOR REJECTION = KNOWN NON-EFFECT
 
+Armor metadata is control-plane context. It is stripped before an adapter
+preflight or effect handler sees ActionIntent.parameters, so existing strict
+broker parameter contracts remain unchanged.
+
 The gate is not an OS sandbox, hypervisor, legal authority, truth oracle, or
 proof that modified source code cannot bypass policy. It grants no capability.
 """
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import Enum
 from pathlib import Path
 from typing import Any, Mapping
@@ -33,6 +37,7 @@ from genesis_v18_7_40_third_wish_capability_fabric import (
 ARMOR_RUNTIME_VERSION = "18.7.47"
 ARMOR_MANIFEST_SCHEMA = "janus.genesis.armor_of_god.runtime_manifest.v1"
 ARMOR_MANIFEST_ARTIFACT = "JANUS-ARMOR-OF-GOD-RUNTIME-MANIFEST-v1.0"
+ARMOR_CONTEXT_KEY = "_armor_context"
 DEFAULT_MANIFEST = (
     Path(__file__).resolve().parent
     / "armor"
@@ -152,12 +157,20 @@ class ArmorOfGodGate:
 
     @staticmethod
     def _context(intent: ActionIntent) -> dict[str, Any]:
-        raw = intent.parameters.get("_armor_context", {})
+        raw = intent.parameters.get(ARMOR_CONTEXT_KEY, {})
         if raw is None:
             return {}
         if not isinstance(raw, Mapping):
             raise ArmorPolicyRejected("ARMOR_CONTEXT_MUST_BE_OBJECT")
         return dict(raw)
+
+    @staticmethod
+    def strip_control_context(intent: ActionIntent) -> ActionIntent:
+        """Return a broker-facing intent without Armor control-plane metadata."""
+
+        parameters = dict(intent.parameters)
+        parameters.pop(ARMOR_CONTEXT_KEY, None)
+        return replace(intent, parameters=parameters)
 
     def evaluate(self, intent: ActionIntent, spec: CapabilitySpec) -> ArmorVerdict:
         ctx = self._context(intent)
@@ -290,21 +303,32 @@ class ArmoredThirdWishCapabilityFabric(ThirdWishCapabilityFabric):
         spec = self.specs[capability_id]
 
         def armored_preflight(intent: ActionIntent) -> Mapping[str, Any]:
+            armor_result = self.armor_gate.preflight(intent, spec)
+            broker_intent = self.armor_gate.strip_control_context(intent)
             existing_result: dict[str, Any] = {}
             if preflight is not None:
-                existing_result = dict(preflight(intent) or {})
-            armor_result = self.armor_gate.preflight(intent, spec)
+                existing_result = dict(preflight(broker_intent) or {})
             return {
-                "adapter_preflight": existing_result,
                 "armor": armor_result,
+                "adapter_preflight": existing_result,
+                "armor_context_stripped_before_adapter": True,
             }
 
-        super().register_handler(capability_id, handler, preflight=armored_preflight)
+        def armored_handler(intent: ActionIntent) -> Mapping[str, Any]:
+            return handler(self.armor_gate.strip_control_context(intent))
+
+        super().register_handler(
+            capability_id,
+            armored_handler,
+            preflight=armored_preflight,
+        )
 
 
 ARMOR_OF_GOD_CANONICAL_LAW = {
     "armor_gate_precedes_external_call": True,
     "armor_rejection_is_known_non_effect": True,
+    "armor_context_is_control_plane_metadata": True,
+    "armor_context_reaches_effect_adapter": False,
     "face_proposal_is_world_effect": False,
     "face_count_is_authority": False,
     "model_may_rewrite_constitution": False,
