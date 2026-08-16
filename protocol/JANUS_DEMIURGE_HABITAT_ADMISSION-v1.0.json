@@ -1,0 +1,66 @@
+{
+  "schema": "janus.genesis.demiurge_habitat_admission.v1",
+  "artifact_id": "JANUS-DEMIURGE-HABITAT-ADMISSION-2026-08-16-v1.0",
+  "parent_role_audit": {
+    "pr": "Hawkar-usls/Janus_Genesis#137",
+    "head": "5627d31a992bcdc71dcc7351cba2c515dac89a2c",
+    "historical_classification": "TOOL_ONLY/LEGACY_OPTIMIZATION_SANDBOX"
+  },
+  "new_evidence": {
+    "repository": "Hawkar-usls/Janus-Demiurge",
+    "repository_id": "1188744620",
+    "source_pr": 2,
+    "source_head": "c5bb2c48f084ba6983f33aa562f164b614308f1f",
+    "legacy_pattern_source_commit": "98974d9c02637cb471ef73f5b62cf81797895a44",
+    "workflow": "Habitat Demiurge Face v1",
+    "workflow_run": 31963321557,
+    "python_matrix": ["3.11", "3.12", "3.13"],
+    "conclusion": "SUCCESS"
+  },
+  "face": {
+    "face_id": "DEMIURGE_BOUNDED_PROPOSAL_BUILDER",
+    "primary_role": "RESEARCH",
+    "subrole": "BOUNDED_PROPOSAL_BUILDER",
+    "activation": "ADMISSION_CANDIDATE_HOLD",
+    "can_propose": true,
+    "can_rank_external_measurements": true,
+    "can_challenge": false,
+    "can_verify": false,
+    "can_execute_proposal": false,
+    "can_mutate_source": false,
+    "can_trigger_external_effect": false,
+    "write_back": "DENY"
+  },
+  "handoff": {
+    "accepted_payload_schemas": [
+      "janus.habitat.demiurge_proposal_set.v1",
+      "janus.habitat.demiurge_ranking.v1"
+    ],
+    "proposal_target": "NEXUS_VARIANT_LINEAGE_OR_VERIFIER",
+    "ranking_target": "JANUS_CORE_RECONCILER",
+    "payload_shape_is_implementation_sha_proof": false,
+    "runtime_materialization_requires_exact_source_pin": true
+  },
+  "laws": [
+    "HISTORICAL_AUDIT_STATE != CURRENT_ADMISSION_EVIDENCE",
+    "TOOL_ONLY_AT_T0 != FORBIDDEN_FOREVER",
+    "NEW_TYPED_CONTRACT_REQUIRES_NEW_ADMISSION_RECEIPT",
+    "PROPOSED != TESTED",
+    "TESTED != SELECTED",
+    "SELECTED != AUTHORIZED",
+    "RANKING != TRUTH",
+    "PAYLOAD_SHAPE != IMPLEMENTATION_SHA_PROOF",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "claim_ceiling": {
+    "active_runtime_face": false,
+    "source_pr_merged": false,
+    "genesis_integration_merged": false,
+    "autonomous_self_modification": false,
+    "automatic_merge": false,
+    "source_writeback": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  }
+}
