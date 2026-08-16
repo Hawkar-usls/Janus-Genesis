@@ -9,11 +9,11 @@ rewriting historical adapters:
 * Durable Genesis Network sync is Armor-authorized before the legacy network
   client crosses its remote-call boundary.
 
-v18.7.55 compatibility hardening adds a transient network-admission handoff:
-the historical network adapter is now default-deny, and this canonical wrapper
-sets its internal admission bit only after Armor PASS and only for the duration
-of the exact sync call. The bit is restored in ``finally`` and is not evidence,
-permission, or reusable authority for later calls.
+v18.7.55/56 compatibility hardening adds transient egress handoffs: the
+historical built-in network and AI-provider adapters are default-deny, while
+this canonical wrapper sets their internal admission bit only after Armor PASS
+and only for the duration of the exact call. Admission is restored in
+``finally`` and is not evidence, permission, or reusable authority.
 
 Historical adapters remain importable for provenance/compatibility. Therefore
 this module establishes canonical-entry routing, not repository-wide
@@ -138,7 +138,16 @@ class ArmoredGenesisAIBridge(GenesisAIBridge):
             context=direct_user_armor_context(public_outreach=False),
             spec=AI_EGRESS_SPEC,
         )
-        return super().propose_action(world, player_id, intention)
+        provider = self.provider
+        has_internal_admission = hasattr(provider, "_armor_egress_admitted")
+        previous = getattr(provider, "_armor_egress_admitted", False)
+        if has_internal_admission:
+            provider._armor_egress_admitted = True
+        try:
+            return super().propose_action(world, player_id, intention)
+        finally:
+            if has_internal_admission:
+                provider._armor_egress_admitted = previous if type(previous) is bool else False
 
 
 class ArmoredDurableGenesisNetworkClient(DurableGenesisNetworkClient):
@@ -166,13 +175,14 @@ class ArmoredDurableGenesisNetworkClient(DurableGenesisNetworkClient):
         try:
             return super().sync(limit=limit)
         finally:
-            # No authorization residue survives the exact already-approved call.
             self._armor_egress_admitted = previous if type(previous) is bool else False
 
 
 ARMOR_ROUTING_LAW_V18_7_50 = {
     "canonical_entry": CANONICAL_ARMOR_ENTRY,
     "canonical_ai_egress_requires_armor_pass": True,
+    "canonical_ai_transient_provider_admission_after_armor_pass": True,
+    "canonical_ai_provider_admission_restored_in_finally": True,
     "canonical_network_sync_requires_armor_pass": True,
     "canonical_network_transient_admission_after_armor_pass": True,
     "canonical_network_admission_restored_in_finally": True,
