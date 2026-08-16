@@ -95,8 +95,13 @@
       "scope",
       "requested_action",
       "authority_class",
-      "project_sync_state_sha256"
+      "project_sync_state_binding"
     ],
+    "project_sync_state_binding": {
+      "accepted_algorithms": ["git_blob_sha", "sha256"],
+      "required_fields": ["algorithm", "value", "path"],
+      "law": "BINDING != TRUTH"
+    },
     "authority_classes": [
       "READ_ONLY",
       "REVERSIBLE_GIT",
