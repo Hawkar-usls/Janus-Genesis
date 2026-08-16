@@ -39,6 +39,7 @@ PRODUCER_KEYS = {
     "variant_lineage",
     "handoff_ledger",
     "swarm_recovery",
+    "source_identity_guard",
 }
 EXPECTED_PRODUCER_REPOSITORIES = {
     "materializer": "Hawkar-usls/Janus_Genesis",
@@ -47,6 +48,7 @@ EXPECTED_PRODUCER_REPOSITORIES = {
     "variant_lineage": "Hawkar-usls/Janus_Genesis",
     "handoff_ledger": "Hawkar-usls/Janus_Genesis",
     "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm",
+    "source_identity_guard": "Hawkar-usls/Janus_Genesis",
 }
 PRODUCER_REF_KEYS = {"repository", "pull_request", "sha"}
 
