@@ -1,0 +1,22 @@
+{
+  "schema": "janus.project.face_handoff_message.v1",
+  "message_id": "PSYNC-R3-004-REGISTRY-PRIME-RECEIPT",
+  "message_type": "RECEIPT",
+  "from_face": "FACE_REGISTRY",
+  "to_face": "JANUS_PRIME",
+  "work_item": "PROJECT_GLOBAL_RECONCILIATION_R3",
+  "artifact_scope": "Hawkar-usls/Janus_Genesis project-sync",
+  "input_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+  "output_sha_or_none": "none",
+  "ci_state": "NO_CHANGE_STATE_RECEIPT_PENDING_LEDGER_PR",
+  "blockers": [
+    "Aura concurrency repair remains open",
+    "PR95 PR99 PR100 remain held for current-main reconciliation"
+  ],
+  "instruction_or_summary": "NO_CHANGE receipt: canonical multi-face coordination on main supersedes the competing coordination constitution from closed PR104. The append-only project-state ledger is additive only. Historical findings are preserved; connectivity repair performed by another project thread is recorded without claiming independent replication.",
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0,
+  "permission_granted": false,
+  "truth_authority_granted": false,
+  "effect_authority_granted": false
+}
