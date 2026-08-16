@@ -1,0 +1,64 @@
+name: JANUS Armor routing v18.7.50
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_47_armor_of_god.py'
+      - 'genesis_v18_7_48_armor_truth_guard.py'
+      - 'genesis_v18_7_49_armor_mechanics_hardening.py'
+      - 'genesis_v18_7_50_armor_routing.py'
+      - 'play_genesis.py'
+      - 'play_genesis_armored.py'
+      - 'genesis_v18_7_ai.py'
+      - 'genesis_v18_7_38_durable_network_outbox.py'
+      - 'tools/genesis_third_wish_*.py'
+      - 'tools/genesis_api_server.py'
+      - 'tools/genesis_ai_gateway.py'
+      - 'tools/genesis_hosted_gateway.py'
+      - 'tools/audit_armor_routing_coverage_v18_7_50.py'
+      - 'tests/test_genesis_v18_7_50_armor_routing.py'
+      - '.github/workflows/janus-armor-routing-v18-7-50.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_47_armor_of_god.py'
+      - 'genesis_v18_7_48_armor_truth_guard.py'
+      - 'genesis_v18_7_49_armor_mechanics_hardening.py'
+      - 'genesis_v18_7_50_armor_routing.py'
+      - 'play_genesis.py'
+      - 'play_genesis_armored.py'
+      - 'genesis_v18_7_ai.py'
+      - 'genesis_v18_7_38_durable_network_outbox.py'
+      - 'tools/**'
+      - 'tests/test_genesis_v18_7_50_armor_routing.py'
+      - '.github/workflows/janus-armor-routing-v18-7-50.yml'
+
+jobs:
+  routing-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile routing layer
+        run: |
+          python -m py_compile \
+            genesis_v18_7_50_armor_routing.py \
+            play_genesis_armored.py \
+            tools/audit_armor_routing_coverage_v18_7_50.py \
+            tests/test_genesis_v18_7_50_armor_routing.py
+
+      - name: Run canonical Armor routing tests
+        run: python -m unittest tests.test_genesis_v18_7_50_armor_routing -v
+
+      - name: Audit routing inventory
+        run: python tools/audit_armor_routing_coverage_v18_7_50.py
+
+      - name: Preserve claim ceiling
+        run: |
+          grep -q 'repository_wide_legacy_bypass_proven_closed.*False' genesis_v18_7_50_armor_routing.py
+          grep -q 'repository_wide_complete_routing_coverage_proven.*repository_wide_complete' tools/audit_armor_routing_coverage_v18_7_50.py
