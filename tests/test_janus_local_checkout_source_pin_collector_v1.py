@@ -198,6 +198,7 @@ class LocalCheckoutSourcePinCollectorTests(unittest.TestCase):
             for source_id in ids:
                 (sources / source_id).mkdir()
             output = root / "sensitive" / "exact-pinset.json"
+            output.parent.mkdir()
 
             with mock.patch.object(
                 collector,
