@@ -1,0 +1,78 @@
+name: JANUS API mutation authority v18.7.57
+
+on:
+  push:
+    paths:
+      - 'tools/genesis_api_server.py'
+      - 'tests/test_genesis_api_server_v18_7_57.py'
+      - 'tools/audit_local_mutation_api_v18_7_57.py'
+      - 'genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'genesis_v18_7_33_inflight_duplicate_reconciliation.py'
+      - 'genesis_v18_7_37_recovery_safe_save_import.py'
+      - 'genesis_v18_7_39_typed_mutation_authority.py'
+      - '.github/workflows/janus-api-mutation-authority-v18-7-57.yml'
+  pull_request:
+    paths:
+      - 'tools/genesis_api_server.py'
+      - 'tests/test_genesis_api_server_v18_7_57.py'
+      - 'tools/audit_local_mutation_api_v18_7_57.py'
+      - 'genesis_v18_7_31_portable_receipt_runtime.py'
+      - 'genesis_v18_7_33_inflight_duplicate_reconciliation.py'
+      - 'genesis_v18_7_37_recovery_safe_save_import.py'
+      - 'genesis_v18_7_39_typed_mutation_authority.py'
+      - '.github/workflows/janus-api-mutation-authority-v18-7-57.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  api-mutation-authority:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install declared runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile API authority surfaces
+        run: |
+          python -m py_compile \
+            tools/genesis_api_server.py \
+            tests/test_genesis_api_server_v18_7_57.py \
+            tools/audit_local_mutation_api_v18_7_57.py \
+            genesis_v18_7_31_portable_receipt_runtime.py \
+            genesis_v18_7_33_inflight_duplicate_reconciliation.py \
+            genesis_v18_7_37_recovery_safe_save_import.py \
+            genesis_v18_7_39_typed_mutation_authority.py
+
+      - name: Run v18.7.57 API authority tests
+        run: python -m unittest -v tests.test_genesis_api_server_v18_7_57
+
+      - name: Audit local API mutation routing
+        run: python tools/audit_local_mutation_api_v18_7_57.py
+
+      - name: Smoke bearer-key hash helper
+        run: |
+          expected=$(python - <<'PY'
+          import hashlib
+          print(hashlib.sha256(b'test-key').hexdigest())
+          PY
+          )
+          actual=$(python tools/genesis_api_server.py --hash-key test-key)
+          test "$actual" = "$expected"
+
+      - name: Preserve v18.7.57 claim ceiling
+        run: |
+          grep -q 'Authentication answers who reached the API' tools/audit_local_mutation_api_v18_7_57.py
+          grep -q 'AUTHENTICATION != MUTATION_AUTHORITY' tools/audit_local_mutation_api_v18_7_57.py
+          grep -q 'repository_wide_complete_routing_coverage_proven.*False' tools/audit_local_mutation_api_v18_7_57.py
+          ! grep -q 'self.server.world.process_action' tools/genesis_api_server.py
+          ! grep -q 'self.server.world.set_display_name' tools/genesis_api_server.py
+          ! grep -q 'self.server.saves.import_bundle(' tools/genesis_api_server.py
