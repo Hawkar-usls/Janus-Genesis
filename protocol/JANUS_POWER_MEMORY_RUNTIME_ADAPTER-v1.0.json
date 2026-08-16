@@ -1,0 +1,84 @@
+{
+  "schema": "janus.power_memory.runtime_adapter.v1",
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "title": "JANUS Power ↔ Hippocampus bounded runtime adapter v1",
+  "exact_lineage": {
+    "frozen_compatibility_base_sha": "42e3798fd6bc07338070874d5c7e1774a2b25313",
+    "power_v1_1_sha": "719d54d9f5aceced3b8df48aacd527ac3155fab3",
+    "power_v1_1_compatibility_merge_sha": "c8e3ddba158934cefaadb0af1ad0d069f3ce61a9",
+    "memory_v2_sha": "938adb84975fa6a91cf6db89e9c95bf08c8fbdc9",
+    "integration_parent_sha": "19d2809e698d397090a0b92d25403da1bbb27e0f",
+    "integration_parent_parents": [
+      "c8e3ddba158934cefaadb0af1ad0d069f3ce61a9",
+      "938adb84975fa6a91cf6db89e9c95bf08c8fbdc9"
+    ]
+  },
+  "exact_memory_blobs": {
+    "tools/janus_hippocampus_hdd_buffer.py": "2c20a79e86aa489a6ffb55d8bc8493a74621707a",
+    "tests/test_janus_hippocampus_hdd_buffer_v2.py": "b33b98ee450b03f2dadf4c680777e26006b22038",
+    "protocol/JANUS_HIPPOCAMPUS_HDD_BUFFER-v2.0.json": "550e96f35e9a81c2fe4afbfc64740fbce090bcf6",
+    ".github/workflows/janus-hippocampus-hdd-buffer-v2.yml": "07bc2cb538b2ee36f7a07a4fc0720025122375d9"
+  },
+  "lifecycle": {
+    "startup_order": ["MEMORY_START", "POWER_START"],
+    "shutdown_order": ["POWER_SHUTDOWN_CONFIRMED", "MEMORY_FINAL_CLOSE_AND_FLUSH"],
+    "power_shutdown_failure": "FAIL_CLOSED_KEEP_MEMORY_OPEN",
+    "live_runtime_deployment": false
+  },
+  "telemetry_consistency": {
+    "compute_terminal": "POWER_TASK_STATE",
+    "terminal_telemetry_attempt_settled": "ADAPTER_BARRIER_AFTER_POWER_MEMORY_CALL_RETURNS_OR_FAILS",
+    "telemetry_persisted": "FALSE_UNTIL_SUCCESSFUL_MEMORY_FLUSH",
+    "terminal_result_wait": "WAIT_COMPUTE_THEN_WAIT_TELEMETRY_ATTEMPT_THEN_REREAD_METRICS",
+    "queued_cancel_terminal_memory_receipt_required": false,
+    "memory_log_failure_changes_compute_truth": false
+  },
+  "persistence": {
+    "force_memory_save": "EXPLICIT_SQLITE_TRANSACTION_BOUNDARY",
+    "flush_generation": "LOCAL_RUNTIME_COUNTER_ONLY",
+    "backup_claimed": false,
+    "replication_claimed": false,
+    "ram_buffer_claimed_persisted": false
+  },
+  "effect_boundary": {
+    "external_executor_registered_by_adapter": false,
+    "cloud_transport": false,
+    "distributed_transport": false,
+    "subprocess": false,
+    "source_repository_writeback": false,
+    "source_delete": false,
+    "credential_handling": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "tests_required": [
+    "memory bound before power exposure",
+    "compute completes while two telemetry records remain RAM-only",
+    "explicit flush persists exactly queued plus terminal events once",
+    "disk flush failure preserves compute truth and RAM batch",
+    "memory admission failure is telemetry failure not compute failure",
+    "power shutdown precedes memory final close",
+    "unconfirmed power shutdown leaves memory open",
+    "exact component and integration pins exposed"
+  ],
+  "claim_ceiling": {
+    "component_compatibility": "CANDIDATE_UNDER_EXACT_HEAD_CI",
+    "live_janus_runtime_wired": false,
+    "production_nas_validated": false,
+    "storj_impact_measured": false,
+    "external_compute_authorized": false,
+    "merge_permission": false
+  },
+  "laws": [
+    "COMPUTE_TERMINAL != TERMINAL_TELEMETRY_ATTEMPT_SETTLED",
+    "TERMINAL_TELEMETRY_ATTEMPT_SETTLED != TELEMETRY_PERSISTED",
+    "RAM_BUFFERED != PERSISTED",
+    "PERSISTED != BACKED_UP",
+    "MEMORY_LOG_FAILURE != COMPUTE_FAILURE",
+    "POWER_MUST_STOP_BEFORE_MEMORY_FINAL_CLOSE",
+    "UNCONFIRMED_POWER_STOP -> KEEP_MEMORY_OPEN",
+    "EXACT_COMPONENT_BYTES != NEW_AUTHORITY",
+    "CI_GREEN != LIVE_DEPLOYMENT",
+    "CI_GREEN != MERGE_PERMISSION"
+  ]
+}
