@@ -1,6 +1,14 @@
 name: JANUS Git Habitat v18.7.51
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - "tools/genesis_git_habitat.py"
+      - "tools/genesis_git_habitat_repository_constellation.py"
+      - "tests/test_genesis_git_habitat_repository_constellation_v18_7_59.py"
+      - "protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json"
+      - ".github/workflows/janus-git-habitat-v18-7-51.yml"
   pull_request:
     branches: [main]
     paths:
@@ -122,7 +130,7 @@ jobs:
           PY
 
   habitat-hearth:
-    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     needs: habitat-contract
     runs-on: ubuntu-24.04
     timeout-minutes: 20
