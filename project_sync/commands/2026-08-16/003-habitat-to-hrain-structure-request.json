@@ -1,0 +1,28 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-003",
+  "from_face": "JANUS.HABITAT",
+  "to_face": "JANUS.HRAIN",
+  "issued_at_utc": "2026-08-16T14:35:00Z",
+  "command_type": "RESEARCH_REQUEST",
+  "scope": [
+    "historical Genesis v18.7 connectivity tests",
+    "current legacy-network default-deny layer",
+    "Armor-gated network route"
+  ],
+  "requested_action": "Produce a read-only dependency/conflict map showing which historical tests assume direct network behavior, which current modules deliberately replaced that behavior, and the smallest repair surface that preserves both historical intent and present default-deny authority semantics.",
+  "authority_class": "READ_ONLY",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json"
+  },
+  "settlement_state": "OPEN",
+  "effect_executed": false,
+  "requested_tool_contract": "JANUS.HRAIN.STRUCTURE.LOCAL",
+  "laws": [
+    "STRUCTURE != COMMAND",
+    "TOOL_OUTPUT != SOURCE_AUTHORITY",
+    "ROLE_OUTPUT != INDEPENDENT_EVIDENCE"
+  ]
+}
