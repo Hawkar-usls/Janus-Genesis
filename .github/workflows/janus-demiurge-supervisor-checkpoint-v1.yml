@@ -1,0 +1,75 @@
+name: JANUS Demiurge Supervisor Checkpoint v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_demiurge_supervisor_checkpoint_journal.py'
+      - 'tests/test_janus_demiurge_supervisor_checkpoint_journal_v1.py'
+      - 'protocol/JANUS_DEMIURGE_SUPERVISOR_CHECKPOINT_JOURNAL-v1.0.json'
+      - '.github/workflows/janus-demiurge-supervisor-checkpoint-v1.yml'
+  push:
+    branches:
+      - integration/janus-demiurge-supervisor-checkpoint-v1
+
+permissions:
+  contents: read
+
+jobs:
+  checkpoint:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Validate checkpoint contract
+        run: python -m json.tool protocol/JANUS_DEMIURGE_SUPERVISOR_CHECKPOINT_JOURNAL-v1.0.json >/dev/null
+      - name: Compile checkpoint surface
+        run: python -m py_compile tools/janus_demiurge_supervisor_checkpoint_journal.py tests/test_janus_demiurge_supervisor_checkpoint_journal_v1.py
+      - name: Replay Hippocampus component tests
+        run: python -m unittest -v tests.test_janus_hippocampus_hdd_buffer_v2
+      - name: Replay Memory role-map tests
+        run: python -m unittest -v tests.test_janus_memory_backend_role_map_v1
+      - name: Replay loop-to-Cortex projection tests
+        run: python -m unittest -v tests.test_janus_demiurge_loop_cortex_projection_v1
+      - name: Run supervisor checkpoint adversarial tests
+        run: python -m unittest -v tests.test_janus_demiurge_supervisor_checkpoint_journal_v1
+      - name: Reject network/process effects in checkpoint adapter
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          path = Path('tools/janus_demiurge_supervisor_checkpoint_journal.py')
+          tree = ast.parse(path.read_text(encoding='utf-8'))
+          forbidden = {'aiohttp','httpx','requests','socket','subprocess','urllib','shutil','ftplib','paramiko'}
+          imported = set()
+          for node in ast.walk(tree):
+              if isinstance(node, ast.Import):
+                  imported.update(a.name.split('.')[0] for a in node.names)
+              elif isinstance(node, ast.ImportFrom) and node.module:
+                  imported.add(node.module.split('.')[0])
+          assert imported.isdisjoint(forbidden), imported
+          PY
+      - name: Enforce durability and authority ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('protocol/JANUS_DEMIURGE_SUPERVISOR_CHECKPOINT_JOURNAL-v1.0.json').read_text(encoding='utf-8'))
+          assert p['parents']['demiurge_supervisor_head'] == '74c8a9dc090dba4d3bd7d497e1ff75223e6fe6c0'
+          assert p['role_routing']['continuation_checkpoint'] == 'HIPPOCAMPUS_OPERATIONAL_THOUGHT_JOURNAL'
+          assert p['role_routing']['automatic_cross_memory_mirror'] is False
+          assert p['recovery']['automatic_resume_execution'] is False
+          assert p['durability_ceiling']['backup'] is False
+          assert p['durability_ceiling']['replication'] is False
+          assert p['durability_ceiling']['power_loss_proof'] is False
+          assert p['claim_ceiling']['process_restart_recovery_after_commit'] is True
+          assert p['claim_ceiling']['automatic_resume_execution'] is False
+          assert p['claim_ceiling']['source_writeback'] is False
+          assert p['claim_ceiling']['authority_delta'] == 0
+          assert p['claim_ceiling']['mass_effect_budget_delta'] == 0
+          PY
