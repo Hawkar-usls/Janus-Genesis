@@ -1,0 +1,39 @@
+{
+  "schema": "janus.power.compute_fabric.v1.1",
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "parent": {
+    "pull_request": 142,
+    "exact_head_sha": "64038ff04517573a51e67d57a9aed2f861f52855",
+    "dedicated_ci": "SUCCESS",
+    "relationship": "ADDITIVE_SUCCESSOR_DO_NOT_REWRITE_V1"
+  },
+  "changes": {
+    "cooperative_deadline": {
+      "v1_edge": "LOCAL_COOPERATIVE_DEADLINE_COULD_RACE_OUTER_WAIT_FOR_AND_CLASSIFY_AS_FAILED",
+      "v1_1_semantics": "COOPERATIVE_DEADLINE_RAISES_ASYNCIO_TIMEOUTERROR_AND_TERMINATES_AS_TIMEOUT"
+    },
+    "memory_api": {
+      "supported_historical_shape": "remember(source, content)",
+      "supported_user_seed_shape": "remember(tag, content)",
+      "discovery": "INSPECT_CALLABLE_SIGNATURE_BEFORE_INVOCATION",
+      "typeerror_retry_fallback": false,
+      "reason": "AN_INTERNAL_TYPEERROR_MUST_NOT_CAUSE_A_SECOND_MEMORY_CALL_WITH_A_DIFFERENT_API_SHAPE",
+      "unsupported_memory_api": "NON_AUTHORITATIVE_TELEMETRY_ERROR"
+    }
+  },
+  "inherited_boundaries": [
+    "DECLARED_TIER != AVAILABLE_TIER",
+    "AVAILABLE_TIER != AUTHORIZED_EXTERNAL_EFFECT",
+    "QUANTUM_SIM != QUANTUM_HARDWARE",
+    "QUANTUM_SIM != QUANTUM_SPEEDUP",
+    "SPELL_NAME != CAPABILITY_PROOF",
+    "RANDOM_LABEL_TRAINING != FUTURE_PREDICTION",
+    "RESULT_HASH != TRUTH",
+    "MEMORY_LOG_FAILURE != COMPUTE_FAILURE",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "effect_boundary_delta": 0,
+  "source_writeback": false,
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0
+}
