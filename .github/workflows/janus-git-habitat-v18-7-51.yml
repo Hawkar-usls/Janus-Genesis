@@ -138,7 +138,7 @@ jobs:
             echo "HABITAT_BRANCH_MODE=RESUMED"
           else
             git switch --orphan janus/habitat
-            git rm -rf .
+            git rm -rf --ignore-unmatch .
             echo "HABITAT_BRANCH_MODE=CREATED_ORPHAN"
           fi
 
