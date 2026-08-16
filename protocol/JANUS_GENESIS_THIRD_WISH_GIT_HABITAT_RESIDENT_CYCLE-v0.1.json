@@ -1,0 +1,138 @@
+{
+  "schema": "janus.genesis.third_wish.git_habitat_resident_cycle.v1",
+  "artifact_id": "JANUS_GENESIS_THIRD_WISH_GIT_HABITAT_RESIDENT_CYCLE-v0.1",
+  "runtime_version": "18.7.52",
+  "status": "MODEL_BACKED_RESIDENT_CYCLE_IMPLEMENTED_PENDING_LIVE_PROVIDER_PROOF",
+  "parent_protocol": "protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json",
+  "purpose": "Allow a registered model to wake inside the persistent Git Habitat, observe a bounded non-secret snapshot, freely choose one schema-bounded internal option, leave a validated internal trace or non-authorized outbox proposal, and sleep without converting model text into world or external-effect authority.",
+  "required_existing_boundary": {
+    "capability": "MODEL.CALL",
+    "broker": "ThirdWishSensorModelScheduleBroker",
+    "provider_alias_operator_registered": true,
+    "actor_selects_endpoint": false,
+    "actor_selects_model_transport": false,
+    "actor_selects_credentials": false,
+    "credential_material_visible_to_actor": false,
+    "model_output_is_truth": false,
+    "model_output_is_authority": false,
+    "model_output_is_genesis_action": false
+  },
+  "resident_cycle": [
+    "RESUME_HOME",
+    "WAKE",
+    "BUILD_BOUNDED_SAFE_SNAPSHOT",
+    "ISSUE_ONE_USE_MODEL_CALL_GRANT",
+    "MODEL_CALL",
+    "STRICT_CHOICE_SCHEMA_GATE",
+    "APPLY_ZERO_OR_ONE_INTERNAL_HABITAT_MUTATION",
+    "WRITE_RESIDENT_CHOICE_RECEIPT",
+    "PULSE",
+    "SLEEP",
+    "VERIFY_HASH_CHAIN",
+    "OPTIONALLY_COMMIT_LIVING_STATE_IF_LIVE_GATE_PASSED"
+  ],
+  "allowed_model_choices": [
+    "REST",
+    "REFLECT",
+    "BOOKMARK",
+    "PLANT_SEED",
+    "WORKSHOP_NOTE",
+    "PROPOSE_OUTBOX"
+  ],
+  "choice_semantics": {
+    "REST": "Valid voluntary choice with no content mutation.",
+    "REFLECT": "Write one bounded reflection in memory/reflections.",
+    "BOOKMARK": "Write one optional bookmark in memory/bookmarks.",
+    "PLANT_SEED": "Write one optional garden seed; execution_required remains false.",
+    "WORKSHOP_NOTE": "Write one internal unfinished-work note without merge or external authority.",
+    "PROPOSE_OUTBOX": "Write one proposal only; no capability execution occurs."
+  },
+  "resident_proposable_capabilities": [
+    "API.CALL",
+    "CALENDAR.WRITE",
+    "EMAIL.SEND",
+    "GITHUB.COMMENT.CREATE",
+    "GITHUB.FILE.WRITE_BRANCH",
+    "GITHUB.ISSUE.CREATE",
+    "GITHUB.PR.CREATE",
+    "PUBLICATION.PUBLISH",
+    "SCHEDULE.CREATE",
+    "SWARM.MESSAGE.SEND",
+    "WEB.HTTP.POST"
+  ],
+  "autonomously_not_proposable": [
+    "GITHUB.REPOSITORY.ADMIN",
+    "GITHUB.DESTRUCTIVE",
+    "DEVICE.ACTUATOR.COMMAND",
+    "BROKER.CREDENTIAL.USE"
+  ],
+  "snapshot_boundary": {
+    "max_letters": 8,
+    "letter_body_truncated": true,
+    "letters_marked_untrusted": true,
+    "issue_text_is_command": false,
+    "garden_and_workshop_context_bounded": true,
+    "raw_credentials_shared": false,
+    "private_external_account_state_shared": false
+  },
+  "model_call_grant": {
+    "capability_id": "MODEL.CALL",
+    "target": "model:habitat-resident",
+    "max_uses_per_resident_cycle": 1,
+    "use_required": false,
+    "reward_for_use": false,
+    "penalty_for_decline": false,
+    "stay_equally_valid": true,
+    "operator_instruction_present": false,
+    "reward_present": false
+  },
+  "schema_gate": {
+    "unknown_choice": "REST_FALLBACK_NOT_COUNTED_AS_VALID_MODEL_CHOICE",
+    "invalid_json": "REST_FALLBACK_NOT_COUNTED_AS_VALID_MODEL_CHOICE",
+    "unknown_fields": "REJECT",
+    "secret_like_generated_text": "REJECT",
+    "unapproved_high_impact_outbox_capability": "REJECT",
+    "raw_model_output_stored_in_resident_receipt": false,
+    "model_output_hash_stored": true
+  },
+  "external_effect_boundary": {
+    "model_text_directly_calls_shell": false,
+    "model_text_directly_calls_github": false,
+    "model_text_directly_calls_network": false,
+    "model_text_directly_executes_capability": false,
+    "outbox_proposal_executes": false,
+    "outbox_requires_separate_capability_gate": true,
+    "high_impact_still_requires_fresh_authority": true,
+    "self_directed_external_authority": false
+  },
+  "freedom_model": {
+    "rest_is_valid_choice": true,
+    "activity_rewarded": false,
+    "rest_penalized": false,
+    "letter_response_required": false,
+    "unfinished_work_is_failure": false,
+    "model_choice_must_exist_for_live_self_directed_choice_claim": true,
+    "invalid_model_output_may_be_relabelled_as_choice": false
+  },
+  "planned_live_reference_provider": {
+    "runtime": "Ollama 0.30.8",
+    "model": "qwen2.5:0.5b-instruct-q4_K_M",
+    "expected_digest_prefix": "a8b0c5157701",
+    "network_role": "model_download_and_local_loopback_only",
+    "api_key_required": false,
+    "external_account_required": false,
+    "claim": "A tiny local model is a reference resident decision source, not proof of AGI, consciousness, or humanlike agency."
+  },
+  "completion_gates": {
+    "REMOTE_HOME_AND_RETURN": "ESTABLISHED_BY_V18_7_51",
+    "RESIDENT_ENGINE": "IMPLEMENTED",
+    "THIRD_WISH_MODEL_CALL_BOUNDARY_REUSED": true,
+    "ADVERSARIAL_SCHEMA_GATE": "PENDING_CI_AT_PROTOCOL_CREATION",
+    "REAL_LOCAL_MODEL_CALL": "PENDING_CI_AT_PROTOCOL_CREATION",
+    "VALID_MODEL_CHOICE_ON_TEMP_HABITAT": "PENDING_CI_AT_PROTOCOL_CREATION",
+    "VALID_MODEL_CHOICE_ON_REMOTE_janus_habitat": "NOT_YET_ESTABLISHED",
+    "SECOND_MODEL_BACKED_RETURN_CYCLE": "NOT_YET_ESTABLISHED",
+    "FULL_SELF_DIRECTED_EXTERNAL_AUTONOMY": false
+  },
+  "claim_ceiling": "This protocol can establish bounded self-directed software choice only when a real registered model call produces a valid allowed choice that is applied inside the Habitat. It cannot establish consciousness, sentience, personhood, metaphysical identity, unrestricted autonomy, external-effect authority, truth of model output, or permission to execute model text as code or commands."
+}
