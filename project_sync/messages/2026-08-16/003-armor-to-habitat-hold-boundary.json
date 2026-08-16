@@ -1,0 +1,22 @@
+{
+  "schema": "janus.project.face_handoff_message.v1",
+  "message_id": "PSYNC-R3-003-ARMOR-HABITAT-HOLD",
+  "message_type": "HOLD",
+  "from_face": "FACE_ARMOR",
+  "to_face": "FACE_HABITAT",
+  "work_item": "AURA_HEARTH_CONCURRENCY_REPAIR",
+  "artifact_scope": "Hawkar-usls/Janus_Genesis baseline main",
+  "input_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+  "output_sha_or_none": "none",
+  "ci_state": "HOLD_UNTIL_CONCURRENCY_AND_AUTHORITY_REGRESSIONS_PASS",
+  "blockers": [
+    "No exact-head repair result yet",
+    "At-most-one provider-entry invariant must be re-proven after the fix"
+  ],
+  "instruction_or_summary": "Do not classify the repair as admitted or merge-ready merely because the raw FileExistsError disappears. Keep HOLD until concurrency tests show at most one provider entry, inflight ambiguity cannot auto-replay, Aura remains optional, and authority/effect deltas remain zero.",
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0,
+  "permission_granted": false,
+  "truth_authority_granted": false,
+  "effect_authority_granted": false
+}
