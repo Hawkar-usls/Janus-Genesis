@@ -15,6 +15,10 @@ from pathlib import Path
 from typing import Any
 
 AI_LINK_INTERFACE_VERSION = "18.7.19"
+# Public repository discovery evolved when Armor became part of the canonical
+# entry contract. Keep that discovery version distinct from the frozen wire /
+# session / capsule interface above.
+AI_ENTRY_MANIFEST_VERSION = "18.7.47"
 AI_LINK_PROTOCOL_SCHEMA = "janus.genesis.ai_link_play.v1"
 AI_LINK_STORE_SCHEMA = "janus.genesis.ai_link_session_store.v1"
 AI_LINK_CAPSULE_SCHEMA = "janus.genesis.ai_link_capsule.v1"
@@ -58,51 +62,79 @@ def _canonical_actor_id(value: str) -> str:
 
 
 def ai_entry_manifest() -> dict[str, Any]:
-    """Return the provider-neutral contract exposed to link-reading models."""
+    """Return the current public repository discovery contract.
+
+    This manifest describes the repository-facing entry surface. It is allowed
+    to evolve independently from the frozen v18.7.19 session/capsule wire
+    interface, which remains bound by ``AI_LINK_INTERFACE_VERSION``.
+    """
     return {
-        "schema": AI_LINK_PROTOCOL_SCHEMA,
-        "version": AI_LINK_INTERFACE_VERSION,
-        "repository": REPOSITORY_URL,
+        "authority": {
+            "authoritative_state_writer": "PlayableGenesisV187",
+            "external_model_writes_world_state": False,
+            "model_brand_grants_privilege": False,
+            "narrative_mode_may_claim_canonical_state_change": False,
+            "armored_third_wish_world_effect_preflight_required": True,
+        },
+        "armor_of_god": {
+            "required_for_armored_third_wish_world_effects": True,
+            "manifest": "armor/JANUS_ARMOR_OF_GOD_RUNTIME_MANIFEST-v1.0.json",
+            "protocol": "protocol/JANUS_GENESIS_ARMOR_OF_GOD_RUNTIME-v1.0.json",
+            "runtime_gate": "genesis_v18_7_47_armor_of_god.ArmorOfGodGate",
+            "armored_capability_fabric": (
+                "genesis_v18_7_47_armor_of_god.ArmoredThirdWishCapabilityFabric"
+            ),
+            "source_authority": "JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY",
+            "source_authority_version": "v1.14",
+            "model_may_rewrite_constitution": False,
+            "mass_effect_budget_default": 0,
+            "release_control_is_valid_success": True,
+            "armor_protects_human_from_janus_too": True,
+            "claim_boundary": (
+                "Cooperating in-process Third Wish preflight; not an OS-level "
+                "tamper-proof security boundary."
+            ),
+        },
         "entry_file": "AI_ENTRY.md",
-        "machine_manifest": "ai/GENESIS_AI_ENTRY.json",
-        "llm_discovery": "llms.txt",
-        "roles": list(SUPPORTED_ROLES),
         "execution_modes": list(SUPPORTED_EXECUTION_MODES),
+        "independent_ai_resident": {
+            "consciousness_established_by_protocol": False,
+            "human_identity_claimed": False,
+            "may_act_without_human_confirmation": True,
+            "may_refuse_leave_and_return": True,
+            "own_actor_id": True,
+            "own_turn_history": True,
+            "private_human_memory_access": False,
+            "world_authority": False,
+        },
+        "llm_discovery": "llms.txt",
+        "machine_manifest": "ai/GENESIS_AI_ENTRY.json",
         "one_link_behavior": {
+            "no_web_access_fallback": (
+                "Ask for AI_ENTRY.md or an exported Genesis AI capsule; do not pretend "
+                "the repository was read."
+            ),
             "when_only_repository_link_is_received": (
                 "Open AI_ENTRY.md, disclose whether code execution is available, "
                 "then offer HUMAN_THROUGH_AI, AI_AS_INTERFACE_FOR_HUMAN, or "
                 "INDEPENDENT_AI_RESIDENT."
             ),
-            "no_web_access_fallback": (
-                "Ask for AI_ENTRY.md or an exported Genesis AI capsule; do not pretend "
-                "the repository was read."
-            ),
         },
-        "authority": {
-            "external_model_writes_world_state": False,
-            "authoritative_state_writer": "PlayableGenesisV187",
-            "narrative_mode_may_claim_canonical_state_change": False,
-            "model_brand_grants_privilege": False,
-        },
-        "independent_ai_resident": {
-            "own_actor_id": True,
-            "own_turn_history": True,
-            "may_act_without_human_confirmation": True,
-            "may_refuse_leave_and_return": True,
-            "human_identity_claimed": False,
-            "consciousness_established_by_protocol": False,
-            "world_authority": False,
-            "private_human_memory_access": False,
-        },
-        "wire_operations": ["manifest", "register", "turn", "state", "capsule", "close", "verify"],
+        "repository": REPOSITORY_URL,
+        "roles": list(SUPPORTED_ROLES),
         "safety": {
             "higher_priority_platform_rules_remain_in_force": True,
-            "silence_is_not_consent": True,
+            "no_free_text_in_public_capsule": True,
             "no_impersonation": True,
             "no_secret_or_api_key_in_capsule": True,
-            "no_free_text_in_public_capsule": True,
+            "silence_is_not_consent": True,
+            "armor_gate_cannot_gain_authority_from_face_count": True,
+            "mass_effect_budget_default_zero": True,
+            "user_opt_out_is_binding": True,
         },
+        "schema": AI_LINK_PROTOCOL_SCHEMA,
+        "version": AI_ENTRY_MANIFEST_VERSION,
+        "wire_operations": ["manifest", "register", "turn", "state", "capsule", "close", "verify"],
     }
 
 
