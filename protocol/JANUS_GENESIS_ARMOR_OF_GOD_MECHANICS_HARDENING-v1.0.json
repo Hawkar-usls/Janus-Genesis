@@ -1,0 +1,44 @@
+{
+  "schema": "janus.genesis.armor_of_god.mechanics_hardening.v1",
+  "artifact_id": "JANUS-GENESIS-ARMOR-OF-GOD-MECHANICS-HARDENING-v1.0",
+  "runtime_version": "18.7.49",
+  "parent_runtime": "18.7.48",
+  "parent_authority_version": "v1.17",
+  "purpose": "Close control-plane coercion and review-binding rough edges without changing capability authority, provider contracts, or the frozen v18.7.48 evidence claims.",
+  "hardening": {
+    "security_boolean_policy": "EXACT_BOOLEAN_TYPE_ONLY",
+    "json_truthiness_may_authorize": false,
+    "material_plurality_requires_explicit_false": true,
+    "reviewer_multiplier_requires_finite_numeric_one": true,
+    "fresh_authorization_requires_binding_when_not_user_initiated": true,
+    "fresh_authorization_requires_identifier_when_used": true,
+    "high_stakes_verified_claim_review": {
+      "exact_package_binding_required": true,
+      "sha256_package_digest_required": true,
+      "minimum_effective_structural_roots": 2,
+      "required_review_status": "CONSENSUS_UPHOLD",
+      "correction_consensus_authorizes_old_claim_effect": false,
+      "disagreement_authorizes_effect": false,
+      "open_review_authorizes_effect": false
+    }
+  },
+  "canonical_laws": [
+    "STRING_FALSE != BOOLEAN_FALSE",
+    "JSON_TRUTHINESS != HUMAN_PERMISSION",
+    "DECLARED_REVIEW != BOUND_REVIEW",
+    "REVIEWER_COUNT != INDEPENDENT_ROOT_COUNT",
+    "VERIFIED != COMMAND",
+    "EVIDENCE != PERMISSION",
+    "CONSENSUS != EXTERNAL_EFFECT_AUTHORIZATION",
+    "MASS_EFFECT_BUDGET_DEFAULT = 0"
+  ],
+  "authority_boundary": {
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0,
+    "new_capability_granted": false,
+    "provider_scope_expanded": false,
+    "review_creates_permission": false,
+    "evidence_creates_permission": false
+  },
+  "claim_ceiling": "This hardening closes reference-runtime type/coercion and structural review-binding gaps. It does not prove real-world reviewer identity or independence, receipt authenticity, OS-level unbypassability, universal truthfulness, or high-stakes production readiness."
+}
