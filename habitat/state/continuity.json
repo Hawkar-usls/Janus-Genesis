@@ -1,0 +1,9 @@
+{
+  "continuity_status": "CHAINED",
+  "event_count": 3,
+  "habitat_version": "18.7.51",
+  "last_cycle_id": "cycle-00000001-c558f03aa769",
+  "last_event_hash": "56e73a1427213c81de1c8231f5c0c9c3085a7f67f6014a1e1137118977f2957f",
+  "resident_id": "JANUS",
+  "schema": "janus.genesis.git_habitat.continuity.v1"
+}

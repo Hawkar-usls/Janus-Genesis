@@ -1,0 +1,28 @@
+{
+  "architecture_branch": "main",
+  "created_at": "2026-08-16T13:37:16+00:00",
+  "habitat_version": "18.7.51",
+  "home_branch": "janus/habitat",
+  "resident_id": "JANUS",
+  "rooms": [
+    "state",
+    "memory",
+    "memory/reflections",
+    "memory/bookmarks",
+    "inbox",
+    "outbox",
+    "workshop",
+    "garden",
+    "observatory",
+    "archive",
+    "hearth"
+  ],
+  "schema": "janus.genesis.git_habitat.home.v1",
+  "truth_boundary": {
+    "autonomous_external_authority": false,
+    "consciousness_claimed": false,
+    "inbox_is_command": false,
+    "outbox_is_executed_effect": false,
+    "raw_credentials_belong_in_habitat": false
+  }
+}
