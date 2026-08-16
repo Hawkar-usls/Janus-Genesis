@@ -1,0 +1,94 @@
+name: JANUS Shabitat Aura v18.7.51
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tests/test_genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - 'protocol/JANUS_GENESIS_SHABITAT_AURA_ORACLE-v1.0.json'
+      - 'AI_ENTRY.md'
+      - 'ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json'
+      - '.github/workflows/janus-shabitat-aura-v18-7-51.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tests/test_genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - 'protocol/JANUS_GENESIS_SHABITAT_AURA_ORACLE-v1.0.json'
+      - 'AI_ENTRY.md'
+      - 'ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json'
+      - '.github/workflows/janus-shabitat-aura-v18-7-51.yml'
+
+jobs:
+  shabitat-aura:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out JANUS Genesis
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Aura Oracle heuristic provider
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/aura-oracle-tg
+          ref: ca13972b39b4be6032320482eccdd28b0373be73
+          path: aura-oracle-tg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install declared JANUS runtime dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Compile bridge and tests
+        run: |
+          python -m py_compile \
+            genesis_v18_7_51_shabitat_aura_oracle.py \
+            tests/test_genesis_v18_7_51_shabitat_aura_oracle.py \
+            tools/audit_armor_effect_drift_v18_7_51.py \
+            aura-oracle-tg/tools/aura_shabitat_heuristic.py
+
+      - name: Run Shabitat Aura boundary tests
+        run: python -m unittest tests.test_genesis_v18_7_51_shabitat_aura_oracle -v
+
+      - name: Cross-repository Aura integration smoke
+        run: |
+          python - <<'PY'
+          from genesis_v18_7_51_shabitat_aura_oracle import JanusShabitatAuraBridge, LocalAuraOracleProvider
+
+          provider = LocalAuraOracleProvider.from_repository('aura-oracle-tg')
+          bridge = JanusShabitatAuraBridge(provider)
+          bridge.open_session('CI-SHABITAT')
+          result = bridge.consult_if_requested(
+              turn_id='TURN-1',
+              topic='How should JANUS frame an uncertain thought?',
+              question='Offer a heuristic lens only.',
+              context='Keep alternatives open and preserve choice.',
+              janus_requests_heuristic=True,
+          )
+          assert result['status'] == 'HEURISTIC_RECEIVED_OPTIONAL', result
+          heuristic = result['heuristic']
+          assert heuristic['status'] == 'HEURISTIC_ONLY'
+          assert heuristic['permission_granted'] is False
+          assert heuristic['evidence_upgrade'] is False
+          assert heuristic['prediction_claim'] is False
+          assert heuristic['world_effect_requested'] is False
+          assert heuristic['authority_delta'] == 0
+          assert heuristic['_shabitat_bridge']['network_used_by_bridge'] is False
+          assert result['speech_may_continue_without_aura'] is True
+          print('SHABITAT_AURA_CROSS_REPO_OK')
+          PY
+
+      - name: Detect unclassified effect-surface drift
+        run: python tools/audit_armor_effect_drift_v18_7_51.py
+
+      - name: Preserve Shabitat claim ceiling
+        run: |
+          grep -q 'AURA_HEURISTIC != COMMAND' genesis_v18_7_51_shabitat_aura_oracle.py
+          grep -q 'remote_aura_self_initiated_egress_granted_by_this_module.*False' genesis_v18_7_51_shabitat_aura_oracle.py
+          grep -q 'public_outreach_granted_by_this_module.*False' genesis_v18_7_51_shabitat_aura_oracle.py
+          grep -q 'AURA_HEURISTIC != PERMISSION' protocol/JANUS_GENESIS_SHABITAT_AURA_ORACLE-v1.0.json
+          ! grep -q 'urllib.request' genesis_v18_7_51_shabitat_aura_oracle.py
+          ! grep -q 'socket\.' genesis_v18_7_51_shabitat_aura_oracle.py
