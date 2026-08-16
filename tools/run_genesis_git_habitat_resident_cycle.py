@@ -87,15 +87,23 @@ def main(argv: list[str] | None = None) -> int:
             habitat.sleep(outcome="MODEL_RESIDENT_CYCLE_FAILED")
         except Exception:
             pass
+        safe_failure_code = (
+            str(exc)[:240]
+            if isinstance(exc, ResidentChoiceError)
+            else type(exc).__name__
+        )
         failure = {
             "schema": "janus.genesis.git_habitat.resident_cycle_failure.v1",
             "runner_version": RUNNER_VERSION,
             "cycle_id": cycle_id,
             "status": "FAILED_NOT_FOR_REMOTE_PROMOTION",
             "exception_type": type(exc).__name__,
+            "failure_code": safe_failure_code,
             "exception_sha256": hashlib.sha256(
                 f"{type(exc).__name__}:{exc}".encode("utf-8")
             ).hexdigest(),
+            "raw_model_output_stored": False,
+            "raw_model_output_logged": False,
             "model_provider_call_may_have_been_entered": True,
             "resident_choice_external_effect_executed": False,
             "automatic_retry_permission": False,
