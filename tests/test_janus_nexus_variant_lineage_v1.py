@@ -67,6 +67,20 @@ class NexusVariantLineageV1Tests(unittest.TestCase):
         )
         self.assertEqual(state["variants"][child["variant_id"]]["descendants"], [])
 
+    def test_parent_and_source_order_do_not_change_variant_identity(self) -> None:
+        left = self.payload(parents=["4" * 64, "5" * 64], mutation="order-stable")
+        right = self.payload(parents=["5" * 64, "4" * 64], mutation="order-stable")
+        right["source_repository_shas"] = list(  # type: ignore[index]
+            reversed(right["source_repository_shas"])  # type: ignore[arg-type,index]
+        )
+        self.assertEqual(variant_id_for(left), variant_id_for(right))
+
+    def test_non_string_parent_fails_closed_without_type_error(self) -> None:
+        payload = self.payload()
+        payload["parent_variant_ids"] = [{"not": "a digest"}]
+        with self.assertRaisesRegex(LineageError, "lowercase 64-hex digest"):
+            append_variant(self.ledger, payload)
+
     def test_unknown_parent_fails_before_append(self) -> None:
         with self.assertRaisesRegex(LineageError, "unknown parent_variant_ids"):
             append_variant(self.ledger, self.payload(parents=["9" * 64]))
@@ -135,6 +149,25 @@ class NexusVariantLineageV1Tests(unittest.TestCase):
         with self.assertRaisesRegex(LineageError, "must not be a symlink"):
             append_variant(self.ledger, self.payload())
         self.assertEqual(target.read_text(encoding="utf-8"), "")
+
+    def test_parent_directory_symlink_is_rejected(self) -> None:
+        real_parent = self.root / "real-parent"
+        real_parent.mkdir()
+        linked_parent = self.root / "linked-parent"
+        linked_parent.symlink_to(real_parent, target_is_directory=True)
+        escaped_ledger = linked_parent / "LINEAGE.jsonl"
+
+        with self.assertRaisesRegex(LineageError, "parent path must not contain symlinks"):
+            append_variant(escaped_ledger, self.payload())
+        with self.assertRaisesRegex(LineageError, "parent path must not contain symlinks"):
+            verify_ledger(escaped_ledger)
+        self.assertFalse((real_parent / "LINEAGE.jsonl").exists())
+
+    def test_missing_parent_directory_is_not_created_implicitly(self) -> None:
+        missing_ledger = self.root / "missing" / "LINEAGE.jsonl"
+        with self.assertRaisesRegex(LineageError, "parent directory must already exist"):
+            append_variant(missing_ledger, self.payload())
+        self.assertFalse(missing_ledger.parent.exists())
 
     def test_source_sha_and_repository_id_are_strict(self) -> None:
         bad_sha = self.payload()
