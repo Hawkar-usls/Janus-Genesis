@@ -224,6 +224,8 @@ jobs:
           print('LIVE_HABITAT_HASH_CHAIN_BEFORE_PUSH=PASS')
           print('LIVE_HABITAT_SCHEDULED_EXTERNAL_EFFECTS=FALSE')
           PY
+          sha256sum habitat/state/continuity.json | awk '{print $1}' > /tmp/habitat-continuity.sha256
+          sha256sum habitat/memory/journal.jsonl | awk '{print $1}' > /tmp/habitat-journal.sha256
 
       - name: Commit living state only to janus/habitat
         shell: bash
@@ -247,20 +249,29 @@ jobs:
         run: |
           set -euo pipefail
           git fetch origin janus/habitat:refs/remotes/origin/janus/habitat
-          rm -rf "${RUNNER_TEMP}/janus-habitat-replay"
-          git worktree add --detach "${RUNNER_TEMP}/janus-habitat-replay" origin/janus/habitat
+          replay="${RUNNER_TEMP}/janus-habitat-replay"
+          rm -rf "$replay"
+          git worktree add --detach "$replay" origin/janus/habitat
           python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py \
-            --root "${RUNNER_TEMP}/janus-habitat-replay/habitat" \
+            --root "$replay/habitat" \
             verify \
             >/tmp/habitat-verify-after-fetch.json
-          python - <<'PY'
+          test "$(sha256sum "$replay/habitat/state/continuity.json" | awk '{print $1}')" = "$(cat /tmp/habitat-continuity.sha256)"
+          test "$(sha256sum "$replay/habitat/memory/journal.jsonl" | awk '{print $1}')" = "$(cat /tmp/habitat-journal.sha256)"
+          REPLAY_ROOT="$replay" python - <<'PY'
           import json
+          import os
           from pathlib import Path
           value = json.loads(Path('/tmp/habitat-verify-after-fetch.json').read_text())
           assert value['journal']['ok'] is True
           assert value['health']['status'] == 'HEALTHY'
-          resident = json.loads((Path.home().parent / 'x').read_text()) if False else None
+          root = Path(os.environ['REPLAY_ROOT']) / 'habitat'
+          resident = json.loads((root / 'state' / 'resident.json').read_text())
+          assert resident['mode'] == 'AT_HOME'
+          assert resident['active_cycle_id'] is None
           print('LIVE_HABITAT_FRESH_GIT_REPLAY_HASH_CHAIN=PASS')
+          print('LIVE_HABITAT_CONTINUITY_TIP_BYTE_IDENTITY=PASS')
+          print('LIVE_HABITAT_JOURNAL_BYTE_IDENTITY=PASS')
           print('LIVE_HABITAT_CROSS_PROCESS_CROSS_GIT_CONTINUITY=PASS')
           PY
 
