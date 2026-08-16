@@ -185,6 +185,31 @@ def _safe_destination(root: Path, rel: Path) -> Path:
     return candidate
 
 
+def _expected_body_surface(file_rows: list[dict[str, Any]]) -> set[str]:
+    expected = {"SOURCE.json"}
+    for item in file_rows:
+        rel = _checked_relative_path(str(item.get("path") or ""))
+        expected.add(rel.as_posix())
+        parent = rel.parent
+        while parent != Path("."):
+            expected.add(parent.as_posix())
+            parent = parent.parent
+    return expected
+
+
+def _actual_surface(root: Path) -> tuple[set[str], bool]:
+    entries: set[str] = set()
+    has_symlink = False
+    try:
+        for path in root.rglob("*"):
+            entries.add(path.relative_to(root).as_posix())
+            if path.is_symlink():
+                has_symlink = True
+    except OSError:
+        return entries, True
+    return entries, has_symlink
+
+
 class NexusMaterializer:
     def __init__(self, manifest: dict[str, Any], sources_root: str | Path, output_root: str | Path) -> None:
         self.manifest = validate_manifest(manifest)
@@ -325,6 +350,7 @@ class NexusMaterializer:
             return {"ok": False, "errors": ["NEXUS_RECEIPT_MISSING"]}
         receipt = _read_json(self.receipt_path)
         errors: list[str] = []
+
         if receipt.get("schema") != RECEIPT_SCHEMA:
             errors.append("NEXUS_RECEIPT_SCHEMA_INVALID")
         if receipt.get("manifest_sha256") != self.manifest_sha256:
@@ -337,24 +363,86 @@ class NexusMaterializer:
             errors.append("NEXUS_SOURCE_EXECUTION_CLAIM_INVALID")
         if receipt.get("mutable_worktree_bytes_used") is not False:
             errors.append("NEXUS_MUTABLE_WORKTREE_CLAIM_INVALID")
+        if receipt.get("source_history_merged") is not False:
+            errors.append("NEXUS_SOURCE_HISTORY_MERGE_CLAIM_INVALID")
+        if receipt.get("source_history_remains_authoritative") is not True:
+            errors.append("NEXUS_SOURCE_HISTORY_AUTHORITY_CLAIM_INVALID")
+        if receipt.get("source_bytes_read_from_pinned_git_objects") is not True:
+            errors.append("NEXUS_PINNED_OBJECT_BYTES_CLAIM_INVALID")
+        if receipt.get("network_access_performed") is not False:
+            errors.append("NEXUS_NETWORK_ACCESS_CLAIM_INVALID")
+        if receipt.get("destructive_action_performed") is not False:
+            errors.append("NEXUS_DESTRUCTIVE_ACTION_CLAIM_INVALID")
 
-        basis_sources: list[dict[str, Any]] = []
+        try:
+            root_names = {p.name for p in self.output_root.iterdir()}
+        except OSError:
+            root_names = set()
+        faces_root = self.output_root / "faces"
+        if (
+            root_names != {"NEXUS_ID.json", "faces"}
+            or faces_root.is_symlink()
+            or not faces_root.is_dir()
+        ):
+            errors.append("NEXUS_ROOT_SURFACE_MISMATCH")
+
         source_rows = receipt.get("sources")
         if not isinstance(source_rows, list):
             source_rows = []
             errors.append("NEXUS_SOURCE_RECEIPTS_INVALID")
+        if receipt.get("source_count") != len(source_rows):
+            errors.append("NEXUS_SOURCE_COUNT_MISMATCH")
+
+        manifest_rows = {
+            str(row["repository_id"]): row
+            for row in self.manifest["sources"]
+        }
+        receipt_ids: list[str] = []
+        expected_face_names: set[str] = set()
+        basis_sources: list[dict[str, Any]] = []
+
         for row in source_rows:
+            if not isinstance(row, dict):
+                errors.append("NEXUS_SOURCE_RECEIPT_ROW_INVALID")
+                continue
             repo_id = str(row.get("repository_id") or "")
+            receipt_ids.append(repo_id)
+            manifest_row = manifest_rows.get(repo_id)
+            if manifest_row is None:
+                errors.append(f"NEXUS_SOURCE_BINDING_MISMATCH:{repo_id}")
+            else:
+                binding_keys = ("visibility", "branch", "sha")
+                if any(row.get(key) != manifest_row.get(key) for key in binding_keys):
+                    errors.append(f"NEXUS_SOURCE_BINDING_MISMATCH:{repo_id}")
+                if manifest_row["visibility"] == "public":
+                    if row.get("repository") != manifest_row.get("repository"):
+                        errors.append(f"NEXUS_SOURCE_BINDING_MISMATCH:{repo_id}")
+                elif "repository" in row:
+                    errors.append(f"NEXUS_PRIVATE_METADATA_LEAK:{repo_id}")
+
             visibility = row.get("visibility")
             prefix = "public" if visibility == "public" else "private"
-            body_dir = self.output_root / "faces" / f"{prefix}-{repo_id}"
+            face_name = f"{prefix}-{repo_id}"
+            expected_face_names.add(face_name)
+            body_dir = faces_root / face_name
             if body_dir.is_symlink() or not body_dir.is_dir():
                 errors.append(f"NEXUS_BODY_DIR_INVALID:{repo_id}")
                 continue
+
             file_rows = row.get("files")
             if not isinstance(file_rows, list):
                 errors.append(f"NEXUS_FILE_RECEIPTS_INVALID:{repo_id}")
                 continue
+
+            try:
+                expected_surface = _expected_body_surface(file_rows)
+            except NexusMaterializerError:
+                expected_surface = {"SOURCE.json"}
+                errors.append(f"NEXUS_RECEIPT_PATH_INVALID:{repo_id}")
+            actual_surface, has_symlink = _actual_surface(body_dir)
+            if has_symlink or actual_surface != expected_surface:
+                errors.append(f"NEXUS_BODY_SURFACE_MISMATCH:{repo_id}")
+
             recomputed: list[dict[str, Any]] = []
             for item in file_rows:
                 try:
@@ -365,6 +453,11 @@ class NexusMaterializer:
                 path = body_dir / rel
                 if path.is_symlink() or not path.is_file():
                     errors.append(f"NEXUS_BODY_FILE_MISSING:{repo_id}:{rel.as_posix()}")
+                    continue
+                try:
+                    path.resolve().relative_to(body_dir.resolve())
+                except (OSError, ValueError):
+                    errors.append(f"NEXUS_BODY_FILE_ESCAPE:{repo_id}:{rel.as_posix()}")
                     continue
                 raw = path.read_bytes()
                 recomputed.append(
@@ -380,13 +473,24 @@ class NexusMaterializer:
             tree_sha = _sha256_json(recomputed)
             if tree_sha != row.get("tree_sha256"):
                 errors.append(f"NEXUS_TREE_DIGEST_MISMATCH:{repo_id}")
+
             source_json = body_dir / "SOURCE.json"
             if not source_json.is_file() or source_json.is_symlink():
                 errors.append(f"NEXUS_SOURCE_RECEIPT_MISSING:{repo_id}")
-            elif visibility == "private":
-                private_receipt = _read_json(source_json)
-                if any(k in private_receipt for k in ("repository", "name", "full_name", "clone_url", "html_url")):
+            else:
+                try:
+                    persisted_source_receipt = _read_json(source_json)
+                except NexusMaterializerError:
+                    persisted_source_receipt = {}
+                    errors.append(f"NEXUS_SOURCE_RECEIPT_UNREADABLE:{repo_id}")
+                if persisted_source_receipt != row:
+                    errors.append(f"NEXUS_SOURCE_RECEIPT_MISMATCH:{repo_id}")
+                if visibility == "private" and any(
+                    key in persisted_source_receipt
+                    for key in ("repository", "name", "full_name", "clone_url", "html_url")
+                ):
                     errors.append(f"NEXUS_PRIVATE_METADATA_LEAK:{repo_id}")
+
             basis_sources.append(
                 {
                     "repository_id": repo_id,
@@ -394,6 +498,26 @@ class NexusMaterializer:
                     "tree_sha256": row.get("tree_sha256"),
                 }
             )
+
+        if len(receipt_ids) != len(set(receipt_ids)):
+            errors.append("NEXUS_SOURCE_RECEIPT_ID_DUPLICATE")
+        if set(receipt_ids) != set(manifest_rows):
+            errors.append("NEXUS_SOURCE_SET_MISMATCH")
+        if len(source_rows) != len(self.manifest["sources"]):
+            errors.append("NEXUS_SOURCE_SET_MISMATCH")
+
+        if faces_root.is_dir() and not faces_root.is_symlink():
+            try:
+                actual_face_names = {p.name for p in faces_root.iterdir()}
+            except OSError:
+                actual_face_names = set()
+            if actual_face_names != expected_face_names:
+                errors.append("NEXUS_FACES_SURFACE_MISMATCH")
+            else:
+                for path in faces_root.iterdir():
+                    if path.is_symlink() or not path.is_dir():
+                        errors.append("NEXUS_FACES_SURFACE_MISMATCH")
+                        break
 
         basis = {
             "schema": RECEIPT_SCHEMA,
