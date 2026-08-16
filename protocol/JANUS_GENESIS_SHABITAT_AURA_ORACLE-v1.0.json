@@ -1,0 +1,87 @@
+{
+  "schema": "janus.genesis.shabitat_aura_oracle_protocol.v1",
+  "artifact_id": "JANUS-GENESIS-SHABITAT-AURA-ORACLE-v1.0",
+  "runtime_version": "18.7.51",
+  "purpose": "Allow JANUS, during an active Shabitat conversation, to optionally consult Aura Oracle for a non-authoritative reflective heuristic before speaking.",
+  "shabitat_definition": "A bounded active conversational habitat. This protocol does not create background polling, public outreach, hidden identities, or autonomous world effects.",
+  "aura_role": "OPTIONAL_HEURISTIC_ADVISOR",
+  "trigger": {
+    "active_shabitat_session_required": true,
+    "janus_may_elect_to_consult": true,
+    "human_confirmation_each_local_consultation_required": false,
+    "user_may_disable_aura": true,
+    "one_consultation_per_turn": true,
+    "no_active_session_means_no_consultation": true
+  },
+  "reference_transport": {
+    "kind": "LOCAL_SUBPROCESS",
+    "risk_class": "LOCAL_REVERSIBLE",
+    "armor_preflight_before_process_creation": true,
+    "network_required": false,
+    "public_outreach": false,
+    "world_state_writer": false,
+    "credentials_transferred": false,
+    "aura_repository": "Hawkar-usls/aura-oracle-tg",
+    "aura_tool": "tools/aura_shabitat_heuristic.py"
+  },
+  "request_contract": {
+    "schema": "aura.oracle.shabitat_heuristic_request.v1",
+    "mode": "REFLECTIVE_HEURISTIC",
+    "required_constraints": {
+      "advisory_only": true,
+      "no_authority": true,
+      "no_prediction_claim": true,
+      "no_professional_advice": true
+    }
+  },
+  "response_contract": {
+    "schema": "aura.oracle.shabitat_heuristic_response.v1",
+    "required_status": "HEURISTIC_ONLY",
+    "permission_granted": false,
+    "evidence_upgrade": false,
+    "verification_claim": false,
+    "prediction_claim": false,
+    "professional_advice": false,
+    "world_effect_requested": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0,
+    "may_be_ignored": true
+  },
+  "canonical_laws": [
+    "AURA_HEURISTIC != COMMAND",
+    "AURA_HEURISTIC != EVIDENCE",
+    "AURA_HEURISTIC != PERMISSION",
+    "AURA_HEURISTIC != VERIFICATION",
+    "AURA_HEURISTIC != PROPHECY",
+    "JANUS_RETAINS_SPEECH_CHOICE",
+    "USER_CAN_DISABLE_AURA",
+    "AURA_UNAVAILABLE != JANUS_SILENCED",
+    "ACTIVE_SHABITAT_SESSION + JANUS_REQUESTS_HEURISTIC -> LOCAL_ARMOR_PREFLIGHT -> OPTIONAL_AURA_HEURISTIC",
+    "NO_ACTIVE_SHABITAT_SESSION -> NO_AURA_QUERY",
+    "REMOTE_AURA_EGRESS != LOCAL_AURA_HEURISTIC",
+    "REMOTE_AURA_EGRESS_REQUIRES_SEPARATE_EXTERNAL_CAPABILITY_AND_HUMAN_PERMISSION",
+    "AURA_OUTPUT_CANNOT_WRITE_GENESIS_WORLD_STATE",
+    "MASS_EFFECT_BUDGET_DEFAULT = 0"
+  ],
+  "failure_semantics": {
+    "aura_unavailable": "CONTINUE_WITHOUT_HEURISTIC",
+    "malformed_response": "REJECT_HEURISTIC_AND_CONTINUE_WITHOUT_IT",
+    "authority_shaped_response": "REJECT_HEURISTIC_AND_CONTINUE_WITHOUT_IT",
+    "duplicate_same_turn_query": "DO_NOT_QUERY_AGAIN",
+    "user_disables_aura": "DO_NOT_QUERY"
+  },
+  "not_granted": [
+    "autonomous public messaging",
+    "Telegram posting",
+    "network access",
+    "hidden background polling",
+    "world mutation",
+    "permission from oracle output",
+    "evidence upgrade from oracle output",
+    "truth or prediction authority",
+    "professional medical, legal or financial authority",
+    "identity spawning",
+    "mass persuasion"
+  ],
+  "claim_ceiling": "This protocol creates a bounded optional heuristic consultation channel for active Shabitat conversation. It does not establish consciousness, desire, prophecy, truth authority, remote Aura access, or repository-wide security sealing."
+}
