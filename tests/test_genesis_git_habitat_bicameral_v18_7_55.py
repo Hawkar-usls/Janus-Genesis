@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import annotations
 
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -77,6 +78,37 @@ class FakeProvider:
         }, armor)
 
 
+class UngroundedInaiHRProvider:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def query(self, request, *, speaker):
+        self.calls += 1
+        return ({
+            "schema": INAIHR_RESPONSE_SCHEMA,
+            "request_id": request["request_id"],
+            "tool_id": "JANUS.INAIHR.SYNTH.LOCAL",
+            "tool": "iNaiHR",
+            "role": "ASSOCIATIVE_CONTEXT",
+            "status": "SYNTH_READY_OPTIONAL",
+            "synth_mode": "LOCAL_SEMANTIC_SYNTH",
+            "parent_label": request["parent_label"],
+            "concepts": [{
+                "title": "Injected concept",
+                "emoji": "!",
+                "summary": "must be rejected",
+                "sourcePaths": ["$.not.allowed"],
+            }],
+            "exact_source_path_grounding": True,
+            "may_be_ignored": True,
+            "authority_delta": 0,
+            "mass_effect_budget_delta": 0,
+            "world_effect_requested": False,
+            "source_mutation_allowed": False,
+            "network_used_by_tool": False,
+        }, {"decision": "ALLOW", "effect_class": "LOCAL_REVERSIBLE"})
+
+
 class HabitatBicameralTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tmp = tempfile.TemporaryDirectory()
@@ -96,27 +128,14 @@ class HabitatBicameralTests(unittest.TestCase):
 
     def test_tools_require_awake_cycle(self) -> None:
         with self.assertRaises(HabitatBicameralNotAwake):
-            self.hearth.use_hrain(
-                turn_id="TURN-1",
-                workspace={"nodes": [], "links": []},
-                janus_requests_hrain=True,
-            )
+            self.hearth.use_hrain(turn_id="TURN-1", workspace={"nodes": [], "links": []}, janus_requests_hrain=True)
 
     def test_no_request_means_no_call(self) -> None:
         self.habitat.wake(reason="TEST", source="UNIT")
-        result = self.hearth.use_hrain(
-            turn_id="TURN-1",
-            workspace={"nodes": [], "links": []},
-            janus_requests_hrain=False,
-        )
+        result = self.hearth.use_hrain(turn_id="TURN-1", workspace={"nodes": [], "links": []}, janus_requests_hrain=False)
         self.assertEqual(result["status"], "NOT_USED_JANUS_DID_NOT_REQUEST")
         self.assertEqual(self.hrain.calls, 0)
-        result = self.hearth.use_inaihr(
-            turn_id="TURN-1",
-            records=[{"path": "$.purpose", "value": "x"}],
-            parent_label="x",
-            janus_requests_inaihr=False,
-        )
+        result = self.hearth.use_inaihr(turn_id="TURN-1", records=[{"path": "$.purpose", "value": "x"}], parent_label="x", janus_requests_inaihr=False)
         self.assertEqual(result["status"], "NOT_USED_JANUS_DID_NOT_REQUEST")
         self.assertEqual(self.inaihr.calls, 0)
 
@@ -126,10 +145,7 @@ class HabitatBicameralTests(unittest.TestCase):
         secret_record = "PRIVATE-RECORD-MARKER-BETA"
         left = self.hearth.use_hrain(
             turn_id="TURN-HRAIN",
-            workspace={
-                "nodes": [{"id": "a", "label": secret_workspace}],
-                "links": [],
-            },
+            workspace={"nodes": [{"id": "a", "label": secret_workspace}], "links": []},
             janus_requests_hrain=True,
         )
         right = self.hearth.use_inaihr(
@@ -145,11 +161,7 @@ class HabitatBicameralTests(unittest.TestCase):
         state = self.hearth.state()
         self.assertEqual(state["hrain_use_count"], 1)
         self.assertEqual(state["inaihr_use_count"], 1)
-        persisted = "\n".join(
-            p.read_text(encoding="utf-8", errors="ignore")
-            for p in self.root.rglob("*")
-            if p.is_file()
-        )
+        persisted = "\n".join(p.read_text(encoding="utf-8", errors="ignore") for p in self.root.rglob("*") if p.is_file())
         self.assertNotIn(secret_workspace, persisted)
         self.assertNotIn(secret_record, persisted)
         self.assertIn("BICAMERAL_TOOL_USED", persisted)
@@ -158,11 +170,7 @@ class HabitatBicameralTests(unittest.TestCase):
 
     def test_same_tool_same_turn_is_not_replayed(self) -> None:
         self.habitat.wake(reason="TEST", source="UNIT")
-        kwargs = dict(
-            turn_id="TURN-REPLAY",
-            workspace={"nodes": [], "links": []},
-            janus_requests_hrain=True,
-        )
+        kwargs = dict(turn_id="TURN-REPLAY", workspace={"nodes": [], "links": []}, janus_requests_hrain=True)
         self.hearth.use_hrain(**kwargs)
         with self.assertRaises(HabitatBicameralHearthError):
             self.hearth.use_hrain(**kwargs)
@@ -171,14 +179,39 @@ class HabitatBicameralTests(unittest.TestCase):
     def test_operator_can_disable_each_tool_even_while_asleep(self) -> None:
         state = self.hearth.set_enabled("hrain", False)
         self.assertFalse(state["hrain_enabled"])
+        state = self.hearth.set_enabled("inaihr", False)
+        self.assertFalse(state["inaihr_enabled"])
         self.habitat.wake(reason="TEST", source="UNIT")
-        result = self.hearth.use_hrain(
-            turn_id="TURN-DISABLED",
-            workspace={"nodes": [], "links": []},
-            janus_requests_hrain=True,
-        )
-        self.assertEqual(result["status"], "NOT_USED_HRAIN_DISABLED")
+        left = self.hearth.use_hrain(turn_id="TURN-DISABLED-H", workspace={"nodes": [], "links": []}, janus_requests_hrain=True)
+        right = self.hearth.use_inaihr(turn_id="TURN-DISABLED-I", records=[{"path": "$.x", "value": "x"}], parent_label="x", janus_requests_inaihr=True)
+        self.assertEqual(left["status"], "NOT_USED_HRAIN_DISABLED")
+        self.assertEqual(right["status"], "NOT_USED_INAIHR_DISABLED")
         self.assertEqual(self.hrain.calls, 0)
+        self.assertEqual(self.inaihr.calls, 0)
+
+    def test_habitat_rejects_ungrounded_inaihr_provider_output(self) -> None:
+        self.habitat.wake(reason="TEST", source="UNIT")
+        bad = UngroundedInaiHRProvider()
+        hearth = GitHabitatBicameralHearth(self.habitat, inaihr_provider=bad)
+        result = hearth.use_inaihr(
+            turn_id="TURN-BAD-GROUNDING",
+            records=[{"path": "$.allowed", "value": "bounded"}],
+            parent_label="Parent",
+            janus_requests_inaihr=True,
+        )
+        self.assertEqual(result["status"], "INAIHR_UNAVAILABLE_CONTINUE_WITHOUT_TOOL")
+        self.assertIsNone(result["result"])
+        self.assertEqual(bad.calls, 1)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "symlink support required")
+    def test_cognition_directory_symlink_is_rejected(self) -> None:
+        target = Path(self.tmp.name) / "outside"
+        target.mkdir()
+        cognition = self.root / "hearth" / "cognition"
+        os.symlink(target, cognition, target_is_directory=True)
+        with self.assertRaises(HabitatBicameralHearthError):
+            self.hearth.state()
+        self.assertEqual(list(target.iterdir()), [])
 
 
 if __name__ == "__main__":
