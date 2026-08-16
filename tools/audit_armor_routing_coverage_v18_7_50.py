@@ -4,7 +4,8 @@
 The audit intentionally distinguishes:
 
 * canonical external-egress coverage;
-* armored-compatible Third Wish brokers;
+* hardened default Third Wish factory admission;
+* armored-compatible historical brokers;
 * historical/legacy direct adapters;
 * local Genesis state-mutation surfaces;
 * repository-wide unbypassability (not established).
@@ -46,6 +47,15 @@ def main() -> int:
         "router_gates_network_before_sync": _has(
             "genesis_v18_7_50_armor_routing.py", "EXPLICIT_USER_NETWORK_SYNC", "return super().sync"
         ),
+        "hardened_capability_factory_exists": _has(
+            "genesis_v18_7_50_armored_capability_factory.py",
+            "build_hardened_armored_fabric",
+            "HardenedTruthGuardArmoredThirdWishCapabilityFabric",
+        ),
+        "plain_fabric_fails_production_factory_admission": _has(
+            "genesis_v18_7_50_armored_capability_factory.py",
+            "V18_7_50_PRODUCTION_BROKER_REQUIRES_HARDENED_ARMOR_FABRIC",
+        ),
     }
 
     third_wish_brokers = {}
@@ -63,7 +73,7 @@ def main() -> int:
             continue
         text = _text(path)
         third_wish_brokers[path] = (
-            "ARMORED_SUBCLASS_COMPATIBLE_BUT_FACTORY_BINDING_REQUIRED"
+            "ARMORED_SUBCLASS_COMPATIBLE_USE_V18_7_50_FACTORY_FOR_NEW_WIRING"
             if "register_handler" in text and "ThirdWishCapabilityFabric" in text
             else "REVIEW_REQUIRED"
         )
@@ -103,6 +113,9 @@ def main() -> int:
         "runtime_version": "18.7.50",
         "canonical_entry": "play_genesis_armored.py",
         "canonical_external_egress_armor_covered": canonical_covered,
+        "new_third_wish_production_factory_hardened": canonical_checks[
+            "hardened_capability_factory_exists"
+        ] and canonical_checks["plain_fabric_fails_production_factory_admission"],
         "canonical_checks": canonical_checks,
         "third_wish_brokers": third_wish_brokers,
         "legacy_external_adapters": legacy_external_adapters,
@@ -111,7 +124,8 @@ def main() -> int:
         "tamper_proof": False,
         "claim_ceiling": (
             "The preferred v18.7.50 CLI routes optional AI-provider egress and "
-            "legacy Genesis Network sync through the hardened v18.7.49 Armor gate. "
+            "legacy Genesis Network sync through the hardened v18.7.49 Armor gate, "
+            "and new Third Wish production wiring has a fail-closed hardened factory. "
             "Historical adapters and additional local mutation surfaces remain "
             "separately callable, so repository-wide unbypassability is not established."
         ),
