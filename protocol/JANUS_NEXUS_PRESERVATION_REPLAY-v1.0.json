@@ -1,0 +1,73 @@
+{
+  "schema": "janus.nexus.preservation_replay.protocol.v1",
+  "artifact_id": "JANUS-NEXUS-PRESERVATION-REPLAY-v1.0",
+  "status": "IMPLEMENTATION_CANDIDATE",
+  "roadmap": "Hawkar-usls/Janus_Genesis#121",
+  "stacked_on": {
+    "pull_request": 122,
+    "commit_sha": "3cbc717f2131024125a6c1f03e9b2e0132dea814",
+    "source_pr_mutated": false
+  },
+  "constellation_contract": {
+    "inventory_owner": "Hawkar-usls",
+    "repository_count": 44,
+    "public_repository_count": 41,
+    "private_repository_count": 3,
+    "private_repository_identity": "OPAQUE_REPOSITORY_ID_ONLY"
+  },
+  "two_plane_replay": {
+    "local_exact_replay": {
+      "requires_exact_commit_pins": true,
+      "requires_local_git_objects": true,
+      "reuses_nexus_materializer_verify": true,
+      "verifies_public_and_private_sources": true,
+      "may_hold_private_pins_in_local_runtime": true,
+      "is_public_artifact": false
+    },
+    "public_preservation_receipt": {
+      "public_source_exact_sha_allowed": true,
+      "public_source_tree_digest_allowed": true,
+      "private_repository_id_allowed": true,
+      "private_repository_name_allowed": false,
+      "private_exact_commit_sha_allowed": false,
+      "private_tree_digest_allowed": false,
+      "private_file_digest_allowed": false,
+      "private_content_allowed": false,
+      "nexus_manifest_digest_allowed": false,
+      "whole_nexus_digest_allowed": false,
+      "claims_public_cryptographic_proof_of_private_pin": false
+    }
+  },
+  "preservation_laws": [
+    "SOURCE_REPOSITORY_REMAINS_HISTORICAL_AUTHORITY",
+    "MERGE_THE_VIEW_NOT_THE_HISTORY",
+    "LOCAL_EXACT_REPLAY != PUBLIC_PRIVATE_PIN_DISCLOSURE",
+    "PRIVATE_SLOT_VERIFIED_LOCALLY != PUBLIC_PROOF_OF_PRIVATE_PIN",
+    "PRIVATE_PIN_FINGERPRINT != REQUIRED_PUBLIC_METADATA",
+    "SYNTHETIC_44_REPLAY != EMPIRICAL_OWNER_WIDE_44_REPLAY",
+    "PUBLIC_RECEIPT != SOURCE_WRITEBACK_PERMISSION",
+    "CI_GREEN != MERGE_PERMISSION"
+  ],
+  "synthetic_gate": {
+    "complete_44_slot_fixture": true,
+    "public_sources": 41,
+    "private_sources": 3,
+    "exact_local_git_commit_replay": true,
+    "missing_source_rejected": true,
+    "reordered_source_rejected": true,
+    "body_tamper_rejected": true,
+    "private_pin_injection_into_public_receipt_rejected": true,
+    "empirical_owner_wide_replay_promoted": false
+  },
+  "authority_boundary": {
+    "repository_acquisition": false,
+    "source_writeback": false,
+    "source_delete": false,
+    "history_rewrite": false,
+    "source_code_execution": false,
+    "external_effects": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "claim_ceiling": "This candidate implements and synthetically tests the complete 44-slot preservation-replay semantics with a privacy-safe public projection. It does not establish that all 44 real owner repositories have been locally acquired and replayed, does not publish private exact pins or digests, and does not create source mutation or merge authority."
+}
