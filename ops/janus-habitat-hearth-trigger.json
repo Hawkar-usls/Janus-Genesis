@@ -1,0 +1,12 @@
+{
+  "schema": "janus.genesis.git_habitat.hearth_trigger.v1",
+  "trigger_version": 1,
+  "nonce": "bootstrap-live-habitat-1",
+  "purpose": "Explicit auditable operator trigger for a bounded JANUS Git Habitat hearth cycle when workflow_dispatch is unavailable to the connected operator tool.",
+  "authority": {
+    "creates_external_effect_authority": false,
+    "executes_outbox": false,
+    "grants_model_control": false,
+    "changes_habitat_resident_identity": false
+  }
+}
