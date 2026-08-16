@@ -14,11 +14,7 @@ on:
       - 'play_genesis_armored.py'
       - 'genesis_v18_7_ai.py'
       - 'genesis_v18_7_38_durable_network_outbox.py'
-      - 'tools/genesis_third_wish_*.py'
-      - 'tools/genesis_api_server.py'
-      - 'tools/genesis_ai_gateway.py'
-      - 'tools/genesis_hosted_gateway.py'
-      - 'tools/audit_armor_routing_coverage_v18_7_50.py'
+      - 'tools/**/*.py'
       - 'tests/test_genesis_v18_7_50_armor_routing.py'
       - 'tests/test_genesis_v18_7_50_armored_capability_factory.py'
       - '.github/workflows/janus-armor-routing-v18-7-50.yml'
@@ -35,7 +31,7 @@ on:
       - 'play_genesis_armored.py'
       - 'genesis_v18_7_ai.py'
       - 'genesis_v18_7_38_durable_network_outbox.py'
-      - 'tools/**'
+      - 'tools/**/*.py'
       - 'tests/test_genesis_v18_7_50_armor_routing.py'
       - 'tests/test_genesis_v18_7_50_armored_capability_factory.py'
       - '.github/workflows/janus-armor-routing-v18-7-50.yml'
@@ -62,6 +58,7 @@ jobs:
             genesis_v18_7_50_armored_capability_factory.py \
             play_genesis_armored.py \
             tools/audit_armor_routing_coverage_v18_7_50.py \
+            tools/audit_armor_effect_drift_v18_7_50.py \
             tests/test_genesis_v18_7_50_armor_routing.py \
             tests/test_genesis_v18_7_50_armored_capability_factory.py
 
@@ -77,6 +74,9 @@ jobs:
 
       - name: Audit routing inventory
         run: python tools/audit_armor_routing_coverage_v18_7_50.py
+
+      - name: Detect unclassified direct effect surfaces
+        run: python tools/audit_armor_effect_drift_v18_7_50.py
 
       - name: Preserve claim ceiling
         run: |
