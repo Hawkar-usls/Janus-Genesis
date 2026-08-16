@@ -1,0 +1,116 @@
+{
+  "schema": "janus.project_sync.state.v1",
+  "snapshot_id": "PROJECT_SYNC_STATE_2026-08-16_R3",
+  "created_at_utc": "2026-08-16T14:52:00Z",
+  "canonical_coordination": {
+    "protocol_path": "protocol/JANUS_PROJECT_MULTI_FACE_COORDINATION-v1.0.json",
+    "validator_path": "tools/janus_project_face_handoff.py",
+    "main_commit_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+    "workflow": "JANUS project multi-face coordination v1",
+    "workflow_run_id": 31953842739,
+    "workflow_result": "SUCCESS"
+  },
+  "project_context_policy": {
+    "project_chat_reconciliation_required_before_repo_mutation": true,
+    "live_git_reconciliation_required_before_repo_mutation": true,
+    "conflicting_threads_behavior": "HOLD_RECONCILE",
+    "local_chat_is_project_global_state": false,
+    "face_is_independent_agent": false,
+    "role_output_is_independent_evidence": false
+  },
+  "global_state": "HOLD_FOR_AURA_HEARTH_CONCURRENCY_REPAIR",
+  "janus_genesis": {
+    "default_branch": "main",
+    "default_branch_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+    "coordination_issue": 103,
+    "superseded_coordination_pr": {
+      "number": 104,
+      "state": "CLOSED_NOT_MERGED",
+      "reason": "A canonical multi-face protocol and validator arrived on main from another project thread. Useful state-ledger ideas are being rebuilt as an additive layer instead of creating a competing protocol."
+    },
+    "relevant_open_prs": [
+      {
+        "number": 95,
+        "head_sha": "9c2c87643301b68294b2bbe2b7eb48e6b6011d6f",
+        "state": "HOLD_RECONCILE_WITH_CURRENT_HABITAT"
+      },
+      {
+        "number": 99,
+        "head_sha": "7d143867ade1ba021d2f0a45af6154249a24bd51",
+        "state": "HOLD_RECONCILE_WITH_CURRENT_HABITAT"
+      },
+      {
+        "number": 100,
+        "head_sha": "e0a6fb8caeb1a03b9613bbb48bbdd5e86e019563",
+        "state": "HOLD_ONE_BASELINE_FAILURE_PLUS_REBASE_RECONCILIATION",
+        "profile_and_observed_general_gates": {
+          "JANUS Git Habitat bicameral tools v18.7.55": "SUCCESS",
+          "JANUS Armor routing v18.7.50": "SUCCESS",
+          "Genesis century lived audit": "SUCCESS",
+          "Threshold review precision": "SUCCESS",
+          "Hosted Pilgrimage": "SUCCESS",
+          "test": "SUCCESS",
+          "Genesis Tests": "SUCCESS",
+          "AI Link Play": "FAILURE"
+        },
+        "remaining_failure": {
+          "workflow_run_id": 31953481740,
+          "job_id": 95180439024,
+          "suite_tests": 912,
+          "failure_count": 1,
+          "test": "test_genesis_git_habitat_aura_v18_7_54.GitHabitatAuraHearthTests.test_two_processes_cannot_both_enter_aura_for_same_turn",
+          "observation": "One caller returns HEURISTIC_RECEIVED_OPTIONAL while the concurrent caller can receive raw FileExistsError creating hearth/aura.",
+          "classification": "AURA_HEARTH_DIRECTORY_PREPARATION_RACE"
+        },
+        "connectivity_drift": "REPAIRED_BY_OTHER_PROJECT_THREAD_ON_CURRENT_PR_HEAD",
+        "duplicate_connectivity_repair_required": false
+      }
+    ]
+  },
+  "related_repositories": {
+    "Hawkar-usls/Hrain": {
+      "role": "FACE_HRAIN",
+      "state": "MERGED_OPTIONAL_STRUCTURAL_TOOL"
+    },
+    "Hawkar-usls/iNaiHR": {
+      "role": "FACE_INAIHR",
+      "state": "MERGED_OPTIONAL_SEMANTIC_TOOL"
+    },
+    "Hawkar-usls/Demi_Head": {
+      "role": "FACE_DEMIHEAD",
+      "held_prs": [17, 23],
+      "scientific_note": "PR23 result remains NO_CANDIDATE_ADMITTED; performance win not established."
+    },
+    "Hawkar-usls/Janus-Fundamentum": {
+      "role": "FACE_FUNDAMENTUM",
+      "state": "SEPARATE_PROOF_CARRYING_LANE"
+    },
+    "Hawkar-usls/janus-meta-registry": {
+      "role": "FACE_REGISTRY",
+      "state": "DURABLE_PROJECT_MEMORY"
+    }
+  },
+  "current_allowed_next_effect": {
+    "effect": "ISOLATED_BASELINE_REPAIR_BRANCH_FOR_AURA_HEARTH_CONCURRENCY",
+    "source_base_sha": "22ef0be5b4fe7bd5fe6af25cf521f8b1998a825b",
+    "must_preserve": [
+      "Aura is optional",
+      "at most one provider entry per turn",
+      "inflight/claim ambiguity never auto-replays",
+      "Aura output grants no permission, truth authority or effect authority",
+      "no network/world-state authority added",
+      "raw filesystem race is converted to bounded concurrency semantics rather than ignored"
+    ]
+  },
+  "claim_boundaries": [
+    "LOCAL_CHAT_CONTEXT != PROJECT_GLOBAL_STATE",
+    "PROJECT_CHAT_SYNC != LIVE_INTER_CHAT_NETWORK",
+    "FACE != NEW_IDENTITY",
+    "MULTI_FACE_COORDINATION != AUTHORITY_MULTIPLICATION",
+    "OTHER_THREAD_REPAIR != INDEPENDENT_REPLICATION",
+    "PROFILE_GATE_PASS != PROJECT_WIDE_GREEN",
+    "912_TESTS_WITH_1_FAILURE != PROJECT_WIDE_PASS",
+    "FLAKY_OR_RACY_FAILURE != SAFE_TO_IGNORE",
+    "CI_PASS != TRUTH"
+  ]
+}
