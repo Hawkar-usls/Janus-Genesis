@@ -9,6 +9,7 @@
   "producer_lanes": {
     "materializer": "Hawkar-usls/Janus_Genesis",
     "privacy_projection": "Hawkar-usls/Janus_Genesis",
+    "source_pin_contract": "Hawkar-usls/Janus_Genesis",
     "variant_lineage": "Hawkar-usls/Janus_Genesis",
     "handoff_ledger": "Hawkar-usls/Janus_Genesis",
     "swarm_recovery": "Hawkar-usls/janus-distributed-ai-swarm"
@@ -33,6 +34,12 @@
     "independent_rebuild_identity_reproduced": true,
     "local_exact_replay_passed": true,
     "privacy_projection_passed": true,
+    "typed_source_pinset_validated": true,
+    "exact_git_replay_pin_kind": "GIT_COMMIT_SHA1",
+    "opaque_version_pin_kind": "OPAQUE_VERSION_TOKEN",
+    "source_pin_type_inference_used": false,
+    "private_exact_pin_publication": false,
+    "whole_pinset_digest_publication": false,
     "lineage_expected_head_digest_reproduced": true,
     "at_least_one_failed_variant_retained": true,
     "handoff_expected_head_digest_reproduced": true,
@@ -58,6 +65,7 @@
     "public_summary_contains_swarm_checkpoint_or_receipt_digest": false,
     "public_summary_contains_source_identity_digest": false,
     "public_summary_contains_source_pins": false,
+    "public_summary_contains_whole_pinset_digest": false,
     "public_summary_may_contain_public_producer_repository_pr_sha_refs": true,
     "public_summary_binds_external_lock_digest": true
   },
@@ -77,6 +85,8 @@
   "canonical_laws": [
     "BUNDLE_CONSISTENCY != EMPIRICAL_REPLAY",
     "SHA_WITHOUT_REPOSITORY_IDENTITY != COMPLETE_PRODUCER_REFERENCE",
+    "PIN_STRING_SHAPE != PIN_SEMANTICS",
+    "OPAQUE_VERSION_TOKEN != GIT_COMMIT_SHA1",
     "SELF_DECLARED_REF != EXTERNAL_PRODUCER_LOCK",
     "PUBLIC_SUMMARY != PRIVATE_EVIDENCE_DUMP",
     "EXPECTED_DIGEST != OBSERVED_DIGEST -> REJECT",
