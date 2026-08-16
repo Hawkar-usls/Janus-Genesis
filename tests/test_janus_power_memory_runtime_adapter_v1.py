@@ -148,7 +148,7 @@ class PowerMemoryRuntimeAdapterTests(unittest.IsolatedAsyncioTestCase):
     async def test_memory_admission_failure_is_telemetry_failure_not_compute_failure(self) -> None:
         adapter = await self.make_adapter(
             memory_options={
-                "batch_size": 2,
+                "batch_size": 1,
                 "flush_interval_seconds": 60,
                 "max_buffer_records": 1,
             }
