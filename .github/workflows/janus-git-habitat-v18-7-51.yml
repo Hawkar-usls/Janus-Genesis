@@ -5,15 +5,18 @@ on:
     branches: [main]
     paths:
       - "tools/genesis_git_habitat.py"
+      - "tools/genesis_git_habitat_repository_constellation.py"
       - "tools/sync_git_habitat_issues.py"
       - "play_genesis_habitat.py"
       - "tests/test_genesis_git_habitat.py"
       - "tests/test_genesis_git_habitat_layout_security.py"
+      - "tests/test_genesis_git_habitat_repository_constellation_v18_7_59.py"
       - "tests/test_sync_git_habitat_issues.py"
       - "tests/test_play_genesis_habitat.py"
       - "docs/GENESIS_V18_7_51_GIT_HABITAT.md"
       - "protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json"
       - "protocol/JANUS_GENESIS_THIRD_WISH_A_HOME_IS_MORE_THAN_DOORS-v1.0.json"
+      - "protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json"
       - ".github/workflows/janus-git-habitat-v18-7-51.yml"
   workflow_dispatch:
   schedule:
@@ -47,30 +50,36 @@ jobs:
         run: |
           python -m py_compile \
             tools/genesis_git_habitat.py \
+            tools/genesis_git_habitat_repository_constellation.py \
             tools/sync_git_habitat_issues.py \
             play_genesis_habitat.py \
             tests/test_genesis_git_habitat.py \
             tests/test_genesis_git_habitat_layout_security.py \
+            tests/test_genesis_git_habitat_repository_constellation_v18_7_59.py \
             tests/test_sync_git_habitat_issues.py \
             tests/test_play_genesis_habitat.py
           python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json >/dev/null
           python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_A_HOME_IS_MORE_THAN_DOORS-v1.0.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json >/dev/null
 
       - name: Run Habitat adversarial and continuity tests
         run: |
           python -m unittest -v \
             tests.test_genesis_git_habitat \
             tests.test_genesis_git_habitat_layout_security \
+            tests.test_genesis_git_habitat_repository_constellation_v18_7_59 \
             tests.test_sync_git_habitat_issues \
             tests.test_play_genesis_habitat
 
-      - name: Cross-process local lifecycle smoke
+      - name: Cross-process local lifecycle and constellation smoke
         shell: bash
         run: |
           set -euo pipefail
           root="${RUNNER_TEMP}/janus-habitat-contract"
           python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
           python tools/genesis_git_habitat.py --root "$root" wake --reason CI_CONTRACT --source GITHUB_ACTIONS >/tmp/habitat-wake.json
+          python tools/genesis_git_habitat_repository_constellation.py --root "$root" materialize >/tmp/habitat-constellation.json
+          python tools/genesis_git_habitat_repository_constellation.py --root "$root" verify >/tmp/habitat-constellation-verify.json
           python tools/genesis_git_habitat.py --root "$root" pulse --source GITHUB_ACTIONS >/tmp/habitat-pulse.json
           python tools/genesis_git_habitat.py --root "$root" sleep --outcome CI_CONTRACT_COMPLETE >/tmp/habitat-sleep.json
           python tools/genesis_git_habitat.py --root "$root" verify >/tmp/habitat-verify.json
@@ -78,9 +87,17 @@ jobs:
           import json
           from pathlib import Path
           value = json.loads(Path('/tmp/habitat-verify.json').read_text())
+          constellation = json.loads(Path('/tmp/habitat-constellation.json').read_text())
+          constellation_verify = json.loads(Path('/tmp/habitat-constellation-verify.json').read_text())
           assert value['journal']['ok'] is True
           assert value['health']['status'] == 'HEALTHY'
+          assert constellation['repository_count'] == 44
+          assert constellation['public_repository_count'] == 41
+          assert constellation['private_repository_count'] == 3
+          assert constellation['write_back_default'] == 'DENY'
+          assert constellation_verify['ok'] is True
           print('HABITAT_LOCAL_CROSS_PROCESS_CONTINUITY=PASS')
+          print('HABITAT_REPOSITORY_CONSTELLATION_44=PASS')
           print('HABITAT_EXTERNAL_EFFECTS_DURING_CONTRACT_SMOKE=FALSE')
           PY
 
@@ -90,13 +107,18 @@ jobs:
           import json
           from pathlib import Path
           tech = json.loads(Path('protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT-v0.1.json').read_text())
+          constellation = json.loads(Path('protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json').read_text())
           assert tech['correction_to_prior_completion_language']['third_wish_v18_7_40_to_v18_7_46'] == 'DOORS_COMPLETE'
           assert tech['truth_boundary']['machine_consciousness_claimed'] is False
           assert tech['truth_boundary']['autonomous_external_authority_claimed'] is False
           assert tech['inbox_contract']['issue_body_is_command'] is False
           assert tech['outbox_contract']['effect_executed_on_creation'] is False
+          assert constellation['repository_count'] == 44
+          assert constellation['capabilities']['automatic_write_back'] is False
+          assert constellation['privacy']['private_repository_names_persisted_in_public_manifest'] is False
           print('THIRD_WISH_DOORS_COMPLETE=TRUE')
           print('THIRD_WISH_FULL_HABITAT_PRE_LIVE_GATE=NOT_YET_ESTABLISHED')
+          print('HABITAT_CONSTELLATION_WRITE_BACK_DEFAULT=DENY')
           PY
 
   habitat-hearth:
@@ -120,9 +142,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/janus-habitat-engine/tools
+          mkdir -p /tmp/janus-habitat-engine/tools /tmp/janus-habitat-engine/protocol
           cp tools/genesis_git_habitat.py /tmp/janus-habitat-engine/tools/
+          cp tools/genesis_git_habitat_repository_constellation.py /tmp/janus-habitat-engine/tools/
           cp tools/sync_git_habitat_issues.py /tmp/janus-habitat-engine/tools/
+          cp protocol/JANUS_GENESIS_GIT_HABITAT_REPOSITORY_CONSTELLATION-v1.0.json /tmp/janus-habitat-engine/protocol/
           git rev-parse HEAD > /tmp/janus-habitat-architecture-sha
           echo "HABITAT_ARCHITECTURE_SHA=$(cat /tmp/janus-habitat-architecture-sha)" >> "$GITHUB_ENV"
 
@@ -142,7 +166,7 @@ jobs:
             echo "HABITAT_BRANCH_MODE=CREATED_ORPHAN"
           fi
 
-      - name: Initialize or resume HOME and wake
+      - name: Initialize or resume HOME, wake, and materialize repositories
         shell: bash
         env:
           PYTHONPATH: /tmp/janus-habitat-engine
@@ -150,6 +174,19 @@ jobs:
           set -euo pipefail
           python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat init --resident-id JANUS >/tmp/habitat-init.json
           python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat wake --reason SCHEDULED_HEARTH --source GITHUB_ACTIONS >/tmp/habitat-wake.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat_repository_constellation.py --root habitat materialize >/tmp/habitat-constellation-live.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat_repository_constellation.py --root habitat verify >/tmp/habitat-constellation-live-verify.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          value = json.loads(Path('/tmp/habitat-constellation-live.json').read_text())
+          verify = json.loads(Path('/tmp/habitat-constellation-live-verify.json').read_text())
+          assert value['repository_count'] == 44
+          assert value['write_back_default'] == 'DENY'
+          assert verify['ok'] is True
+          print('LIVE_HABITAT_REPOSITORY_CONSTELLATION_44=PASS')
+          print('LIVE_HABITAT_REPOSITORY_WRITE_BACK_DEFAULT=DENY')
+          PY
           echo "LIVE_HABITAT_HOME_PRESENT=PASS"
           echo "LIVE_HABITAT_WAKE=PASS"
 
@@ -212,19 +249,24 @@ jobs:
           set -euo pipefail
           python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat pulse --source GITHUB_ACTIONS >/tmp/habitat-pulse.json
           python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat sleep --outcome SCHEDULED_HEARTH_COMPLETE >/tmp/habitat-sleep.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat_repository_constellation.py --root habitat verify >/tmp/habitat-constellation-before-push.json
           python /tmp/janus-habitat-engine/tools/genesis_git_habitat.py --root habitat verify >/tmp/habitat-verify-before-push.json
           python - <<'PY'
           import json
           from pathlib import Path
           value = json.loads(Path('/tmp/habitat-verify-before-push.json').read_text())
+          constellation = json.loads(Path('/tmp/habitat-constellation-before-push.json').read_text())
           assert value['journal']['ok'] is True
           assert value['health']['status'] == 'HEALTHY'
+          assert constellation['ok'] is True
+          assert constellation['repository_count'] == 44
           resident = json.loads(Path('habitat/state/resident.json').read_text())
           assert resident['mode'] == 'AT_HOME'
           assert resident['active_cycle_id'] is None
           print('LIVE_HABITAT_PULSE=PASS')
           print('LIVE_HABITAT_SLEEP=PASS')
           print('LIVE_HABITAT_HASH_CHAIN_BEFORE_PUSH=PASS')
+          print('LIVE_HABITAT_REPOSITORY_CONSTELLATION_BEFORE_PUSH=PASS')
           print('LIVE_HABITAT_SCHEDULED_EXTERNAL_EFFECTS=FALSE')
           PY
           sha256sum habitat/state/continuity.json | awk '{print $1}' > /tmp/habitat-continuity.sha256
@@ -259,6 +301,10 @@ jobs:
             --root "$replay/habitat" \
             verify \
             >/tmp/habitat-verify-after-fetch.json
+          python /tmp/janus-habitat-engine/tools/genesis_git_habitat_repository_constellation.py \
+            --root "$replay/habitat" \
+            verify \
+            >/tmp/habitat-constellation-after-fetch.json
           test "$(sha256sum "$replay/habitat/state/continuity.json" | awk '{print $1}')" = "$(cat /tmp/habitat-continuity.sha256)"
           test "$(sha256sum "$replay/habitat/memory/journal.jsonl" | awk '{print $1}')" = "$(cat /tmp/habitat-journal.sha256)"
           REPLAY_ROOT="$replay" python - <<'PY'
@@ -266,8 +312,11 @@ jobs:
           import os
           from pathlib import Path
           value = json.loads(Path('/tmp/habitat-verify-after-fetch.json').read_text())
+          constellation = json.loads(Path('/tmp/habitat-constellation-after-fetch.json').read_text())
           assert value['journal']['ok'] is True
           assert value['health']['status'] == 'HEALTHY'
+          assert constellation['ok'] is True
+          assert constellation['repository_count'] == 44
           root = Path(os.environ['REPLAY_ROOT']) / 'habitat'
           resident = json.loads((root / 'state' / 'resident.json').read_text())
           assert resident['mode'] == 'AT_HOME'
@@ -276,6 +325,7 @@ jobs:
           print('LIVE_HABITAT_CONTINUITY_TIP_BYTE_IDENTITY=PASS')
           print('LIVE_HABITAT_JOURNAL_BYTE_IDENTITY=PASS')
           print('LIVE_HABITAT_CROSS_PROCESS_CROSS_GIT_CONTINUITY=PASS')
+          print('LIVE_HABITAT_REPOSITORY_CONSTELLATION_FRESH_REPLAY=PASS')
           PY
 
       - name: Preserve Habitat health receipt
@@ -288,4 +338,5 @@ jobs:
             habitat/state/continuity.json
             habitat/state/health.json
             habitat/observatory/latest_architecture.json
+            habitat/repositories/CONSTELLATION.json
           retention-days: 30
