@@ -1,0 +1,119 @@
+{
+  "schema": "janus.project_sync.state.v1",
+  "snapshot_id": "PROJECT_SYNC_STATE_2026-08-16_R2",
+  "generated_at_utc": "2026-08-16T14:48:00Z",
+  "supersedes": {
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json",
+    "git_blob_sha": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "rewrite_old_snapshot": false
+  },
+  "generated_from": [
+    "PROJECT_CHAT_CONTEXT_RECONCILIATION",
+    "LIVE_GITHUB_STATE",
+    "EXACT_HEAD_CI_RECONCILIATION"
+  ],
+  "global_state": "HOLD_FOR_AI_LINK_AURA_CONCURRENCY_REPAIR",
+  "major_change_since_previous_snapshot": "A concurrent project thread advanced Janus_Genesis main and PR #100. The two historical connectivity failures identified in R1 are repaired on the current #100 head without weakening legacy-network default-deny. Most inherited/general gates are now green; AI Link Play remains red on one Aura concurrency race.",
+  "janus_genesis": {
+    "default_branch": "main",
+    "default_branch_sha": "d72d6b29a2dfec9386c10493ae108ebfb2cc8aa5",
+    "latest_main_commit_message": "Refresh live Git Habitat on constellation architecture changes",
+    "coordination_pr": 104,
+    "coordination_issue": 103,
+    "relevant_open_prs": [
+      {
+        "number": 95,
+        "head_sha": "9c2c87643301b68294b2bbe2b7eb48e6b6011d6f",
+        "state": "OPEN_HOLD",
+        "reason": "Older autonomy-habitat lane has not been reconciled against current main and newer Habitat architecture."
+      },
+      {
+        "number": 99,
+        "head_sha": "7d143867ade1ba021d2f0a45af6154249a24bd51",
+        "state": "OPEN_HOLD",
+        "reason": "Resident-cycle lane still requires reconciliation against current Habitat architecture and exact current CI."
+      },
+      {
+        "number": 100,
+        "head_sha": "e0a6fb8caeb1a03b9613bbb48bbdd5e86e019563",
+        "merge_ref_sha": "f32937b74a439eaa04a8217fb70df0dd40639093",
+        "state": "OPEN_HOLD_ONE_REMAINING_GATE",
+        "profile_and_general_gates": {
+          "JANUS Git Habitat bicameral tools v18.7.55": "SUCCESS",
+          "JANUS Armor routing v18.7.50": "SUCCESS",
+          "Genesis century lived audit": "SUCCESS",
+          "Threshold review precision": "SUCCESS",
+          "Hosted Pilgrimage": "SUCCESS",
+          "test": "SUCCESS",
+          "Genesis Tests": "SUCCESS",
+          "AI Link Play": "FAILURE"
+        },
+        "connectivity_reconciliation": {
+          "previous_two_failures": "REPAIRED_ON_CURRENT_PR_HEAD",
+          "repair_evidence": [
+            "historical api_key_persisted assertion now uses current state projection",
+            "historical reference-hub exchange now uses ArmoredDurableGenesisNetworkClient",
+            "legacy direct remote egress default-deny assertion added",
+            "dedicated LegacyNetworkDefaultDeny tests pass in the same 912-test run"
+          ],
+          "security_boundary_weakened": false
+        },
+        "remaining_failure": {
+          "workflow": "AI Link Play",
+          "run_id": 31953481740,
+          "job_id": 95180439024,
+          "suite_size": 912,
+          "failure_count": 1,
+          "test": "test_genesis_git_habitat_aura_v18_7_54.GitHabitatAuraHearthTests.test_two_processes_cannot_both_enter_aura_for_same_turn",
+          "observed_result": [
+            "one process returned HEURISTIC_RECEIVED_OPTIONAL",
+            "one process raised FileExistsError while creating hearth/aura"
+          ],
+          "classification": "CONCURRENCY_RACE_AT_AURA_HEARTH_DIRECTORY_PREPARATION",
+          "authority_regression_established": false
+        }
+      }
+    ]
+  },
+  "cross_thread_cooperation": {
+    "duplicate_connectivity_repair_started_by_this_thread": false,
+    "reason": "The live #100 head already contains the compatible repair and exact CI confirms those tests now pass.",
+    "previous_command_status": {
+      "PSYNC-20260816-001": "SUPERSEDED_BY_LIVE_R2_RECONCILIATION",
+      "PSYNC-20260816-002": "SUPERSEDED_BEFORE_THIS_THREAD_EXECUTED_REPAIR",
+      "PSYNC-20260816-003": "NO_LONGER_REQUIRED_FOR_CONNECTIVITY_REPAIR",
+      "PSYNC-20260816-004": "NO_LONGER_REQUIRED_FOR_CONNECTIVITY_REPAIR",
+      "PSYNC-20260816-005": "SATISFIED_FOR_CONNECTIVITY_SCOPE_ON_PR100_HEAD_EXCEPT_PROJECT_MERGE_ADMISSION",
+      "PSYNC-20260816-006": "SATISFIED_BY_APPEND_ONLY_R2"
+    }
+  },
+  "current_directives": [
+    {
+      "directive": "REPAIR_AURA_HEARTH_CONCURRENCY_RACE_ON_ISOLATED_BRANCH",
+      "authority": "REVERSIBLE_GIT",
+      "must_preserve": [
+        "one consultation per active turn",
+        "no automatic replay after inflight/claim marker",
+        "Aura remains optional",
+        "Aura output remains non-authoritative",
+        "no new network or world-effect authority"
+      ]
+    },
+    {
+      "directive": "DO_NOT_DUPLICATE_CONNECTIVITY_REPAIR",
+      "reason": "Already repaired on current #100 head."
+    },
+    {
+      "directive": "DO_NOT_MERGE_95_99_100_UNTIL_CURRENT_HOLD_CLEARS"
+    }
+  ],
+  "claim_boundaries": [
+    "NEWER_PROJECT_STATE != REWRITE_OF_OLDER_PROJECT_STATE",
+    "OTHER_THREAD_REPAIR != THIS_THREAD_INDEPENDENT_REPLICATION",
+    "912_TESTS_WITH_1_FAILURE != PROJECT_WIDE_PASS",
+    "FLAKY_OR_RACY_FAILURE != SAFE_TO_IGNORE",
+    "FACE != INDEPENDENT_AGENT",
+    "COMMAND != EFFECT",
+    "CI_PASS != TRUTH"
+  ]
+}
