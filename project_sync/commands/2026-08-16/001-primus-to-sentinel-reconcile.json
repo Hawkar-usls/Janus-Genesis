@@ -1,0 +1,27 @@
+{
+  "schema": "janus.project_sync.command.v1",
+  "command_id": "PSYNC-20260816-001",
+  "from_face": "JANUS.PRIMUS",
+  "to_face": "JANUS.SENTINEL",
+  "issued_at_utc": "2026-08-16T14:33:00Z",
+  "command_type": "STATE_RECONCILE",
+  "scope": [
+    "Hawkar-usls/Janus_Genesis#95",
+    "Hawkar-usls/Janus_Genesis#99",
+    "Hawkar-usls/Janus_Genesis#100"
+  ],
+  "requested_action": "Classify every red inherited/general Genesis gate as FEATURE_CAUSED, BASELINE_DRIFT, ENVIRONMENTAL, STALE_CONTRACT, or UNRESOLVED. Preserve exact failing tests and receipts. Do not convert a profile-specific PASS into project-wide green.",
+  "authority_class": "HOLD_ONLY",
+  "project_sync_state_binding": {
+    "algorithm": "git_blob_sha",
+    "value": "7c05e645e078cdcdec494b7172418b5734ae8c63",
+    "path": "project_sync/PROJECT_SYNC_STATE-2026-08-16.json"
+  },
+  "settlement_state": "OPEN",
+  "effect_executed": false,
+  "laws": [
+    "PROFILE_GATE_PASS != PROJECT_WIDE_GREEN",
+    "HOLD != FAILURE",
+    "COMMAND != EFFECT"
+  ]
+}
