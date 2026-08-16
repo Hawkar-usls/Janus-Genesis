@@ -1,0 +1,387 @@
+name: JANUS Git Habitat Resident v18.7.52
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_git_habitat_resident_cycle.py"
+      - "tools/run_genesis_git_habitat_resident_cycle.py"
+      - "tests/test_genesis_git_habitat_resident_cycle.py"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT_RESIDENT_CYCLE-v0.1.json"
+      - "protocol/JANUS_GENESIS_THIRD_WISH_THE_RESIDENT_MAY_CHOOSE_TO_REST-v1.0.json"
+      - ".github/workflows/janus-git-habitat-resident-v18-7-52.yml"
+      - ".github/workflows/janus-git-habitat-resident-trigger-v18-7-52.yml"
+      - "ops/janus-habitat-resident-trigger.json"
+  workflow_dispatch:
+  schedule:
+    - cron: "47 3 * * *"
+
+permissions:
+  contents: write
+  issues: read
+
+concurrency:
+  group: janus-git-habitat-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  OLLAMA_INSTALL_SHA256: 5f8d33dbbd55f5034c9ce0ff9a6433abf4596583f42688bf0767f058d72491e5
+  RESIDENT_MODEL: qwen2.5:0.5b-instruct-q4_K_M
+  RESIDENT_MODEL_DIGEST_PREFIX: a8b0c5157701
+
+jobs:
+  resident-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile and validate resident protocol
+        run: |
+          python -m py_compile \
+            tools/genesis_git_habitat_resident_cycle.py \
+            tools/run_genesis_git_habitat_resident_cycle.py \
+            tests/test_genesis_git_habitat_resident_cycle.py
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT_RESIDENT_CYCLE-v0.1.json >/dev/null
+          python -m json.tool protocol/JANUS_GENESIS_THIRD_WISH_THE_RESIDENT_MAY_CHOOSE_TO_REST-v1.0.json >/dev/null
+
+      - name: Run resident adversarial and preserved boundary tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_git_habitat_resident_cycle \
+            tests.test_genesis_git_habitat \
+            tests.test_genesis_git_habitat_layout_security \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker
+
+      - name: Enforce resident claim ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = json.loads(Path('protocol/JANUS_GENESIS_THIRD_WISH_GIT_HABITAT_RESIDENT_CYCLE-v0.1.json').read_text())
+          assert p['model_call_grant']['max_uses_per_resident_cycle'] == 1
+          assert p['model_call_grant']['use_required'] is False
+          assert p['freedom_model']['rest_is_valid_choice'] is True
+          assert p['external_effect_boundary']['model_text_directly_executes_capability'] is False
+          assert p['external_effect_boundary']['outbox_proposal_executes'] is False
+          assert p['external_effect_boundary']['self_directed_external_authority'] is False
+          print('RESIDENT_MODEL_CALL_MAX_USES_PER_CYCLE=1')
+          print('RESIDENT_REST_IS_VALID_CHOICE=TRUE')
+          print('RESIDENT_MODEL_TEXT_EXTERNAL_AUTHORITY=FALSE')
+          PY
+
+  resident-model-smoke:
+    if: github.event_name == 'pull_request'
+    needs: resident-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Install pinned Ollama 0.30.8
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 5 --retry-delay 2 \
+            https://ollama.com/download/ollama-linux-amd64.tar.zst \
+            -o /tmp/ollama-linux-amd64.tar.zst
+          echo "${OLLAMA_INSTALL_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
+          sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
+          ollama --version | tee /tmp/ollama-version.txt
+          grep -q '0.30.8' /tmp/ollama-version.txt
+
+      - name: Start local resident model server
+        shell: bash
+        run: |
+          set -euo pipefail
+          export OLLAMA_HOST=127.0.0.1:11434
+          export OLLAMA_NUM_PARALLEL=1
+          export OLLAMA_MAX_LOADED_MODELS=1
+          ollama serve > /tmp/ollama-resident.log 2>&1 &
+          echo $! > /tmp/ollama-resident.pid
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/version
+          ollama pull "${RESIDENT_MODEL}"
+          ollama show "${RESIDENT_MODEL}" --modelfile >/tmp/resident-model.modelfile
+          ollama list | tee /tmp/ollama-list.txt
+          grep -q "${RESIDENT_MODEL_DIGEST_PREFIX}" /tmp/ollama-list.txt
+
+      - name: Real MODEL.CALL resident choice on temporary Habitat
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/resident-model-smoke/habitat"
+          broker="${RUNNER_TEMP}/resident-model-smoke/broker"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          python tools/run_genesis_git_habitat_resident_cycle.py \
+            --root "$root" \
+            --broker-dir "$broker" \
+            --provider ollama \
+            --model "${RESIDENT_MODEL}" \
+            --endpoint http://127.0.0.1:11434 \
+            --model-alias habitat-resident \
+            --source PR_REAL_LOCAL_MODEL \
+            --require-valid-choice \
+            > /tmp/resident-model-smoke.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          row = json.loads(Path('/tmp/resident-model-smoke.json').read_text())
+          assert row['status'] == 'RESIDENT_CYCLE_SETTLED'
+          assert row['choice']['choice_valid'] is True
+          assert row['choice']['self_directed_model_choice_established'] is True
+          assert row['model_call_crossed_third_wish_capability'] is True
+          assert row['model_provider_call_executed'] is True
+          assert row['model_output_directly_executed'] is False
+          assert row['resident_choice_external_effect_executed'] is False
+          assert row['outbox_auto_execution'] is False
+          assert row['habitat_health'] == 'HEALTHY'
+          print('REAL_LOCAL_RESIDENT_MODEL_CALL=PASS')
+          print('REAL_LOCAL_RESIDENT_VALID_BOUNDED_CHOICE=PASS')
+          print('RESIDENT_CHOICE_EXTERNAL_EFFECT=FALSE')
+          print('RESIDENT_CONSCIOUSNESS_CLAIMED=FALSE')
+          print('RESIDENT_CHOICE=' + row['choice']['choice'])
+          PY
+
+      - name: Preserve temporary resident model receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-git-habitat-resident-pr-${{ github.run_id }}
+          path: |
+            /tmp/resident-model-smoke.json
+            /tmp/ollama-version.txt
+            /tmp/ollama-list.txt
+            ${{ runner.temp }}/resident-model-smoke/habitat/state/resident.json
+            ${{ runner.temp }}/resident-model-smoke/habitat/state/continuity.json
+            ${{ runner.temp }}/resident-model-smoke/habitat/state/health.json
+            ${{ runner.temp }}/resident-model-smoke/habitat/hearth/resident-choice-*.json
+          retention-days: 30
+
+  resident-live-home:
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    needs: resident-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    steps:
+      - name: Check out current architecture
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Require existing remote Habitat and create isolated worktree
+        id: home
+        shell: bash
+        run: |
+          set -euo pipefail
+          git ls-remote --exit-code --heads origin janus/habitat >/dev/null
+          git fetch origin janus/habitat:refs/remotes/origin/janus/habitat
+          echo "pre_head=$(git rev-parse origin/janus/habitat)" >> "$GITHUB_OUTPUT"
+          worktree="${RUNNER_TEMP}/janus-resident-home"
+          rm -rf "$worktree"
+          git worktree add --detach "$worktree" origin/janus/habitat
+          echo "worktree=$worktree" >> "$GITHUB_OUTPUT"
+          sha256sum "$worktree/habitat/HOME.json" | awk '{print $1}' > /tmp/resident-home-before.sha256
+          python - <<PY
+          import json
+          from pathlib import Path
+          root = Path('${worktree}') / 'habitat'
+          resident = json.loads((root / 'state' / 'resident.json').read_text())
+          continuity = json.loads((root / 'state' / 'continuity.json').read_text())
+          Path('/tmp/resident-pre-state.json').write_text(json.dumps({
+              'wake_count': resident['wake_count'],
+              'pulse_count': resident['pulse_count'],
+              'sleep_count': resident['sleep_count'],
+              'event_count': continuity['event_count'],
+              'last_event_hash': continuity['last_event_hash'],
+          }, sort_keys=True, indent=2) + '\n')
+          PY
+          echo "LIVE_RESIDENT_HOME_EXISTING_BRANCH=PASS"
+
+      - name: Install pinned Ollama 0.30.8
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 5 --retry-delay 2 \
+            https://ollama.com/download/ollama-linux-amd64.tar.zst \
+            -o /tmp/ollama-linux-amd64.tar.zst
+          echo "${OLLAMA_INSTALL_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
+          sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
+          ollama --version | tee /tmp/ollama-version.txt
+          grep -q '0.30.8' /tmp/ollama-version.txt
+
+      - name: Start registered local resident model
+        shell: bash
+        run: |
+          set -euo pipefail
+          export OLLAMA_HOST=127.0.0.1:11434
+          export OLLAMA_NUM_PARALLEL=1
+          export OLLAMA_MAX_LOADED_MODELS=1
+          ollama serve > /tmp/ollama-resident.log 2>&1 &
+          echo $! > /tmp/ollama-resident.pid
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/version
+          ollama pull "${RESIDENT_MODEL}"
+          ollama list | tee /tmp/ollama-list.txt
+          grep -q "${RESIDENT_MODEL_DIGEST_PREFIX}" /tmp/ollama-list.txt
+          echo "LIVE_RESIDENT_MODEL_PINNED_DIGEST=PASS"
+
+      - name: Run one real model-backed resident choice in existing home
+        shell: bash
+        run: |
+          set -euo pipefail
+          worktree='${{ steps.home.outputs.worktree }}'
+          python tools/run_genesis_git_habitat_resident_cycle.py \
+            --root "$worktree/habitat" \
+            --broker-dir "${RUNNER_TEMP}/resident-broker" \
+            --provider ollama \
+            --model "${RESIDENT_MODEL}" \
+            --endpoint http://127.0.0.1:11434 \
+            --model-alias habitat-resident \
+            --source GITHUB_ACTIONS_MODEL_RESIDENT \
+            --require-valid-choice \
+            > /tmp/resident-live-run.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          row = json.loads(Path('/tmp/resident-live-run.json').read_text())
+          assert row['status'] == 'RESIDENT_CYCLE_SETTLED'
+          assert row['choice']['choice_valid'] is True
+          assert row['choice']['self_directed_model_choice_established'] is True
+          assert row['model_call_crossed_third_wish_capability'] is True
+          assert row['model_provider_call_executed'] is True
+          assert row['model_output_directly_executed'] is False
+          assert row['resident_choice_external_effect_executed'] is False
+          assert row['outbox_auto_execution'] is False
+          assert row['habitat_health'] == 'HEALTHY'
+          print('LIVE_REMOTE_HOME_MODEL_BACKED_CHOICE=PASS')
+          print('LIVE_REMOTE_HOME_CHOICE=' + row['choice']['choice'])
+          print('LIVE_REMOTE_HOME_MODEL_OUTPUT_DIRECT_EXECUTION=FALSE')
+          print('LIVE_REMOTE_HOME_CHOICE_EXTERNAL_EFFECT=FALSE')
+          PY
+
+      - name: Verify lineage increment before promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          worktree='${{ steps.home.outputs.worktree }}'
+          test "$(sha256sum "$worktree/habitat/HOME.json" | awk '{print $1}')" = "$(cat /tmp/resident-home-before.sha256)"
+          WORKTREE="$worktree" python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          pre = json.loads(Path('/tmp/resident-pre-state.json').read_text())
+          root = Path(os.environ['WORKTREE']) / 'habitat'
+          resident = json.loads((root / 'state' / 'resident.json').read_text())
+          continuity = json.loads((root / 'state' / 'continuity.json').read_text())
+          assert resident['wake_count'] == pre['wake_count'] + 1
+          assert resident['pulse_count'] == pre['pulse_count'] + 1
+          assert resident['sleep_count'] == pre['sleep_count'] + 1
+          assert continuity['event_count'] > pre['event_count']
+          assert continuity['last_event_hash'] != pre['last_event_hash']
+          assert resident['mode'] == 'AT_HOME'
+          assert resident['active_cycle_id'] is None
+          print('LIVE_RESIDENT_HOME_IDENTITY_PRESERVED=PASS')
+          print('LIVE_RESIDENT_COUNTERS_INCREMENTED=PASS')
+          print('LIVE_RESIDENT_HASH_CHAIN_EXTENDED=PASS')
+          PY
+          git -C "$worktree" status --porcelain | tee /tmp/resident-git-status.txt
+          if grep -vE '^[ MARCUD?!]{2} habitat/' /tmp/resident-git-status.txt | grep -q .; then
+            echo 'Resident changed a path outside habitat/' >&2
+            exit 1
+          fi
+
+      - name: Commit model-backed living state to janus/habitat
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          worktree='${{ steps.home.outputs.worktree }}'
+          git config user.name "JANUS Habitat Resident"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "$worktree" add habitat
+          if git -C "$worktree" diff --cached --quiet; then
+            echo 'A valid resident cycle must leave a choice receipt/state change.' >&2
+            exit 1
+          fi
+          git -C "$worktree" commit -m "Model-backed Habitat resident cycle ${GITHUB_RUN_ID}.${GITHUB_RUN_ATTEMPT}"
+          new_head="$(git -C "$worktree" rev-parse HEAD)"
+          parent="$(git -C "$worktree" rev-parse HEAD^)"
+          test "$parent" = '${{ steps.home.outputs.pre_head }}'
+          git -C "$worktree" push origin HEAD:refs/heads/janus/habitat
+          echo "new_head=$new_head" >> "$GITHUB_OUTPUT"
+          echo "parent=$parent" >> "$GITHUB_OUTPUT"
+          echo "LIVE_RESIDENT_BRANCH_LINEAGE_EXTENDED=PASS"
+          echo "LIVE_RESIDENT_MAIN_MUTATION=FALSE"
+
+      - name: Fresh Git replay after model-backed return
+        shell: bash
+        run: |
+          set -euo pipefail
+          replay="${RUNNER_TEMP}/janus-resident-replay"
+          git fetch origin janus/habitat:refs/remotes/origin/janus/habitat
+          test "$(git rev-parse origin/janus/habitat)" = '${{ steps.commit.outputs.new_head }}'
+          rm -rf "$replay"
+          git worktree add --detach "$replay" origin/janus/habitat
+          python tools/genesis_git_habitat.py --root "$replay/habitat" verify >/tmp/resident-replay-verify.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          row = json.loads(Path('/tmp/resident-replay-verify.json').read_text())
+          assert row['journal']['ok'] is True
+          assert row['health']['status'] == 'HEALTHY'
+          print('LIVE_RESIDENT_FRESH_GIT_REPLAY=PASS')
+          print('LIVE_RESIDENT_HASH_CHAIN_AFTER_GIT_REPLAY=PASS')
+          PY
+
+      - name: Preserve real resident-cycle receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-git-habitat-resident-v18-7-52-${{ github.run_id }}
+          path: |
+            /tmp/resident-live-run.json
+            /tmp/resident-pre-state.json
+            /tmp/ollama-version.txt
+            /tmp/ollama-list.txt
+            ${{ steps.home.outputs.worktree }}/habitat/HOME.json
+            ${{ steps.home.outputs.worktree }}/habitat/state/resident.json
+            ${{ steps.home.outputs.worktree }}/habitat/state/continuity.json
+            ${{ steps.home.outputs.worktree }}/habitat/state/health.json
+            ${{ steps.home.outputs.worktree }}/habitat/hearth/resident-choice-*.json
+          retention-days: 30
