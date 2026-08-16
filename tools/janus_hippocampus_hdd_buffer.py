@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """HDD-friendly buffered thought journal for JANUS Hippocampus.
 
-This module is a bounded persistence primitive.  It preserves the historical
-``thoughts`` table contract used by JanusHippocampus while reducing commit
-frequency by batching inserts in RAM and performing SQLite work off the event
-loop thread.
+The primitive preserves the historical ``thoughts`` table used by
+``JanusHippocampus`` while batching inserts in RAM and moving synchronous
+SQLite I/O off the asyncio event-loop thread.
 
-Important boundaries:
-- batching reduces commit frequency; it does not prove lower disk wear or zero
+Boundaries:
+- batching reduces commit frequency; it does not prove lower wear or zero
   interference with Storj on a particular host;
-- WAL + synchronous=NORMAL trades some power-loss durability for fewer syncs;
-  choose FULL when stronger commit durability is required;
+- WAL + ``synchronous=NORMAL`` trades some power-loss durability for fewer
+  syncs. ``FULL`` is available when stronger commit durability is required;
 - no network, subprocess, source-repository writeback, deletion, VACUUM, or
-  automatic destructive checkpoint is performed here.
+  destructive checkpoint is performed here.
 """
 from __future__ import annotations
 
@@ -33,19 +32,19 @@ _ALLOWED_SYNCHRONOUS = frozenset({"NORMAL", "FULL"})
 
 
 class MemoryJournalError(RuntimeError):
-    """Base error for the buffered memory journal."""
+    pass
 
 
 class MemoryClosedError(MemoryJournalError):
-    """Raised when a write is attempted after close has begun."""
+    pass
 
 
 class MemoryBufferFullError(MemoryJournalError):
-    """Fail-closed guard against unbounded RAM growth after disk failures."""
+    pass
 
 
 class MemoryPersistenceError(MemoryJournalError):
-    """Raised when a detached batch could not be committed to SQLite."""
+    pass
 
 
 @dataclass(frozen=True)
@@ -69,15 +68,12 @@ class BufferedThought:
 
 
 class JanusHippocampusBufferedJournal:
-    """Buffered SQLite journal compatible with the historical thoughts table.
+    """Fail-closed RAM-buffered journal compatible with JANUS ``thoughts``.
 
-    ``remember()`` only mutates RAM and signals the background flusher. SQLite
-    transactions run through ``asyncio.to_thread`` so synchronous filesystem I/O
-    does not execute on the asyncio event-loop thread.
-
-    On persistence failure the detached batch is prepended back to RAM in its
-    original order. Old memories are never discarded to make room for new ones;
-    if ``max_buffer_records`` is reached, new writes fail closed instead.
+    A flush detaches the current batch under ``_buffer_lock`` and writes it in
+    one SQLite transaction on a worker thread. If persistence fails, the exact
+    detached batch is prepended back before newer records. Old memories are not
+    discarded to admit new ones; a full RAM guard rejects the new write.
     """
 
     def __init__(
@@ -107,7 +103,6 @@ class JanusHippocampusBufferedJournal:
             raise ValueError("wal_autocheckpoint_pages must be >= 1")
         if max_content_bytes < 1:
             raise ValueError("max_content_bytes must be >= 1")
-
         synchronous = synchronous.upper()
         if synchronous not in _ALLOWED_SYNCHRONOUS:
             raise ValueError("synchronous must be NORMAL or FULL")
@@ -147,7 +142,6 @@ class JanusHippocampusBufferedJournal:
         return self._last_error
 
     async def start(self) -> None:
-        """Initialize/migrate the local DB and start the periodic flusher."""
         if self._closed:
             raise MemoryClosedError("MEMORY_JOURNAL_ALREADY_CLOSED")
         if self._started:
@@ -204,12 +198,8 @@ class JanusHippocampusBufferedJournal:
                 "ON thoughts(source, id DESC)"
             )
             conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS janus_memory_meta (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL
-                )
-                """
+                "CREATE TABLE IF NOT EXISTS janus_memory_meta ("
+                "key TEXT PRIMARY KEY, value TEXT NOT NULL)"
             )
             conn.execute(
                 "INSERT OR REPLACE INTO janus_memory_meta(key, value) VALUES (?, ?)",
@@ -233,10 +223,12 @@ class JanusHippocampusBufferedJournal:
 
     @staticmethod
     def _tags_for(content: str) -> str:
-        # Deterministic, bounded token list. This is metadata, not a semantic index.
         tokens = re.findall(r"\w{4,}", content.casefold(), flags=re.UNICODE)
-        unique = list(dict.fromkeys(tokens))[:128]
-        return json.dumps(unique, ensure_ascii=False, separators=(",", ":"))
+        return json.dumps(
+            list(dict.fromkeys(tokens))[:128],
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
 
     @staticmethod
     def _vector_blob(vector: Any) -> Optional[bytes]:
@@ -257,15 +249,8 @@ class JanusHippocampusBufferedJournal:
         *,
         tag: Optional[str] = None,
     ) -> None:
-        """Buffer one thought in RAM.
-
-        ``tag=...`` is accepted as a compatibility alias for the user-supplied
-        JanusTwoFacedBrain seed; the historical Hippocampus name is ``source``.
-        """
+        """Buffer one thought; ``tag`` is a compatibility alias for ``source``."""
         await self._ensure_started()
-        if not self._accepting_writes or self._closed:
-            raise MemoryClosedError("MEMORY_JOURNAL_NOT_ACCEPTING_WRITES")
-
         if source is None:
             source = tag
         elif tag is not None and tag != source:
@@ -279,7 +264,6 @@ class JanusHippocampusBufferedJournal:
         text = self._normalize_content(content)
         if len(text.encode("utf-8")) > self.max_content_bytes:
             raise ValueError("content exceeds max_content_bytes")
-
         thought = BufferedThought(
             timestamp=datetime.now(timezone.utc).isoformat(),
             source=source,
@@ -291,13 +275,17 @@ class JanusHippocampusBufferedJournal:
 
         should_wake = False
         async with self._buffer_lock:
+            # This check MUST be inside the same lock as append. Otherwise a
+            # remember() that passed an earlier check could append after close()
+            # performed its final flush.
+            if not self._accepting_writes or self._closed:
+                raise MemoryClosedError("MEMORY_JOURNAL_NOT_ACCEPTING_WRITES")
             if len(self._buffer) >= self.max_buffer_records:
                 raise MemoryBufferFullError(
                     "MEMORY_BUFFER_FULL_PERSISTENCE_REQUIRED_BEFORE_NEW_WRITE"
                 )
             self._buffer.append(thought)
             should_wake = len(self._buffer) >= self.batch_size
-
         if should_wake:
             self._flush_event.set()
 
@@ -315,16 +303,9 @@ class JanusHippocampusBufferedJournal:
             try:
                 await self.flush()
             except MemoryPersistenceError as exc:
-                # The batch has already been restored to RAM. Keep the loop alive
-                # so a transient disk/lock failure does not destroy the journal.
-                LOGGER.error("[MEMORY] buffered flush failed; batch retained: %s", exc)
+                LOGGER.error("[MEMORY] flush failed; batch retained in RAM: %s", exc)
 
     async def flush(self) -> int:
-        """Atomically detach the current RAM batch and persist it.
-
-        On failure, the exact detached batch is prepended back before any newer
-        records, preserving journal order and preventing silent loss.
-        """
         await self._ensure_started()
         async with self._flush_lock:
             async with self._buffer_lock:
@@ -332,7 +313,6 @@ class JanusHippocampusBufferedJournal:
                     return 0
                 batch = self._buffer
                 self._buffer = []
-
             try:
                 await asyncio.to_thread(self._write_batch_sync, batch)
             except Exception as exc:
@@ -340,7 +320,6 @@ class JanusHippocampusBufferedJournal:
                     self._buffer = batch + self._buffer
                 self._last_error = f"{type(exc).__name__}: {exc}"
                 raise MemoryPersistenceError(self._last_error) from exc
-
             self._last_error = None
             self._last_flush_monotonic = time.monotonic()
             return len(batch)
@@ -349,11 +328,9 @@ class JanusHippocampusBufferedJournal:
         conn = self._connect_sync()
         try:
             conn.executemany(
-                """
-                INSERT INTO thoughts
-                    (timestamp, source, content, tags, vector, content_folded)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
+                "INSERT INTO thoughts "
+                "(timestamp, source, content, tags, vector, content_folded) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
                 [thought.sql_row() for thought in batch],
             )
             conn.commit()
@@ -364,11 +341,9 @@ class JanusHippocampusBufferedJournal:
             conn.close()
 
     async def force_save(self) -> int:
-        """Persist the currently buffered batch without closing the journal."""
         return await self.flush()
 
     async def close(self) -> None:
-        """Stop accepting writes, stop the timer, and require a final flush."""
         if self._closed:
             return
         await self._ensure_started()
@@ -378,8 +353,7 @@ class JanusHippocampusBufferedJournal:
         if self._flush_task is not None:
             await self._flush_task
             self._flush_task = None
-        # Final flush is deliberately not best-effort. If the disk is still
-        # unavailable, the caller must see an exception rather than a fake save.
+        # Deliberately not best-effort: a shutdown save failure must be visible.
         await self.flush()
         self._closed = True
 
@@ -387,20 +361,19 @@ class JanusHippocampusBufferedJournal:
         conn = self._connect_sync()
         try:
             rows = conn.execute(
-                """
-                SELECT id, timestamp, source, content, content_folded
-                FROM thoughts
-                ORDER BY id DESC
-                LIMIT ?
-                """,
+                "SELECT id, timestamp, source, content, content_folded "
+                "FROM thoughts ORDER BY id DESC LIMIT ?",
                 (self.recent_scan_limit,),
             ).fetchall()
         finally:
             conn.close()
-
         hits: list[dict[str, Any]] = []
         for row_id, timestamp, source, content, content_folded in rows:
-            folded = content_folded if isinstance(content_folded, str) else str(content).casefold()
+            folded = (
+                content_folded
+                if isinstance(content_folded, str)
+                else str(content).casefold()
+            )
             if keyword_folded in folded:
                 hits.append(
                     {
@@ -416,28 +389,22 @@ class JanusHippocampusBufferedJournal:
         return hits
 
     async def recall(self, keyword: str, limit: int = 5) -> list[dict[str, Any]]:
-        """Search RAM first, then a bounded recent on-disk window.
-
-        This intentionally does not claim full-database text search. A leading
-        wildcard ``LIKE '%keyword%'`` cannot generally exploit a normal content
-        index, so the fallback is explicitly bounded to ``recent_scan_limit``.
-        """
+        """Search RAM then a bounded recent disk window; not full-disk FTS."""
         await self._ensure_started()
         if not isinstance(keyword, str) or not keyword:
             raise ValueError("keyword must be a non-empty string")
         if limit < 1:
             raise ValueError("limit must be >= 1")
-        keyword_folded = keyword.casefold()
+        folded_keyword = keyword.casefold()
 
-        # Serialize against a flush so a record cannot be present in both the RAM
-        # snapshot and the disk query during the same recall operation.
+        # Serialize against flush: the same thought cannot appear in both the RAM
+        # snapshot and the disk query of one recall operation.
         async with self._flush_lock:
             async with self._buffer_lock:
                 ram_snapshot = list(self._buffer)
-
             hits: list[dict[str, Any]] = []
             for thought in reversed(ram_snapshot):
-                if keyword_folded in thought.content_folded:
+                if folded_keyword in thought.content_folded:
                     hits.append(
                         {
                             "origin": "RAM",
@@ -449,11 +416,11 @@ class JanusHippocampusBufferedJournal:
                     )
                     if len(hits) >= limit:
                         return hits
-
-            disk_hits = await asyncio.to_thread(
-                self._search_disk_sync, keyword_folded, limit - len(hits)
+            hits.extend(
+                await asyncio.to_thread(
+                    self._search_disk_sync, folded_keyword, limit - len(hits)
+                )
             )
-            hits.extend(disk_hits)
             return hits
 
     async def stats(self) -> dict[str, Any]:
