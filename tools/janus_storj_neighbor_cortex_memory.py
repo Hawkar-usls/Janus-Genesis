@@ -88,6 +88,8 @@ class JanusCortexMemory:
     - a failed flush is requeued in front of newer RAM rows before the exception
       escapes, preserving data for retry;
     - count *and* byte ceilings bound ordinary RAM buffering;
+    - shutdown never cancels an active SQLite worker; it wakes and joins the
+      idle task before one serialized final flush/checkpoint;
     - this memory is observational/episodic only and has no canonical world or
       command authority.
     """
@@ -139,7 +141,9 @@ class JanusCortexMemory:
         self._buffer_bytes = 0
         self._buffer_lock = asyncio.Lock()
         self._flush_lock = asyncio.Lock()
+        self._close_lock = asyncio.Lock()
         self._idle_task: asyncio.Task[None] | None = None
+        self._idle_wakeup = asyncio.Event()
         self._last_append_monotonic = time.monotonic()
         self._last_flush_monotonic = time.monotonic()
         self._closing = False
@@ -346,6 +350,7 @@ class JanusCortexMemory:
             self._buffer.append(row)
             self._buffer_bytes += row.payload_bytes
             self._last_append_monotonic = time.monotonic()
+            self._idle_wakeup.set()
             self._ensure_idle_task_locked()
             should_flush = (
                 len(self._buffer) >= self.batch_size
@@ -361,30 +366,45 @@ class JanusCortexMemory:
                 name="janus-cortex-idle-flush",
             )
 
-    async def _idle_flush_loop(self) -> None:
+    async def _wait_for_idle_wakeup(self, timeout: float) -> bool:
+        """Return True when explicitly woken, False when the deadline expires."""
+        if timeout <= 0:
+            return False
         try:
-            while not self._closing and not self._closed:
+            await asyncio.wait_for(self._idle_wakeup.wait(), timeout=timeout)
+            return True
+        except TimeoutError:
+            return False
+
+    async def _idle_flush_loop(self) -> None:
+        while True:
+            async with self._buffer_lock:
+                if self._closing or self._closed or not self._buffer:
+                    return
+                deadline = self._last_append_monotonic + self.flush_timeout
+                self._idle_wakeup.clear()
+
+            delay = max(0.0, deadline - time.monotonic())
+            if await self._wait_for_idle_wakeup(delay):
+                continue
+
+            async with self._buffer_lock:
+                if self._closing or self._closed or not self._buffer:
+                    return
+                idle_for = time.monotonic() - self._last_append_monotonic
+            if idle_for < self.flush_timeout:
+                continue
+
+            try:
+                await self.flush(reason="idle-timeout")
+            except CortexFlushError:
+                # The failed batch is already restored to RAM. Wait for either
+                # a close/new-memory wakeup or one retry interval.
                 async with self._buffer_lock:
-                    if not self._buffer:
+                    if self._closing or self._closed:
                         return
-                    deadline = self._last_append_monotonic + self.flush_timeout
-                delay = max(0.0, deadline - time.monotonic())
-                if delay:
-                    await asyncio.sleep(delay)
-                async with self._buffer_lock:
-                    if not self._buffer:
-                        return
-                    idle_for = time.monotonic() - self._last_append_monotonic
-                if idle_for >= self.flush_timeout:
-                    try:
-                        await self.flush(reason="idle-timeout")
-                    except CortexFlushError:
-                        # Retain data in RAM and retry after another idle interval.
-                        await asyncio.sleep(self.flush_timeout)
-                else:
-                    await asyncio.sleep(min(self.flush_timeout, 0.05))
-        except asyncio.CancelledError:
-            raise
+                    self._idle_wakeup.clear()
+                await self._wait_for_idle_wakeup(self.flush_timeout)
 
     async def flush(self, *, reason: str = "explicit") -> FlushReceipt:
         """Serialize one disk flush without holding the RAM lock during I/O."""
@@ -405,7 +425,9 @@ class JanusCortexMemory:
                     self._buffer = batch + self._buffer
                     self._buffer_bytes = batch_bytes + self._buffer_bytes
                 self._last_flush_error = f"{type(exc).__name__}: {exc}"
-                raise CortexFlushError("Cortex batch flush failed; rows retained in RAM") from exc
+                raise CortexFlushError(
+                    "Cortex batch flush failed; rows retained in RAM"
+                ) from exc
 
             elapsed = time.monotonic() - started
             self._last_flush_monotonic = time.monotonic()
@@ -429,7 +451,9 @@ class JanusCortexMemory:
         """Durably flush all currently buffered rows."""
         return await self.flush(reason="force-save")
 
-    async def checkpoint(self, mode: Literal["PASSIVE", "FULL"] = "PASSIVE") -> tuple[int, int, int]:
+    async def checkpoint(
+        self, mode: Literal["PASSIVE", "FULL"] = "PASSIVE"
+    ) -> tuple[int, int, int]:
         """Request an explicit WAL checkpoint; not performed after every batch."""
         if mode not in {"PASSIVE", "FULL"}:
             raise CortexMemoryError("checkpoint mode must be PASSIVE or FULL")
@@ -442,7 +466,11 @@ class JanusCortexMemory:
 
     @staticmethod
     def _literal_like_pattern(keyword: str) -> str:
-        escaped = keyword.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        escaped = (
+            keyword.replace("\\", "\\\\")
+            .replace("%", "\\%")
+            .replace("_", "\\_")
+        )
         return f"%{escaped}%"
 
     @staticmethod
@@ -532,22 +560,41 @@ class JanusCortexMemory:
             return int(conn.execute("SELECT COUNT(*) FROM memories").fetchone()[0])
 
     async def close(self) -> FlushReceipt:
-        """Stop the idle task, flush RAM, then perform one passive checkpoint."""
-        if self._closed:
-            return FlushReceipt(rows=0, elapsed_seconds=0.0, reason="already-closed")
-        self._closing = True
-        idle = self._idle_task
-        if idle is not None and idle is not asyncio.current_task() and not idle.done():
-            idle.cancel()
-            try:
+        """Wake/join the idle task, flush RAM, then checkpoint without cancellation."""
+        async with self._close_lock:
+            if self._closed:
+                return FlushReceipt(
+                    rows=0,
+                    elapsed_seconds=0.0,
+                    reason="already-closed",
+                )
+
+            async with self._buffer_lock:
+                self._closing = True
+                self._idle_wakeup.set()
+            idle = self._idle_task
+            if idle is not None and idle is not asyncio.current_task() and not idle.done():
                 await idle
-            except asyncio.CancelledError:
-                pass
-        receipt = await self.flush(reason="close")
-        await self.checkpoint("PASSIVE")
-        self._closed = True
-        self._closing = False
-        return receipt
+
+            try:
+                receipt = await self.flush(reason="close")
+                await self.checkpoint("PASSIVE")
+            except Exception:
+                # A failed close is retryable. Flush already restores failed
+                # batches to RAM, so reopen lifecycle admission and restart the
+                # idle timer if there is data to protect.
+                async with self._buffer_lock:
+                    self._closing = False
+                    self._idle_wakeup.set()
+                    if self._buffer:
+                        self._ensure_idle_task_locked()
+                raise
+
+            async with self._buffer_lock:
+                self._closed = True
+                self._closing = False
+                self._idle_wakeup.set()
+            return receipt
 
     async def __aenter__(self) -> "JanusCortexMemory":
         if self._closed:
@@ -569,9 +616,13 @@ CORTEX_MEMORY_CLAIMS = {
     "real_idle_timeout_flush": True,
     "sqlite_io_runs_outside_event_loop_after_init": True,
     "failed_batch_retained_for_retry": True,
-    "buffer_bounded_by_count_and_bytes": True,
+    "buffer_bounded_by_count_and_payload_bytes": True,
+    "failed_flush_may_temporarily_exceed_ordinary_ram_bound_to_preserve_rows": True,
     "utc_timestamps": True,
     "fts5_optional_with_literal_like_fallback": True,
+    "shutdown_cancels_active_sqlite_worker": False,
+    "shutdown_waits_for_active_flush": True,
+    "failed_close_is_retryable": True,
     "active_db_inside_storj_managed_root_allowed": False,
     "same_physical_disk_as_storj_forbidden": False,
     "canonical_world_authority": False,
