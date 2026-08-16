@@ -7,7 +7,7 @@
     "pr": "Hawkar-usls/Janus_Genesis#126",
     "head_sha": "179de8dbc5c7ec960e78dc90a2b67456ca67111b"
   },
-  "purpose": "Bind an already-collected complete exact-Git source pinset to the frozen JANUS repository constellation locally, while deriving a public receipt that does not fingerprint private repository history.",
+  "purpose": "Bind an already-collected complete exact-Git source pinset to a closed privacy-safe projection of the frozen JANUS repository constellation locally, while deriving a public receipt that does not fingerprint private repository history.",
   "input_contract": {
     "constellation_schema": "janus.genesis.git_habitat.repository_constellation.v1",
     "pinset_schema": "janus.source_pin_set.v1",
@@ -16,17 +16,42 @@
     "all_constellation_source_ids_required_exactly_once": true,
     "source_visibility_must_match_constellation": true,
     "private_source_id": "OPAQUE_NUMERIC_REPOSITORY_ID_ONLY",
+    "public_constellation_row_surface": [
+      "id",
+      "name",
+      "default_branch"
+    ],
+    "private_constellation_row_surface": [
+      "repository_id",
+      "visibility",
+      "resolution"
+    ],
+    "private_visibility_required": "private",
+    "private_resolution_required": "AUTHENTICATED_RESOLUTION_REQUIRED",
     "network_acquisition": false,
     "credential_handling": false
+  },
+  "constellation_binding": {
+    "schema": "janus.nexus.constellation_binding.v1",
+    "constellation_binding_projection": "CLOSED_PUBLIC_SAFE_SOURCE_INVENTORY_ONLY",
+    "raw_caller_top_level_metadata_in_digest_domain": false,
+    "arbitrary_private_row_metadata_admitted": false,
+    "arbitrary_public_row_metadata_admitted": false,
+    "source_rows_sorted_by_numeric_repository_id": true,
+    "binding_digest": "SHA256_CANONICAL_PRIVACY_SAFE_PROJECTION"
   },
   "local_sensitive_manifest": {
     "contains_private_exact_git_pins": true,
     "contains_local_manifest_digest": true,
     "contains_local_pinset_id": true,
+    "contains_constellation_binding_sha256": true,
+    "contains_raw_constellation_sha256": false,
     "write_mode": "0600",
     "overwrite_existing_output": false,
     "follow_output_symlink": false,
     "create_missing_parent_directories": false,
+    "output_path_walk": "OPEN_EACH_PARENT_COMPONENT_WITH_O_DIRECTORY_AND_O_NOFOLLOW",
+    "output_create": "OPENAT_RELATIVE_TO_PINNED_PARENT_FD_WITH_O_EXCL_AND_O_NOFOLLOW",
     "publication_class": "LOCAL_SENSITIVE_DO_NOT_COMMIT_TO_PUBLIC_REPOSITORY"
   },
   "public_receipt": {
@@ -37,7 +62,8 @@
     "whole_local_manifest_digest": "OMITTED",
     "local_pinset_id": "OMITTED",
     "public_source_set_digest": "ALLOWED_BECAUSE_IT_COMMITS_ONLY_PUBLIC_SOURCE_ROWS",
-    "constellation_digest": "ALLOWED_BECAUSE_THE_BOUND_CONSTELLATION_IS_ALREADY_PUBLIC"
+    "constellation_binding_digest": "ALLOWED_BECAUSE_IT_COMMITS_ONLY_THE_CLOSED_PUBLIC_SAFE_CONSTELLATION_PROJECTION",
+    "raw_constellation_digest": "FORBIDDEN"
   },
   "gates": {
     "FREEZER_IMPLEMENTATION_SEMANTICS": "UNDER_EXACT_HEAD_CI",
@@ -48,8 +74,11 @@
   "canonical_laws": [
     "PIN_STRING_SHAPE_DOES_NOT_IMPLY_PIN_SEMANTICS",
     "OPAQUE_VERSION_TOKEN_CANNOT_SATISFY_EXACT_SOURCE_MANIFEST",
+    "RAW_CONSTELLATION_JSON_DOES_NOT_DEFINE_PUBLIC_BINDING_DIGEST_DOMAIN",
+    "PUBLIC_CONSTELLATION_BINDING_EQUALS_CLOSED_PRIVACY_SAFE_SOURCE_INVENTORY_PROJECTION",
     "LOCAL_EXACT_PIN_KNOWLEDGE_DOES_NOT_REQUIRE_PUBLIC_PRIVATE_PIN_DISCLOSURE",
     "PUBLIC_RECEIPT_MUST_NOT_COMMIT_PRIVATE_SOURCE_HISTORY",
+    "OUTPUT_PATH_CHECK_THEN_OPEN_IS_INSUFFICIENT_WITHOUT_PINNED_PARENT_FD",
     "SYNTHETIC_44_SLOT_PASS_DOES_NOT_MEAN_REAL_44_SOURCE_COLLECTION",
     "SOURCE_REPOSITORY_REMAINS_HISTORICAL_AUTHORITY",
     "CI_GREEN_DOES_NOT_GRANT_MERGE_PERMISSION"
@@ -64,5 +93,5 @@
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
-  "claim_ceiling": "This candidate implements offline exact-source pinset freezing and privacy-safe public receipt derivation against the known 44-slot constellation. It does not collect repository heads, resolve private repositories, handle credentials, prove that a real authenticated 44-source pinset has been supplied, perform the full preservation replay, mutate sources, or grant merge/command authority."
+  "claim_ceiling": "This candidate implements offline exact-source pinset freezing and privacy-safe public receipt derivation against the known 44-slot constellation through a closed safe binding projection. It does not collect repository heads, resolve private repositories, handle credentials, prove that a real authenticated 44-source pinset has been supplied, perform the full preservation replay, mutate sources, or grant merge/command authority."
 }
