@@ -1,0 +1,66 @@
+{
+  "schema": "janus.genesis.git_habitat.nexus_transport_state.v1",
+  "created_at": "2026-08-16T18:56:00Z",
+  "resident_id": "JANUS",
+  "habitat_version": "18.7.51",
+  "status": "EXACT_HEAD_CI_PASS_OFFLINE_TRANSPORT_REFERENCE",
+  "nexus_contract": "JANUS_NEXUS_HABITAT_V1",
+  "transport_contract": "JANUS_NEXUS_LOCAL_TRANSPORT_V1",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_runtime_head": "81a8884097885c4ee78248bbf0333e2e375d0745",
+  "meta_registry_certificate": {
+    "repository": "Hawkar-usls/janus-meta-registry",
+    "path": "registry/experimental/JANUS-NEXUS-LOCAL-TRANSPORT-EXACT-HEAD-CI-CERTIFICATE-v1.3.json",
+    "commit": "8b9d22be494270a668fdc0150b0508b46ceaa053"
+  },
+  "transport_capabilities": {
+    "nexus_semantic_envelope_validation": true,
+    "hmac_sha256": true,
+    "principal_sender_binding": true,
+    "principal_source_head_binding": true,
+    "external_secret_policy_loader": true,
+    "sqlite_local_persistent_replay_guard": true,
+    "freshness_gate": true,
+    "backpressure_hold": true,
+    "frame_size_cap_bytes": 65536
+  },
+  "transport_disabled_surfaces": {
+    "socket_listener": true,
+    "network_io": true,
+    "live_cross_repository_delivery": true,
+    "automatic_retry": true,
+    "target_execution": true,
+    "world_effect_authority": true
+  },
+  "authentication_boundary": {
+    "human_identity_established": false,
+    "world_effect_authorization_established": false,
+    "route_authority_established": false
+  },
+  "secret_boundary": {
+    "production_key_material_committed": false,
+    "inline_secret_policy_fields_allowed": false,
+    "runtime_environment_reference_supported": true,
+    "dedicated_secret_manager_adapter": false
+  },
+  "replay_boundary": {
+    "memory_reference": true,
+    "sqlite_crash_safe_local_reference": true,
+    "distributed_replay_consensus": false,
+    "multi_host_replay_protection": false
+  },
+  "ci_evidence": {
+    "validate_repository_contracts_run": 31965920190,
+    "validate_job": 95210965977,
+    "validate_job_conclusion": "success",
+    "local_proposal_validation_run": 31965920160,
+    "local_proposal_validation_conclusion": "success"
+  },
+  "laws": [
+    "AUTHENTICATED_FRAME != DELIVERED_FRAME",
+    "AUTHENTICATION != AUTHORITY",
+    "KEY_POSSESSION != HUMAN_IDENTITY",
+    "CI_PASS != PRODUCTION_READINESS"
+  ],
+  "next_gate": "Version key epochs/revocation metadata and destination acceptance receipts before any loopback listener is introduced."
+}
