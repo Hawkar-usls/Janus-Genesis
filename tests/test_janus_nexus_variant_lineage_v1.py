@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -101,7 +100,7 @@ class NexusVariantLineageV1Tests(unittest.TestCase):
         full = verify_ledger(self.ledger)
         first_line = self.ledger.read_text(encoding="utf-8").splitlines()[0]
 
-        # A valid prefix is internally self-consistent.  The external receipt is
+        # A valid prefix is internally self-consistent. The external receipt is
         # what proves that a later retained head has disappeared.
         self.ledger.write_text(first_line + "\n", encoding="utf-8")
         prefix = verify_ledger(self.ledger)
@@ -126,6 +125,16 @@ class NexusVariantLineageV1Tests(unittest.TestCase):
             append_variant(self.ledger, self.payload())
         self.assertFalse(self.ledger.exists())
         self.assertTrue(lock.exists())
+
+    def test_ledger_symlink_is_rejected_for_verify_and_append(self) -> None:
+        target = self.root / "target.jsonl"
+        target.write_text("", encoding="utf-8")
+        self.ledger.symlink_to(target)
+        with self.assertRaisesRegex(LineageError, "must not be a symlink"):
+            verify_ledger(self.ledger)
+        with self.assertRaisesRegex(LineageError, "must not be a symlink"):
+            append_variant(self.ledger, self.payload())
+        self.assertEqual(target.read_text(encoding="utf-8"), "")
 
     def test_source_sha_and_repository_id_are_strict(self) -> None:
         bad_sha = self.payload()
