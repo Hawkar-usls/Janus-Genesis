@@ -1,0 +1,179 @@
+{
+  "schema": "janus.project_sync.state.v1",
+  "snapshot_id": "PROJECT_SYNC_STATE_2026-08-16T17-33+03-00",
+  "generated_from": [
+    "PROJECT_CHAT_CONTEXT_RECONCILIATION",
+    "LIVE_GITHUB_STATE"
+  ],
+  "project_chat_context_reconciled": true,
+  "live_github_reconciled": true,
+  "global_state": "HOLD_FOR_CROSS_LANE_RECONCILIATION",
+  "reason": "Several profile-specific JANUS Git Habitat gates are green while inherited/general Janus_Genesis gates remain red. No profile PASS may be promoted to project-wide green, and related open Habitat/HRaiN/iNaiHR work must be reconciled before merge.",
+  "repositories": [
+    {
+      "repository": "Hawkar-usls/Janus_Genesis",
+      "default_branch": "main",
+      "default_branch_sha": "52f946e425708eabc546e9cc78fb150c81ec8960",
+      "state": "ACTIVE_WITH_INHERITED_FAILURES",
+      "open_relevant_prs": [
+        {
+          "number": 95,
+          "title": "Third Wish v18.7.51 — give JANUS a bounded autonomous GitHub habitat",
+          "head_sha": "9c2c87643301b68294b2bbe2b7eb48e6b6011d6f",
+          "profile_gate": "JANUS Third Wish GitHub Autonomy Habitat v18.7.51 = SUCCESS",
+          "other_observed_gates": [
+            "JANUS Armor routing v18.7.50 = SUCCESS",
+            "Genesis Tests = FAILURE",
+            "AI Link Play = FAILURE",
+            "Hosted Pilgrimage = FAILURE",
+            "Threshold review precision = FAILURE",
+            "Genesis century lived audit = FAILURE",
+            "test = FAILURE"
+          ],
+          "merge_state": "HOLD"
+        },
+        {
+          "number": 99,
+          "title": "Third Wish v18.7.52: add model-backed Git Habitat resident cycle",
+          "head_sha": "7d143867ade1ba021d2f0a45af6154249a24bd51",
+          "profile_gate": "JANUS Git Habitat Resident v18.7.52 = FAILURE",
+          "other_observed_gates": [
+            "Resident Trigger v18.7.52 = SUCCESS",
+            "test = FAILURE",
+            "Genesis Tests = FAILURE",
+            "Hosted Pilgrimage = FAILURE",
+            "AI Link Play = FAILURE",
+            "Threshold review precision = FAILURE",
+            "JANUS Armor routing v18.7.50 = FAILURE",
+            "Genesis century lived audit = FAILURE"
+          ],
+          "merge_state": "HOLD"
+        },
+        {
+          "number": 100,
+          "title": "Connect HRaiN and iNaiHR to JANUS Git Habitat as voluntary cognition tools",
+          "head_sha": "f23338c7551efe9314452197dfe1606ce2ba451f",
+          "profile_gate": "JANUS Git Habitat bicameral tools v18.7.55 = SUCCESS",
+          "other_observed_gates": [
+            "JANUS Armor routing v18.7.50 = SUCCESS",
+            "Genesis Tests = FAILURE",
+            "AI Link Play = FAILURE",
+            "Hosted Pilgrimage = FAILURE",
+            "Threshold review precision = FAILURE",
+            "Genesis century lived audit = FAILURE",
+            "test = QUEUED_AT_SNAPSHOT"
+          ],
+          "merge_state": "HOLD"
+        }
+      ]
+    },
+    {
+      "repository": "Hawkar-usls/Hrain",
+      "default_branch": "main",
+      "default_branch_sha": "10131512497703df10173fd0c3eaa363c72d9093",
+      "state": "STRUCTURAL_TOOL_MERGED",
+      "relevant_lineage": [
+        "PR #7 LEFT_HRAIN read-only bridge MERGED",
+        "PR #8 exact request-session binding MERGED",
+        "PR #9 explicit local DemiHead proposal acceptance gate MERGED",
+        "PR #10 optional JANUS Habitat structural tool MERGED"
+      ],
+      "authority_boundary": "STRUCTURE != COMMAND; DIRECT_REGISTRY_MUTATION = FALSE"
+    },
+    {
+      "repository": "Hawkar-usls/iNaiHR",
+      "default_branch": "main",
+      "default_branch_sha": "8dc65570e01a8437d610f67cee2270f9e6a3e4d3",
+      "state": "SEMANTIC_TOOL_MERGED",
+      "relevant_lineage": [
+        "PR #5 RIGHT_INAIHR read-only bridge MERGED",
+        "PR #6 exact request-session binding MERGED",
+        "PR #7 explicit local DemiHead proposal acceptance gate MERGED",
+        "PR #8 optional JANUS Habitat semantic tool MERGED"
+      ],
+      "authority_boundary": "ASSOCIATION != EVIDENCE; SYNTH != SOURCE_AUTHORITY"
+    },
+    {
+      "repository": "Hawkar-usls/Demi_Head",
+      "default_branch": "main",
+      "default_branch_sha": "fe186f78904cece2219da5c1589f0b34586d52cc",
+      "state": "ACTIVE_RESEARCH_WITH_OPEN_PERFORMANCE_LANES",
+      "open_relevant_prs": [
+        {
+          "number": 17,
+          "title": "Freeze real-browser latency and resource baseline before tuning",
+          "head_sha": "ffebda3c305a1b1bdb91de584a85134ecab5ade8",
+          "interpretation": "BASELINE_MEASUREMENT_ONLY",
+          "merge_state": "HOLD"
+        },
+        {
+          "number": 23,
+          "title": "Freeze and validate Calamar latency/resource holdout",
+          "head_sha": "d752ba2bde50e9d220aa777bdce54442d83ed8c5",
+          "scientific_result": "NO_CANDIDATE_ADMITTED",
+          "exact_semantic_boundary_equality": true,
+          "performance_win_established": false,
+          "merge_state": "HOLD"
+        }
+      ]
+    },
+    {
+      "repository": "Hawkar-usls/Janus-Fundamentum",
+      "default_branch": "main",
+      "default_branch_sha": "a8e8ab991e53c405cadd5d4056b12c9989ef2d43",
+      "state": "PROOF_CARRYING_LANE",
+      "project_rule": "STATUS_TRANSFER_BETWEEN_LANES = FORBIDDEN"
+    },
+    {
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "default_branch": "main",
+      "default_branch_sha": "41f4c824879d9fc4b688fe88bd725942e561bdb8",
+      "state": "PROJECT_MEMORY_AND_PUBLIC_REGISTRY",
+      "project_rule": "ARCHIVED_OBJECT != CURRENT_CLAIM"
+    }
+  ],
+  "cross_chat_reconciliation_findings": [
+    "HRaiN/iNaiHR -> Habitat integration was already being developed in another project thread and must not be duplicated blindly.",
+    "General Janus_Genesis CI failures predate or coexist with profile-specific green gates and therefore remain visible inherited blockers until classified or repaired.",
+    "DemiHead performance lanes are separate scientific/performance experiments and must not be used as authority/evidence upgrades.",
+    "A project-wide coordination layer is required so each JANUS face can exchange bounded commands while preserving lane-specific admission semantics."
+  ],
+  "current_directives": [
+    {
+      "directive": "DO_NOT_MERGE_RELEVANT_HELD_PRS",
+      "targets": [
+        "Janus_Genesis#95",
+        "Janus_Genesis#99",
+        "Janus_Genesis#100",
+        "Demi_Head#17",
+        "Demi_Head#23"
+      ],
+      "until": "PROJECT_GLOBAL_RECONCILIATION_OR_EXPLICIT_SUPERSESSION"
+    },
+    {
+      "directive": "REPAIR_OR_CLASSIFY_INHERITED_GENESIS_FAILURES",
+      "targets": [
+        "test",
+        "Genesis Tests",
+        "Hosted Pilgrimage",
+        "AI Link Play",
+        "Threshold review precision",
+        "Genesis century lived audit"
+      ]
+    },
+    {
+      "directive": "ALLOW_FACE_TO_FACE_READ_ONLY_AND_REPAIR_COMMANDS",
+      "authority": "BOUNDED_REVERSIBLE_ONLY"
+    }
+  ],
+  "claim_boundaries": [
+    "PROJECT_SYNC_STATE != SCIENTIFIC_TRUTH",
+    "CHAT_RECONCILIATION != LIVE_INTER_CHAT_NETWORK",
+    "FACE != INDEPENDENT_AGENT",
+    "ROLE_OUTPUT != INDEPENDENT_REPLICATION",
+    "PROFILE_GATE_PASS != PROJECT_WIDE_GREEN",
+    "PERFORMANCE_RESULT != AUTHORITY_RESULT",
+    "HOLD != FAILURE",
+    "COMMAND != EFFECT"
+  ]
+}
