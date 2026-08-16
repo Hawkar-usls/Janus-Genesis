@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
 """AST drift canary for JANUS Armor effect-capable Python surfaces.
 
-This is a source-level inventory guard, not a sandbox.  It detects direct use of
-selected network/process primitives and requires the containing production file
-to live in an explicitly classified adapter/service set.  A new direct effect
-surface therefore fails CI until it is reviewed and classified.
+This is a source-level inventory guard, not a sandbox. It detects direct use of
+selected network/process primitives and requires every containing file to have
+an explicit semantic classification. A newly introduced direct effect surface
+therefore fails CI until reviewed.
 
-Tests, examples and this auditor itself are excluded because they are not
-production effect entrypoints.  Classification does not mean "safe" or
-"armored"; several allowlisted legacy surfaces are intentionally classified as
-unarmored and remain migration debt.
+Classification is deliberately NOT admission. A file may be classified as a
+legacy unarmored adapter, evaluation harness, simulation or archived origin and
+still remain outside canonical Armor coverage.
 """
 from __future__ import annotations
 
@@ -35,15 +34,22 @@ DIRECT_EFFECT_CALLS = {
     "os.popen",
 }
 
-# Classification is intentionally explicit.  It does NOT certify these files.
-CLASSIFIED_EFFECT_SURFACE_PATTERNS = (
-    "genesis_v18_7_ai.py",
-    "genesis_v18_7_38_durable_network_outbox.py",
-    "tools/genesis_third_wish_*.py",
-    "tools/genesis_api_server.py",
-    "tools/genesis_hosted_gateway.py",
-    "tools/genesis_network_hub.py",
-    "tools/bootstrap_genesis_hosted.py",
+# Ordered most-specific first. Classification != Armor admission.
+SURFACE_CLASSIFICATIONS = (
+    ("genesis_v18_7_ai.py", "LEGACY_DIRECT_PROVIDER_EGRESS"),
+    ("genesis_v18_7_network.py", "LEGACY_DIRECT_NETWORK_ADAPTER"),
+    ("genesis_v18_7_38_durable_network_outbox.py", "LEGACY_DURABLE_NETWORK_ADAPTER"),
+    ("janus_genesis.py", "LEGACY_ROOT_GEMINI_NARRATOR_EGRESS"),
+    ("tools/genesis_third_wish_*.py", "THIRD_WISH_EFFECT_BROKER_ARMOR_SUBCLASS_COMPATIBLE"),
+    ("tools/genesis_api_server.py", "LEGACY_LOCAL_MUTATION_SERVICE"),
+    ("tools/genesis_hosted_gateway.py", "HOSTED_LOCAL_MUTATION_SERVICE"),
+    ("tools/genesis_network_hub.py", "NETWORK_HUB_SERVICE"),
+    ("tools/bootstrap_genesis_hosted.py", "HOSTED_BOOTSTRAP_PROCESS_WRAPPER"),
+    ("tools/run_top100_round1_stratified.py", "EVALUATION_ONLY_PROVIDER_HARNESS"),
+    ("experiments/*", "RESEARCH_EXPERIMENT"),
+    ("gauntlet/*", "FROZEN_GAUNTLET_RESEARCH_ARTIFACT"),
+    ("sim/*", "SIMULATION_RESEARCH_ARTIFACT"),
+    ("origins/*", "ARCHIVED_ORIGIN_ARTIFACT"),
 )
 
 EXCLUDED_PATTERNS = (
@@ -67,11 +73,11 @@ def excluded(path: str) -> bool:
     return any(fnmatch.fnmatch(path, pattern) for pattern in EXCLUDED_PATTERNS)
 
 
-def classified(path: str) -> bool:
-    return any(
-        fnmatch.fnmatch(path, pattern)
-        for pattern in CLASSIFIED_EFFECT_SURFACE_PATTERNS
-    )
+def classification(path: str) -> str | None:
+    for pattern, label in SURFACE_CLASSIFICATIONS:
+        if fnmatch.fnmatch(path, pattern):
+            return label
+    return None
 
 
 def scan(path: Path) -> list[dict[str, object]]:
@@ -82,6 +88,7 @@ def scan(path: Path) -> list[dict[str, object]]:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=rel)
     except (OSError, UnicodeDecodeError, SyntaxError):
         return []
+    label = classification(rel)
     rows: list[dict[str, object]] = []
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
@@ -93,7 +100,8 @@ def scan(path: Path) -> list[dict[str, object]]:
                     "path": rel,
                     "line": int(getattr(node, "lineno", 0)),
                     "call": name,
-                    "classified": classified(rel),
+                    "classification": label,
+                    "classified": label is not None,
                 }
             )
     return rows
@@ -107,30 +115,49 @@ def main() -> int:
         findings.extend(scan(path))
 
     unclassified = [row for row in findings if not row["classified"]]
-    by_path: dict[str, list[str]] = {}
+    by_path: dict[str, dict[str, object]] = {}
     for row in findings:
-        by_path.setdefault(str(row["path"]), []).append(str(row["call"]))
+        path = str(row["path"])
+        entry = by_path.setdefault(
+            path,
+            {
+                "classification": row["classification"],
+                "calls": [],
+            },
+        )
+        entry["calls"].append(str(row["call"]))  # type: ignore[union-attr]
+
+    surfaces = {
+        path: {
+            "classification": entry["classification"],
+            "calls": sorted(set(entry["calls"])),  # type: ignore[arg-type]
+        }
+        for path, entry in sorted(by_path.items())
+    }
+    migration_debt = sorted(
+        path
+        for path, entry in surfaces.items()
+        if str(entry["classification"]).startswith("LEGACY_")
+    )
 
     report = {
-        "schema": "janus.genesis.armor.effect_surface_drift.v1",
+        "schema": "janus.genesis.armor.effect_surface_drift.v1_1",
         "runtime_version": "18.7.50",
-        "detected_surface_count": len(by_path),
-        "classified_surface_count": len(
-            {str(row["path"]) for row in findings if row["classified"]}
-        ),
-        "unclassified_surface_count": len(
-            {str(row["path"]) for row in unclassified}
-        ),
-        "surfaces": {
-            path: sorted(set(calls)) for path, calls in sorted(by_path.items())
-        },
+        "detected_surface_count": len(surfaces),
+        "classified_surface_count": len(surfaces) - len({str(row["path"]) for row in unclassified}),
+        "unclassified_surface_count": len({str(row["path"]) for row in unclassified}),
+        "surfaces": surfaces,
+        "legacy_migration_debt": migration_debt,
         "unclassified": unclassified,
         "classification_is_security_certification": False,
         "classified_legacy_surface_is_armored_by_classification_alone": False,
+        "research_or_archive_classification_grants_runtime_authority": False,
+        "repository_wide_complete_routing_coverage_proven": False,
         "claim_ceiling": (
             "This AST canary detects selected direct network/process primitives and "
-            "fails on newly unclassified production files. It does not prove absence "
-            "of all side effects, dynamic execution, native-code effects, or bypass."
+            "fails on newly unclassified Python files. Semantic classification is an "
+            "inventory property only; it does not prove Armor admission, absence of "
+            "dynamic/native effects, or repository-wide unbypassability."
         ),
     }
     print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
