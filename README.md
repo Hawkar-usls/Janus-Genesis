@@ -22,6 +22,8 @@ Its mythological, moral, and theological vocabulary belongs to the fictional/gam
 
 ## Play / inspect
 
+- **Canonical local launcher:** [`play_genesis_armored.py`](play_genesis_armored.py) — v18.7.50 Armor-gated external egress.
+- **Historical compatibility launcher:** [`play_genesis.py`](play_genesis.py) — retained for provenance; not classified as repository-wide Armor coverage.
 - **Chat-play guide:** [`PLAY_GENESIS_IN_ANY_AI_CHAT.md`](PLAY_GENESIS_IN_ANY_AI_CHAT.md)
 - **Machine entry:** [`ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json`](ai/GENESIS_UNIVERSAL_CHAT_ENTRY.json)
 - **Machine-readable project status:** [`PROJECT_STATUS.json`](PROJECT_STATUS.json)
@@ -29,6 +31,8 @@ Its mythological, moral, and theological vocabulary belongs to the fictional/gam
 - **Portfolio maturity/visibility:** [`portfolio-visibility.json`](https://github.com/Hawkar-usls/Janus/blob/main/portfolio-visibility.json)
 
 If an AI chat can read public GitHub files, you can ask it to open the chat-play guide. Chat-only play is explicitly labeled `UNIVERSAL_CHAT_RUNTIME`; local Python remains the authoritative runtime when used.
+
+The canonical local launcher routes optional AI-provider egress and Genesis Network sync through the hardened Armor of God v18.7.49 preflight before the legacy effect adapter is entered. Historical adapters remain importable, so this is a canonical-entry guarantee rather than OS-level or repository-wide unbypassability.
 
 ## Current design
 
@@ -54,7 +58,8 @@ External models may propose actions or narration. State changes remain subject t
 - optional user-selected OpenAI-compatible endpoints;
 - authenticated reference gameplay/network services;
 - public-event sharing as an explicit opt-in path;
-- reproducible world/chronicle data structures.
+- reproducible world/chronicle data structures;
+- canonical Armor-gated AI/network egress through `play_genesis_armored.py`.
 
 ## Boundary
 
@@ -66,22 +71,24 @@ PRECOGNITION_OR_RETROCAUSALITY = NOT_CLAIMED
 THEOLOGICAL_AUTHORITY = NOT_CLAIMED
 REAL_WORLD_MORAL_AUTHORITY = NOT_CLAIMED
 PUBLIC_PRODUCTION_NETWORK = NOT_CLAIMED
+REPOSITORY_WIDE_ARMOR_UNBYPASSABILITY = NOT_CLAIMED
+OS_LEVEL_ARMOR_TAMPER_PROOF = NOT_CLAIMED
 ```
 
-Terms such as `God Mode` are defined **game mechanics / narrative vocabulary**. They do not imply authority over real people, theology, or physical reality.
+Terms such as `God Mode` and `Armor of God` are defined **game/runtime mechanics and project vocabulary**. They do not imply authority over real people, theology, or physical reality.
 
 ## Run locally
 
 Python 3.11+:
 
 ```bash
-python play_genesis.py
+python play_genesis_armored.py
 ```
 
 Optional Ollama example:
 
 ```bash
-python play_genesis.py \
+python play_genesis_armored.py \
   --ai-provider ollama \
   --ai-model llama3.2 \
   --ai-endpoint http://127.0.0.1:11434
@@ -92,11 +99,21 @@ Keep provider keys in environment variables; do not write them into saves or com
 ## Portable save
 
 ```bash
-python play_genesis.py --data-dir data_v17 --export-save my_world.genesis-save.json
-python play_genesis.py --data-dir restored --import-save my_world.genesis-save.json
+python play_genesis_armored.py --data-dir data_v17 --export-save my_world.genesis-save.json
+python play_genesis_armored.py --data-dir restored --import-save my_world.genesis-save.json
 ```
 
 Schema: [`schemas/genesis_portable_save_v1.schema.json`](schemas/genesis_portable_save_v1.schema.json)
+
+## Armor routing audit
+
+The deterministic inventory can be run locally:
+
+```bash
+python tools/audit_armor_routing_coverage_v18_7_50.py
+```
+
+A passing audit means the **canonical launcher** has the expected Armor bindings. It deliberately does not claim every historical Python adapter or local mutation surface is impossible to call directly.
 
 ## Deeper documentation
 
