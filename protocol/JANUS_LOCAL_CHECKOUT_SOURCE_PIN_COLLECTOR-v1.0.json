@@ -23,6 +23,10 @@
   "collection_contract": {
     "sources_root_must_be_real_directory": true,
     "source_checkout_must_be_real_directory": true,
+    "source_checkout_must_equal_git_show_toplevel": true,
+    "plain_child_directory_may_inherit_parent_repository": false,
+    "linked_git_worktree_root_allowed": true,
+    "unicode_sources_root_supported": true,
     "symlinked_sources_root_allowed": false,
     "symlinked_source_checkout_allowed": false,
     "checkout_escape_allowed": false,
@@ -44,6 +48,7 @@
     "git_optional_locks_disabled": true,
     "git_terminal_prompt_disabled": true,
     "git_queries": [
+      "rev-parse --show-toplevel",
       "rev-parse --verify HEAD",
       "cat-file -t <HEAD_SHA>"
     ],
@@ -92,6 +97,7 @@
   "canonical_laws": [
     "LOCAL_CHECKOUT_HEAD != REMOTE_ORIGIN_PROOF",
     "AMBIENT_GIT_CONTEXT != CHECKOUT_IDENTITY_AUTHORITY",
+    "EXISTING_DIRECTORY != SOURCE_GIT_WORKTREE_ROOT",
     "PRIVATE_EXACT_PIN = LOCAL_SENSITIVE_EVIDENCE",
     "HEAD_CHANGED_DURING_COLLECTION -> FAIL",
     "PARTIAL_COLLECTION != PINSET",
@@ -107,5 +113,5 @@
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
-  "claim_ceiling": "This collector can derive a stable typed exact Git commit pinset from an already-local 44-slot checkout layout whose numeric source IDs are supplied by the JANUS constellation while sanitizing ambient Git context that could redirect repository identity. It does not acquire repositories, prove that a local checkout corresponds to an intended GitHub remote, publish private exact pins, freeze the exact source manifest by itself, perform the empirical owner-wide replay, or grant merge/writeback/execution authority."
+  "claim_ceiling": "This collector can derive a stable typed exact Git commit pinset from an already-local 44-slot checkout layout whose numeric source IDs are supplied by the JANUS constellation, whose source directories are verified as their own Git worktree roots, and whose Git queries are insulated from ambient redirecting context. It does not acquire repositories, prove that a local checkout corresponds to an intended GitHub remote, publish private exact pins, freeze the exact source manifest by itself, perform the empirical owner-wide replay, or grant merge/writeback/execution authority."
 }
