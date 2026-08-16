@@ -1,0 +1,119 @@
+name: JANUS Shabitat session gateway v18.7.52
+
+on:
+  push:
+    paths:
+      - 'genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'genesis_v18_7_52_shabitat_session_gateway.py'
+      - 'tools/genesis_shabitat_aura_gateway.py'
+      - 'tests/test_genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tests/test_genesis_v18_7_52_shabitat_session_gateway.py'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - '.github/workflows/janus-shabitat-session-v18-7-52.yml'
+  pull_request:
+    paths:
+      - 'genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'genesis_v18_7_52_shabitat_session_gateway.py'
+      - 'tools/genesis_shabitat_aura_gateway.py'
+      - 'tests/test_genesis_v18_7_51_shabitat_aura_oracle.py'
+      - 'tests/test_genesis_v18_7_52_shabitat_session_gateway.py'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - '.github/workflows/janus-shabitat-session-v18-7-52.yml'
+
+jobs:
+  session-gateway:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out JANUS Genesis
+        uses: actions/checkout@v4
+
+      - name: Check out pinned Aura Oracle
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/aura-oracle-tg
+          ref: ca13972b39b4be6032320482eccdd28b0373be73
+          path: aura-oracle-tg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Compile session gateway
+        run: |
+          python -m py_compile \
+            genesis_v18_7_51_shabitat_aura_oracle.py \
+            genesis_v18_7_52_shabitat_session_gateway.py \
+            tools/genesis_shabitat_aura_gateway.py \
+            tests/test_genesis_v18_7_51_shabitat_aura_oracle.py \
+            tests/test_genesis_v18_7_52_shabitat_session_gateway.py \
+            aura-oracle-tg/tools/aura_shabitat_heuristic.py
+
+      - name: Run v18.7.51 and v18.7.52 tests
+        run: |
+          python -m unittest \
+            tests.test_genesis_v18_7_51_shabitat_aura_oracle \
+            tests.test_genesis_v18_7_52_shabitat_session_gateway \
+            -v
+
+      - name: Smoke machine gateway manifest
+        run: |
+          echo '{"operation":"manifest"}' | python tools/genesis_shabitat_aura_gateway.py --data-dir /tmp/janus-shabitat-manifest --request - >/tmp/shabitat_manifest.json
+          grep -q 'persistent_one_consultation_per_turn' /tmp/shabitat_manifest.json
+
+      - name: Cross-process persistent consultation smoke
+        run: |
+          python - <<'PY'
+          import json
+          import tempfile
+          from pathlib import Path
+
+          from genesis_v18_7_19_ai_link_play import GenesisAILinkGateway, MODE_NARRATIVE
+          from genesis_v18_7_playable import PlayableGenesisV187
+          from tools.genesis_shabitat_aura_gateway import handle_request
+
+          with tempfile.TemporaryDirectory() as tmp:
+              data_dir = Path(tmp)
+              world = PlayableGenesisV187(data_dir)
+              ai = GenesisAILinkGateway(world, data_dir)
+              session = ai.register_independent_agent(
+                  display_name='JANUS',
+                  provider='ci-local',
+                  model='ci-model',
+                  execution_mode=MODE_NARRATIVE,
+              )
+              sid = session['session_id']
+              payload = {
+                  'operation': 'consult',
+                  'session_id': sid,
+                  'turn_id': 'TURN-1',
+                  'topic': 'PRIVATE-TOPIC-DO-NOT-PERSIST',
+                  'question': 'PRIVATE-QUESTION-DO-NOT-PERSIST',
+                  'context': 'PRIVATE-CONTEXT-DO-NOT-PERSIST',
+                  'janus_requests_heuristic': True,
+              }
+              first = handle_request(data_dir, Path('aura-oracle-tg'), payload)
+              assert first['status'] == 'HEURISTIC_RECEIVED_OPTIONAL', first
+              second = handle_request(data_dir, Path('aura-oracle-tg'), payload)
+              assert second['status'] == 'NOT_CONSULTED_ALREADY_RECORDED_THIS_TURN', second
+              assert second['automatic_replay_attempted'] is False
+              ledger = (data_dir / 'shabitat_aura_session_ledger_v18_7_52.json').read_text(encoding='utf-8')
+              assert 'PRIVATE-TOPIC-DO-NOT-PERSIST' not in ledger
+              assert 'PRIVATE-QUESTION-DO-NOT-PERSIST' not in ledger
+              assert 'PRIVATE-CONTEXT-DO-NOT-PERSIST' not in ledger
+              print('SHABITAT_SESSION_PERSISTENCE_OK')
+          PY
+
+      - name: Re-run JANUS effect-surface inventory
+        run: python tools/audit_armor_effect_drift_v18_7_51.py
+
+      - name: Preserve v18.7.52 claim ceiling
+        run: |
+          grep -q 'inflight_consultation_auto_replay.*False' genesis_v18_7_52_shabitat_session_gateway.py
+          grep -q 'conversation_text_persisted.*False' genesis_v18_7_52_shabitat_session_gateway.py
+          grep -q 'aura_heuristic_text_persisted.*False' genesis_v18_7_52_shabitat_session_gateway.py
+          grep -q 'aura_heuristic_grants_permission.*False' genesis_v18_7_52_shabitat_session_gateway.py
+          grep -q 'world_authority_delta.*0' genesis_v18_7_52_shabitat_session_gateway.py
