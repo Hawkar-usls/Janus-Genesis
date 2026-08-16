@@ -53,6 +53,13 @@ class BufferedHippocampusTests(unittest.IsolatedAsyncioTestCase):
             await asyncio.sleep(0.01)
         self.assertEqual(len(self.disk_rows()), expected)
 
+    async def stop_background_flusher(self, memory: JanusHippocampusBufferedJournal) -> None:
+        memory._stop_event.set()
+        memory._flush_event.set()
+        if memory._flush_task is not None:
+            await memory._flush_task
+            memory._flush_task = None
+
     async def test_batch_threshold_wakes_background_flush(self) -> None:
         memory = await self.make_memory(batch_size=2, flush_interval_seconds=60)
         await memory.remember("USER", "alpha")
@@ -77,7 +84,6 @@ class BufferedHippocampusTests(unittest.IsolatedAsyncioTestCase):
         memory = await self.make_memory(batch_size=500, flush_interval_seconds=60)
         await memory.remember("USER", "first")
         await memory.remember("JANUS", "second")
-
         original = memory._write_batch_sync
 
         def fail_once(batch):
@@ -89,8 +95,6 @@ class BufferedHippocampusTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual((await memory.stats())["buffered_records"], 2)
         self.assertEqual(self.disk_rows(), [])
 
-        # A newer thought arrives while the failed batch is retained. The old
-        # batch must still commit first.
         await memory.remember("USER", "third")
         memory._write_batch_sync = original  # type: ignore[method-assign]
         await memory.force_save()
@@ -116,23 +120,23 @@ class BufferedHippocampusTests(unittest.IsolatedAsyncioTestCase):
             flush_interval_seconds=60,
             max_buffer_records=3,
         )
-        # Prevent the background worker from winning the race; this test targets
-        # admission semantics, not threshold flushing.
-        memory._flush_event.clear()
+        # Stop the timer deterministically. This test is about admission at the
+        # RAM ceiling, not about whether a scheduler lets the flusher win first.
+        await self.stop_background_flusher(memory)
         await memory.remember("USER", "a")
         await memory.remember("USER", "b")
         await memory.remember("USER", "c")
         with self.assertRaises(MemoryBufferFullError):
             await memory.remember("USER", "must-not-replace-a-b-c")
-        snapshot = [x.content for x in memory._buffer]  # test-only inspection
-        self.assertEqual(snapshot, ["a", "b", "c"])
+        self.assertEqual(
+            [x.content for x in memory._buffer], ["a", "b", "c"]
+        )
 
     async def test_unicode_recall_combines_ram_and_bounded_disk_without_duplicate(self) -> None:
         memory = await self.make_memory(batch_size=500, flush_interval_seconds=60)
         await memory.remember("USER", "Кот помнит порог")
         await memory.force_save()
         await memory.remember("JANUS", "КОТ охраняет новый порог")
-
         hits = await memory.recall("кот", limit=5)
         self.assertEqual([hit["origin"] for hit in hits], ["RAM", "HDD"])
         self.assertEqual(len(hits), 2)
@@ -184,8 +188,6 @@ class BufferedHippocampusTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_close_remember_race_cannot_append_after_final_flush(self) -> None:
         memory = await self.make_memory(batch_size=500, flush_interval_seconds=60)
-
-        # Hold the buffer lock so both contenders queue behind a known boundary.
         await memory._buffer_lock.acquire()
         try:
             remember_task = asyncio.create_task(memory.remember("USER", "racing thought"))
