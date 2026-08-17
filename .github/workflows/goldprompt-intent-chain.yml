@@ -1,0 +1,128 @@
+name: GoldPrompt End-to-End Intent Chain
+
+on:
+  pull_request:
+    paths:
+      - 'tools/goldprompt_intent_chain.py'
+      - 'tests/test_goldprompt_intent_chain.py'
+      - '.github/workflows/goldprompt-intent-chain.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/goldprompt_intent_chain.py'
+      - 'tests/test_goldprompt_intent_chain.py'
+      - '.github/workflows/goldprompt-intent-chain.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  certify-intent-chain:
+    runs-on: ubuntu-latest
+    env:
+      HRAIN_MAIN_SHA: 2849e4870c1728052503064b93365ada3b0200cf
+      INAIHR_MAIN_SHA: 98c9fb89389ea81a5cca9aedde03082f0a5af559
+      DEMIHEAD_MAIN_SHA: 1803061c9e984677f9441debbbaf9b67ab716ff0
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Genesis intent-chain adversarial unit tests
+        run: |
+          python -m py_compile tools/goldprompt_intent_chain.py tests/test_goldprompt_intent_chain.py
+          python -m unittest tests.test_goldprompt_intent_chain -v
+      - name: Check out exact bound Face runtimes
+        uses: actions/checkout@v7
+        with:
+          repository: Hawkar-usls/Hrain
+          ref: ${{ env.HRAIN_MAIN_SHA }}
+          path: external/hrain
+      - uses: actions/checkout@v7
+        with:
+          repository: Hawkar-usls/iNaiHR
+          ref: ${{ env.INAIHR_MAIN_SHA }}
+          path: external/inaihr
+      - uses: actions/checkout@v7
+        with:
+          repository: Hawkar-usls/Demi_Head
+          ref: ${{ env.DEMIHEAD_MAIN_SHA }}
+          path: external/demihead
+      - name: Build Genesis-owned intent anchor
+        run: |
+          PYTHONPATH=tools python - <<'PY'
+          import json
+          from pathlib import Path
+          from goldprompt_intent_guard import build_intent_anchor
+          anchor=build_intent_anchor(
+              current_turn='Compare Osiris return with Jesus Christ return',
+              requested_operation='COMPARE',
+              primary_entities={'OSIRIS':['osiris'],'JESUS_CHRIST':['jesus','christ']},
+              must_answer_points=['Compare Osiris restoration with Christ resurrection','Distinguish resurrection from Second Coming'],
+              required_answer_evidence=[['osiris'],['christ'],['resurrection'],['second coming']],
+              operation_markers=['compare'],
+              optional_association_markers=['bd101','janus'],
+          )
+          Path('/tmp/intent-anchor.json').write_text(json.dumps(anchor,ensure_ascii=False),encoding='utf-8')
+          print('GENESIS_INTENT_ANCHOR='+anchor['intent_id'])
+          PY
+      - name: Emit exact main HRaiN/iNaiHR intent-bound packets
+        run: |
+          node - <<'NODE' >/tmp/left-request.json
+          const fs=require('fs');const a=JSON.parse(fs.readFileSync('/tmp/intent-anchor.json','utf8'));
+          process.stdout.write(JSON.stringify({schema:'janus.habitat.hrain.request.v1',request_id:'GENESIS-HRAIN-0001',operation:'STRUCTURE_CONTEXT',intent_anchor:a,workspace:{nodes:[{id:'o',label:'Osiris',origin:'USER'},{id:'c',label:'Christ',origin:'USER'}],links:[{source:'o',target:'c'}]}}));
+          NODE
+          env GITHUB_ACTIONS=false GITHUB_SHA= JANUS_SOURCE_REVISION="$HRAIN_MAIN_SHA" node external/hrain/habitat-tool.js </tmp/left-request.json >/tmp/left-response.json
+          node - <<'NODE' >/tmp/right-request.json
+          const fs=require('fs');const a=JSON.parse(fs.readFileSync('/tmp/intent-anchor.json','utf8'));
+          process.stdout.write(JSON.stringify({schema:'janus.habitat.inaihr.request.v1',request_id:'GENESIS-INAIHR-0001',operation:'BRIDGE_PACKET',intent_anchor:a,workspace:{nodes:[{id:'o',label:'Osiris',origin:'USER'},{id:'c',label:'Christ',origin:'USER'}],links:[{source:'o',target:'c'}]}}));
+          NODE
+          env GITHUB_ACTIONS=false GITHUB_SHA= JANUS_SOURCE_REVISION="$INAIHR_MAIN_SHA" node external/inaihr/habitat-tool.js </tmp/right-request.json >/tmp/right-response.json
+          node - <<'NODE'
+          const fs=require('fs');const l=JSON.parse(fs.readFileSync('/tmp/left-response.json'));const r=JSON.parse(fs.readFileSync('/tmp/right-response.json'));
+          if(l.intent_anchor.intent_id!==r.intent_anchor.intent_id) throw new Error('INTENT_SPLIT_BEFORE_DEMIHEAD');
+          fs.writeFileSync('/tmp/left-packet.json',JSON.stringify(l.packet));
+          fs.writeFileSync('/tmp/right-packet.json',JSON.stringify(r.packet));
+          NODE
+      - name: Run exact main DemiHead strict intent bridge
+        run: |
+          env GITHUB_ACTIONS=false GITHUB_SHA= JANUS_SOURCE_REVISION="$DEMIHEAD_MAIN_SHA" python external/demihead/tools/hemisphere_bridge_intent_v3.py --left /tmp/left-packet.json --right /tmp/right-packet.json --output /tmp/demihead-result.json
+      - name: Independently certify full chain in Genesis
+        run: |
+          PYTHONPATH=tools python - <<'PY'
+          import json
+          from pathlib import Path
+          from goldprompt_intent_chain import build_certificate, verify_certificate
+          load=lambda p: json.loads(Path(p).read_text(encoding='utf-8'))
+          anchor=load('/tmp/intent-anchor.json'); left=load('/tmp/left-packet.json'); right=load('/tmp/right-packet.json'); demi=load('/tmp/demihead-result.json')
+          cert=build_certificate(anchor=anchor,left=left,right=right,demihead_result=demi)
+          assert verify_certificate(cert,anchor=anchor,left=left,right=right,demihead_result=demi)
+          assert cert['all_nodes_same_intent'] is True
+          assert cert['intent_reinterpretation_permitted'] is False
+          assert cert['emergence_may_replace_primary_intent'] is False
+          assert cert['high_impact_tool_action_on_alignment_failure']=='FORBIDDEN'
+          Path('janus-goldprompt-intent-chain-certificate.json').write_text(json.dumps(cert,ensure_ascii=False,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print('GOLDPROMPT_END_TO_END_INTENT_CHAIN=PASS')
+          print('INTENT_REINTERPRETATION=FORBIDDEN')
+          print('EMERGENCE_IS_EXPANSION_NOT_REPLACEMENT=true')
+          print('CERTIFICATE_SHA256='+cert['certificate_sha256'])
+          PY
+      - name: Attest intent-chain certificate
+        id: attest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest@v4
+        with:
+          subject-path: janus-goldprompt-intent-chain-certificate.json
+      - name: Upload intent-chain certificate
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-goldprompt-intent-chain-certificate
+          path: janus-goldprompt-intent-chain-certificate.json
+          if-no-files-found: error
+          retention-days: 30
