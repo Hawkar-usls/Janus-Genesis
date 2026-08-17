@@ -1,0 +1,101 @@
+name: JANUS Habitat Process-Death Gauntlet v1
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - integration/habitat-nohand-swarm-process-death-gauntlet-v1
+    paths:
+      - 'tools/janus_habitat_process_death_gauntlet_v1.py'
+      - 'tools/audit_armor_effect_drift_v18_7_50.py'
+      - 'protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json'
+      - '.github/workflows/janus-habitat-process-death-gauntlet-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  g8-g9-g11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Genesis integration head without write credentials
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Checkout exact SWARM fencing producer
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/janus-distributed-ai-swarm
+          ref: 2b72afe83dfb7318858a103657648bbc668ee6c3
+          path: _deps/swarm
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout exact DemiHead NOHAND producer
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Demi_Head
+          ref: e287e62fc41d473c2add3eded92d3d163365b9dc
+          path: _deps/demihead
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify exact frozen component ancestry and external heads
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor 9622241625eb6e6ee56f0fe955bdcf5a2a7bc607 HEAD
+          test "$(git -C _deps/swarm rev-parse HEAD)" = "2b72afe83dfb7318858a103657648bbc668ee6c3"
+          test "$(git -C _deps/demihead rev-parse HEAD)" = "e287e62fc41d473c2add3eded92d3d163365b9dc"
+          test "$(git show 9622241625eb6e6ee56f0fe955bdcf5a2a7bc607:tools/janus_demiurge_boot_controller_v1_1.py | git hash-object --stdin)" = "62bb4fe977d85f3a4bc256af2c840d347ee4a2eb"
+          test "$(git -C _deps/swarm hash-object tools/habitat_objective_lease_fencing.py)" = "1abeb71206a1f17ac69b5dcd8565c431159b8deb"
+          test "$(git -C _deps/demihead hash-object tools/nohand_habitat_peer_v1_4_2.py)" = "1cda7d8d3c353b6a477c99635e06fecbb592c3d0"
+
+      - name: Compile integration harness
+        run: python -m py_compile tools/janus_habitat_process_death_gauntlet_v1.py
+
+      - name: Run deliberate worker-A death to fresh worker-B handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK_ROOT="$RUNNER_TEMP/janus-habitat-g8-g9-g11-${GITHUB_RUN_ID}"
+          RECEIPT="$RUNNER_TEMP/JANUS-HABITAT-G8-G9-G11-RECEIPT.json"
+          python tools/janus_habitat_process_death_gauntlet_v1.py \
+            --phase parent \
+            --work-root "$WORK_ROOT" \
+            --swarm-root "$PWD/_deps/swarm" \
+            --demihead-root "$PWD/_deps/demihead" \
+            --receipt "$RECEIPT"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path(os.environ['RUNNER_TEMP']) / 'JANUS-HABITAT-G8-G9-G11-RECEIPT.json'
+          value = json.loads(path.read_text(encoding='utf-8'))
+          assert value['status'] == 'PASS'
+          assert value['gates']['G8_SESSION_DROP_RECOVERY'] == 'PASS'
+          assert value['gates']['G9_HANDOFF_CONSUMED_WITHOUT_HIDDEN_SESSION_CONTEXT'] == 'PASS'
+          assert value['gates']['G11_EXACTLY_ONCE_COMPLETION'] == 'PASS'
+          assert value['gates']['CONTINUOUS_EXECUTION_FENCING_UNTIL_CHECKPOINT_COMMIT'] is True
+          assert value['gates']['STALE_WORKER_CANNOT_COMMIT_AFTER_TAKEOVER'] is True
+          assert value['experiment']['completion_row_count'] == 1
+          assert value['experiment']['nohand']['final_sequence'] == 2
+          assert value['source_writeback'] is False
+          assert value['destructive_action'] is False
+          assert value['authority_delta'] == 0
+          assert value['claim_ceiling']['FULL_ISSUE_162_ACCEPTANCE'] is False
+          PY
+
+      - name: Upload machine-readable acceptance witness
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-habitat-g8-g9-g11-process-death-receipt
+          path: ${{ runner.temp }}/JANUS-HABITAT-G8-G9-G11-RECEIPT.json
+          if-no-files-found: error
