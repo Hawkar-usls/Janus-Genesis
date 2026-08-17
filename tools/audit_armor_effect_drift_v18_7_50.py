@@ -42,6 +42,7 @@ SURFACE_CLASSIFICATIONS = (
     ("genesis_v18_7_51_shabitat_aura_oracle.py", "ARMOR_GATED_LOCAL_ORACLE_SUBPROCESS"),
     ("genesis_v18_7_55_habitat_bicameral_tools.py", "ARMOR_GATED_LOCAL_COGNITION_SUBPROCESS"),
     ("janus_genesis.py", "LEGACY_ROOT_GEMINI_NARRATOR_EGRESS"),
+    ("tools/janus_habitat_process_death_gauntlet_v1.py", "CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET"),
     ("tools/genesis_third_wish_*.py", "THIRD_WISH_EFFECT_BROKER_ARMOR_SUBCLASS_COMPATIBLE"),
     ("tools/genesis_api_server.py", "LEGACY_LOCAL_MUTATION_SERVICE"),
     ("tools/genesis_hosted_gateway.py", "HOSTED_LOCAL_MUTATION_SERVICE"),
