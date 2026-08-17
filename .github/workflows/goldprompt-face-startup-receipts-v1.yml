@@ -1,0 +1,59 @@
+name: GoldPrompt Face Startup Receipts v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/goldprompt_face_receipts.py'
+      - 'tests/test_goldprompt_face_receipts.py'
+      - '.github/workflows/goldprompt-face-startup-receipts-v1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/goldprompt_face_receipts.py'
+      - 'tests/test_goldprompt_face_receipts.py'
+      - '.github/workflows/goldprompt-face-startup-receipts-v1.yml'
+
+jobs:
+  verify-and-emit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile and test receipt fabric
+        run: |
+          python -m py_compile tools/goldprompt_face_receipts.py
+          python -m unittest tests.test_goldprompt_face_receipts -v
+          python tools/goldprompt_face_receipts.py --self-test --output /tmp/goldprompt-selftest.json
+          python - <<'PY'
+          import json
+          v=json.load(open('/tmp/goldprompt-selftest.json',encoding='utf-8'))
+          assert v['status']=='PASS', v
+          assert v['checks']['contract_digest_matches'] is True
+          assert v['checks']['bundle_replays'] is True
+          print('GENESIS_GOLDPROMPT_RECEIPT_FABRIC=PASS')
+          PY
+      - name: Emit exact Genesis orchestrator startup receipt
+        env:
+          JANUS_SOURCE_REVISION: ${{ github.sha }}
+        run: |
+          python tools/goldprompt_face_receipts.py --emit-genesis-receipt --output genesis-goldprompt-startup-receipt.json
+          python tools/goldprompt_face_receipts.py --verify genesis-goldprompt-startup-receipt.json --output /tmp/verify.json
+          python - <<'PY'
+          import json, os
+          receipt=json.load(open('genesis-goldprompt-startup-receipt.json',encoding='utf-8'))
+          verify=json.load(open('/tmp/verify.json',encoding='utf-8'))
+          assert verify['valid'] is True, verify
+          assert receipt['face_id']=='GENESIS_GUARDIAN_MESH_ORCHESTRATOR'
+          assert receipt['source_revision']==os.environ['JANUS_SOURCE_REVISION']
+          assert receipt['authority_weight']==0
+          print('GENESIS_GOLDPROMPT_STARTUP_RECEIPT=PASS')
+          PY
+      - name: Upload Genesis startup receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-goldprompt-startup-receipt
+          path: genesis-goldprompt-startup-receipt.json
+          if-no-files-found: error
+          retention-days: 30
