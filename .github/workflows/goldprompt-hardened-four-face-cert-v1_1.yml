@@ -1,0 +1,93 @@
+name: GoldPrompt Hardened Four-Face Cert v1.1
+
+on:
+  push:
+    branches: [audit/goldprompt-hardened-four-face-cert-v1_1]
+    paths:
+      - '.github/workflows/goldprompt-hardened-four-face-cert-v1_1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  certify-payload-replay:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Replay exact hardened receipts against exact main revisions
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          from tools.goldprompt_face_receipts import (
+              CANONICAL_REQUIRED_FACES,
+              collect_receipts,
+              verify_bundle,
+          )
+
+          input_path = Path('.goldprompt-audit/hardened-four-face-input-v1_1.json')
+          raw = input_path.read_bytes()
+          doc = json.loads(raw)
+          assert doc['schema'] == 'janus.goldprompt.hardened_bundle_certification_input.v1'
+          expected = doc['expected_source_revisions']
+          receipts = doc['receipts']
+          assert tuple(sorted(expected)) == CANONICAL_REQUIRED_FACES
+          assert tuple(sorted(r['face_id'] for r in receipts)) == CANONICAL_REQUIRED_FACES
+
+          bundle = collect_receipts(
+              receipts,
+              expected_source_revisions=expected,
+          )
+          assert verify_bundle(bundle, expected_source_revisions=expected) is True
+          assert bundle['receipt_integrity_model'] == 'SHA256_CONTENT_ADDRESS_NOT_SIGNATURE'
+          assert bundle['end_to_end_message_authentication_established'] is False
+          assert bundle['authority_delta'] == 0
+
+          Path('goldprompt-four-face-bundle-v1.1.json').write_text(
+              json.dumps(bundle, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          envelope = {
+              'schema': 'janus.goldprompt.hardened_bundle_replay_certificate.v1_1',
+              'result': 'PASS',
+              'certification_revision': os.environ['GITHUB_SHA'],
+              'input_sha256': hashlib.sha256(raw).hexdigest(),
+              'bundle_sha256': bundle['bundle_sha256'],
+              'required_faces': list(CANONICAL_REQUIRED_FACES),
+              'expected_source_revisions': expected,
+              'receipt_integrity_model': 'SHA256_CONTENT_ADDRESS_NOT_SIGNATURE',
+              'origin_authentication_scope': 'EXTERNAL_WORKFLOW_AND_ARTIFACT_METADATA_RECORDED_SEPARATELY',
+              'replay_scope': 'EXACT_PAYLOAD_REPLAY_WITH_EXPECTED_MAIN_REVISION_BINDING',
+              'cross_repository_origin_attestation_established': False,
+              'end_to_end_message_authentication_established': False,
+              'authority_delta': 0,
+              'claim_boundaries': [
+                  'PAYLOAD_REPLAY_CERTIFICATE != CROSS_REPOSITORY_ORIGIN_ATTESTATION',
+                  'SHA256_RECEIPT != DIGITAL_SIGNATURE',
+                  'FACE_RECEIPT_BUNDLE != END_TO_END_MESSAGE_AUTHENTICATION',
+                  'CERTIFICATION_PASS != LIVE_NAS_DEPLOYMENT',
+              ],
+          }
+          Path('goldprompt-four-face-replay-certificate-v1.1.json').write_text(
+              json.dumps(envelope, ensure_ascii=False, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
+          )
+          print('GOLDPROMPT_HARDENED_FOUR_FACE_REPLAY=PASS')
+          print('BUNDLE_SHA256=' + bundle['bundle_sha256'])
+          print('CROSS_REPOSITORY_ORIGIN_ATTESTATION=false')
+          print('END_TO_END_MESSAGE_AUTHENTICATION=false')
+          PY
+      - name: Upload hardened replay certificate
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldprompt-hardened-four-face-cert-v1.1
+          path: |
+            goldprompt-four-face-bundle-v1.1.json
+            goldprompt-four-face-replay-certificate-v1.1.json
+          if-no-files-found: error
+          retention-days: 30
