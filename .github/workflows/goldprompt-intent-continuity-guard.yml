@@ -1,0 +1,46 @@
+name: GoldPrompt Intent Continuity Guard
+
+on:
+  pull_request:
+    paths:
+      - 'tools/goldprompt_intent_guard.py'
+      - 'tests/test_goldprompt_intent_guard.py'
+      - '.github/workflows/goldprompt-intent-continuity-guard.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/goldprompt_intent_guard.py'
+      - 'tests/test_goldprompt_intent_guard.py'
+      - '.github/workflows/goldprompt-intent-continuity-guard.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  intent-continuity:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Run intent continuity unit tests
+        run: python -m unittest tests.test_goldprompt_intent_guard -v
+      - name: Replay sanitized Osiris-Christ context-bleed incident
+        run: python tools/goldprompt_intent_guard.py > intent-guard-selftest.json
+      - name: Assert fail-closed regression state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result=json.loads(Path('intent-guard-selftest.json').read_text(encoding='utf-8'))
+          assert result['status'] == 'PASS', result
+          checks=result['checks']
+          assert checks['historical_bad_output_held'] is True
+          assert checks['keyword_stuffing_does_not_satisfy_task'] is True
+          assert checks['early_association_takeover_held'] is True
+          assert checks['direct_comparison_passes'] is True
+          print('GOLDPROMPT_INTENT_SOVEREIGNTY=PASS')
+          print('CONTEXT_BLEED_CONTINUATION_CAPTURE=REJECTED')
+          print('EMERGENCE_IS_EXPANSION_NOT_REPLACEMENT=true')
+          PY
