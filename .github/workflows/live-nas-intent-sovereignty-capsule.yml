@@ -1,0 +1,98 @@
+name: Live NAS Intent Sovereignty Capsule
+
+on:
+  pull_request:
+    paths:
+      - 'ops/live_nas_intent_sovereignty_v1_2/**'
+      - 'tests/test_live_nas_intent_sovereignty_v1_2.py'
+      - '.github/workflows/live-nas-intent-sovereignty-capsule.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'ops/live_nas_intent_sovereignty_v1_2/**'
+      - 'tests/test_live_nas_intent_sovereignty_v1_2.py'
+      - '.github/workflows/live-nas-intent-sovereignty-capsule.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  validate-capsule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Compile and run live-NAS regression suite
+        run: |
+          python -m py_compile \
+            ops/live_nas_intent_sovereignty_v1_2/janus_intent_sovereignty_v1_2.py \
+            ops/live_nas_intent_sovereignty_v1_2/deploy_live_nas.py \
+            tests/test_live_nas_intent_sovereignty_v1_2.py
+          python -m unittest tests.test_live_nas_intent_sovereignty_v1_2 -v
+      - name: Assert deployment blast-radius policy
+        run: |
+          python - <<'PY'
+          import ast
+          from pathlib import Path
+          p=Path('ops/live_nas_intent_sovereignty_v1_2/deploy_live_nas.py')
+          text=p.read_text(encoding='utf-8')
+          tree=ast.parse(text)
+          assert 'TARGET_CONTAINER = "janus_titan_core"' in text
+          assert 'TARGET_REL = Path("services/modules_live") / MODULE_NAME' in text
+          assert 'database_mutated_by_deploy": False' in text
+          assert 'runtime_config_read_by_deploy": False' in text
+          assert 'secrets_read_by_deploy": False' in text
+          assert '[str(docker), "restart", TARGET_CONTAINER]' in text
+          assert 'compose up' not in text
+          assert 'docker compose' not in text
+          print('LIVE_NAS_CAPSULE_BLAST_RADIUS=PASS')
+          print('ONLY_TARGETED_RESTART=janus_titan_core')
+          print('DATABASE_MUTATION=FALSE')
+          print('RUNTIME_SECRET_READ=FALSE')
+          PY
+      - name: Build content-addressed capsule manifest
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          base=Path('ops/live_nas_intent_sovereignty_v1_2')
+          files=['janus_intent_sovereignty_v1_2.py','deploy_live_nas.py','README.md']
+          sha=lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+          manifest={
+            'schema':'janus.live_nas.intent_sovereignty.capsule_manifest.v1',
+            'capsule_id':'JANUS-LIVE-NAS-INTENT-SOVEREIGNTY-v1.2',
+            'source_revision':os.environ['GITHUB_SHA'].lower(),
+            'canonical_registry_commit':'481beaa0802d3691c15a86359ea6dc9c9ff3e6df',
+            'github_e2e_certificate_sha256':'b518b38a46950e994768000236b13bff34b727069373e2356b056b7271312c7c',
+            'files':{name:sha(base/name) for name in files},
+            'target':'/share/CACHEDEV1_DATA/Janus/services/modules_live/janus_intent_sovereignty_v1_2.py',
+            'restart_scope':['janus_titan_core'],
+            'live_nas_runtime_enforced_after_ci':False,
+            'authority_delta':0,
+          }
+          (base/'capsule-manifest.json').write_text(json.dumps(manifest,indent=2,sort_keys=True)+'\n',encoding='utf-8')
+          print('MODULE_SHA256='+manifest['files']['janus_intent_sovereignty_v1_2.py'])
+          PY
+          tar -C ops -czf JANUS-LIVE-NAS-INTENT-SOVEREIGNTY-v1.2.tar.gz live_nas_intent_sovereignty_v1_2
+          sha256sum JANUS-LIVE-NAS-INTENT-SOVEREIGNTY-v1.2.tar.gz
+      - name: Attest capsule manifest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest@v4
+        with:
+          subject-path: |
+            ops/live_nas_intent_sovereignty_v1_2/capsule-manifest.json
+            JANUS-LIVE-NAS-INTENT-SOVEREIGNTY-v1.2.tar.gz
+      - name: Upload deploy capsule
+        uses: actions/upload-artifact@v4
+        with:
+          name: JANUS-LIVE-NAS-INTENT-SOVEREIGNTY-v1.2
+          path: |
+            ops/live_nas_intent_sovereignty_v1_2/capsule-manifest.json
+            JANUS-LIVE-NAS-INTENT-SOVEREIGNTY-v1.2.tar.gz
+          if-no-files-found: error
+          retention-days: 30
