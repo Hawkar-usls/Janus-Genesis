@@ -62,11 +62,36 @@ def main():
     demi_receipt = inputs["demihead_receipt"]
     genesis_receipt = inputs["genesis_receipt"]
 
+    # Replay exact DemiHead main code as a deterministic offline fixture. The
+    # surrounding job is a Genesis Actions run, so its GITHUB_SHA must not be
+    # misrepresented as DemiHead runtime provenance. Temporarily disable the
+    # GitHub-runtime branch of DemiHead's provenance resolver and feed the
+    # already-attested DemiHead revision through JANUS_SOURCE_REVISION. This is
+    # OFFLINE_REPLAY_CONTEXT, not a live process identity claim.
+    saved_github_actions = os.environ.get("GITHUB_ACTIONS")
+    saved_github_sha = os.environ.get("GITHUB_SHA")
+    saved_janus_revision = os.environ.get("JANUS_SOURCE_REVISION")
+    os.environ["GITHUB_ACTIONS"] = "false"
     os.environ["JANUS_SOURCE_REVISION"] = expected["DEMIHEAD_ARBITER"]
+
     sys.path.insert(0, str(DEMI_TOOLS))
     import hemisphere_bridge as demi_bridge  # type: ignore
+    try:
+        demi_result = demi_bridge.combine_packets(left=left, right=right)
+    finally:
+        if saved_github_actions is None:
+            os.environ.pop("GITHUB_ACTIONS", None)
+        else:
+            os.environ["GITHUB_ACTIONS"] = saved_github_actions
+        if saved_github_sha is None:
+            os.environ.pop("GITHUB_SHA", None)
+        else:
+            os.environ["GITHUB_SHA"] = saved_github_sha
+        if saved_janus_revision is None:
+            os.environ.pop("JANUS_SOURCE_REVISION", None)
+        else:
+            os.environ["JANUS_SOURCE_REVISION"] = saved_janus_revision
 
-    demi_result = demi_bridge.combine_packets(left=left, right=right)
     if demi_result["goldprompt_receipt"] != demi_receipt:
         raise ValueError("DEMIHEAD_RUNTIME_RECEIPT_ARTIFACT_MISMATCH")
     if not demi_bridge.verify_receipt_chain_result(demi_result):
@@ -122,6 +147,7 @@ def main():
     summary = {
         "schema": "janus.goldprompt.cross_repo_raw_replay_pre_attestation.v2",
         "proof_mode": "OFFLINE_CROSS_REPOSITORY_RAW_EVIDENCE_REPLAY",
+        "replay_context": "OFFLINE_REPLAY_CONTEXT_WITH_ATTESTED_DEMIHEAD_REVISION",
         "expected_revisions": expected,
         "dependency_manifest_digest_sha256": gp.EXPECTED_DEPENDENCY_MANIFEST_DIGEST,
         "left_packet_sha256": gp.sha256(left),
@@ -138,6 +164,7 @@ def main():
     }
     write("pre-attestation-summary.json", summary)
     print("OFFLINE_CROSS_REPOSITORY_RAW_EVIDENCE_REPLAY=PASS")
+    print("REPLAY_CONTEXT=OFFLINE_REPLAY_CONTEXT_WITH_ATTESTED_DEMIHEAD_REVISION")
     print("BUNDLE_SHA256=" + bundle["bundle_sha256"])
     print("CHAIN_SHA256=" + demi_result["receipt_chain"]["chain_sha256"])
 
