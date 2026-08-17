@@ -7,6 +7,7 @@ on:
       - integration/habitat-nohand-swarm-process-death-gauntlet-v1
     paths:
       - 'tools/janus_habitat_process_death_gauntlet_v1.py'
+      - 'tools/audit_armor_effect_drift_v18_7_50.py'
       - 'protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json'
       - '.github/workflows/janus-habitat-process-death-gauntlet-v1.yml'
 
