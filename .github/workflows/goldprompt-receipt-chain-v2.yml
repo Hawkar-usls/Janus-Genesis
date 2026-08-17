@@ -4,13 +4,17 @@ on:
   pull_request:
     paths:
       - 'tools/goldprompt_face_receipts_v2.py'
+      - 'tools/goldprompt_face_bundle_verifier_v2.py'
       - 'tests/test_goldprompt_face_receipts_v2.py'
+      - 'tests/test_goldprompt_face_bundle_verifier_v2.py'
       - '.github/workflows/goldprompt-receipt-chain-v2.yml'
   push:
     branches: [main]
     paths:
       - 'tools/goldprompt_face_receipts_v2.py'
+      - 'tools/goldprompt_face_bundle_verifier_v2.py'
       - 'tests/test_goldprompt_face_receipts_v2.py'
+      - 'tests/test_goldprompt_face_bundle_verifier_v2.py'
       - '.github/workflows/goldprompt-receipt-chain-v2.yml'
 
 permissions:
@@ -29,10 +33,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Compile and run adversarial v2 verifier tests
+      - name: Compile and run v2 verifier tests
         run: |
-          python -m py_compile tools/goldprompt_face_receipts_v2.py tests/test_goldprompt_face_receipts_v2.py
-          python -m unittest tests.test_goldprompt_face_receipts_v2 -v
+          python -m py_compile tools/goldprompt_face_receipts_v2.py tools/goldprompt_face_bundle_verifier_v2.py tests/test_goldprompt_face_receipts_v2.py tests/test_goldprompt_face_bundle_verifier_v2.py
+          python -m unittest tests.test_goldprompt_face_receipts_v2 tests.test_goldprompt_face_bundle_verifier_v2 -v
       - name: Emit exact Genesis v1.1 receipt
         run: |
           python tools/goldprompt_face_receipts_v2.py > genesis-goldprompt-startup-receipt-v1.1.json
@@ -64,18 +68,7 @@ jobs:
           import hashlib,json,os
           from pathlib import Path
           p='genesis-goldprompt-startup-receipt-v1.1.json'
-          ref={
-            'schema':'janus.goldprompt.origin_attestation_ref.v1',
-            'provider':'GITHUB_ACTIONS_OIDC_SIGSTORE',
-            'repository':os.environ['GITHUB_REPOSITORY'],
-            'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),
-            'source_revision':os.environ['GITHUB_SHA'].lower(),
-            'attestation_id':os.environ.get('ATTESTATION_ID',''),
-            'attestation_url':os.environ.get('ATTESTATION_URL',''),
-            'subjects':{p:'sha256:'+hashlib.sha256(Path(p).read_bytes()).hexdigest()},
-            'authority_delta':0,
-            'live_process_identity_established':False
-          }
+          ref={'schema':'janus.goldprompt.origin_attestation_ref.v1','provider':'GITHUB_ACTIONS_OIDC_SIGSTORE','repository':os.environ['GITHUB_REPOSITORY'],'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),'source_revision':os.environ['GITHUB_SHA'].lower(),'attestation_id':os.environ.get('ATTESTATION_ID',''),'attestation_url':os.environ.get('ATTESTATION_URL',''),'subjects':{p:'sha256:'+hashlib.sha256(Path(p).read_bytes()).hexdigest()},'authority_delta':0,'live_process_identity_established':False}
           Path('genesis-goldprompt-origin-attestation-ref.json').write_text(json.dumps(ref,indent=2,sort_keys=True)+'\n')
           PY
       - name: Upload Genesis v1.1 receipt
