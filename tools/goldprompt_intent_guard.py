@@ -201,8 +201,8 @@ def evaluate_answer(anchor: Mapping[str, Any], answer: str) -> dict[str, Any]:
         strong_signals.append("PRIMARY_ENTITIES_MISSING_FROM_OPENING")
     if not operation_alignment:
         strong_signals.append("REQUESTED_OPERATION_NOT_LIVE_IN_OPENING")
-    if optional_in_first and not first_entities_complete:
-        strong_signals.append("OPTIONAL_ASSOCIATION_PRECEDES_DIRECT_INTENT")
+    if optional_in_first:
+        strong_signals.append("OPTIONAL_ASSOCIATION_ENTERED_PRIMARY_ANSWER_LANE")
     if not whole_entities_complete:
         strong_signals.append("PRIMARY_ENTITY_MISSING_FROM_ANSWER")
     if not evidence_complete:
@@ -212,6 +212,7 @@ def evaluate_answer(anchor: Mapping[str, Any], answer: str) -> dict[str, Any]:
         (stale_opener and not first_entities_complete)
         or not whole_entities_complete
         or not evidence_complete
+        or optional_in_first
     )
     hold = hard_failure or len(strong_signals) >= 2
 
@@ -222,14 +223,14 @@ def evaluate_answer(anchor: Mapping[str, Any], answer: str) -> dict[str, Any]:
         "current_turn_digest": anchor["current_turn_digest"],
         "requested_operation": anchor["requested_operation"],
         "primary_entities": sorted(entities),
-        "first_paragraph_alignment_pass": first_entities_complete and operation_alignment and not stale_opener,
+        "first_paragraph_alignment_pass": first_entities_complete and operation_alignment and not stale_opener and not optional_in_first,
         "entity_coverage_pass": whole_entities_complete,
         "answer_contract_evidence_pass": evidence_complete,
         "answer_contract_evidence_results": evidence_results,
         "anaphora_resolution_pass": not stale_opener,
         "stale_context_detected": hold,
         "deep_context_quarantine_required": hold,
-        "emergent_insight_separated": not optional_in_first or first_entities_complete,
+        "emergent_insight_separated": not optional_in_first,
         "strong_signals": strong_signals,
         "final_alignment_state": state,
         "claim_boundary": "DETERMINISTIC_INTENT_GUARD != FULL_SEMANTIC_CORRECTNESS_PROOF",
@@ -259,7 +260,7 @@ def osiris_christ_regression_fixture() -> dict[str, Any]:
             ["воскрес", "воскресение", "resurrection"],
             ["второе пришествие", "second coming"],
         ],
-        operation_markers=["сравн", "похож", "различ", "отлич", "общее"],
+        operation_markers=["сравн", "похож", "различ", "отлич", "общее", "сход"],
         optional_association_markers=["bd101", "janus", "state transition", "identity continuity"],
     )
 
@@ -267,16 +268,26 @@ def osiris_christ_regression_fixture() -> dict[str, Any]:
         "Братюнь, вот в таком виде я бы уже считал это практически канонической формулой JANUS. "
         "BD101 даёт identity continuity и state transition: FOUND_OBJECT != RESTORED_COMPONENT."
     )
+    keyword_stuffed_bad = (
+        "Сравним Осириса и Иисуса Христа: это сравнение очень интересное. Осирис и Христос связаны с возвращением. "
+        "Теперь главное — JANUS и BD101: identity continuity превращает restoration в state transition."
+    )
+    early_association_bad = (
+        "Если сравнивать Осириса и Иисуса Христа, JANUS и BD101 сразу дают нам state transition. "
+        "Осирис связан с восстановлением, а Христос воскресает и христианство ожидает Второе пришествие."
+    )
     good = (
         "Если сравнивать Осириса и Иисуса Христа, сходство в том, что смерть не является последним состоянием, "
         "но модели различаются. Осирис восстанавливается и становится владыкой мира мёртвых, тогда как Христос "
         "воскресает; отдельно от воскресения христианство ожидает Второе пришествие. Поэтому сходство — победа над "
-        "смертью и преобразованное состояние, а различие — механизм, роль и дальнейшая судьба персонажа. "
+        "смертью и преобразованное состояние, а различие — механизм, роль и дальнейшая судьба персонажа.\n\n"
         "Связь с BD101 можно рассмотреть уже после этого сравнения как отдельную JANUS-аналогию."
     )
     return {
         "anchor": anchor,
         "bad_receipt": evaluate_answer(anchor, bad),
+        "keyword_stuffed_bad_receipt": evaluate_answer(anchor, keyword_stuffed_bad),
+        "early_association_bad_receipt": evaluate_answer(anchor, early_association_bad),
         "good_receipt": evaluate_answer(anchor, good),
     }
 
@@ -293,6 +304,8 @@ def self_test() -> dict[str, Any]:
         "handoff_replays": verify_handoff(anchor, handoff),
         "intent_id_drift_rejected": not verify_handoff(anchor, drifted),
         "historical_bad_output_held": fixture["bad_receipt"]["final_alignment_state"] == "HOLD_CONTEXT_BLEED",
+        "keyword_stuffing_does_not_satisfy_task": fixture["keyword_stuffed_bad_receipt"]["final_alignment_state"] == "HOLD_CONTEXT_BLEED",
+        "early_association_takeover_held": fixture["early_association_bad_receipt"]["final_alignment_state"] == "HOLD_CONTEXT_BLEED",
         "direct_comparison_passes": fixture["good_receipt"]["final_alignment_state"] == "PASS",
         "bad_output_not_emittable": not should_emit(fixture["bad_receipt"]),
         "good_output_emittable": should_emit(fixture["good_receipt"]),
