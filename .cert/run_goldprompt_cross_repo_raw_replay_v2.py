@@ -26,6 +26,17 @@ def write(name, value):
     (OUT / name).write_text(json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def write_exact_subject(name, value, mode):
+    OUT.mkdir(parents=True, exist_ok=True)
+    if mode == "js-pretty":
+        text = json.dumps(value, ensure_ascii=False, indent=2) + "\n"
+    elif mode == "python-sorted-line":
+        text = json.dumps(value, ensure_ascii=False, sort_keys=True) + "\n"
+    else:
+        raise ValueError("UNKNOWN_SUBJECT_SERIALIZATION")
+    (OUT / name).write_text(text, encoding="utf-8")
+
+
 def verify_envelope(envelope):
     payload = dict(envelope)
     claimed = payload.pop("envelope_sha256")
@@ -39,6 +50,10 @@ def verify_envelope(envelope):
     return packet
 
 
+def file_sha256(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
 def main():
     inputs = json.loads(INPUTS_PATH.read_text(encoding="utf-8"))
     expected = inputs["expected_revisions"]
@@ -47,7 +62,6 @@ def main():
     demi_receipt = inputs["demihead_receipt"]
     genesis_receipt = inputs["genesis_receipt"]
 
-    # Run the exact DemiHead main implementation at its attested revision.
     os.environ["JANUS_SOURCE_REVISION"] = expected["DEMIHEAD_ARBITER"]
     sys.path.insert(0, str(DEMI_TOOLS))
     import hemisphere_bridge as demi_bridge  # type: ignore
@@ -58,7 +72,6 @@ def main():
     if not demi_bridge.verify_receipt_chain_result(demi_result):
         raise ValueError("DEMIHEAD_RECEIPT_CHAIN_REPLAY_FAILED")
 
-    # Remove DemiHead tool path/module aliases before importing Genesis proof code.
     sys.path = [p for p in sys.path if p != str(DEMI_TOOLS)]
     for name in ("goldprompt_handshake", "hemisphere_bridge"):
         sys.modules.pop(name, None)
@@ -84,11 +97,22 @@ def main():
         expected_revisions=expected,
     )
 
-    # Write exact receipt subjects for independent `gh attestation verify` steps.
-    write("left-hrain-receipt.json", left["goldprompt_receipt"])
-    write("right-inaihr-receipt.json", right["goldprompt_receipt"])
-    write("demihead-receipt.json", demi_receipt)
-    write("genesis-receipt.json", genesis_receipt)
+    write_exact_subject("left-hrain-receipt.json", left["goldprompt_receipt"], "js-pretty")
+    write_exact_subject("right-inaihr-receipt.json", right["goldprompt_receipt"], "js-pretty")
+    write_exact_subject("demihead-receipt.json", demi_receipt, "python-sorted-line")
+    write_exact_subject("genesis-receipt.json", genesis_receipt, "python-sorted-line")
+
+    expected_subject_hashes = {
+        "left-hrain-receipt.json": "2b0b836e01fe87fe04c4cf23a92e337a6b6ab182dcef9e5fc84ff9baad04ecd3",
+        "right-inaihr-receipt.json": "cfab3bdc35d860f84c1c67fc68b2a82f4a8235d68484fa6b086ce6ef6a3e55f9",
+        "demihead-receipt.json": "bbb9ed67145b9a0d9dca07fb487f3c718b863d5a5f7446d43ccd50863bbcfa83",
+        "genesis-receipt.json": "a4a5deb55023763c9a60958ff13062122b02de4be4e1accbd1f88de8d0289b51",
+    }
+    for name, expected_hash in expected_subject_hashes.items():
+        actual = file_sha256(OUT / name)
+        if actual != expected_hash:
+            raise ValueError(f"ATTESTATION_SUBJECT_BYTE_RECONSTRUCTION_MISMATCH:{name}:{actual}")
+
     write("actual-left-envelope.json", inputs["hrain_envelope"])
     write("actual-right-envelope.json", inputs["inaihr_envelope"])
     write("demihead-result-from-actual-packets.json", demi_result)
@@ -104,6 +128,7 @@ def main():
         "right_packet_sha256": gp.sha256(right),
         "demihead_chain_sha256": demi_result["receipt_chain"]["chain_sha256"],
         "bundle_sha256": bundle["bundle_sha256"],
+        "attestation_subject_file_sha256s": expected_subject_hashes,
         "raw_replay_certificate": raw_cert,
         "end_to_end_receipt_binding_established": True,
         "artifact_origin_attestation_pending_external_verify": True,
