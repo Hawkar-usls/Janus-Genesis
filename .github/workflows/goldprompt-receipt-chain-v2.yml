@@ -1,0 +1,88 @@
+name: GoldPrompt Receipt Chain Verifier v2
+
+on:
+  pull_request:
+    paths:
+      - 'tools/goldprompt_face_receipts_v2.py'
+      - 'tools/goldprompt_face_bundle_verifier_v2.py'
+      - 'tests/test_goldprompt_face_receipts_v2.py'
+      - 'tests/test_goldprompt_face_bundle_verifier_v2.py'
+      - '.github/workflows/goldprompt-receipt-chain-v2.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/goldprompt_face_receipts_v2.py'
+      - 'tools/goldprompt_face_bundle_verifier_v2.py'
+      - 'tests/test_goldprompt_face_receipts_v2.py'
+      - 'tests/test_goldprompt_face_bundle_verifier_v2.py'
+      - '.github/workflows/goldprompt-receipt-chain-v2.yml'
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  verify-v2:
+    runs-on: ubuntu-latest
+    env:
+      JANUS_SOURCE_REVISION: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile and run v2 verifier tests
+        run: |
+          python -m py_compile tools/goldprompt_face_receipts_v2.py tools/goldprompt_face_bundle_verifier_v2.py tests/test_goldprompt_face_receipts_v2.py tests/test_goldprompt_face_bundle_verifier_v2.py
+          python -m unittest tests.test_goldprompt_face_receipts_v2 tests.test_goldprompt_face_bundle_verifier_v2 -v
+      - name: Emit exact Genesis v1.1 receipt
+        run: |
+          python tools/goldprompt_face_receipts_v2.py > genesis-goldprompt-startup-receipt-v1.1.json
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          value=json.loads(Path('genesis-goldprompt-startup-receipt-v1.1.json').read_text())
+          assert value['schema']=='janus.goldprompt.face_startup_receipt.v1_1'
+          assert value['face_id']=='GENESIS_GUARDIAN_MESH_ORCHESTRATOR'
+          assert value['source_revision']==os.environ['GITHUB_SHA'].lower()
+          assert value['dependency_manifest_digest_sha256']=='4bd935ae033c80f090b91a6a5009a51abeb06b99defdc8836763bd9506023a86'
+          assert value['authority_weight']==0
+          print('GENESIS_V2_RECEIPT=PASS')
+          print('GENESIS_RAW_PACKET_CHAIN_VERIFIER_TESTS=PASS')
+          PY
+      - name: Attest Genesis v1.1 receipt
+        id: attest
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/attest@v4
+        with:
+          subject-path: genesis-goldprompt-startup-receipt-v1.1.json
+      - name: Record Genesis origin attestation reference
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ATTESTATION_ID: ${{ steps.attest.outputs.attestation-id }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+        run: |
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          p='genesis-goldprompt-startup-receipt-v1.1.json'
+          ref={'schema':'janus.goldprompt.origin_attestation_ref.v1','provider':'GITHUB_ACTIONS_OIDC_SIGSTORE','repository':os.environ['GITHUB_REPOSITORY'],'workflow_run_id':int(os.environ['GITHUB_RUN_ID']),'source_revision':os.environ['GITHUB_SHA'].lower(),'attestation_id':os.environ.get('ATTESTATION_ID',''),'attestation_url':os.environ.get('ATTESTATION_URL',''),'subjects':{p:'sha256:'+hashlib.sha256(Path(p).read_bytes()).hexdigest()},'authority_delta':0,'live_process_identity_established':False}
+          Path('genesis-goldprompt-origin-attestation-ref.json').write_text(json.dumps(ref,indent=2,sort_keys=True)+'\n')
+          PY
+      - name: Upload Genesis v1.1 receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-goldprompt-startup-receipt-v1.1
+          path: genesis-goldprompt-startup-receipt-v1.1.json
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload Genesis origin attestation reference
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-goldprompt-origin-attestation-ref
+          path: genesis-goldprompt-origin-attestation-ref.json
+          if-no-files-found: error
+          retention-days: 30
