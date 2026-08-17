@@ -1,0 +1,49 @@
+{
+  "schema": "janus.git_habitat.nexus_wal_sidecar_state.v1",
+  "state_id": "NEXUS-PHYSICAL-WAL-SIDECAR-FAIL-CLOSED-CERTIFIED-v1.14",
+  "recorded_at_local": "2026-08-17T03:02:00+03:00",
+  "runtime_repository": "Hawkar-usls/Demi_Head",
+  "exact_head": "bbb2d88af6d3ffcaf1a0182f39539f80e513bdfe",
+  "parent_write_safety_exact_head": "cd77fcb7c2819c5f5e3bafa916537ec1ed5d7dc6",
+  "status": "CERTIFIED_PHYSICAL_WAL_SIDECAR_FAIL_CLOSED_REFERENCE",
+  "registry_certificate": "registry/experimental/JANUS-NEXUS-PHYSICAL-WAL-SIDECAR-FAIL-CLOSED-EXACT-HEAD-CI-CERTIFICATE-v1.14.json",
+  "registry_authority_pointer": "registry/experimental/JANUS-NEXUS-CURRENT-WAL-SIDECAR-AUTHORITY-v1.json",
+  "frozen_holdout": {
+    "path": "fixtures/nexus_wal_sidecar_holdout_v1.json",
+    "cases": 8,
+    "freeze_sha256": "e8b1b689525ae09ed95f631ae2aa89514d794acd4761bebb036ab98b3e07dfc3"
+  },
+  "certified_path": [
+    "PARENT_MAIN_DB_PHYSICAL_ENVELOPE",
+    "WAL_ABSENT_CHECKPOINTED_STATE_OR_PRESENT_WAL",
+    "PRESENT_WAL_MAGIC_VERSION_PAGE_SIZE",
+    "WAL_MAIN_PAGE_SIZE_MATCH",
+    "WAL_FRAME_ALIGNMENT",
+    "WAL_FRAME_PAGE_NUMBER_SANITY",
+    "PARENT_V1_12_STORAGE_PREFLIGHT",
+    "OPTIONAL_MANUAL_RECOVERY"
+  ],
+  "real_wal_case": {
+    "generated_by_ci_sqlite_runtime": true,
+    "wal_mode": true,
+    "auto_checkpoint_disabled": true,
+    "connection_kept_open_during_inspection": true,
+    "physical_parser_pass": true
+  },
+  "boundaries": {
+    "wal_checksum_chain_verified": false,
+    "wal_salt_chain_verified": false,
+    "semantic_frame_validity_proven": false,
+    "wal_repair": false,
+    "power_loss_recovery": false,
+    "automatic_recovery": false,
+    "automatic_restart": false,
+    "automatic_retry": false,
+    "cross_host_transport": false,
+    "persistent_daemon": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "next_gate": "WAL_CHECKSUM_AND_SALT_CHAIN_FAIL_CLOSED_HOLDOUT"
+}
