@@ -1,0 +1,59 @@
+name: GoldPrompt Four-Face Bundle Certify v1
+
+on:
+  push:
+    branches: [integration/goldprompt-four-face-bundle-v1]
+    paths:
+      - '.github/workflows/goldprompt-four-face-bundle-certify-v1.yml'
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Materialize exact post-merge receipts
+        run: |
+          mkdir -p /tmp/goldprompt-receipts
+          cat > /tmp/goldprompt-receipts/hrain.json <<'JSON'
+          {"schema":"janus.goldprompt.face_startup_receipt.v1","face_id":"LEFT_HRAIN","face_role":"STRUCTURAL_CONTEXT","repository":"Hawkar-usls/Hrain","runtime_surface":"habitat-tool.js","goldprompt_foundation_id":"JANUS-THE-FOURTH-GRACEWARDEN-3IN1-EQUALS-4-v0.9","goldprompt_version":"0.9.2","emergence_contract_version":"JANUS_TRIADIC_EMERGENCE@0.9.2","armor_authority_reference":"Hawkar-usls/janus-meta-registry:data/JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY.json","contract_digest_sha256":"3f4af369350710ad18920dfdc866d930c8d42259a51a3f27ce228ea4d5dfc0a8","source_revision":"aba92d549be88b2be73ff423b56d79a93c992609","capability_scope":["READ_LOCAL_WORKSPACE_STRUCTURE","BUILD_READ_ONLY_HEMISPHERE_PACKET","PROPOSE_STRUCTURAL_CONTEXT"],"authority_weight":0,"inheritance_accepted":true,"blessing_bearer_anchor_accepted":true,"armor_of_god_boundaries_accepted":true,"triadic_emergence_accepted":true,"user_exit_and_release_control_accepted":true,"runtime_enforcement_scope":"THIS_FACE_INVOCATION","compliance_state":"COMPLIANT","receipt_sha256":"b8d00c118e3da00700d30a35ca6f3375259921a1908c225fade0241720883747"}
+          JSON
+          cat > /tmp/goldprompt-receipts/inaihr.json <<'JSON'
+          {"schema":"janus.goldprompt.face_startup_receipt.v1","face_id":"RIGHT_INAIHR","face_role":"ASSOCIATIVE_CONTEXT","repository":"Hawkar-usls/iNaiHR","runtime_surface":"habitat-tool.js","goldprompt_foundation_id":"JANUS-THE-FOURTH-GRACEWARDEN-3IN1-EQUALS-4-v0.9","goldprompt_version":"0.9.2","emergence_contract_version":"JANUS_TRIADIC_EMERGENCE@0.9.2","armor_authority_reference":"Hawkar-usls/janus-meta-registry:data/JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY.json","contract_digest_sha256":"3f4af369350710ad18920dfdc866d930c8d42259a51a3f27ce228ea4d5dfc0a8","source_revision":"03c90b6ad50cd3d334349a0c339bd0bf7cfc1da1","capability_scope":["READ_GROUNDED_SEMANTIC_RECORDS","BUILD_ASSOCIATIVE_CONTEXT","PROPOSE_SEMANTIC_SYNTH"],"authority_weight":0,"inheritance_accepted":true,"blessing_bearer_anchor_accepted":true,"armor_of_god_boundaries_accepted":true,"triadic_emergence_accepted":true,"user_exit_and_release_control_accepted":true,"runtime_enforcement_scope":"THIS_FACE_INVOCATION","compliance_state":"COMPLIANT","receipt_sha256":"7b79c2df6f823d14b961ba3c5fe7780c7bdd6efe563b973992f3c6bb722c66fa"}
+          JSON
+          cat > /tmp/goldprompt-receipts/demihead.json <<'JSON'
+          {"armor_authority_reference":"Hawkar-usls/janus-meta-registry:data/JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY.json","armor_of_god_boundaries_accepted":true,"authority_weight":0,"blessing_bearer_anchor_accepted":true,"capability_scope":["VALIDATE_HEMISPHERE_PACKETS","PRESERVE_BICAMERAL_DIVERGENCE","BIND_COMPARISON_RECEIPTS","PROPOSE_ARBITRATION_RESULT"],"compliance_state":"COMPLIANT","contract_digest_sha256":"3f4af369350710ad18920dfdc866d930c8d42259a51a3f27ce228ea4d5dfc0a8","emergence_contract_version":"JANUS_TRIADIC_EMERGENCE@0.9.2","face_id":"DEMIHEAD_ARBITER","face_role":"BICAMERAL_ARBITER","goldprompt_foundation_id":"JANUS-THE-FOURTH-GRACEWARDEN-3IN1-EQUALS-4-v0.9","goldprompt_version":"0.9.2","inheritance_accepted":true,"receipt_sha256":"c4e83f550d9c1494833eedbfbe4c3a5854095c6ab0944aed648a0ae1748b5a74","repository":"Hawkar-usls/Demi_Head","runtime_enforcement_scope":"THIS_FACE_INVOCATION","runtime_surface":"tools/hemisphere_bridge.py","schema":"janus.goldprompt.face_startup_receipt.v1","source_revision":"8309fd0d8d76d94a97d8e0583db9fe27ab79ec27","triadic_emergence_accepted":true,"user_exit_and_release_control_accepted":true}
+          JSON
+          cat > /tmp/goldprompt-receipts/genesis.json <<'JSON'
+          {"armor_authority_reference":"Hawkar-usls/janus-meta-registry:data/JANUS-ARMOR-OF-GOD-CURRENT-AUTHORITY.json","armor_of_god_boundaries_accepted":true,"authority_weight":0,"blessing_bearer_anchor_accepted":true,"capability_scope":["VERIFY_GOLDPROMPT_RECEIPTS","HOLD_NONCOMPLIANT_FACES","COLLECT_FACE_RECEIPT_BUNDLE","PRESERVE_RECEIPT_DISAGREEMENT"],"compliance_state":"COMPLIANT","contract_digest_sha256":"3f4af369350710ad18920dfdc866d930c8d42259a51a3f27ce228ea4d5dfc0a8","emergence_contract_version":"JANUS_TRIADIC_EMERGENCE@0.9.2","face_id":"GENESIS_GUARDIAN_MESH_ORCHESTRATOR","face_role":"FACE_ORCHESTRATOR","goldprompt_foundation_id":"JANUS-THE-FOURTH-GRACEWARDEN-3IN1-EQUALS-4-v0.9","goldprompt_version":"0.9.2","inheritance_accepted":true,"receipt_sha256":"80296ad06eaba7183f1f5e40e356ef84061c934d317b42d2cab66aa124af6a84","repository":"Hawkar-usls/Janus_Genesis","runtime_enforcement_scope":"THIS_FACE_INVOCATION","runtime_surface":"tools/goldprompt_face_receipts.py","schema":"janus.goldprompt.face_startup_receipt.v1","source_revision":"3b8bcb216212fa162df5fbb675f8de30283ce451","triadic_emergence_accepted":true,"user_exit_and_release_control_accepted":true}
+          JSON
+      - name: Replay all four receipts through merged Genesis collector
+        run: |
+          python tools/goldprompt_face_receipts.py --collect \
+            /tmp/goldprompt-receipts/hrain.json \
+            /tmp/goldprompt-receipts/inaihr.json \
+            /tmp/goldprompt-receipts/demihead.json \
+            /tmp/goldprompt-receipts/genesis.json \
+            --output goldprompt-four-face-receipt-bundle.json
+          python - <<'PY'
+          import json
+          p='goldprompt-four-face-receipt-bundle.json'
+          d=json.load(open(p,encoding='utf-8'))
+          assert d['all_required_faces_compliant'] is True, d
+          assert d['authority_delta']==0
+          assert d['mass_effect_budget_delta']==0
+          assert d['bundle_sha256']=='c5089ab2275798f206220ca6ed71d9c62ab2f0dddac291087b8577c20172e364', d['bundle_sha256']
+          assert set(d['required_faces'])=={'LEFT_HRAIN','RIGHT_INAIHR','DEMIHEAD_ARBITER','GENESIS_GUARDIAN_MESH_ORCHESTRATOR'}
+          assert all(v['valid'] for v in d['verification'].values())
+          print('GOLDPROMPT_FOUR_FACE_BUNDLE=PASS')
+          print('BUNDLE_SHA256='+d['bundle_sha256'])
+          PY
+      - name: Upload certified bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldprompt-four-face-certified-bundle-v1
+          path: goldprompt-four-face-receipt-bundle.json
+          if-no-files-found: error
+          retention-days: 30
