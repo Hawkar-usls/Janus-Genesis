@@ -174,10 +174,10 @@ def evaluate_answer(anchor: Mapping[str, Any], answer: str) -> dict[str, Any]:
     first_entity_coverage = _entity_coverage(first, entities)
     whole_entity_coverage = _entity_coverage(answer, entities)
 
-    opening = normalize_text(first)[:160]
+    opening_window = normalize_text(first)[:240]
     stale_opener = (
         not anchor["allow_anaphoric_continuation"]
-        and any(opening.startswith(normalize_text(marker)) for marker in STALE_CONTINUATION_OPENERS)
+        and any(normalize_text(marker) in opening_window for marker in STALE_CONTINUATION_OPENERS)
     )
 
     operation_markers = anchor["operation_markers"]
