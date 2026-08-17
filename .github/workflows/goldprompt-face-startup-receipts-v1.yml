@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Compile and test receipt fabric
+      - name: Compile and test hardened receipt fabric
         run: |
           python -m py_compile tools/goldprompt_face_receipts.py
           python -m unittest tests.test_goldprompt_face_receipts -v
@@ -32,7 +32,14 @@ jobs:
           assert v['status']=='PASS', v
           assert v['checks']['contract_digest_matches'] is True
           assert v['checks']['bundle_replays'] is True
+          assert v['checks']['required_face_downgrade_fails_closed'] is True
+          assert v['checks']['bundle_quorum_downgrade_rejected_after_rehash'] is True
+          bundle=v['bundle']
+          assert bundle['receipt_integrity_model']=='SHA256_CONTENT_ADDRESS_NOT_SIGNATURE'
+          assert bundle['end_to_end_message_authentication_established'] is False
           print('GENESIS_GOLDPROMPT_RECEIPT_FABRIC=PASS')
+          print('GENESIS_GOLDPROMPT_QUORUM_DOWNGRADE_GATE=PASS')
+          print('SHA256_RECEIPT_IS_SIGNATURE=false')
           PY
       - name: Emit exact Genesis orchestrator startup receipt
         env:
@@ -46,9 +53,11 @@ jobs:
           verify=json.load(open('/tmp/verify.json',encoding='utf-8'))
           assert verify['valid'] is True, verify
           assert receipt['face_id']=='GENESIS_GUARDIAN_MESH_ORCHESTRATOR'
-          assert receipt['source_revision']==os.environ['JANUS_SOURCE_REVISION']
+          assert receipt['source_revision']==os.environ['GITHUB_SHA'].lower()
+          assert receipt['source_revision']==os.environ['JANUS_SOURCE_REVISION'].lower()
           assert receipt['authority_weight']==0
           print('GENESIS_GOLDPROMPT_STARTUP_RECEIPT=PASS')
+          print('GENESIS_GOLDPROMPT_TRUSTED_REVISION=PASS')
           PY
       - name: Upload Genesis startup receipt
         uses: actions/upload-artifact@v4
