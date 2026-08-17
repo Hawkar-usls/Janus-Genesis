@@ -1,0 +1,113 @@
+name: GoldPrompt Cross-Repo Raw Replay Cert v2
+
+on:
+  push:
+    branches: [cert/goldprompt-cross-repo-raw-replay-v2]
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+  artifact-metadata: write
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out Genesis certification branch
+        uses: actions/checkout@v4
+
+      - name: Check out exact attested DemiHead main revision
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Demi_Head
+          ref: 0f4365503039a41867f09a224a9081f18882c63e
+          path: _cert/demihead
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Replay actual upstream packets through exact DemiHead and Genesis v2 code
+        run: python .cert/run_goldprompt_cross_repo_raw_replay_v2.py
+
+      - name: Verify all four receipt artifacts against GitHub attestations
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh attestation verify .cert/out/left-hrain-receipt.json -R Hawkar-usls/Hrain --format json > .cert/out/attestation-left-hrain.json
+          gh attestation verify .cert/out/right-inaihr-receipt.json -R Hawkar-usls/iNaiHR --format json > .cert/out/attestation-right-inaihr.json
+          gh attestation verify .cert/out/demihead-receipt.json -R Hawkar-usls/Demi_Head --format json > .cert/out/attestation-demihead.json
+          gh attestation verify .cert/out/genesis-receipt.json -R Hawkar-usls/Janus_Genesis --format json > .cert/out/attestation-genesis.json
+          echo 'FOUR_FACE_GITHUB_ARTIFACT_ATTESTATION_VERIFY=PASS'
+
+      - name: Finalize bounded cross-repository proof certificate
+        run: |
+          python - <<'PY'
+          import hashlib,json
+          from pathlib import Path
+          out=Path('.cert/out')
+          pre=json.loads((out/'pre-attestation-summary.json').read_text())
+          raw=json.loads((out/'goldprompt-raw-replay-certificate-v2.json').read_text())
+          attest={
+            'LEFT_HRAIN': {'repository':'Hawkar-usls/Hrain','attestation_id':41108856,'subject_sha256':'2b0b836e01fe87fe04c4cf23a92e337a6b6ab182dcef9e5fc84ff9baad04ecd3','verification_file':'attestation-left-hrain.json'},
+            'RIGHT_INAIHR': {'repository':'Hawkar-usls/iNaiHR','attestation_id':41108930,'subject_sha256':'cfab3bdc35d860f84c1c67fc68b2a82f4a8235d68484fa6b086ce6ef6a3e55f9','verification_file':'attestation-right-inaihr.json'},
+            'DEMIHEAD_ARBITER': {'repository':'Hawkar-usls/Demi_Head','attestation_id':41114120,'subject_sha256':'bbb9ed67145b9a0d9dca07fb487f3c718b863d5a5f7446d43ccd50863bbcfa83','verification_file':'attestation-demihead.json'},
+            'GENESIS_GUARDIAN_MESH_ORCHESTRATOR': {'repository':'Hawkar-usls/Janus_Genesis','attestation_id':41111913,'subject_sha256':'a4a5deb55023763c9a60958ff13062122b02de4be4e1accbd1f88de8d0289b51','verification_file':'attestation-genesis.json'},
+          }
+          for item in attest.values():
+            data=json.loads((out/item['verification_file']).read_text())
+            if not data:
+              raise SystemExit('empty gh attestation verification output')
+          cert={
+            'schema':'janus.goldprompt.cross_repository_proof_certificate.v2',
+            'proof_mode':'OFFLINE_CROSS_REPOSITORY_RAW_EVIDENCE_REPLAY_PLUS_GITHUB_ARTIFACT_ATTESTATION',
+            'expected_revisions':pre['expected_revisions'],
+            'dependency_manifest_digest_sha256':pre['dependency_manifest_digest_sha256'],
+            'left_packet_sha256':pre['left_packet_sha256'],
+            'right_packet_sha256':pre['right_packet_sha256'],
+            'demihead_chain_sha256':pre['demihead_chain_sha256'],
+            'bundle_sha256':pre['bundle_sha256'],
+            'raw_replay_certificate':raw,
+            'artifact_origin_attestations':attest,
+            'cross_repository_artifact_origin_attestation_established':True,
+            'end_to_end_receipt_binding_established':True,
+            'raw_packet_bodies_replayed':True,
+            'exact_demihead_main_code_replayed':True,
+            'exact_genesis_v2_verifier_replayed':True,
+            'end_to_end_message_authentication_established':False,
+            'live_process_identity_established':False,
+            'live_nas_runtime_attestation_established':False,
+            'authority_delta':0,
+            'claim_boundaries':[
+              'OFFLINE_RAW_EVIDENCE_REPLAY != LIVE_MESSAGE_PROCESSING',
+              'GITHUB_ARTIFACT_ORIGIN_ATTESTATION != LIVE_PROCESS_IDENTITY',
+              'END_TO_END_RECEIPT_BINDING != END_TO_END_MESSAGE_AUTHENTICATION',
+              'TRANSITIVE_DEPENDENCY_PINNING != LIVE_NAS_ATTESTATION',
+              'AUTHORITY_DELTA = 0'
+            ]
+          }
+          canonical=json.dumps(cert,ensure_ascii=False,sort_keys=True,separators=(',',':')).encode()
+          cert['certificate_sha256']=hashlib.sha256(canonical).hexdigest()
+          (out/'goldprompt-cross-repo-proof-certificate-v2.json').write_text(json.dumps(cert,ensure_ascii=False,indent=2,sort_keys=True)+'\n')
+          print('CROSS_REPOSITORY_ARTIFACT_ORIGIN_ATTESTATION=PASS')
+          print('END_TO_END_RECEIPT_BINDING=PASS')
+          print('LIVE_PROCESS_IDENTITY=false')
+          print('CERTIFICATE_SHA256='+cert['certificate_sha256'])
+          PY
+
+      - name: Attest the bounded cross-repository proof certificate
+        id: attest-cert
+        uses: actions/attest@v4
+        with:
+          subject-path: .cert/out/goldprompt-cross-repo-proof-certificate-v2.json
+
+      - name: Upload certification proofpack
+        uses: actions/upload-artifact@v4
+        with:
+          name: goldprompt-cross-repo-proofpack-v2
+          path: .cert/out/
+          if-no-files-found: error
+          retention-days: 30
