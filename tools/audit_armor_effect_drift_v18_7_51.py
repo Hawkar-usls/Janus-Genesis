@@ -6,6 +6,11 @@ classified separately because it performs a selected direct process primitive,
 but its tests must independently establish Armor-before-process ordering.
 Classification alone never means admission or safety.
 
+The later v18.7.55 Git Habitat bicameral cognition bridge is also kept visible
+in this inventory. Its local Node subprocess is classified only because its
+runtime contract and executable tests separately establish Armor preflight
+before process creation. Classification is not a substitute for those tests.
+
 A separately checked-out Aura repository used by cross-repository CI is excluded
 from the JANUS source inventory. Aura has its own repository CI and boundary
 contract; vendored/foreign checkout contents must not be silently reclassified
@@ -39,6 +44,10 @@ SURFACE_CLASSIFICATIONS = (
     (
         "genesis_v18_7_51_shabitat_aura_oracle.py",
         "ARMOR_GATED_LOCAL_SHABITAT_AURA_HEURISTIC_BRIDGE",
+    ),
+    (
+        "genesis_v18_7_55_habitat_bicameral_tools.py",
+        "ARMOR_GATED_LOCAL_BICAMERAL_COGNITION_BRIDGE",
     ),
     ("genesis_v18_7_ai.py", "LEGACY_DIRECT_PROVIDER_EGRESS"),
     ("genesis_v18_7_network.py", "LEGACY_DIRECT_NETWORK_ADAPTER"),
@@ -140,15 +149,19 @@ def main() -> int:
         if str(entry["classification"]).startswith("LEGACY_")
     )
     shabitat = surfaces.get("genesis_v18_7_51_shabitat_aura_oracle.py", {})
+    bicameral = surfaces.get("genesis_v18_7_55_habitat_bicameral_tools.py", {})
     report = {
-        "schema": "janus.genesis.armor.effect_surface_drift.v1_2",
-        "runtime_version": "18.7.51",
+        "schema": "janus.genesis.armor.effect_surface_drift.v1_3",
+        "runtime_version": "18.7.51+v18.7.55-surface-awareness",
         "detected_surface_count": len(surfaces),
         "classified_surface_count": len(surfaces) - len({str(row["path"]) for row in unclassified}),
         "unclassified_surface_count": len({str(row["path"]) for row in unclassified}),
         "surfaces": surfaces,
         "shabitat_aura_surface_classified": (
             shabitat.get("classification") == "ARMOR_GATED_LOCAL_SHABITAT_AURA_HEURISTIC_BRIDGE"
+        ),
+        "bicameral_cognition_surface_classified": (
+            bicameral.get("classification") == "ARMOR_GATED_LOCAL_BICAMERAL_COGNITION_BRIDGE"
         ),
         "foreign_ci_checkout_excluded": "aura-oracle-tg/*",
         "legacy_migration_debt": migration_debt,
@@ -158,11 +171,11 @@ def main() -> int:
         "repository_wide_complete_routing_coverage_proven": False,
         "claim_ceiling": (
             "This AST canary inventories selected direct network/process primitives in JANUS source. "
-            "The Shabitat Aura subprocess is explicitly classified, but only executable tests can "
-            "establish Armor-before-process ordering for the reference bridge. A separately checked-out "
-            "Aura repository is outside this JANUS inventory and is validated by its own CI plus the "
-            "cross-repository contract smoke. The canary does not prove absence of dynamic/native effects "
-            "or repository-wide unbypassability."
+            "The Shabitat Aura and Git Habitat bicameral subprocess surfaces are explicitly classified, "
+            "but only their executable tests can establish Armor-before-process ordering for the reference "
+            "bridges. A separately checked-out Aura repository is outside this JANUS inventory and is "
+            "validated by its own CI plus the cross-repository contract smoke. The canary does not prove "
+            "absence of dynamic/native effects or repository-wide unbypassability."
         ),
     }
     print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))
