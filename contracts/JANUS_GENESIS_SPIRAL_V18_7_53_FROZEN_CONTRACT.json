@@ -1,0 +1,77 @@
+{
+  "schema": "janus.genesis.spiral_contract.v1",
+  "contract": "JANUS_GENESIS_SPIRAL_V18_7_53_FROZEN_CONTRACT",
+  "status": "FROZEN_BEFORE_IMPLEMENTATION",
+  "version": "18.7.53",
+  "purpose": "Replace the conceptual Genesis state cycle with an append-only spiral transition model while preserving historical runtimes, request idempotency, memory lineage, and all existing authority boundaries.",
+  "baseline": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "sha": "2359a7f5e358faee3b8cf85f7da6cb210db09526"
+  },
+  "demihead_spiral_lineage": {
+    "repository": "Hawkar-usls/Demi_Head",
+    "frozen_contract_commit": "d16a9bcdcb5ad19671bcb5958c0f51e2862ed75a",
+    "pure_implementation_commit": "2358fe65c530ba805c023035961bf03636d6b2e7",
+    "required_formula": "ORIGIN → EXPERIENCE → RETURN → ORIGIN_PRIME"
+  },
+  "transition_model": {
+    "kind": "APPEND_ONLY_STATE_SPIRAL",
+    "phases": [
+      "ORIGIN",
+      "EXPERIENCE",
+      "RETURN",
+      "ORIGIN_PRIME"
+    ],
+    "next_turn_rule": "ORIGIN_PRIME[n] becomes the contextual ORIGIN[n+1] without erasing or aliasing the prior turn.",
+    "return_rule": "RETURN is integration, not reset.",
+    "replay_rule": "Replaying the same logical request_id is the same intent and must not manufacture a new spiral turn.",
+    "technical_event_loops_unchanged": true
+  },
+  "spiral_invariants": {
+    "previous_turn_preserved": true,
+    "parent_turn_hash_required_after_first_turn": true,
+    "memory_carried_forward": true,
+    "return_does_not_reset_lineage": true,
+    "origin_prime_is_not_origin_hash_alias": true,
+    "same_parent_same_experience_is_deterministic": true,
+    "replay_does_not_create_new_turn": true,
+    "historical_cycle_artifacts_are_not_rewritten": true,
+    "technical_for_while_loops_are_not_semantic_cycles": true
+  },
+  "receipt_requirements": {
+    "content_addressed": true,
+    "parent_turn_sha256": true,
+    "origin_sha256": true,
+    "experience_sha256": true,
+    "return_sha256": true,
+    "origin_prime_sha256": true,
+    "turn_sha256": true,
+    "turn_index_monotonic_within_lineage": true
+  },
+  "control": {
+    "automatic_self_trigger": false,
+    "automatic_reexecution": false,
+    "network_permission_created": false,
+    "external_effect_permission_created": false,
+    "write_authority_created": false,
+    "truth_authority_created": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "compatibility": {
+    "existing_request_id_semantics_preserved": true,
+    "existing_durable_receipt_runtime_preserved": true,
+    "existing_world_memory_remains_source_of_world_state": true,
+    "spiral_receipt_is_lineage_metadata_not_execution_authority": true
+  },
+  "laws": [
+    "RETURN != RESET",
+    "ORIGIN_PRIME != ORIGIN_HASH_ALIAS",
+    "SPIRAL_PRESERVES_PRIOR_TURNS",
+    "REPLAY != NEW_TURN",
+    "MEMORY_CARRY_FORWARD != AUTHORITY",
+    "SPIRAL_RECEIPT != EXECUTION_PERMISSION",
+    "SPIRAL != SELF_AUTHORIZATION",
+    "TECHNICAL_LOOP != SEMANTIC_CYCLE"
+  ]
+}
