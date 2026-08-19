@@ -1,15 +1,35 @@
 {
   "schema": "janus.genesis.spiral_binding.v1",
-  "status": "IMPLEMENTED_PENDING_CI",
+  "status": "PROMOTED",
   "version": "18.7.53",
   "formula": "ORIGIN → EXPERIENCE → RETURN → ORIGIN_PRIME",
   "genesis": {
     "baseline_sha": "2359a7f5e358faee3b8cf85f7da6cb210db09526",
     "freeze_commit": "049ef4f2358a018ab32cb395370489bd7961df0e",
+    "admitted_head_sha": "096d4778009470e1de56d4f6c9136a36d057c386",
+    "implementation_merge_sha": "8ec0d942597a8e2b9f621001757f034e1eb75e9a",
     "frozen_contract_path": "contracts/JANUS_GENESIS_SPIRAL_V18_7_53_FROZEN_CONTRACT.json",
     "frozen_contract_blob_sha": "58763e85c267877f3544f6ed3270d99517117c40",
     "runtime_module": "genesis_v18_7_53_spiral.py",
     "semantic_entrypoint": "play_genesis_spiral.py"
+  },
+  "admission": {
+    "required_workflow_count": 7,
+    "successful_workflow_count": 7,
+    "dedicated_spiral_workflow": {
+      "run_id": 32309877213,
+      "conclusion": "SUCCESS"
+    },
+    "genesis_tests": "SUCCESS",
+    "legacy_test_matrix": {
+      "python_3_11": "SUCCESS",
+      "python_3_12": "SUCCESS",
+      "python_3_13": "SUCCESS"
+    },
+    "genesis_century_lived_audit": "SUCCESS",
+    "hosted_pilgrimage": "SUCCESS",
+    "ai_link_play": "SUCCESS",
+    "threshold_review_precision": "SUCCESS"
   },
   "demihead_lineage": {
     "repository": "Hawkar-usls/Demi_Head",
