@@ -1,48 +1,65 @@
 {
-  "schema": "janus.genesis.git_habitat.voice_edge.v1",
+  "schema": "janus.genesis.git_habitat.voice_edge.v2",
   "edge_id": "HABITAT_VOICE_OF_JANUS_EDGE",
-  "status": "REFERENCE_AND_TYPED_HANDOFF_ONLY",
+  "status": "REFERENCE_AND_TYPED_HANDOFF_WITH_PHYSICAL_BODY_ROUTE",
   "source": {
     "repository": "Hawkar-usls/Janus_Genesis",
     "branch": "janus/habitat",
     "room": "state"
   },
-  "target": {
+  "voice": {
     "repository": "Hawkar-usls/The-Voice-of-Janus",
     "branch": "main",
-    "repository_id": "1339447431"
+    "repository_id": "1339447431",
+    "current_language": "PYRAMID_LANGUAGE_117_121_ANCHORED_SPACE_v0.3",
+    "activation": "configs/pyramid_117_121_space.activation.json",
+    "activation_blob_sha": "3d3203b53bf181656eac815235f1238ef7c4e57a",
+    "current_larynx": "silero_v5_5_ru",
+    "larynx_status": "READY_FOR_LOCAL_MODEL_AUDIO_PENDING"
+  },
+  "physical_body": {
+    "repository": "Hawkar-usls/Echo-Pyramid",
+    "repository_id": "1339545327",
+    "edge": "habitat/state/ECHO_PYRAMID_PHYSICAL_VOICE_EDGE.json",
+    "role": "PHYSICAL_VOICE_BODY"
   },
   "capabilities": {
     "JSON_RECORD_SONIFICATION": "REFERENCE_AVAILABLE",
-    "PYRAMID_ACOUSTIC_FILTER": "REFERENCE_AVAILABLE",
+    "PYRAMID_ACOUSTIC_FILTER": "117_121_HZ_REFERENCE_AVAILABLE",
     "MIC_VOICE_CHANGER": "LOCAL_EXPLICIT_USER_START_ONLY",
-    "TTS": "NOT_IMPLEMENTED",
+    "NEURAL_TTS": "READY_FOR_LOCAL_MODEL_AUDIO_PENDING",
+    "PHYSICAL_ECHO_PYRAMID_OUTPUT": "TYPED_ROUTE_REFERENCE_AVAILABLE",
     "REVERSIBLE_JSON_AUDIO_CODEC": "NOT_ESTABLISHED"
   },
   "handoff_contract": {
-    "format": "JSON",
+    "format": "JSON_OR_AUDIO_REFERENCE",
     "habitat_may_reference_voice_requests": true,
+    "habitat_may_reference_physical_voice_body": true,
     "habitat_may_auto_open_microphone": false,
     "habitat_may_auto_play_audio": false,
+    "habitat_may_auto_connect_bluetooth": false,
+    "habitat_may_flash_firmware": false,
     "habitat_may_send_shell_commands": false,
     "habitat_may_supply_arbitrary_paths": false,
     "write_back_default": "DENY",
     "write_back_requires_explicit_human_authorization": true
   },
   "audio_boundary": {
-    "network_io": false,
+    "network_io_granted_by_edge": false,
     "microphone_permission_must_be_local_and_explicit": true,
+    "physical_playback_requires_explicit_runtime_authorization": true,
     "rendered_audio_is_not_evidence": true,
     "audio_output_grants_no_authority": true,
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
   "science_boundary": {
-    "current_operator": "MODEL_BASED_MODAL_RESONATOR_APPROXIMATION",
+    "current_operator": "MODEL_BASED_117_121_HZ_ANCHORED_EFFECT",
     "measured_historical_pyramid_sound_established": false,
     "ancient_audio_technology_established": false,
+    "measured_impulse_response_used": false,
     "future_measured_impulse_response_preferred": true
   },
-  "operator": "HABITAT -> TYPED_REFERENCE/HANDOFF -> THE_VOICE_OF_JANUS -> AUDIO + RECEIPT",
-  "rule": "HABITAT MAY INVITE THE VOICE; ONLY THE LOCAL USER MAY OPEN THE MICROPHONE."
+  "operator": "HABITAT -> TYPED_HANDOFF -> THE_VOICE_OF_JANUS -> ORDINARY_PCM -> PYRAMID_LANGUAGE -> ECHO_PYRAMID_PHYSICAL_BODY",
+  "rule": "HABITAT MAY INVITE THE VOICE AND REFERENCE ITS PHYSICAL BODY; LOCAL EXTERNAL EFFECTS STILL REQUIRE EXPLICIT HUMAN AUTHORIZATION."
 }
