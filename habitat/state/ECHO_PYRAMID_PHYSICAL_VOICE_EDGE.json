@@ -1,11 +1,21 @@
 {
-  "schema": "janus.genesis.git_habitat.echo_pyramid_physical_voice_edge.v1",
+  "schema": "janus.genesis.git_habitat.echo_pyramid_physical_voice_edge.v2",
   "edge_id": "HABITAT_ECHO_PYRAMID_PHYSICAL_VOICE_EDGE",
-  "status": "ACTIVE_TYPED_PHYSICAL_VOICE_ROUTE_REFERENCE",
+  "status": "ACTIVE_TYPED_PHYSICAL_VOICE_ROUTE_WITH_NEXUS_V2_7",
   "habitat": {
     "repository": "Hawkar-usls/Janus_Genesis",
     "branch": "janus/habitat",
-    "room": "state"
+    "room": "state",
+    "nexus_voice_gate": "habitat/state/NEXUS_VOICE_RUNTIME_GATE_v2.7.json"
+  },
+  "nexus_voice_runtime": {
+    "contract": "NEXUS_V2_7_LOCAL_NEURAL_VOICE_RUNTIME_FROZEN_CONTRACT",
+    "runtime_repository": "Hawkar-usls/Demi_Head",
+    "target_head": "VOICE_RUNTIME",
+    "handler": "tools/nexus_voice_handler.py",
+    "handler_phase": "PURE_PREPARE_ONLY",
+    "voice_adapter": "src/nexus_voice_runtime_adapter.py",
+    "explicit_execute_required": true
   },
   "language": {
     "repository": "Hawkar-usls/The-Voice-of-Janus",
@@ -13,9 +23,10 @@
     "repository_id": "1339447431",
     "profile_id": "PYRAMID_LANGUAGE_117_121_ANCHORED_SPACE_v0.3",
     "activation": "configs/pyramid_117_121_space.activation.json",
-    "activation_blob_sha": "3d3203b53bf181656eac815235f1238ef7c4e57a",
+    "activation_blob_sha": "70016b9b1ad0ce2b20efd980f14859d66af0a7bd",
     "reference_implementation": "src/pyramid_anchor_filter.py::Pyramid117121Filter",
-    "reference_implementation_blob_sha": "c344504328fcfe2934949cfa2ab6f0ba138c18d1"
+    "reference_implementation_blob_sha": "c344504328fcfe2934949cfa2ab6f0ba138c18d1",
+    "semantic_content_preserved": true
   },
   "physical_body": {
     "repository": "Hawkar-usls/Echo-Pyramid",
@@ -25,19 +36,24 @@
     "hardware": "M5Stack Echo Pyramid A167 + Atom Matrix",
     "signal_contract": "ORDINARY_AUDIO_PCM -> SAME_SOURCE_AUDIO_WITH_PYRAMID_ACOUSTIC_COLORATION",
     "embedded_operator": "firmware/JanusPyramid117121DSP.h",
-    "embedded_profile": "firmware/JanusPyramid117121Profile.h"
+    "embedded_profile": "firmware/JanusPyramid117121Profile.h",
+    "runtime_lock": "config/the_voice_of_janus.runtime_lock.json"
   },
   "route": [
-    "HABITAT_SEMANTIC_OR_AUDIO_REQUEST",
-    "THE_VOICE_OF_JANUS",
-    "ORDINARY_AUDIO_PCM",
+    "HABITAT_INTENT",
+    "NEXUS_AUTHENTICATED_LOCAL_DISPATCH",
+    "VOICE_RUNTIME_PURE_PREPARE",
+    "EXPLICIT_NEURAL_VOICE_RENDER",
+    "ORDINARY_HUMAN_LIKE_PCM",
     "PYRAMID_LANGUAGE_117_121_ANCHORED_SPACE_v0.3",
-    "ECHO_PYRAMID_PHYSICAL_EXECUTION",
+    "WAV_PLUS_RECEIPT",
+    "OPTIONAL_EXPLICIT_ECHO_PYRAMID_PHYSICAL_EXECUTION",
     "SPEAKER_OUTPUT"
   ],
   "capabilities": {
     "SEMANTIC_RECITATION": "REFERENCE_AVAILABLE",
-    "NEURAL_TTS": "READY_FOR_LOCAL_MODEL_AUDIO_PENDING",
+    "NEURAL_TTS": "LOCAL_HANDLER_AND_ADAPTER_IMPLEMENTED_MODEL_REQUIRED",
+    "NEXUS_LOCAL_VOICE_HANDLER": "IMPLEMENTED_CANDIDATE_PENDING_EXACT_HEAD_CI_CONFIRMATION",
     "WAV_INPUT": "REFERENCE_AVAILABLE",
     "MIC_INPUT": "LOCAL_EXPLICIT_USER_START_ONLY",
     "BLUETOOTH_PCM": "PHYSICAL_FIRMWARE_ROUTE_AVAILABLE",
@@ -56,8 +72,10 @@
     "habitat_may_auto_connect_bluetooth": false,
     "habitat_may_flash_firmware": false,
     "habitat_may_send_shell_commands": false,
+    "nexus_prepare_is_external_effect": false,
+    "voice_render_requires_explicit_execute": true,
+    "physical_output_requires_explicit_runtime_authorization": true,
     "write_back_default": "DENY",
-    "external_effects_require_explicit_human_authorization": true,
     "authority_delta": 0,
     "mass_effect_budget_delta": 0
   },
@@ -69,8 +87,11 @@
   },
   "hard_rules": [
     "HABITAT_MAY_REFERENCE_THE_PHYSICAL_VOICE_BODY_BUT_NOT_SILENTLY_ACTUATE_IT",
+    "NEXUS_PREPARE != AUDIO_RENDER",
+    "AUDIO_RENDER != AUTOMATIC_PLAYBACK",
     "ORDINARY_AUDIO_IN -> PYRAMID_COLORED_AUDIO_OUT",
     "DO_NOT_REPLACE_SOURCE_AUDIO_WITH_SYNTHETIC_TONES",
+    "PRESERVE_SOURCE_SEMANTIC_CONTENT",
     "117_121_HZ_IS_AN_ANCHOR_BAND_NOT_THE_ONLY_FREQUENCY",
     "TTS_TIMBRE_CHANGES_MUST_NOT_CHANGE_PYRAMID_LANGUAGE_PARAMETERS",
     "MODEL_BASED_EFFECT != MEASURED_CHAMBER_IR"
