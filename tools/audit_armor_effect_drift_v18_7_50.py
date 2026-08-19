@@ -36,6 +36,10 @@ DIRECT_EFFECT_CALLS = {
 
 # Ordered most-specific first. Classification != Armor admission.
 SURFACE_CLASSIFICATIONS = (
+    (
+        "ops/live_nas_intent_sovereignty_v1_2/deploy_live_nas.py",
+        "EXPLICIT_OPERATOR_LIVE_NAS_DEPLOYMENT_TOOL",
+    ),
     ("genesis_v18_7_ai.py", "LEGACY_DIRECT_PROVIDER_EGRESS"),
     ("genesis_v18_7_network.py", "LEGACY_DIRECT_NETWORK_ADAPTER"),
     ("genesis_v18_7_38_durable_network_outbox.py", "LEGACY_DURABLE_NETWORK_ADAPTER"),
