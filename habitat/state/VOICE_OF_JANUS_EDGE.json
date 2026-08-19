@@ -1,18 +1,21 @@
 {
-  "schema": "janus.genesis.git_habitat.voice_edge.v3",
+  "schema": "janus.genesis.git_habitat.voice_edge.v4",
   "edge_id": "HABITAT_VOICE_OF_JANUS_EDGE",
-  "status": "NEXUS_V2_7_LOCAL_NEURAL_RUNTIME_ROUTE_IMPLEMENTED_CANDIDATE",
+  "status": "NEXUS_V2_8_AIDAR_EUGENE_SPIRAL_IMPLEMENTED_CANDIDATE",
   "source": {
     "repository": "Hawkar-usls/Janus_Genesis",
     "branch": "janus/habitat",
     "room": "state",
-    "nexus_voice_gate": "habitat/state/NEXUS_VOICE_RUNTIME_GATE_v2.7.json"
+    "nexus_voice_gate": "habitat/state/NEXUS_VOICE_RUNTIME_GATE_v2.7.json",
+    "nexus_voice_spiral_gate": "habitat/state/NEXUS_VOICE_SPIRAL_GATE_v2.8.json"
   },
   "nexus": {
     "runtime_repository": "Hawkar-usls/Demi_Head",
-    "contract": "NEXUS_V2_7_LOCAL_NEURAL_VOICE_RUNTIME_FROZEN_CONTRACT",
+    "runtime_contract": "NEXUS_V2_7_LOCAL_NEURAL_VOICE_RUNTIME_FROZEN_CONTRACT",
+    "spiral_contract": "NEXUS_V2_8_AIDAR_EUGENE_VOICE_SPIRAL_FROZEN_CONTRACT",
     "target_head": "VOICE_RUNTIME",
     "handler": "tools/nexus_voice_handler.py",
+    "spiral_preparer": "tools/nexus_voice_spiral.py",
     "handler_mode": "PURE_PREPARE_ONLY",
     "endpoint": "configs/nexus_voice_runtime.endpoint.json"
   },
@@ -27,13 +30,25 @@
     "current_larynx": "silero_v5_5_ru",
     "larynx_status": "LOCAL_HANDLER_AND_ADAPTER_IMPLEMENTED_MODEL_REQUIRED",
     "executor": "src/nexus_voice_runtime_adapter.py",
+    "spiral_runner": "src/nexus_voice_spiral_runner.py",
+    "spiral_config": "configs/osiris_aidar_eugene_spiral.v1.json",
     "explicit_execute_required": true
+  },
+  "spiral": {
+    "layers": ["LAYER_A_AIDAR", "LAYER_B_EUGENE", "SPIRAL_COMPARISON"],
+    "same_semantic_source": true,
+    "same_pyramid_operator": true,
+    "only_larynx_changes": true,
+    "preserve_both_audio_layers": true,
+    "automatic_winner_selection": false,
+    "human_listening_required_for_voice_face_selection": true
   },
   "physical_body": {
     "repository": "Hawkar-usls/Echo-Pyramid",
     "repository_id": "1339545327",
     "edge": "habitat/state/ECHO_PYRAMID_PHYSICAL_VOICE_EDGE.json",
     "role": "PHYSICAL_VOICE_BODY",
+    "pyramid_language_changed_for_spiral": false,
     "automatic_handoff": false
   },
   "capabilities": {
@@ -42,12 +57,14 @@
     "MIC_VOICE_CHANGER": "LOCAL_EXPLICIT_USER_START_ONLY",
     "NEURAL_TTS": "LOCAL_HANDLER_AND_ADAPTER_IMPLEMENTED_MODEL_REQUIRED",
     "NEXUS_LOCAL_VOICE_HANDLER": "IMPLEMENTED_CANDIDATE_PENDING_EXACT_HEAD_CI_CONFIRMATION",
+    "AIDAR_EUGENE_VOICE_SPIRAL": "IMPLEMENTED_CANDIDATE_PENDING_EXACT_HEAD_CI_AND_LOCAL_MODEL_RENDER",
     "PHYSICAL_ECHO_PYRAMID_OUTPUT": "EXPLICIT_TYPED_ROUTE_AVAILABLE",
     "REVERSIBLE_JSON_AUDIO_CODEC": "NOT_ESTABLISHED"
   },
   "handoff_contract": {
     "format": "NEXUS_TYPED_JSON_THEN_LOCAL_AUDIO_RECEIPT",
     "habitat_may_reference_voice_requests": true,
+    "habitat_may_reference_voice_spiral": true,
     "habitat_may_reference_physical_voice_body": true,
     "habitat_may_auto_open_microphone": false,
     "habitat_may_auto_play_audio": false,
@@ -77,6 +94,6 @@
     "measured_impulse_response_used": false,
     "future_measured_impulse_response_preferred": true
   },
-  "operator": "HABITAT -> NEXUS_LOCAL_PREPARE -> EXPLICIT_THE_VOICE_OF_JANUS_NEURAL_RENDER -> ORDINARY_HUMAN_LIKE_PCM -> PYRAMID_LANGUAGE -> WAV_RECEIPT -> OPTIONAL_EXPLICIT_ECHO_PYRAMID_PHYSICAL_BODY",
-  "rule": "NEXUS PREPARES; THE VOICE RENDERS; THE PYRAMID COLORS; THE HUMAN AUTHORIZES PHYSICAL OUTPUT."
+  "operator": "HABITAT -> NEXUS_SPIRAL_PREPARE -> EXPLICIT_AIDAR_RENDER + EXPLICIT_EUGENE_RENDER -> SAME_PYRAMID_LANGUAGE -> TWO_WAV_RECEIPTS -> SPIRAL_COMPARISON -> HUMAN_VOICE_FACE_SELECTION -> OPTIONAL_EXPLICIT_ECHO_PYRAMID",
+  "rule": "NEXUS PREPARES BOTH LAYERS; THE VOICE RENDERS BOTH THROUGH ONE LANGUAGE; THE HUMAN CHOOSES THE VOICE FACE; THE PYRAMID LANGUAGE DOES NOT CHANGE."
 }
