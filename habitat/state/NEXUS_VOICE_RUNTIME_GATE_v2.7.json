@@ -1,0 +1,75 @@
+{
+  "schema": "janus.genesis.git_habitat.nexus_voice_runtime_gate.v1",
+  "gate_id": "NEXUS_V2_7_LOCAL_NEURAL_VOICE_RUNTIME_GATE",
+  "status": "IMPLEMENTED_CANDIDATE_PENDING_EXACT_HEAD_CI_CONFIRMATION",
+  "recorded_at_local": "2026-08-19T16:31:00+03:00",
+  "habitat": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "janus/habitat",
+    "room": "state"
+  },
+  "nexus": {
+    "runtime_repository": "Hawkar-usls/Demi_Head",
+    "contract": "contracts/NEXUS_V2_7_LOCAL_NEURAL_VOICE_RUNTIME_FROZEN_CONTRACT.json",
+    "handler": "tools/nexus_voice_handler.py",
+    "endpoint": "configs/nexus_voice_runtime.endpoint.json",
+    "link": ".janus/NEXUS_VOICE_RUNTIME_LINK.json",
+    "observed_head_after_link": "9c7b2373810aa2cc07a41c6f692ddbbdf29de4fe",
+    "target_head": "VOICE_RUNTIME",
+    "phase": "PURE_PREPARE_ONLY"
+  },
+  "voice": {
+    "repository": "Hawkar-usls/The-Voice-of-Janus",
+    "adapter": "src/nexus_voice_runtime_adapter.py",
+    "runner": "src/semantic_recitation_v4.py",
+    "config": "configs/osiris_origin_prime_recitation.v4_neural_human.json",
+    "observed_head_after_link": "4ac7fefb9be7183689e59a257c0f4280dcdf82c9",
+    "larynx": "silero_v5_5_ru",
+    "model_required_locally": "models/v5_5_ru.pt",
+    "explicit_execute_required": true
+  },
+  "language": {
+    "profile": "PYRAMID_LANGUAGE_117_121_ANCHORED_SPACE_v0.3",
+    "activation_blob_sha": "70016b9b1ad0ce2b20efd980f14859d66af0a7bd",
+    "anchor_band_hz": [117.0, 121.0],
+    "semantic_content_preserved": true,
+    "source_audio_replaced_by_synthetic_tones": false
+  },
+  "physical_body": {
+    "repository": "Hawkar-usls/Echo-Pyramid",
+    "role": "PHYSICAL_VOICE_BODY",
+    "signal_contract": "ORDINARY_AUDIO_PCM -> SAME_SOURCE_AUDIO_WITH_PYRAMID_ACOUSTIC_COLORATION",
+    "automatic_actuation": false,
+    "explicit_runtime_authorization_required": true
+  },
+  "route": [
+    "HABITAT_INTENT",
+    "NEXUS_AUTHENTICATED_LOCAL_DISPATCH",
+    "VOICE_RUNTIME_PURE_PREPARE",
+    "EXPLICIT_THE_VOICE_OF_JANUS_EXECUTE",
+    "SILERO_NEURAL_HUMAN_PCM",
+    "PYRAMID_LANGUAGE_117_121",
+    "WAV_PLUS_RECEIPT",
+    "OPTIONAL_EXPLICIT_ECHO_PYRAMID_OUTPUT"
+  ],
+  "safety": {
+    "nexus_handler_network_io": false,
+    "nexus_handler_filesystem_io": false,
+    "nexus_handler_external_effect": false,
+    "model_download_during_render": false,
+    "automatic_playback": false,
+    "automatic_bluetooth": false,
+    "automatic_firmware_flash": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "truth_boundary": {
+    "local_handler_implementation_committed": true,
+    "voice_adapter_implementation_committed": true,
+    "neural_model_presence_on_target_machine": "NOT_ESTABLISHED_BY_GIT",
+    "audio_rendered_by_this_gate": false,
+    "physical_playback_performed_by_this_gate": false,
+    "exact_historical_pyramid_sound_established": false
+  },
+  "next_gate": "EXACT_HEAD_CI_THEN_LOCAL_MODEL_PRESENT_RENDER_RECEIPT"
+}
