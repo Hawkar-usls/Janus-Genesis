@@ -119,7 +119,7 @@ class GenesisV187ConnectivityTests(unittest.TestCase):
             self.assertTrue(client.verify_event(event)[0])
             self.assertNotIn("architect", event["public_player_id"])
             self.assertNotIn(raw_key, state_text)
-            self.assertFalse(client.state()["invariants"]["api_key_persisted"])
+            self.assertFalse(client.state()["api_key_persisted"])
 
     def test_network_rejects_secret_payload_fields(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -157,6 +157,7 @@ class GenesisV187ConnectivityTests(unittest.TestCase):
                     "GENESIS_NETWORK_KEY_HASHES": api_key_sha256(key),
                     "NODE_A_KEY": key,
                     "NODE_B_KEY": key,
+                    "JANUS_LEGACY_DIRECT_EGRESS": "1",
                 },
                 clear=False,
             ):
