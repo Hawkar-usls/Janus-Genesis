@@ -71,8 +71,17 @@ def _ensure_real_dir(path: Path) -> None:
             raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
         if not path.is_dir():
             raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
-    else:
+        return
+    try:
         path.mkdir(parents=True, exist_ok=False)
+    except FileExistsError:
+        # Another process may have created the same directory after exists().
+        # Revalidate the object instead of leaking a raw race exception or
+        # weakening the symlink/type boundary with exist_ok=True.
+        if path.is_symlink():
+            raise HabitatAuraError("HABITAT_AURA_DIRECTORY_MAY_NOT_BE_SYMLINK")
+        if not path.is_dir():
+            raise HabitatAuraError("HABITAT_AURA_DIRECTORY_REQUIRED")
 
 
 def _write_json_atomic(path: Path, value: Any) -> None:
