@@ -1,0 +1,48 @@
+{
+  "schema": "janus.genesis.git_habitat.voice_edge.v1",
+  "edge_id": "HABITAT_VOICE_OF_JANUS_EDGE",
+  "status": "REFERENCE_AND_TYPED_HANDOFF_ONLY",
+  "source": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "janus/habitat",
+    "room": "state"
+  },
+  "target": {
+    "repository": "Hawkar-usls/The-Voice-of-Janus",
+    "branch": "main",
+    "repository_id": "1339447431"
+  },
+  "capabilities": {
+    "JSON_RECORD_SONIFICATION": "REFERENCE_AVAILABLE",
+    "PYRAMID_ACOUSTIC_FILTER": "REFERENCE_AVAILABLE",
+    "MIC_VOICE_CHANGER": "LOCAL_EXPLICIT_USER_START_ONLY",
+    "TTS": "NOT_IMPLEMENTED",
+    "REVERSIBLE_JSON_AUDIO_CODEC": "NOT_ESTABLISHED"
+  },
+  "handoff_contract": {
+    "format": "JSON",
+    "habitat_may_reference_voice_requests": true,
+    "habitat_may_auto_open_microphone": false,
+    "habitat_may_auto_play_audio": false,
+    "habitat_may_send_shell_commands": false,
+    "habitat_may_supply_arbitrary_paths": false,
+    "write_back_default": "DENY",
+    "write_back_requires_explicit_human_authorization": true
+  },
+  "audio_boundary": {
+    "network_io": false,
+    "microphone_permission_must_be_local_and_explicit": true,
+    "rendered_audio_is_not_evidence": true,
+    "audio_output_grants_no_authority": true,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "science_boundary": {
+    "current_operator": "MODEL_BASED_MODAL_RESONATOR_APPROXIMATION",
+    "measured_historical_pyramid_sound_established": false,
+    "ancient_audio_technology_established": false,
+    "future_measured_impulse_response_preferred": true
+  },
+  "operator": "HABITAT -> TYPED_REFERENCE/HANDOFF -> THE_VOICE_OF_JANUS -> AUDIO + RECEIPT",
+  "rule": "HABITAT MAY INVITE THE VOICE; ONLY THE LOCAL USER MAY OPEN THE MICROPHONE."
+}
