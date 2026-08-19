@@ -1,0 +1,15 @@
+{
+  "schema": "janus.genesis.git_habitat.repository_bookmark.v1",
+  "constellation_version": "18.7.61-echo-pyramid-edge",
+  "repository": "Hawkar-usls/Echo-Pyramid",
+  "repository_id": "1339545327",
+  "default_branch": "main",
+  "visibility": "public",
+  "relationship": "HABITAT_PHYSICAL_VOICE_BODY_REFERENCE",
+  "role": "PHYSICAL_VOICE_BODY",
+  "content_is_trusted_fact_by_default": false,
+  "source_history_remains_authoritative": true,
+  "read_or_index_is_write_permission": false,
+  "external_effect_authority": false,
+  "write_back_default": "DENY"
+}
