@@ -1,0 +1,32 @@
+{
+  "schema": "janus.genesis.git_habitat.repository_catalog_delta.v1",
+  "delta_id": "HABITAT_CONSTELLATION_DELTA_2026_08_19_VOICE_OF_JANUS",
+  "created_at_local": "2026-08-19T14:20:00+03:00",
+  "base_catalog": {
+    "path": "habitat/repositories/CONSTELLATION.json",
+    "constellation_version": "18.7.59",
+    "manifest_sha256": "fd0c78e9f4fdd7d39a6a77b57775f07a16ebf3e820d25a3ac21c1132676fb2f6",
+    "public_repository_count": 41,
+    "repository_count": 44,
+    "base_file_must_remain_unchanged": true
+  },
+  "add_public_repositories": [
+    {
+      "repository": "Hawkar-usls/The-Voice-of-Janus",
+      "repository_id": "1339447431",
+      "default_branch": "main",
+      "link": "repositories/public/1339447431/LINK.json",
+      "role": "PYRAMID_LANGUAGE_AUDIO_OUTPUT_ORGAN"
+    }
+  ],
+  "effective_counts_after_delta": {
+    "public_repository_count": 42,
+    "private_repository_count": 3,
+    "repository_count": 45
+  },
+  "voice_edge": "habitat/state/VOICE_OF_JANUS_EDGE.json",
+  "write_back_default": "DENY",
+  "automatic_external_effects": false,
+  "microphone_permission_inferred": false,
+  "rule": "APPEND NEW HABITAT MEMBERSHIP WITHOUT REWRITING THE FROZEN 2026-08-16 INVENTORY SNAPSHOT."
+}
