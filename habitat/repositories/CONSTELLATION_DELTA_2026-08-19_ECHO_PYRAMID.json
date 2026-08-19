@@ -1,0 +1,37 @@
+{
+  "schema": "janus.genesis.git_habitat.repository_catalog_delta.v1",
+  "delta_id": "HABITAT_CONSTELLATION_DELTA_2026_08_19_ECHO_PYRAMID",
+  "created_at_local": "2026-08-19T16:11:00+03:00",
+  "base_catalog": {
+    "path": "habitat/repositories/CONSTELLATION.json",
+    "constellation_version": "18.7.59",
+    "manifest_sha256": "fd0c78e9f4fdd7d39a6a77b57775f07a16ebf3e820d25a3ac21c1132676fb2f6",
+    "public_repository_count": 41,
+    "repository_count": 44,
+    "base_file_must_remain_unchanged": true
+  },
+  "prior_deltas_required": [
+    "habitat/repositories/CONSTELLATION_DELTA_2026-08-19_VOICE.json"
+  ],
+  "add_public_repositories": [
+    {
+      "repository": "Hawkar-usls/Echo-Pyramid",
+      "repository_id": "1339545327",
+      "default_branch": "main",
+      "link": "repositories/public/1339545327/LINK.json",
+      "role": "PHYSICAL_VOICE_BODY"
+    }
+  ],
+  "effective_counts_after_voice_and_echo_deltas": {
+    "public_repository_count": 43,
+    "private_repository_count": 3,
+    "repository_count": 46
+  },
+  "voice_edge": "habitat/state/VOICE_OF_JANUS_EDGE.json",
+  "physical_voice_edge": "habitat/state/ECHO_PYRAMID_PHYSICAL_VOICE_EDGE.json",
+  "write_back_default": "DENY",
+  "automatic_external_effects": false,
+  "microphone_permission_inferred": false,
+  "firmware_flash_permission_inferred": false,
+  "rule": "APPEND_THE_PHYSICAL_VOICE_BODY; DO_NOT_REWRITE_THE_FROZEN_2026_08_16_INVENTORY_SNAPSHOT."
+}
