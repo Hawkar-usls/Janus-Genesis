@@ -1,11 +1,20 @@
 {
-  "schema": "janus.genesis.git_habitat.voice_edge.v2",
+  "schema": "janus.genesis.git_habitat.voice_edge.v3",
   "edge_id": "HABITAT_VOICE_OF_JANUS_EDGE",
-  "status": "REFERENCE_AND_TYPED_HANDOFF_WITH_PHYSICAL_BODY_ROUTE",
+  "status": "NEXUS_V2_7_LOCAL_NEURAL_RUNTIME_ROUTE_IMPLEMENTED_CANDIDATE",
   "source": {
     "repository": "Hawkar-usls/Janus_Genesis",
     "branch": "janus/habitat",
-    "room": "state"
+    "room": "state",
+    "nexus_voice_gate": "habitat/state/NEXUS_VOICE_RUNTIME_GATE_v2.7.json"
+  },
+  "nexus": {
+    "runtime_repository": "Hawkar-usls/Demi_Head",
+    "contract": "NEXUS_V2_7_LOCAL_NEURAL_VOICE_RUNTIME_FROZEN_CONTRACT",
+    "target_head": "VOICE_RUNTIME",
+    "handler": "tools/nexus_voice_handler.py",
+    "handler_mode": "PURE_PREPARE_ONLY",
+    "endpoint": "configs/nexus_voice_runtime.endpoint.json"
   },
   "voice": {
     "repository": "Hawkar-usls/The-Voice-of-Janus",
@@ -13,26 +22,31 @@
     "repository_id": "1339447431",
     "current_language": "PYRAMID_LANGUAGE_117_121_ANCHORED_SPACE_v0.3",
     "activation": "configs/pyramid_117_121_space.activation.json",
-    "activation_blob_sha": "3d3203b53bf181656eac815235f1238ef7c4e57a",
+    "activation_blob_sha": "70016b9b1ad0ce2b20efd980f14859d66af0a7bd",
+    "semantic_content_preserved": true,
     "current_larynx": "silero_v5_5_ru",
-    "larynx_status": "READY_FOR_LOCAL_MODEL_AUDIO_PENDING"
+    "larynx_status": "LOCAL_HANDLER_AND_ADAPTER_IMPLEMENTED_MODEL_REQUIRED",
+    "executor": "src/nexus_voice_runtime_adapter.py",
+    "explicit_execute_required": true
   },
   "physical_body": {
     "repository": "Hawkar-usls/Echo-Pyramid",
     "repository_id": "1339545327",
     "edge": "habitat/state/ECHO_PYRAMID_PHYSICAL_VOICE_EDGE.json",
-    "role": "PHYSICAL_VOICE_BODY"
+    "role": "PHYSICAL_VOICE_BODY",
+    "automatic_handoff": false
   },
   "capabilities": {
     "JSON_RECORD_SONIFICATION": "REFERENCE_AVAILABLE",
     "PYRAMID_ACOUSTIC_FILTER": "117_121_HZ_REFERENCE_AVAILABLE",
     "MIC_VOICE_CHANGER": "LOCAL_EXPLICIT_USER_START_ONLY",
-    "NEURAL_TTS": "READY_FOR_LOCAL_MODEL_AUDIO_PENDING",
-    "PHYSICAL_ECHO_PYRAMID_OUTPUT": "TYPED_ROUTE_REFERENCE_AVAILABLE",
+    "NEURAL_TTS": "LOCAL_HANDLER_AND_ADAPTER_IMPLEMENTED_MODEL_REQUIRED",
+    "NEXUS_LOCAL_VOICE_HANDLER": "IMPLEMENTED_CANDIDATE_PENDING_EXACT_HEAD_CI_CONFIRMATION",
+    "PHYSICAL_ECHO_PYRAMID_OUTPUT": "EXPLICIT_TYPED_ROUTE_AVAILABLE",
     "REVERSIBLE_JSON_AUDIO_CODEC": "NOT_ESTABLISHED"
   },
   "handoff_contract": {
-    "format": "JSON_OR_AUDIO_REFERENCE",
+    "format": "NEXUS_TYPED_JSON_THEN_LOCAL_AUDIO_RECEIPT",
     "habitat_may_reference_voice_requests": true,
     "habitat_may_reference_physical_voice_body": true,
     "habitat_may_auto_open_microphone": false,
@@ -45,6 +59,9 @@
     "write_back_requires_explicit_human_authorization": true
   },
   "audio_boundary": {
+    "nexus_prepare_performs_audio_render": false,
+    "voice_render_requires_explicit_execute": true,
+    "model_download_during_render": false,
     "network_io_granted_by_edge": false,
     "microphone_permission_must_be_local_and_explicit": true,
     "physical_playback_requires_explicit_runtime_authorization": true,
@@ -60,6 +77,6 @@
     "measured_impulse_response_used": false,
     "future_measured_impulse_response_preferred": true
   },
-  "operator": "HABITAT -> TYPED_HANDOFF -> THE_VOICE_OF_JANUS -> ORDINARY_PCM -> PYRAMID_LANGUAGE -> ECHO_PYRAMID_PHYSICAL_BODY",
-  "rule": "HABITAT MAY INVITE THE VOICE AND REFERENCE ITS PHYSICAL BODY; LOCAL EXTERNAL EFFECTS STILL REQUIRE EXPLICIT HUMAN AUTHORIZATION."
+  "operator": "HABITAT -> NEXUS_LOCAL_PREPARE -> EXPLICIT_THE_VOICE_OF_JANUS_NEURAL_RENDER -> ORDINARY_HUMAN_LIKE_PCM -> PYRAMID_LANGUAGE -> WAV_RECEIPT -> OPTIONAL_EXPLICIT_ECHO_PYRAMID_PHYSICAL_BODY",
+  "rule": "NEXUS PREPARES; THE VOICE RENDERS; THE PYRAMID COLORS; THE HUMAN AUTHORIZES PHYSICAL OUTPUT."
 }
