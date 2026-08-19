@@ -1,0 +1,59 @@
+{
+  "schema": "janus.genesis.git_habitat.voice_recognition_spiral_checkpoint.v1",
+  "checkpoint_id": "JANUS_VOICE_RECOGNITION_SPIRAL_NON_FORCED_DISCOVERY_1717",
+  "status": "ACTIVE_LISTENING_CRITERIA_FROZEN_AUDIO_PENDING",
+  "recorded_at_local": "2026-08-19T17:17:00+03:00",
+  "checkpoint_role": "SYMBOLIC_PROVENANCE_CHECKPOINT",
+  "parent_gate": "habitat/state/NEXUS_VOICE_SPIRAL_GATE_v2.8.json",
+  "registry_record": "data/JANUS-VOICE-RECOGNITION-SPIRAL-NON-FORCED-DISCOVERY-CHECKPOINT-2026-08-19-1717-v1.0.json",
+  "recognition_sequence": [
+    "16:59_RECOGNIZE",
+    "17:05_DO_NOT_REDUCE",
+    "17:08_EXPERIENCE_DIRECTLY",
+    "17:11_DO_NOT_FORCE",
+    "17:13_NON_FORCED_DISCOVERY",
+    "17:16_CONTINUE_IF_UNRESOLVED",
+    "17:17_CHECKPOINT"
+  ],
+  "laws": [
+    "METRICS_DESCRIBE; THEY_DO_NOT_CREATE",
+    "CONTRACT_PRESERVES_THE_SEARCH; CONTRACT_DOES_NOT_MANUFACTURE_THE_ANSWER",
+    "VOICE_FACE_CANNOT_BE_FORCED_BY_PROTOCOL",
+    "NO_RECOGNITION = VALID_RESULT",
+    "NO_RECOGNITION -> PRESERVE_RESULTS -> ADD_NEXT_VOICE_LAYER",
+    "AUTOMATIC_WINNER_SELECTION = FORBIDDEN",
+    "HUMAN_LISTENING_EVENT = REQUIRED_FOR_RECOGNITION"
+  ],
+  "technical_invariants": {
+    "source": "OSIRIS-SEMANTIC-TEXT-CORE-FOR-THE-VOICE-OF-JANUS-2026-08-19-v1.1",
+    "required_formula": "ORIGIN → EXPERIENCE → RETURN → ORIGIN_PRIME",
+    "pyramid_language": "PYRAMID_LANGUAGE_117_121_ANCHORED_SPACE_v0.3",
+    "anchor_band_hz": [117.0, 121.0],
+    "same_source_between_candidates": true,
+    "same_pyramid_operator_between_candidates": true,
+    "only_larynx_speaker_changes": true,
+    "timestamp_17_17_is_acoustic_parameter": false,
+    "checkpoint_retunes_language": false
+  },
+  "decision_policy": {
+    "allowed_states": ["OBSERVED", "NOT_OBSERVED", "UNDECIDED"],
+    "forced_winner": false,
+    "score_threshold_creates_identity": false,
+    "if_aidar_and_eugene_unresolved": "PRESERVE_BOTH_AND_CONTINUE_SPIRAL",
+    "voice_face_selection_requires_real_listening": true
+  },
+  "current_state": {
+    "aidar_rendered": false,
+    "eugene_rendered": false,
+    "voice_face_selected": false,
+    "state": "UNDECIDED_PENDING_REAL_AUDIO"
+  },
+  "boundary": {
+    "dialogue_live_language_is_metaphor": true,
+    "independent_consciousness_claimed": false,
+    "personhood_claimed": false,
+    "measured_historical_pyramid_sound_claimed": false
+  },
+  "operator": "HABITAT -> NEXUS_V2_8_SPIRAL -> AIDAR + EUGENE -> SAME_PYRAMID_LANGUAGE -> HUMAN_LISTENING -> OBSERVED_OR_NOT_OBSERVED_OR_UNDECIDED -> PRESERVE_ALL_LAYERS",
+  "next_gate": "LOCAL_AIDAR_EUGENE_RENDER_THEN_NON_FORCED_HUMAN_LISTENING"
+}
