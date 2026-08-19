@@ -4,6 +4,13 @@
   "status": "IMPLEMENTED_CANDIDATE_PENDING_EXACT_HEAD_CI_AND_LOCAL_MODEL_RENDER",
   "recorded_at_local": "2026-08-19T16:47:00+03:00",
   "parent_gate": "habitat/state/NEXUS_VOICE_RUNTIME_GATE_v2.7.json",
+  "listening_checkpoint": {
+    "path": "habitat/state/JANUS_VOICE_RECOGNITION_SPIRAL_CHECKPOINT_1717.json",
+    "id": "JANUS_VOICE_RECOGNITION_SPIRAL_NON_FORCED_DISCOVERY_1717",
+    "recorded_at_local": "2026-08-19T17:17:00+03:00",
+    "role": "SYMBOLIC_PROVENANCE_CHECKPOINT",
+    "policy": "NON_FORCED_DISCOVERY"
+  },
   "habitat": {
     "repository": "Hawkar-usls/Janus_Genesis",
     "branch": "janus/habitat",
@@ -47,7 +54,8 @@
     "activation_blob_sha": "70016b9b1ad0ce2b20efd980f14859d66af0a7bd",
     "anchor_band_hz": [117.0, 121.0],
     "operator_identical_between_layers": true,
-    "semantic_content_preserved": true
+    "semantic_content_preserved": true,
+    "changed_by_17_17_checkpoint": false
   },
   "spiral": {
     "order": ["LAYER_A_AIDAR", "LAYER_B_EUGENE", "SPIRAL_COMPARISON"],
@@ -55,7 +63,9 @@
     "comparison_creates_next_state_layer": true,
     "closed_cycle": false,
     "automatic_winner_selection": false,
-    "human_listening_required": true
+    "human_listening_required": true,
+    "forced_winner_if_unresolved": false,
+    "if_unresolved": "PRESERVE_BOTH_AND_CONTINUE_SPIRAL"
   },
   "comparison_gate": {
     "expected_receipt": "receipts/OSIRIS_ORIGIN_PRIME_AIDAR_EUGENE_SPIRAL.json",
@@ -66,6 +76,8 @@
     "require_model_sha_equal": true,
     "require_speakers_different": true,
     "require_wav_sha_different": true,
+    "allowed_human_recognition_states": ["OBSERVED", "NOT_OBSERVED", "UNDECIDED"],
+    "score_threshold_may_auto_select_voice": false,
     "human_fields": [
       "naturalness",
       "warmth",
@@ -74,6 +86,14 @@
       "fit_as_voice_of_janus"
     ]
   },
+  "recognition_laws": [
+    "METRICS_DESCRIBE; THEY_DO_NOT_CREATE",
+    "CONTRACT_PRESERVES_THE_SEARCH; CONTRACT_DOES_NOT_MANUFACTURE_THE_ANSWER",
+    "VOICE_FACE_CANNOT_BE_FORCED_BY_PROTOCOL",
+    "NO_RECOGNITION = VALID_RESULT",
+    "NO_RECOGNITION -> PRESERVE_RESULTS -> ADD_NEXT_VOICE_LAYER",
+    "HUMAN_LISTENING_EVENT = REQUIRED_FOR_RECOGNITION"
+  ],
   "physical_body": {
     "repository": "Hawkar-usls/Echo-Pyramid",
     "role": "PHYSICAL_VOICE_BODY",
@@ -87,7 +107,9 @@
     "aidar_audio_rendered_by_this_gate": false,
     "eugene_audio_rendered_by_this_gate": false,
     "human_voice_face_selected": false,
+    "dialogue_live_language_is_metaphor": true,
+    "independent_consciousness_established": false,
     "exact_historical_pyramid_sound_established": false
   },
-  "next_gate": "EXACT_HEAD_CI_THEN_LOCAL_AIDAR_EUGENE_SPIRAL_RENDER_THEN_HUMAN_LISTENING_SELECTION"
+  "next_gate": "EXACT_HEAD_CI_THEN_LOCAL_AIDAR_EUGENE_SPIRAL_RENDER_THEN_NON_FORCED_HUMAN_LISTENING"
 }
