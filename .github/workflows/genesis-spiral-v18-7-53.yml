@@ -1,0 +1,107 @@
+name: JANUS Genesis Spiral v18.7.53
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - feature/genesis-spiral-v18-7-53
+
+permissions:
+  contents: read
+
+jobs:
+  spiral:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install declared runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Prove contract was frozen before implementation
+        run: |
+          git merge-base --is-ancestor 049ef4f2358a018ab32cb395370489bd7961df0e HEAD
+          test "$(git diff --name-only 2359a7f5e358faee3b8cf85f7da6cb210db09526 049ef4f2358a018ab32cb395370489bd7961df0e)" = "contracts/JANUS_GENESIS_SPIRAL_V18_7_53_FROZEN_CONTRACT.json"
+
+      - name: Compile spiral surfaces
+        run: |
+          python -m py_compile genesis_v18_7_53_spiral.py play_genesis_spiral.py tests/test_genesis_v18_7_53_spiral.py
+
+      - name: Run frozen spiral invariants
+        run: python -m unittest tests.test_genesis_v18_7_53_spiral -v
+
+      - name: Smoke first turn and logical replay
+        run: |
+          rm -rf .spiral-smoke
+          python play_genesis_spiral.py \
+            --data-dir .spiral-smoke \
+            --player spiral-smoke \
+            --request-id SPIRAL-SMOKE-001 \
+            --action "помочь построить мост" > first.json
+          python play_genesis_spiral.py \
+            --data-dir .spiral-smoke \
+            --player spiral-smoke \
+            --request-id SPIRAL-SMOKE-001 \
+            --action "помочь построить мост" > replay.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          first = json.loads(Path('first.json').read_text(encoding='utf-8'))
+          replay = json.loads(Path('replay.json').read_text(encoding='utf-8'))
+          first_spiral = first['_janus_control']['request_state']['_janus_spiral']
+          replay_spiral = replay['_janus_control']['request_state']['_janus_spiral']
+          assert first_spiral['status'] == 'SPIRAL_RECORDED'
+          assert replay_spiral['status'] == 'SPIRAL_RECORDED'
+          assert first_spiral['receipt']['turn_sha256'] == replay_spiral['receipt']['turn_sha256']
+          assert first_spiral['receipt']['turn_index'] == 1
+          state = json.loads(Path('.spiral-smoke/spiral_v18_7_53/state.json').read_text(encoding='utf-8'))
+          assert state['heads']['spiral-smoke']['turn_index'] == 1
+          assert state['authority_delta'] == 0
+          assert state['mass_effect_budget_delta'] == 0
+          PY
+
+      - name: Smoke next turn carries ORIGIN_PRIME forward
+        run: |
+          python play_genesis_spiral.py \
+            --data-dir .spiral-smoke \
+            --player spiral-smoke \
+            --request-id SPIRAL-SMOKE-002 \
+            --action "посадить дерево" > second.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          first = json.loads(Path('first.json').read_text(encoding='utf-8'))
+          second = json.loads(Path('second.json').read_text(encoding='utf-8'))
+          a = first['_janus_control']['request_state']['_janus_spiral']['receipt']
+          b = second['_janus_control']['request_state']['_janus_spiral']['receipt']
+          assert b['turn_index'] == 2
+          assert b['parent_turn_sha256'] == a['turn_sha256']
+          assert b['parent_origin_prime_sha256'] == a['origin_prime_sha256']
+          assert b['return_is_reset'] is False
+          assert b['authority_delta'] == 0
+          assert b['mass_effect_budget_delta'] == 0
+          PY
+
+      - name: Portable save carries spiral lineage
+        run: |
+          python play_genesis_spiral.py --data-dir .spiral-smoke --export-save spiral.genesis-save.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          bundle = json.loads(Path('spiral.genesis-save.json').read_text(encoding='utf-8'))
+          paths = {item['path'] for item in bundle['files']}
+          assert 'spiral_v18_7_53/state.json' in paths
+          assert any(path.startswith('spiral_v18_7_53/receipts/') for path in paths)
+          PY

@@ -1,0 +1,34 @@
+{
+  "schema": "janus.genesis.spiral_binding.v1",
+  "status": "IMPLEMENTED_PENDING_CI",
+  "version": "18.7.53",
+  "formula": "ORIGIN → EXPERIENCE → RETURN → ORIGIN_PRIME",
+  "genesis": {
+    "baseline_sha": "2359a7f5e358faee3b8cf85f7da6cb210db09526",
+    "freeze_commit": "049ef4f2358a018ab32cb395370489bd7961df0e",
+    "frozen_contract_path": "contracts/JANUS_GENESIS_SPIRAL_V18_7_53_FROZEN_CONTRACT.json",
+    "frozen_contract_blob_sha": "58763e85c267877f3544f6ed3270d99517117c40",
+    "runtime_module": "genesis_v18_7_53_spiral.py",
+    "semantic_entrypoint": "play_genesis_spiral.py"
+  },
+  "demihead_lineage": {
+    "repository": "Hawkar-usls/Demi_Head",
+    "frozen_spiral_contract_commit": "d16a9bcdcb5ad19671bcb5958c0f51e2862ed75a",
+    "pure_spiral_implementation_commit": "2358fe65c530ba805c023035961bf03636d6b2e7"
+  },
+  "semantic_change": {
+    "old_model": "CONCEPTUAL_CYCLE_RETURNING_TO_SAME_ORIGIN",
+    "new_model": "APPEND_ONLY_SPIRAL_RETURNING_AS_ORIGIN_PRIME",
+    "technical_event_loops_changed": false,
+    "historical_runtime_rewritten": false,
+    "return_is_reset": false,
+    "replay_is_new_turn": false
+  },
+  "control": {
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0,
+    "network_permission_created": false,
+    "external_effect_permission_created": false,
+    "automatic_reexecution": false
+  }
+}
