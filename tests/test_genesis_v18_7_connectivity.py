@@ -175,7 +175,10 @@ class GenesisV187ConnectivityTests(unittest.TestCase):
                     )
                     first = alpha.sync()
                     second = beta.sync()
-                    inbox = beta.public_inbox()
+                    persisted_beta = json.loads(
+                        (Path(node_b) / "network_client_v18_7.json").read_text(encoding="utf-8")
+                    )
+                    inbox = persisted_beta["inbox"]
 
                     self.assertEqual(first["accepted"], 1)
                     self.assertGreaterEqual(second["received"], 1)
