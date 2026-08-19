@@ -1,0 +1,47 @@
+{
+  "schema": "janus.nexus.genesis_demihead_lifecycle_link.v1",
+  "link_id": "JANUS_GENESIS_DEMIHEAD_LIFECYCLE_REFERENCE_V1",
+  "status": "PROPOSED_LIFECYCLE_REFERENCE",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "source_role": "CONSTITUTION_HOME_AND_LIFECYCLE",
+  "source_baseline_sha": "24ff7f51f06bafb521fcc52ba0bc1f577caa4d85",
+  "coordination_pointer": {
+    "path": ".janus/PROJECT_SYNC.json",
+    "blob_sha": "d0a0e7eee4ed581ab94027b5e1d87df600f0892b",
+    "required_face": "FACE_DEMIHEAD"
+  },
+  "demihead": {
+    "repository": "Hawkar-usls/Demi_Head",
+    "nexus_link_path": ".janus/NEXUS_LINK.json",
+    "nexus_link_blob_sha": "d10208fbf3594d306464dfac1733490daafc4df9",
+    "required_heads": ["GUARDIAN", "RELEASE_CONTROL"]
+  },
+  "edge": {
+    "kind": "LIFECYCLE_COORDINATION_REFERENCE",
+    "payload": "LIFECYCLE_REFERENCE",
+    "direction": "GENESIS_TO_DEMIHEAD_REFERENCE",
+    "live_cross_repository_transport": false,
+    "command_route_created": false,
+    "deployment_permission_created": false
+  },
+  "reciprocity_checks": {
+    "project_sync_must_include_FACE_DEMIHEAD": true,
+    "demihead_nexus_must_include_required_heads": true,
+    "genesis_runtime_or_safety_drift_requires_revalidation": true,
+    "demihead_nexus_drift_requires_revalidation": true,
+    "promotion_must_not_rewrite_source_baseline_history": true
+  },
+  "authority_boundary": {
+    "lifecycle_reference_is_command": false,
+    "coordination_is_permission": false,
+    "ci_green_is_deployment_permission": false,
+    "external_effect_authority": false,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0,
+    "write_back_default": "DENY"
+  },
+  "topology_health": {
+    "validator": "Hawkar-usls/Demi_Head:tools/janus_demihead_topology_health.py",
+    "central_ci_receipt_required": true
+  }
+}
