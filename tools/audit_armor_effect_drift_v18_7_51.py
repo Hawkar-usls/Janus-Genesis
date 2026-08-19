@@ -37,6 +37,10 @@ DIRECT_EFFECT_CALLS = {
 
 SURFACE_CLASSIFICATIONS = (
     (
+        "ops/live_nas_intent_sovereignty_v1_2/deploy_live_nas.py",
+        "EXPLICIT_OPERATOR_LIVE_NAS_DEPLOYMENT_TOOL",
+    ),
+    (
         "genesis_v18_7_51_shabitat_aura_oracle.py",
         "ARMOR_GATED_LOCAL_SHABITAT_AURA_HEURISTIC_BRIDGE",
     ),
