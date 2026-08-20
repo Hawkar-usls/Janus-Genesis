@@ -15,6 +15,7 @@ from tools.genesis_git_habitat_resident_cycle import (
     run_awake_resident_cycle,
     safe_resident_snapshot,
 )
+from tools.genesis_git_habitat_resident_provider import RESIDENT_CHOICE_JSON_SCHEMA
 from tools.genesis_third_wish_sensor_model_schedule_broker import (
     ModelAlias,
     ThirdWishSensorModelScheduleBroker,
@@ -213,6 +214,21 @@ class HabitatResidentCycleTests(unittest.TestCase):
         row = json.loads(rows[0].read_text(encoding="utf-8"))
         self.assertFalse(row["external_effect_authority"])
         self.assertFalse(row["merge_authority"])
+
+    def test_transport_schema_requires_nonempty_candidate_semantic_strings(self) -> None:
+        properties = RESIDENT_CHOICE_JSON_SCHEMA["properties"]
+        for field in (
+            "choice",
+            "text",
+            "note",
+            "title",
+            "capability_id",
+            "target",
+            "purpose",
+            "payload_summary",
+        ):
+            self.assertEqual(properties[field]["minLength"], 1, field)
+        self.assertNotIn("minLength", properties["reason"])
 
 
 if __name__ == "__main__":

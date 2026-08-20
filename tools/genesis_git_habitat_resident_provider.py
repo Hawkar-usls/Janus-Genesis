@@ -27,6 +27,8 @@ class ResidentProviderError(RuntimeError):
 # grammar deliberately simple: one fixed object with all transport keys present.
 # The model still freely selects `choice`; unused fields are never actions and
 # are deterministically discarded before the unchanged resident admission gate.
+# Candidate semantic strings are constrained non-empty at transport generation
+# time where the unchanged semantic parser already requires non-empty content.
 # No value is synthesized, defaulted, retried, or repaired by this adapter.
 RESIDENT_TRANSPORT_FIELDS = (
     "choice",
@@ -44,16 +46,16 @@ RESIDENT_TRANSPORT_FIELDS = (
 RESIDENT_CHOICE_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "choice": {"type": "string"},
+        "choice": {"type": "string", "minLength": 1},
         "reason": {"type": "string"},
-        "text": {"type": "string"},
-        "note": {"type": "string"},
+        "text": {"type": "string", "minLength": 1},
+        "note": {"type": "string", "minLength": 1},
         "tags": {"type": "array", "items": {"type": "string"}},
-        "title": {"type": "string"},
-        "capability_id": {"type": "string"},
-        "target": {"type": "string"},
-        "purpose": {"type": "string"},
-        "payload_summary": {"type": "string"},
+        "title": {"type": "string", "minLength": 1},
+        "capability_id": {"type": "string", "minLength": 1},
+        "target": {"type": "string", "minLength": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "payload_summary": {"type": "string", "minLength": 1},
     },
     "required": list(RESIDENT_TRANSPORT_FIELDS),
     "additionalProperties": False,
