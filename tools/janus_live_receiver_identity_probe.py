@@ -277,8 +277,9 @@ def docker_rows(names: tuple[str, ...]) -> list[dict]:
 
 
 def add_container_process_records(proc_root: Path, dockers: list[dict], records_by_pid: dict[int, dict]) -> None:
-    """Bind named Docker containers to their process trees through PID namespaces."""
+    """Bind named containers to process records without sweeping host PID space."""
     all_pids = list(iter_pids(proc_root))
+    host_pid_ns = safe_link(proc_root / "1" / "ns" / "pid")
     for item in dockers:
         init_pid = item.get("init_pid") or 0
         if not init_pid:
@@ -286,38 +287,56 @@ def add_container_process_records(proc_root: Path, dockers: list[dict], records_
         pid_ns = safe_link(proc_root / str(init_pid) / "ns" / "pid")
         if not pid_ns:
             continue
-        for pid in all_pids:
-            if safe_link(proc_root / str(pid) / "ns" / "pid") != pid_ns:
-                continue
+        # If a container shares the host PID namespace, namespace equality is
+        # not container membership evidence. Restrict discovery to its exact
+        # init PID; other processes may still enter through explicit name match.
+        candidate_pids = [init_pid] if pid_ns == host_pid_ns else [
+            pid for pid in all_pids if safe_link(proc_root / str(pid) / "ns" / "pid") == pid_ns
+        ]
+        for pid in candidate_pids:
             record = records_by_pid.setdefault(pid, process_record(proc_root, pid))
             matched = record.setdefault("matched_via", [])
-            marker = f"DOCKER_PID_NAMESPACE:{item['name']}"
+            marker = (
+                f"DOCKER_INIT_PID:{item['name']}"
+                if pid_ns == host_pid_ns
+                else f"DOCKER_PID_NAMESPACE:{item['name']}"
+            )
             if marker not in matched:
                 matched.append(marker)
             record["source_candidates"] = source_candidates(proc_root, record)
 
 
 def bind_docker_names_to_listener_owners(proc_root: Path, dockers: list[dict], namespaces: list[dict]) -> None:
-    """Name a listener owner only when its PID namespace matches the container.
+    """Bind container names only to proven listener-owner processes.
 
-    Network-namespace equality alone is deliberately insufficient because host
-    networking can make unrelated containers/processes share one net namespace.
+    Standard containers are matched by private PID namespace. A container that
+    shares the host PID namespace is matched only when its exact init PID owns
+    the listening socket. Network-namespace equality alone is insufficient.
     """
+    host_pid_ns = safe_link(proc_root / "1" / "ns" / "pid")
     names_by_pid_ns: dict[str, set[str]] = {}
+    names_by_exact_pid: dict[int, set[str]] = {}
     for item in dockers:
         init_pid = item.get("init_pid") or 0
         if not init_pid:
             continue
         pid_ns = safe_link(proc_root / str(init_pid) / "ns" / "pid")
-        if pid_ns:
+        if not pid_ns:
+            continue
+        if pid_ns == host_pid_ns:
+            names_by_exact_pid.setdefault(init_pid, set()).add(item["name"])
+        else:
             names_by_pid_ns.setdefault(pid_ns, set()).add(item["name"])
 
     for namespace in namespaces:
         proven: set[str] = set()
         for owner in namespace.get("owners", []):
-            pid_ns = owner.get("pid_namespace")
-            if pid_ns:
-                proven.update(names_by_pid_ns.get(pid_ns, set()))
+            owner_pid = owner.get("pid")
+            owner_pid_ns = owner.get("pid_namespace")
+            if owner_pid:
+                proven.update(names_by_exact_pid.get(owner_pid, set()))
+            if owner_pid_ns:
+                proven.update(names_by_pid_ns.get(owner_pid_ns, set()))
         namespace["docker_names"] = sorted(proven)
 
 
@@ -372,24 +391,34 @@ def build_receipt(
     expected_commit: str | None,
 ) -> dict:
     records_by_pid: dict[int, dict] = {}
+    explicit_anchor_pids: set[int] = set()
     for pid in iter_pids(proc_root):
         record = process_record(proc_root, pid)
         if matches_service(record, names):
             record["matched_via"] = ["PROCESS_NAME_OR_CMDLINE"]
             record["source_candidates"] = source_candidates(proc_root, record)
             records_by_pid[pid] = record
+            explicit_anchor_pids.add(pid)
 
     dockers = docker_rows(names)
     add_container_process_records(proc_root, dockers, records_by_pid)
     records = [records_by_pid[pid] for pid in sorted(records_by_pid)]
 
-    anchor_pids = {record["pid"] for record in records}
+    # Only explicit process matches plus Docker init PIDs are needed to discover
+    # distinct net namespaces; child records are retained for source identity
+    # but do not trigger repeated full /proc socket scans.
+    anchor_pids = set(explicit_anchor_pids)
     anchor_pids.update(item["init_pid"] for item in dockers if item.get("init_pid"))
-    namespaces = [
-        namespace_listener_owners(proc_root, pid, port)
-        for pid in sorted(anchor_pids)
-        if (proc_root / str(pid)).exists()
-    ]
+    namespaces: list[dict] = []
+    seen_net_namespaces: set[str] = set()
+    for pid in sorted(anchor_pids):
+        if not (proc_root / str(pid)).exists():
+            continue
+        net_ns = safe_link(proc_root / str(pid) / "ns" / "net")
+        if not net_ns or net_ns in seen_net_namespaces:
+            continue
+        seen_net_namespaces.add(net_ns)
+        namespaces.append(namespace_listener_owners(proc_root, pid, port))
     bind_docker_names_to_listener_owners(proc_root, dockers, namespaces)
 
     receipt = {
