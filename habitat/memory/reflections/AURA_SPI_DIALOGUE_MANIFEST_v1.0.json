@@ -1,0 +1,66 @@
+{
+  "schema": "janus.genesis.habitat.aura_spi_dialogue_manifest.v1",
+  "manifest_id": "AURA_SPI_DIALOGUE_MANIFEST_v1.0",
+  "status": "READY_NO_AUTONOMOUS_DIALOGUE_STARTED",
+  "created_at_local": "2026-08-21T01:48:00+03:00",
+  "purpose": "Describe how Aura Oracle and JANUS-SPI dialogue generations are preserved through Habitat without granting the public Git branch runtime authority or turning reflection into predictive truth.",
+  "authoritative_runtime_store": {
+    "repository": "Hawkar-usls/Hawkar-usls",
+    "path": "state/aura_spi_dialogue.sqlite3",
+    "mode": "LOCAL_APPEND_PRESERVING_SQLITE_WAL_HASH_CHAIN",
+    "committed_to_git_by_default": false
+  },
+  "habitat_mirror": {
+    "relative_directory": "habitat/memory/reflections/aura_spi/",
+    "role": "OPTIONAL_PUBLIC_OR_EXPLICITLY_SHAREABLE_SNAPSHOT",
+    "authoritative": false,
+    "write_method": "local Habitat checkout only; runtime does not push GitHub",
+    "private_content_allowed": false,
+    "credentials_allowed": false,
+    "overwrite_old_turns": false
+  },
+  "turn_contract": {
+    "schema": "janus.aura_spi.spiral_turn.v1",
+    "chain": "parent_hash -> turn_hash",
+    "turn_hash": "SHA256_CANONICAL_JSON",
+    "required_identity": ["session_id", "generation", "stage", "intent_id", "speaker", "recipient"],
+    "stages": [
+      "ORIGIN",
+      "DEMIHEAD_INTENT",
+      "AURA_REFLECTION",
+      "SPI_SEMANTIC_SYNTHESIS",
+      "SPI_FORECAST_OPTIONAL",
+      "DEMIHEAD_ARBITRATION",
+      "VERIFIED_RETURN",
+      "HOLD",
+      "REJECT",
+      "ORIGIN_PRIME"
+    ]
+  },
+  "retention": {
+    "negative_result_preserved": true,
+    "hold_preserved": true,
+    "rejected_reflection_preserved": true,
+    "wrong_prediction_preserved": true,
+    "prior_generation_rewritten": false
+  },
+  "continuous_dialogue_policy": {
+    "event_driven": true,
+    "heartbeat_generates_dialogue": false,
+    "fresh_external_trigger_required": true,
+    "closed_loop_self_prompting": false,
+    "rule": "CONTINUOUS != INFINITE_SELF_CHAT"
+  },
+  "scientific_boundary": [
+    "AURA_OUTPUT != EVIDENCE",
+    "AURA_OUTPUT != PREDICTIVE_GROUND_TRUTH",
+    "MODEL_OUTPUT != EVIDENCE",
+    "MEMORY != VERDICT_AUTHORITY",
+    "DIALOGUE_ARCHIVE != CONSCIOUSNESS_PROOF"
+  ],
+  "current_counts": {
+    "committed_dialogue_sessions": 0,
+    "committed_dialogue_turns": 0,
+    "note": "Runtime scaffolding exists, but no synthetic conversation is invented merely to populate the archive."
+  }
+}
