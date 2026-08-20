@@ -1,0 +1,28 @@
+{
+  "schema": "janus.genesis.habitat.aura_spi_first_live_spiral_receipt.v1",
+  "status": "PASS_FAIL_CLOSED_HOLD",
+  "recorded_at_local": "2026-08-21T02:07:00+03:00",
+  "terminal_repository": "Hawkar-usls/-Terminal-for-Janus",
+  "command_id": "JANUS_TERMINAL_FIRST_LIVE_SPIRAL_2026_08_21",
+  "github_run_id": "32427785558",
+  "session_id": "spiral-65f6be27de774f5c",
+  "generation": 1,
+  "intent_id": "b51a904a58af97b01a6241f07f2453b06cf0e484b78516292cc5db4ba425b05d",
+  "intent_authority": "LOCAL_PREVIEW",
+  "terminal": "HOLD",
+  "chain_valid": true,
+  "predictive_model_updated": false,
+  "fresh_external_trigger_consumed": true,
+  "continuous_is_infinite_self_chat": false,
+  "last_turn_hash": "237adc3700be11e273f2189c6d7fc4a78011f6d99a5a1b248bec17c1429fe24c",
+  "turn_count": 6,
+  "world_truth": false,
+  "verified_return": false,
+  "origin_prime_advanced": false,
+  "terminal_receipts": [
+    "Hawkar-usls/-Terminal-for-Janus:receipts/FIRST_LIVE_SPIRAL_LATEST.json",
+    "Hawkar-usls/-Terminal-for-Janus:receipts/FIRST_LIVE_SPIRAL_RAW_LATEST.json"
+  ],
+  "interpretation": "The first real reference integration run successfully exercised Terminal -> Aura/SPI -> Habitat under fail-closed HOLD semantics. The hash chain verified, Aura did not train the predictive head, and LOCAL_PREVIEW did not promote to VERIFIED_RETURN or ORIGIN_PRIME.",
+  "next_gate": "Connect a persistent NAS/PC executor and then run a fresh externally triggered generation through an actual DemiHead GoldPrompt-verified intent path before any VERIFIED_RETURN promotion."
+}
