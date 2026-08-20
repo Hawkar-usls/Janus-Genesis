@@ -1,0 +1,47 @@
+{
+  "admission": {
+    "exact_source_identity_required": true,
+    "expected_owner_default": "janus_nas_brain",
+    "heartbeat_is_execution_proof": false,
+    "host_identity_implies_process_identity": false,
+    "identity_binding_pass_implies_hr1_hr10": false,
+    "port_8008_owner_required": true,
+    "reference_ci_is_live_proof": false
+  },
+  "base_main": "364a98e64f3bb207e671b9b6bbd2f175040dee37",
+  "claim_ceiling": {
+    "issue_162_pass": false,
+    "issue_164_pass": false,
+    "live_hr1_hr10_pass": false,
+    "live_receiver_bound": false,
+    "probe_implementation_ready": true
+  },
+  "contract_id": "JANUS_LIVE_RECEIVER_IDENTITY_PROBE_V1",
+  "final_acceptance": "Hawkar-usls/Janus_Genesis#162",
+  "implementation_path": "tools/janus_live_receiver_identity_probe.py",
+  "issue": "Hawkar-usls/Janus_Genesis#164",
+  "privacy": {
+    "public_private_exact_pin_disclosure": false,
+    "public_status_may_report_boolean_gate_state": true,
+    "unredacted_receipt_scope": "LOCAL_ONLY"
+  },
+  "required_observations": [
+    "RUNNING_PROCESS_IDENTITY",
+    "CONTAINER_IDENTITY_IF_PRESENT",
+    "EXECUTABLE_CMDLINE_CWD",
+    "SOURCE_FILE_SHA256_WHERE_DISCOVERABLE",
+    "GIT_COMMIT_WHERE_DISCOVERABLE",
+    "PORT_8008_LISTENER_IN_NETWORK_NAMESPACE",
+    "PORT_8008_OWNER_PROCESS"
+  ],
+  "role": "READ_ONLY_LIVE_RECEIVER_SOURCE_AND_PORT_OWNER_BINDING",
+  "safety": {
+    "AUTHORITY_DELTA": 0,
+    "CONTAINER_MUTATION": "FORBIDDEN",
+    "DESTRUCTIVE_ACTION": "FORBIDDEN",
+    "MASS_EFFECT_BUDGET_DELTA": 0,
+    "NETWORK_MUTATION": "FORBIDDEN",
+    "SOURCE_WRITEBACK_DEFAULT": "DENY"
+  },
+  "schema": "janus.handoff.live_receiver_identity_probe.contract.v1"
+}
