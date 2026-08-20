@@ -27,6 +27,8 @@
   "privacy": {
     "public_private_exact_pin_disclosure": false,
     "public_status_may_report_boolean_gate_state": true,
+    "stdout_projection": "PUBLIC_SUMMARY_ONLY",
+    "unredacted_receipt_requires_explicit_local_output": true,
     "unredacted_receipt_scope": "LOCAL_ONLY"
   },
   "required_observations": [
