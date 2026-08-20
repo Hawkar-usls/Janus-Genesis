@@ -3,8 +3,9 @@
 """Read-only live receiver/source identity probe for JANUS #164.
 
 The probe observes Linux /proc plus optional Docker metadata. It never mutates
-containers, sockets, files, Git refs, or network state. Live PASS remains
-impossible unless exact source identity and :8008 ownership are both explicit.
+source state, containers, sockets, Git refs, or network state. Optional output
+files are local evidence receipts only. Live PASS remains impossible unless
+exact source identity and :8008 ownership are both explicit.
 """
 from __future__ import annotations
 
@@ -155,6 +156,7 @@ def namespace_listener_owners(proc_root: Path, anchor_pid: int, port: int) -> di
         "net_namespace": ns,
         "listeners": listeners,
         "owners": owners,
+        "docker_names": [],
     }
 
 
@@ -182,12 +184,14 @@ def parse_git_head(repo_dir: Path) -> dict | None:
 
 
 def find_git_provenance(path: Path) -> dict | None:
+    # Keep /proc/<pid>/root lexical. Resolving that magic symlink may escape the
+    # target process root and accidentally inspect the host namespace instead.
+    current = path
     try:
-        current = path.resolve()
+        if current.is_file():
+            current = current.parent
     except OSError:
-        current = path
-    if current.is_file():
-        current = current.parent
+        pass
     for candidate in [current, *current.parents]:
         prov = parse_git_head(candidate)
         if prov:
@@ -280,6 +284,20 @@ def docker_rows(names: tuple[str, ...]) -> list[dict]:
     return rows
 
 
+def bind_docker_names_to_namespaces(proc_root: Path, dockers: list[dict], namespaces: list[dict]) -> None:
+    names_by_ns: dict[str, set[str]] = {}
+    for item in dockers:
+        pid = item.get("init_pid") or 0
+        if not pid:
+            continue
+        ns = safe_link(proc_root / str(pid) / "ns" / "net")
+        if ns:
+            names_by_ns.setdefault(ns, set()).add(item["name"])
+    for item in namespaces:
+        ns = item.get("net_namespace")
+        item["docker_names"] = sorted(names_by_ns.get(ns, set())) if ns else []
+
+
 def evaluate(receipt: dict, expected_owner: str | None, expected_commit: str | None) -> dict:
     exact_source_commits = set()
     for proc in receipt["matching_processes"]:
@@ -293,6 +311,8 @@ def evaluate(receipt: dict, expected_owner: str | None, expected_commit: str | N
         for owner in ns.get("owners", []):
             hay = " ".join([owner.get("comm") or "", *(owner.get("cmdline") or [])])
             owner_names.add(hay)
+        if ns.get("listeners"):
+            owner_names.update(ns.get("docker_names") or [])
 
     source_state = "UNRESOLVED"
     if exact_source_commits:
@@ -347,6 +367,7 @@ def build_receipt(
         for pid in sorted(anchor_pids)
         if (proc_root / str(pid)).exists()
     ]
+    bind_docker_names_to_namespaces(proc_root, dockers, namespaces)
 
     receipt = {
         "schema": "janus.handoff.live_receiver_identity_probe.v1",
