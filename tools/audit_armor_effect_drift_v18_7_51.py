@@ -49,6 +49,10 @@ SURFACE_CLASSIFICATIONS = (
     ("genesis_v18_7_38_durable_network_outbox.py", "LEGACY_DURABLE_NETWORK_ADAPTER"),
     ("janus_genesis.py", "LEGACY_ROOT_GEMINI_NARRATOR_EGRESS"),
     ("tools/janus_habitat_process_death_gauntlet_v1.py", "CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET"),
+    (
+        "tools/janus_receiver_identity_probe.py",
+        "READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE",
+    ),
     ("tools/genesis_third_wish_*.py", "THIRD_WISH_EFFECT_BROKER_ARMOR_SUBCLASS_COMPATIBLE"),
     ("tools/genesis_api_server.py", "LEGACY_LOCAL_MUTATION_SERVICE"),
     ("tools/genesis_hosted_gateway.py", "HOSTED_LOCAL_MUTATION_SERVICE"),

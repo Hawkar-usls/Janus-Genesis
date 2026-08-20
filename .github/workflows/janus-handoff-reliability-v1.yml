@@ -1,0 +1,80 @@
+name: JANUS Handoff Reliability v1 Preregistration
+
+on:
+  pull_request:
+    paths:
+      - 'protocol/JANUS_HANDOFF_RELIABILITY_V1_PREREGISTRATION.json'
+      - 'tools/janus_handoff_reliability_v1_gate.py'
+      - 'tools/janus_receiver_identity_probe.py'
+      - 'tests/test_handoff_reliability_v1_gate.py'
+      - '.github/workflows/janus-handoff-reliability-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preregistration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Unit tests
+        run: python -m unittest tests.test_handoff_reliability_v1_gate -v
+
+      - name: Structural preregistration gate
+        run: |
+          mkdir -p out
+          python tools/janus_handoff_reliability_v1_gate.py \
+            --mode structural \
+            --output out/structural-receipt.json
+
+      - name: Admission must fail closed without live evidence
+        shell: bash
+        run: |
+          set +e
+          python tools/janus_handoff_reliability_v1_gate.py \
+            --mode admission \
+            --output out/admission-hold-receipt.json
+          rc=$?
+          set -e
+          test "$rc" -eq 2
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('out/admission-hold-receipt.json').read_text())
+          assert r['status'] == 'HOLD', r
+          assert r['issue_162_runnable_contribution'] is False, r
+          assert r['source_writeback_default'] == 'DENY', r
+          assert r['authority_delta'] == 0, r
+          PY
+
+      - name: Identity probe self-check remains unattested in CI
+        run: |
+          python tools/janus_receiver_identity_probe.py \
+            --source tools/janus_receiver_identity_probe.py \
+            --repo . \
+            --receiver-service janus_nas_brain \
+            --port-owner CI_FIXTURE_ONLY \
+            --network-namespace github-actions \
+            --output out/identity-probe-ci.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          r = json.loads(Path('out/identity-probe-ci.json').read_text())
+          assert r['evidence_kind'] == 'LOCAL_PROBE_UNATTESTED', r
+          assert r['read_only'] is True, r
+          assert r['source_writeback_observed'] is False, r
+          assert r['authority_delta'] == 0, r
+          PY
+
+      - name: Upload preregistration receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-handoff-reliability-v1-preregistration
+          path: out/*.json
+          if-no-files-found: error
