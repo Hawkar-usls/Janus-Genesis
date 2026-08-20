@@ -8,7 +8,7 @@
     "port_8008_owner_required": true,
     "reference_ci_is_live_proof": false
   },
-  "base_main": "364a98e64f3bb207e671b9b6bbd2f175040dee37",
+  "base_main": "b42397428883b3414d14923ecfc33d2ae2267417",
   "claim_ceiling": {
     "issue_162_pass": false,
     "issue_164_pass": false,
