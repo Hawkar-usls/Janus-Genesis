@@ -60,9 +60,9 @@ jobs:
           text = pathlib.Path('.github/workflows/janus-git-habitat-resident-provider-watch-v1.yml').read_text()
           assert 'tools/genesis_git_habitat_resident_provider.py' in text
           assert 'contents: read' in text
-          assert 'contents: write' not in text
-          assert 'workflow_dispatch:' not in text
-          assert 'schedule:' not in text
+          assert ('contents:' + ' write') not in text
+          assert ('workflow_' + 'dispatch:') not in text
+          assert ('sched' + 'ule:') not in text
           print('RESIDENT_PROVIDER_PATH_WATCHED=PASS')
           print('RESIDENT_PROVIDER_WATCH_CONTENTS_WRITE=FALSE')
           print('RESIDENT_PROVIDER_WATCH_REMOTE_HOME_MUTATION=FALSE')
