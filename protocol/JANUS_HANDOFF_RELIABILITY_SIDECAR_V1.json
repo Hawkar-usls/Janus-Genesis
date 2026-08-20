@@ -1,0 +1,55 @@
+{
+  "schema": "janus.handoff.reliable_sidecar.contract.v1",
+  "contract_id": "JANUS_HANDOFF_RELIABILITY_SIDECAR_V1",
+  "issue": "Hawkar-usls/Janus_Genesis#164",
+  "final_acceptance": "Hawkar-usls/Janus_Genesis#162",
+  "base_main": "4f69f56d206fc000b1eb60241a678272efa1694d",
+  "role": "RECEIVER_RELIABILITY_SIDECAR_REFERENCE_IMPLEMENTATION",
+  "implementation_path": "tools/janus_handoff_reliable_sidecar.py",
+  "semantics": {
+    "stable_file_observation_before_hash": true,
+    "exact_sha256_receipt": true,
+    "same_event_and_dedupe_and_digest_idempotent": true,
+    "identity_or_digest_rebinding": "HOLD_RECONCILE",
+    "partial_or_truncated": "HOLD_PARTIAL",
+    "parse_failure": "HOLD_PARSE",
+    "sqlite_busy": "FSYNC_APPEND_ONLY_JSONL_FALLBACK",
+    "fallback_replay": "IDEMPOTENT",
+    "hrain_unavailable": "DURABLE_QUEUE_RECEIPT_NOT_DISCARDED",
+    "hrain_retry": "BOUNDED_EXPONENTIAL_BACKOFF_WITH_DETERMINISTIC_JITTER",
+    "downstream_consumption": "UNIQUE_RECEIPT_ID_EXACTLY_ONCE_COMMIT",
+    "received_parsed_loaded_executed_separate": true
+  },
+  "authority_boundary": {
+    "network_sender_implemented": false,
+    "model_loader_implemented": false,
+    "payload_executor_implemented": false,
+    "source_writeback_implemented": false,
+    "external_effect_authority_created": false
+  },
+  "reference_gate_mapping": {
+    "HR1_LIVE_QUANT_INGRESS_NOT_BLOCKED_BY_HRAIN": "REFERENCE_ONLY_UNTIL_LIVE_BOUND",
+    "HR2_EXACT_RECEIVER_SHA_RECEIPT": "REFERENCE_TESTABLE",
+    "HR3_EVENT_DEDUPE_REBINDING_FAIL_CLOSED": "REFERENCE_TESTABLE",
+    "HR4_HRAIN_SERVICE_OWNER_AND_ROUTE_EXPLICIT": "LIVE_IDENTITY_REQUIRED",
+    "HR5_HRAIN_BOUNDED_RETRY_AND_DURABLE_QUEUE": "REFERENCE_TESTABLE",
+    "HR6_SQLITE_BUSY_RECOVERY_NO_LOSS": "REFERENCE_TESTABLE",
+    "HR7_FALLBACK_REPLAY_IDEMPOTENT": "REFERENCE_TESTABLE",
+    "HR8_PROCESS_DROP_RECOVERY": "REFERENCE_TESTABLE",
+    "HR9_DOWNSTREAM_EXACTLY_ONCE_CONSUME": "REFERENCE_TESTABLE",
+    "HR10_RECEIVED_PARSED_LOADED_EXECUTED_SEPARATED": "REFERENCE_TESTABLE"
+  },
+  "claim_ceiling": {
+    "reference_implementation_ready": true,
+    "live_receiver_bound": false,
+    "live_hr1_hr10_pass": false,
+    "issue_164_pass": false,
+    "issue_162_runnable_by_this_contract_alone": false
+  },
+  "safety": {
+    "SOURCE_WRITEBACK_DEFAULT": "DENY",
+    "DESTRUCTIVE_ACTION": "FORBIDDEN",
+    "AUTHORITY_DELTA": 0,
+    "MASS_EFFECT_BUDGET_DELTA": 0
+  }
+}
