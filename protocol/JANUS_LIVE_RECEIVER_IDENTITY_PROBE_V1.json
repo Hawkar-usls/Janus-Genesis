@@ -1,11 +1,14 @@
 {
   "admission": {
-    "container_namespace_name_is_owner_evidence": true,
+    "container_name_owner_evidence_requires_listener_owner_pid_binding": true,
+    "container_namespace_name_is_owner_evidence": false,
     "exact_source_identity_required": true,
     "expected_owner_default": "janus_nas_brain",
     "heartbeat_is_execution_proof": false,
     "host_identity_implies_process_identity": false,
+    "host_pid_namespace_requires_exact_init_pid_owner": true,
     "identity_binding_pass_implies_hr1_hr10": false,
+    "network_namespace_equality_alone_is_owner_evidence": false,
     "port_8008_owner_required": true,
     "reference_ci_is_live_proof": false
   },
@@ -33,8 +36,9 @@
     "SOURCE_FILE_SHA256_WHERE_DISCOVERABLE",
     "GIT_COMMIT_WHERE_DISCOVERABLE",
     "PORT_8008_LISTENER_IN_NETWORK_NAMESPACE",
-    "CONTAINER_NETWORK_NAMESPACE_BINDING",
-    "PORT_8008_OWNER_PROCESS_OR_BOUND_CONTAINER"
+    "CONTAINER_PID_NAMESPACE_BINDING",
+    "SOCKET_INODE_TO_OWNER_PID_BINDING",
+    "PORT_8008_OWNER_PROCESS_OR_PROVEN_CONTAINER"
   ],
   "role": "READ_ONLY_LIVE_RECEIVER_SOURCE_AND_PORT_OWNER_BINDING",
   "safety": {
