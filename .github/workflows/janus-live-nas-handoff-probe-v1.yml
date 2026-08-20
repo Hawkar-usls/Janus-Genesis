@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - 'protocol/JANUS_LIVE_RECEIVER_IDENTITY_PROBE_V1.json'
       - 'tools/janus_receiver_identity_probe.py'
       - 'tests/test_janus_receiver_identity_probe.py'
       - '.github/workflows/janus-live-nas-handoff-probe-v1.yml'
@@ -42,34 +43,76 @@ jobs:
           tree = ast.parse(path.read_text(encoding='utf-8'))
           text = path.read_text(encoding='utf-8')
           assert 'READ_ONLY_DOCKER_SUBCOMMANDS = frozenset({"ps", "inspect"})' in text
-          forbidden = ['docker exec', 'docker restart', 'docker stop', 'docker start', 'docker kill', 'docker rm', 'docker update']
-          lowered = text.lower()
-          # The module docstring may name forbidden commands as explicit non-actions;
-          # executable construction must still be constrained by _docker_query.
           functions = {node.name: node for node in tree.body if isinstance(node, ast.FunctionDef)}
           gate = functions['_docker_query']
           gate_source = ast.get_source_segment(text, gate) or ''
           assert 'READ_ONLY_DOCKER_SUBCOMMANDS' in gate_source
           assert 'NON_READ_ONLY_DOCKER_SUBCOMMAND_REJECTED' in gate_source
+          forbidden_exec = (
+              'docker", "exec',
+              'docker", "restart',
+              'docker", "stop',
+              'docker", "start',
+              'docker", "kill',
+              'docker", "rm',
+              'docker", "update',
+              'os.kill(',
+              '.unlink(',
+              'shutil.rmtree(',
+          )
+          hits = [token for token in forbidden_exec if token in text]
+          assert not hits, hits
           print('QNAP_DOCKER_QUERY_ALLOWLIST=PS_INSPECT_ONLY')
           print('DOCKER_EXEC_USED=FALSE')
           print('SERVICE_LIFECYCLE_MUTATION=FALSE')
           PY
 
-      - name: Enforce live claim ceiling
+      - name: Enforce socket-owner and PID-namespace proof semantics
         run: |
-          python tools/janus_receiver_identity_probe.py --qnap-auto > /tmp/probe.json
+          python - <<'PY'
+          from pathlib import Path
+          text = Path('tools/janus_receiver_identity_probe.py').read_text(encoding='utf-8')
+          required = (
+              'socket_inode_to_owner_pid_required',
+              '_listener_owner_processes',
+              '_bind_owner_processes_to_containers',
+              'network_namespace_only_is_owner_evidence',
+              'RECEIVER_NOT_TARGET_PORT_OWNER',
+              'host PID namespace',
+              'discover_source_from_container_pid',
+          )
+          missing = [token for token in required if token not in text]
+          assert not missing, missing
+          assert '"network_namespace_only_is_owner_evidence": False' in text
+          assert '"network_namespace_equality_proves_socket_owner": False' in text
+          PY
+
+      - name: Enforce public-only stdout and local-only full receipt
+        run: |
+          python tools/janus_receiver_identity_probe.py --qnap-auto --output /tmp/probe-full.json > /tmp/probe-public.json
           python - <<'PY'
           import json
           from pathlib import Path
-          row = json.loads(Path('/tmp/probe.json').read_text())
-          assert row['evidence_kind'] == 'LOCAL_PROBE_UNATTESTED'
-          assert row['read_only'] is True
-          assert row['source_writeback_observed'] is False
-          assert row['destructive_action_observed'] is False
-          assert row['authority_delta'] == 0
-          assert row['claim_ceiling']['nas_available_proves_hr1_hr10'] is False
-          assert row['claim_ceiling']['heartbeat_proves_service_owner'] is False
+          public = json.loads(Path('/tmp/probe-public.json').read_text())
+          full = json.loads(Path('/tmp/probe-full.json').read_text())
+          assert public['schema'] == 'janus.receiver.live_source_identity.public_summary.v1'
+          assert public['evidence_kind'] == 'LOCAL_PROBE_UNATTESTED'
+          assert public['private_exact_pin_disclosed'] is False
+          assert public['read_only'] is True
+          assert public['source_writeback_observed'] is False
+          assert public['destructive_action_observed'] is False
+          assert public['authority_delta'] == 0
+          assert 'source_identity' not in public
+          assert 'qnap_auto_discovery' not in public
+          assert full['privacy']['stdout_projection'] == 'PUBLIC_SUMMARY_ONLY'
+          assert full['privacy']['unredacted_receipt_scope'] == 'LOCAL_ONLY'
+          assert full['privacy']['unredacted_receipt_requires_explicit_output'] is True
+          assert full['claim_ceiling']['nas_available_proves_hr1_hr10'] is False
+          assert full['claim_ceiling']['heartbeat_proves_service_owner'] is False
+          assert full['claim_ceiling']['network_namespace_equality_proves_socket_owner'] is False
+          assert full['claim_ceiling']['identity_binding_proves_hr1_hr10'] is False
           print('GITHUB_CI_LIVE_NAS_EVIDENCE=FALSE')
+          print('STDOUT_PROJECTION=PUBLIC_SUMMARY_ONLY')
+          print('UNREDACTED_RECEIPT_SCOPE=LOCAL_ONLY')
           print('AUTHORITY_DELTA=0')
           PY
