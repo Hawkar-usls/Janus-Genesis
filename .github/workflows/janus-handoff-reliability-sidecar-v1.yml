@@ -1,0 +1,91 @@
+name: JANUS Handoff Reliability Sidecar v1
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'protocol/JANUS_HANDOFF_RELIABILITY_SIDECAR_V1.json'
+      - 'tools/janus_handoff_reliable_sidecar.py'
+      - 'tools/janus_handoff_reliability_reference_gauntlet.py'
+      - 'tests/test_janus_handoff_reliable_sidecar.py'
+      - 'tools/audit_armor_effect_drift_v18_7_50.py'
+      - 'tools/audit_armor_effect_drift_v18_7_51.py'
+      - '.github/workflows/janus-handoff-reliability-sidecar-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference-reliability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile sidecar and gauntlet
+        run: |
+          python -m py_compile \
+            tools/janus_handoff_reliable_sidecar.py \
+            tools/janus_handoff_reliability_reference_gauntlet.py
+
+      - name: Run unit reliability suite
+        run: python -m unittest tests.test_janus_handoff_reliable_sidecar -v
+
+      - name: Run fresh-process failure-injection gauntlet
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python tools/janus_handoff_reliability_reference_gauntlet.py \
+            --root "$RUNNER_TEMP/janus-handoff-reference-${GITHUB_RUN_ID}" \
+            --output out/JANUS-HANDOFF-RELIABILITY-REFERENCE-RECEIPT.json
+
+      - name: Enforce reference-only claim ceiling
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('out/JANUS-HANDOFF-RELIABILITY-REFERENCE-RECEIPT.json')
+          value = json.loads(path.read_text(encoding='utf-8'))
+          assert value['status'] == 'PASS', value
+          assert value['evidence_kind'] == 'REFERENCE_FRESH_PROCESS_FAILURE_INJECTION_NOT_LIVE', value
+          assert len(value['failure_vectors']) == 9, value
+          assert set(value['failure_vectors'].values()) == {'PASS'}, value
+          assert value['reference_gates']['HR4_HRAIN_SERVICE_OWNER_AND_ROUTE_EXPLICIT'] == 'LIVE_REQUIRED', value
+          assert value['live_receiver_bound'] is False, value
+          assert value['issue_164_pass'] is False, value
+          assert value['issue_162_runnable_contribution'] is False, value
+          assert value['source_writeback'] is False, value
+          assert value['destructive_action'] is False, value
+          assert value['authority_delta'] == 0, value
+          assert value['mass_effect_budget_delta'] == 0, value
+          PY
+
+      - name: Revalidate Armor inventories
+        run: |
+          python tools/audit_armor_effect_drift_v18_7_50.py > out/armor-v18-7-50.json
+          python tools/audit_armor_effect_drift_v18_7_51.py > out/armor-v18-7-51.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          for name in ('armor-v18-7-50.json', 'armor-v18-7-51.json'):
+              value = json.loads((Path('out') / name).read_text(encoding='utf-8'))
+              assert value['unclassified_surface_count'] == 0, value
+              surface = value['surfaces']['tools/janus_handoff_reliability_reference_gauntlet.py']
+              assert surface['classification'] == 'CONTROLLED_HANDOFF_RELIABILITY_FAILURE_INJECTION_GAUNTLET', surface
+          PY
+
+      - name: Upload reference receipts
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-handoff-reliability-sidecar-v1-reference
+          path: out/*.json
+          if-no-files-found: error
