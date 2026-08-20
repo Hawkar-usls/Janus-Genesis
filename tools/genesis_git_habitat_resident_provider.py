@@ -21,38 +21,102 @@ class ResidentProviderError(RuntimeError):
     """Resident transport/schema failure without coupling to the legacy AI adapter."""
 
 
-# The schema constrains syntax and the safe choice vocabulary. It deliberately
-# does not select a branch, fill content, or execute any capability.
+# Keep the model semantically free to select any allowed branch, but make the
+# native structured-output grammar branch-complete. The previous flat schema
+# required only `choice`, so a real model could legally emit WORKSHOP_NOTE with
+# no title/note and then be rejected by the stricter resident admission gate.
+# Each alternative below mirrors the *existing* parser requirements; this is a
+# schema tightening, not a parser relaxation or a fabricated fallback choice.
 RESIDENT_CHOICE_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "choice": {
-            "type": "string",
-            "enum": [
-                "REST",
-                "REFLECT",
-                "BOOKMARK",
-                "PLANT_SEED",
-                "WORKSHOP_NOTE",
-                "PROPOSE_OUTBOX",
+    "oneOf": [
+        {
+            "properties": {
+                "choice": {"type": "string", "enum": ["REST"]},
+                "reason": {"type": "string", "maxLength": 1000},
+            },
+            "required": ["choice"],
+            "additionalProperties": False,
+        },
+        {
+            "properties": {
+                "choice": {"type": "string", "enum": ["REFLECT"]},
+                "text": {"type": "string", "minLength": 1, "maxLength": 4000},
+                "reason": {"type": "string", "maxLength": 1000},
+            },
+            "required": ["choice", "text"],
+            "additionalProperties": False,
+        },
+        {
+            "properties": {
+                "choice": {"type": "string", "enum": ["BOOKMARK"]},
+                "text": {"type": "string", "minLength": 1, "maxLength": 4000},
+                "reason": {"type": "string", "maxLength": 1000},
+            },
+            "required": ["choice", "text"],
+            "additionalProperties": False,
+        },
+        {
+            "properties": {
+                "choice": {"type": "string", "enum": ["PLANT_SEED"]},
+                "note": {"type": "string", "minLength": 1, "maxLength": 4000},
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$",
+                    },
+                    "maxItems": 8,
+                },
+                "reason": {"type": "string", "maxLength": 1000},
+            },
+            "required": ["choice", "note"],
+            "additionalProperties": False,
+        },
+        {
+            "properties": {
+                "choice": {"type": "string", "enum": ["WORKSHOP_NOTE"]},
+                "title": {"type": "string", "minLength": 1, "maxLength": 160},
+                "note": {"type": "string", "minLength": 1, "maxLength": 4000},
+                "reason": {"type": "string", "maxLength": 1000},
+            },
+            "required": ["choice", "title", "note"],
+            "additionalProperties": False,
+        },
+        {
+            "properties": {
+                "choice": {"type": "string", "enum": ["PROPOSE_OUTBOX"]},
+                "capability_id": {
+                    "type": "string",
+                    "enum": [
+                        "EMAIL.SEND",
+                        "PUBLICATION.PUBLISH",
+                        "CALENDAR.WRITE",
+                        "API.CALL",
+                        "WEB.HTTP.POST",
+                        "GITHUB.ISSUE.CREATE",
+                        "GITHUB.COMMENT.CREATE",
+                        "GITHUB.FILE.WRITE_BRANCH",
+                        "GITHUB.PR.CREATE",
+                        "SCHEDULE.CREATE",
+                        "SWARM.MESSAGE.SEND",
+                    ],
+                },
+                "target": {"type": "string", "minLength": 1, "maxLength": 500},
+                "purpose": {"type": "string", "minLength": 1, "maxLength": 1000},
+                "payload_summary": {"type": "string", "minLength": 1, "maxLength": 3000},
+                "reason": {"type": "string", "maxLength": 1000},
+            },
+            "required": [
+                "choice",
+                "capability_id",
+                "target",
+                "purpose",
+                "payload_summary",
             ],
+            "additionalProperties": False,
         },
-        "reason": {"type": "string"},
-        "text": {"type": "string"},
-        "note": {"type": "string"},
-        "tags": {
-            "type": "array",
-            "items": {"type": "string"},
-            "maxItems": 8,
-        },
-        "title": {"type": "string"},
-        "capability_id": {"type": "string"},
-        "target": {"type": "string"},
-        "purpose": {"type": "string"},
-        "payload_summary": {"type": "string"},
-    },
-    "required": ["choice"],
-    "additionalProperties": False,
+    ],
 }
 
 
@@ -106,7 +170,7 @@ class OllamaResidentChoiceProvider:
             "stream": False,
             "format": RESIDENT_CHOICE_JSON_SCHEMA,
             # Fixed inference controls improve replayability without selecting
-            # the semantic choice. The model still decides which enum member.
+            # the semantic choice. The model still decides which branch.
             "options": {
                 "temperature": 0,
                 "seed": 1138,
