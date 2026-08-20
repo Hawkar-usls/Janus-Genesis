@@ -15,6 +15,13 @@ import sys
 import tempfile
 from pathlib import Path
 
+# Support both `python -m tools...` and direct `python tools/...py` execution.
+# Child processes intentionally re-enter this same file, so the import context
+# must be deterministic across parent and fresh-process phases.
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from tools.janus_handoff_reliable_sidecar import (
     ReliableHandoffSidecar,
     make_receipt_id,
