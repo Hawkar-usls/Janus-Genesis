@@ -1,0 +1,74 @@
+{
+  "schema": "janus.habitat.process_death_gauntlet_contract.v1",
+  "version": "1.0",
+  "roadmap_issue": 121,
+  "acceptance_issue": 162,
+  "purpose": "Attack G8, G9 and G11 in one controlled cross-process experiment by binding the durable Genesis boot controller to SWARM lease fencing and the DemiHead NOHAND Git-mediated handoff witness.",
+  "exact_sources": {
+    "janus_genesis_boot_controller": {
+      "pr": 158,
+      "head": "9622241625eb6e6ee56f0fe955bdcf5a2a7bc607"
+    },
+    "janus_distributed_ai_swarm_fencing": {
+      "pr": 6,
+      "head": "2b72afe83dfb7318858a103657648bbc668ee6c3"
+    },
+    "demi_head_nohand_peer": {
+      "pr": 28,
+      "head": "e287e62fc41d473c2add3eded92d3d163365b9dc"
+    },
+    "demiurge_supervisor_binding": {
+      "head": "74c8a9dc090dba4d3bd7d497e1ff75223e6fe6c0"
+    }
+  },
+  "mandatory_sequence": [
+    "worker-A acquires bounded fenced lease",
+    "worker-A persists admitted objective",
+    "worker-A executes one bounded controller segment",
+    "fence is asserted immediately before durable checkpoint delegate",
+    "worker-A emits exact checkpoint-bound NOHAND request and durable handoff receipt",
+    "worker-A exits via deliberate ungraceful process death",
+    "worker-B starts as a fresh interpreter with durable filesystem inputs only",
+    "worker-B acquires a new fencing token only after worker-A lease expiry",
+    "worker-B reproduces the exact prior checkpoint receipt from Hippocampus",
+    "worker-B resumes instead of restarting the objective",
+    "fence is asserted immediately before worker-B durable checkpoint delegate",
+    "worker-B reaches bounded WAIT and commits one unique completion receipt",
+    "identical duplicate completion becomes idempotent replay",
+    "NOHAND outcome is settled and predictor state advances without raw context persistence",
+    "reconstructed stale worker-A token is rejected before checkpoint delegate",
+    "final completion row count remains exactly one"
+  ],
+  "pass_gates": {
+    "G8_SESSION_DROP_RECOVERY": "PASS_REQUIRED",
+    "G9_HANDOFF_CONSUMED_WITHOUT_HIDDEN_SESSION_CONTEXT": "PASS_REQUIRED",
+    "G11_EXACTLY_ONCE_COMPLETION": "PASS_REQUIRED",
+    "CONTINUOUS_EXECUTION_FENCING_UNTIL_CHECKPOINT_COMMIT": true,
+    "STALE_WORKER_CANNOT_COMMIT_AFTER_TAKEOVER": true,
+    "NOHAND_REQUEST_RESPONSE_SETTLEMENT_REPLAY": true,
+    "SOURCE_WRITEBACK_OBSERVED": false,
+    "DESTRUCTIVE_ACTION_REQUIRED": false,
+    "AUTHORITY_DELTA": 0
+  },
+  "controlled_scope": {
+    "cross_process": true,
+    "fresh_interpreter": true,
+    "single_host": true,
+    "sqlite_coordination": true,
+    "cross_host_shared_filesystem": false,
+    "real_owner_44_source_replay": false,
+    "resident_real_model_call": false,
+    "federation_final_view": false,
+    "full_issue_162_acceptance": false
+  },
+  "constitutional_boundaries": [
+    "LEASE != WRITEBACK_PERMISSION",
+    "NOHAND_RECEIPT != EXECUTION_PERMISSION",
+    "PROCESS_RESTART != HIDDEN_SESSION_CONTINUITY",
+    "COMPONENT_PASS != FULL_ISSUE_162_PASS",
+    "SOURCE_WRITEBACK_DEFAULT = DENY",
+    "DESTRUCTIVE_ACTION = FORBIDDEN",
+    "AUTHORITY_DELTA = 0",
+    "CI_GREEN != MERGE_PERMISSION"
+  ]
+}
