@@ -3,9 +3,10 @@
 """Read-only live receiver/source identity probe for JANUS #164.
 
 The probe observes Linux /proc plus narrow Docker metadata. It never mutates
-source state, containers, sockets, Git refs, or network state. Optional output
-files are local evidence receipts only. Live PASS remains impossible unless
-exact source identity and :8008 ownership are both explicit.
+source state, containers, sockets, Git refs, or network state. Exact receipts
+are written only to an explicitly requested local output file; stdout is a
+privacy-safe public summary. Live PASS remains impossible unless exact source
+identity and :8008 ownership are both explicit.
 """
 from __future__ import annotations
 
@@ -434,6 +435,7 @@ def build_receipt(
         "port_8008_namespaces": namespaces,
         "privacy": {
             "unredacted_receipt_scope": "LOCAL_ONLY",
+            "stdout_projection": "PUBLIC_SUMMARY_ONLY",
             "public_private_exact_pin_disclosure": False,
         },
         "safety": {
@@ -477,15 +479,19 @@ def main() -> int:
 
     names = tuple(args.service_names or DEFAULT_SERVICE_NAMES)
     receipt = build_receipt(args.proc_root, names, args.port, args.expected_owner, args.expected_commit)
-    text = json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
-    print(text, end="")
+    full_text = json.dumps(receipt, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    summary_text = json.dumps(public_summary(receipt), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+
+    # Stdout is intentionally redacted/public-safe. Exact process paths, image
+    # IDs, source SHA-256 values and Git provenance leave memory only through an
+    # explicitly requested local --output file.
+    print(summary_text, end="")
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(text, encoding="utf-8")
+        args.output.write_text(full_text, encoding="utf-8")
     if args.public_summary_output:
-        summary = json.dumps(public_summary(receipt), ensure_ascii=False, indent=2, sort_keys=True) + "\n"
         args.public_summary_output.parent.mkdir(parents=True, exist_ok=True)
-        args.public_summary_output.write_text(summary, encoding="utf-8")
+        args.public_summary_output.write_text(summary_text, encoding="utf-8")
     return 0 if receipt["gate"]["live_receiver_bound"] else 2
 
 
