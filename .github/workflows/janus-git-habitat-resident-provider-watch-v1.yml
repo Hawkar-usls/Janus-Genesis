@@ -1,0 +1,169 @@
+name: JANUS Resident Provider Watch v1
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "tools/genesis_git_habitat_resident_provider.py"
+      - "tools/genesis_git_habitat_resident_cycle.py"
+      - "tools/run_genesis_git_habitat_resident_cycle.py"
+      - "tests/test_genesis_git_habitat_resident_cycle.py"
+      - ".github/workflows/janus-git-habitat-resident-provider-watch-v1.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: janus-resident-provider-watch-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  OLLAMA_INSTALL_URL: https://github.com/ollama/ollama/releases/download/v0.30.8/ollama-linux-amd64.tar.zst
+  OLLAMA_INSTALL_SHA256: ffe2b2c2f2f5f5b30c081ec353c2e0bb2d9ead516064a8e22663b24b8fd8dca0
+  RESIDENT_MODEL: qwen2.5:0.5b-instruct-q4_K_M
+  RESIDENT_MODEL_DIGEST_PREFIX: a8b0c5157701
+
+jobs:
+  provider-contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Compile provider and resident path
+        run: |
+          python -m py_compile \
+            tools/genesis_git_habitat_resident_provider.py \
+            tools/genesis_git_habitat_resident_cycle.py \
+            tools/run_genesis_git_habitat_resident_cycle.py \
+            tests/test_genesis_git_habitat_resident_cycle.py
+
+      - name: Run resident provider boundary tests
+        run: |
+          python -m unittest -v \
+            tests.test_genesis_git_habitat_resident_cycle \
+            tests.test_genesis_third_wish_sensor_model_schedule_broker
+
+      - name: Assert watch boundary
+        run: |
+          python - <<'PY'
+          import pathlib
+          text = pathlib.Path('.github/workflows/janus-git-habitat-resident-provider-watch-v1.yml').read_text()
+          assert 'tools/genesis_git_habitat_resident_provider.py' in text
+          assert 'contents: read' in text
+          assert 'contents: write' not in text
+          assert 'workflow_dispatch:' not in text
+          assert 'schedule:' not in text
+          print('RESIDENT_PROVIDER_PATH_WATCHED=PASS')
+          print('RESIDENT_PROVIDER_WATCH_CONTENTS_WRITE=FALSE')
+          print('RESIDENT_PROVIDER_WATCH_REMOTE_HOME_MUTATION=FALSE')
+          PY
+
+  provider-real-model:
+    needs: provider-contract
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install runtime dependencies
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
+
+      - name: Install pinned Ollama 0.30.8
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 5 --retry-delay 2 \
+            "${OLLAMA_INSTALL_URL}" \
+            -o /tmp/ollama-linux-amd64.tar.zst
+          echo "${OLLAMA_INSTALL_SHA256}  /tmp/ollama-linux-amd64.tar.zst" | sha256sum -c -
+          sudo tar --zstd -xf /tmp/ollama-linux-amd64.tar.zst -C /usr
+          ollama --version | tee /tmp/ollama-version.txt
+          grep -q '0.30.8' /tmp/ollama-version.txt
+
+      - name: Start pinned resident model
+        shell: bash
+        run: |
+          set -euo pipefail
+          export OLLAMA_HOST=127.0.0.1:11434
+          export OLLAMA_NUM_PARALLEL=1
+          export OLLAMA_MAX_LOADED_MODELS=1
+          ollama serve > /tmp/ollama-resident-provider-watch.log 2>&1 &
+          echo $! > /tmp/ollama-resident-provider-watch.pid
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/version >/dev/null 2>&1; then
+              break
+            fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:11434/api/version
+          ollama pull "${RESIDENT_MODEL}"
+          ollama list | tee /tmp/ollama-list.txt
+          grep -q "${RESIDENT_MODEL_DIGEST_PREFIX}" /tmp/ollama-list.txt
+          echo "RESIDENT_PROVIDER_WATCH_PINNED_MODEL=PASS"
+
+      - name: Real MODEL.CALL through watched provider
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/resident-provider-watch/habitat"
+          broker="${RUNNER_TEMP}/resident-provider-watch/broker"
+          python tools/genesis_git_habitat.py --root "$root" init --resident-id JANUS >/dev/null
+          python tools/run_genesis_git_habitat_resident_cycle.py \
+            --root "$root" \
+            --broker-dir "$broker" \
+            --provider ollama \
+            --model "${RESIDENT_MODEL}" \
+            --endpoint http://127.0.0.1:11434 \
+            --model-alias habitat-resident \
+            --source PR_PROVIDER_WATCH_REAL_MODEL \
+            --require-valid-choice \
+            > /tmp/resident-provider-watch.json
+          cat /tmp/resident-provider-watch.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          row = json.loads(Path('/tmp/resident-provider-watch.json').read_text())
+          assert row['status'] == 'RESIDENT_CYCLE_SETTLED'
+          assert row['choice']['choice_valid'] is True
+          assert row['choice']['self_directed_model_choice_established'] is True
+          assert row['model_call_crossed_third_wish_capability'] is True
+          assert row['model_provider_call_executed'] is True
+          assert row['model_output_directly_executed'] is False
+          assert row['resident_choice_external_effect_executed'] is False
+          assert row['outbox_auto_execution'] is False
+          assert row['habitat_health'] == 'HEALTHY'
+          print('RESIDENT_PROVIDER_REAL_MODEL_CALL=PASS')
+          print('RESIDENT_PROVIDER_REAL_MODEL_VALID_CHOICE=PASS')
+          print('RESIDENT_PROVIDER_EXTERNAL_EFFECT=FALSE')
+          PY
+
+      - name: Preserve privacy-safe provider witness
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-resident-provider-watch-${{ github.run_id }}
+          path: |
+            /tmp/resident-provider-watch.json
+            /tmp/ollama-version.txt
+            /tmp/ollama-list.txt
+            ${{ runner.temp }}/resident-provider-watch/habitat/state/resident.json
+            ${{ runner.temp }}/resident-provider-watch/habitat/state/continuity.json
+            ${{ runner.temp }}/resident-provider-watch/habitat/state/health.json
+            ${{ runner.temp }}/resident-provider-watch/habitat/hearth/resident-choice-*.json
+          retention-days: 30
