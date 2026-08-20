@@ -35,11 +35,12 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Verify current-main ancestry and byte-exact historical dependency closure
+      - name: Verify merged reconciliation ancestry and byte-exact protected closure
         shell: bash
         run: |
           set -euo pipefail
-          git merge-base --is-ancestor b85aa73b43b931abc333f033723e19880f228482 HEAD
+          RECONCILED_MAIN=5f1a8acb1327d0cda881ec76cf604695c38864cf
+          git merge-base --is-ancestor "$RECONCILED_MAIN" HEAD
           test "$(git hash-object tools/janus_demiurge_boot_controller.py)" = "c45ba0f298459148e2c2d998a61be3d075dd21be"
           test "$(git hash-object tools/janus_demiurge_boot_controller_v1_1.py)" = "62bb4fe977d85f3a4bc256af2c840d347ee4a2eb"
           test "$(git hash-object tools/janus_demiurge_supervisor_checkpoint_journal.py)" = "adb2d94f3ef6545b98258a0a032e603a8e10d1bb"
@@ -47,24 +48,18 @@ jobs:
           test "$(git hash-object tools/janus_habitat_process_death_gauntlet_v1.py)" = "80017d1603904caa39dd117fabf2672f8d783496"
           test "$(git hash-object protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json)" = "de95f0263d2da9e00566c371c1107b51b9b42aeb"
 
-      - name: Enforce additive reconciliation scope
+      - name: Reject drift in protected G8 G9 G11 runtime closure
         shell: bash
         run: |
           set -euo pipefail
-          git diff --name-only b85aa73b43b931abc333f033723e19880f228482 HEAD | sort > /tmp/actual.txt
-          cat > /tmp/allowed.txt <<'EOF'
-          .github/workflows/janus-habitat-current-main-g8-g9-g11-compat-v1.yml
-          protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json
-          tools/audit_armor_effect_drift_v18_7_50.py
-          tools/audit_armor_effect_drift_v18_7_51.py
-          tools/janus_demiurge_boot_controller.py
-          tools/janus_demiurge_boot_controller_v1_1.py
-          tools/janus_demiurge_supervisor_checkpoint_journal.py
-          tools/janus_habitat_process_death_gauntlet_v1.py
-          tools/janus_hippocampus_hdd_buffer.py
-          EOF
-          sort -o /tmp/allowed.txt /tmp/allowed.txt
-          diff -u /tmp/allowed.txt /tmp/actual.txt
+          RECONCILED_MAIN=5f1a8acb1327d0cda881ec76cf604695c38864cf
+          git diff --exit-code "$RECONCILED_MAIN" HEAD -- \
+            tools/janus_demiurge_boot_controller.py \
+            tools/janus_demiurge_boot_controller_v1_1.py \
+            tools/janus_demiurge_supervisor_checkpoint_journal.py \
+            tools/janus_hippocampus_hdd_buffer.py \
+            tools/janus_habitat_process_death_gauntlet_v1.py \
+            protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json
 
       - name: Revalidate Genesis-only Armor effect inventories before foreign checkouts
         shell: bash
@@ -92,6 +87,8 @@ jobs:
               assert value['unclassified_surface_count'] == 0
               surface = value['surfaces']['tools/janus_habitat_process_death_gauntlet_v1.py']
               assert surface['classification'] == 'CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET'
+              probe = value['surfaces']['tools/janus_receiver_identity_probe.py']
+              assert probe['classification'] == 'READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE'
           PY
 
       - name: Checkout exact SWARM fencing producer
