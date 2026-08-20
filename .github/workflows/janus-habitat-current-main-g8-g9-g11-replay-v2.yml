@@ -1,0 +1,171 @@
+name: JANUS Habitat Current-Main G8 G9 G11 Replay v2
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/janus-habitat-current-main-g8-g9-g11-replay-v2.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: janus-habitat-current-main-g8-g9-g11-replay-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  EXPECTED_BASE_MAIN: 701f88f47a529f9506edd368924f4d232b9285e1
+  SWARM_HEAD: 2b72afe83dfb7318858a103657648bbc668ee6c3
+  DEMIHEAD_HEAD: e287e62fc41d473c2add3eded92d3d163365b9dc
+
+jobs:
+  current-main-g8-g9-g11-replay:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR merge without write credentials
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Bind witness to exact current-main parent and one-file branch delta
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD^1)" = "${EXPECTED_BASE_MAIN}"
+          git merge-base --is-ancestor "${EXPECTED_BASE_MAIN}" HEAD
+          git diff --name-only "${EXPECTED_BASE_MAIN}" HEAD | sort > "$RUNNER_TEMP/actual-delta.txt"
+          printf '%s\n' '.github/workflows/janus-habitat-current-main-g8-g9-g11-replay-v2.yml' > "$RUNNER_TEMP/allowed-delta.txt"
+          diff -u "$RUNNER_TEMP/allowed-delta.txt" "$RUNNER_TEMP/actual-delta.txt"
+          echo "EXACT_CURRENT_MAIN_PARENT=PASS"
+          echo "REPLAY_BRANCH_ONLY_ADDS_WITNESS_WORKFLOW=PASS"
+
+      - name: Verify byte-exact process-death dependency closure
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object tools/janus_demiurge_boot_controller.py)" = "c45ba0f298459148e2c2d998a61be3d075dd21be"
+          test "$(git hash-object tools/janus_demiurge_boot_controller_v1_1.py)" = "62bb4fe977d85f3a4bc256af2c840d347ee4a2eb"
+          test "$(git hash-object tools/janus_demiurge_supervisor_checkpoint_journal.py)" = "adb2d94f3ef6545b98258a0a032e603a8e10d1bb"
+          test "$(git hash-object tools/janus_hippocampus_hdd_buffer.py)" = "2c20a79e86aa489a6ffb55d8bc8493a74621707a"
+          test "$(git hash-object tools/janus_habitat_process_death_gauntlet_v1.py)" = "80017d1603904caa39dd117fabf2672f8d783496"
+          test "$(git hash-object protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json)" = "de95f0263d2da9e00566c371c1107b51b9b42aeb"
+          echo "PROCESS_DEATH_EXECUTABLE_CLOSURE_BYTE_EXACT=PASS"
+
+      - name: Revalidate Genesis Armor inventories before foreign checkouts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test ! -e _deps
+          python tools/audit_armor_effect_drift_v18_7_50.py > "$RUNNER_TEMP/armor-v18-7-50.json"
+          python tools/audit_armor_effect_drift_v18_7_51.py > "$RUNNER_TEMP/armor-v18-7-51.json"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          for name in ('armor-v18-7-50.json', 'armor-v18-7-51.json'):
+              value = json.loads((root / name).read_text(encoding='utf-8'))
+              assert value['unclassified_surface_count'] == 0
+              surface = value['surfaces']['tools/janus_habitat_process_death_gauntlet_v1.py']
+              assert surface['classification'] == 'CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET'
+          print('CURRENT_ARMOR_UNCLASSIFIED_EFFECTS=0')
+          print('PROCESS_DEATH_HARNESS_CLASSIFICATION=PASS')
+          PY
+
+      - name: Checkout exact SWARM fencing producer read-only
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/janus-distributed-ai-swarm
+          ref: ${{ env.SWARM_HEAD }}
+          path: _deps/swarm
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout exact DemiHead NOHAND producer read-only
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Demi_Head
+          ref: ${{ env.DEMIHEAD_HEAD }}
+          path: _deps/demihead
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact external heads and source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _deps/swarm rev-parse HEAD)" = "${SWARM_HEAD}"
+          test "$(git -C _deps/swarm hash-object tools/habitat_objective_lease_fencing.py)" = "1abeb71206a1f17ac69b5dcd8565c431159b8deb"
+          test "$(git -C _deps/demihead rev-parse HEAD)" = "${DEMIHEAD_HEAD}"
+          test "$(git -C _deps/demihead hash-object tools/nohand_habitat_peer_v1_4_2.py)" = "1cda7d8d3c353b6a477c99635e06fecbb592c3d0"
+          echo "EXTERNAL_PRODUCER_HEADS_AND_BLOBS=PASS"
+
+      - name: Compile exact integration closure
+        run: |
+          python -m py_compile \
+            tools/janus_demiurge_boot_controller.py \
+            tools/janus_demiurge_boot_controller_v1_1.py \
+            tools/janus_demiurge_supervisor_checkpoint_journal.py \
+            tools/janus_hippocampus_hdd_buffer.py \
+            tools/janus_habitat_process_death_gauntlet_v1.py
+
+      - name: Run deliberate worker-A death to fresh worker-B handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          WORK_ROOT="$RUNNER_TEMP/janus-habitat-current-g8-g9-g11-${GITHUB_RUN_ID}"
+          RECEIPT="$RUNNER_TEMP/JANUS-HABITAT-CURRENT-MAIN-G8-G9-G11-RECEIPT.json"
+          python tools/janus_habitat_process_death_gauntlet_v1.py \
+            --phase parent \
+            --work-root "$WORK_ROOT" \
+            --swarm-root "$PWD/_deps/swarm" \
+            --demihead-root "$PWD/_deps/demihead" \
+            --receipt "$RECEIPT"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          path = Path(os.environ['RUNNER_TEMP']) / 'JANUS-HABITAT-CURRENT-MAIN-G8-G9-G11-RECEIPT.json'
+          value = json.loads(path.read_text(encoding='utf-8'))
+          assert value['status'] == 'PASS'
+          assert value['gates']['G8_SESSION_DROP_RECOVERY'] == 'PASS'
+          assert value['gates']['G9_HANDOFF_CONSUMED_WITHOUT_HIDDEN_SESSION_CONTEXT'] == 'PASS'
+          assert value['gates']['G11_EXACTLY_ONCE_COMPLETION'] == 'PASS'
+          assert value['gates']['CONTINUOUS_EXECUTION_FENCING_UNTIL_CHECKPOINT_COMMIT'] is True
+          assert value['gates']['STALE_WORKER_CANNOT_COMMIT_AFTER_TAKEOVER'] is True
+          assert value['experiment']['completion_row_count'] == 1
+          assert value['experiment']['nohand']['final_sequence'] == 2
+          assert value['source_writeback'] is False
+          assert value['destructive_action'] is False
+          assert value['authority_delta'] == 0
+          assert value['claim_ceiling']['FULL_ISSUE_162_ACCEPTANCE'] is False
+          print('G8_SESSION_DROP_RECOVERY=PASS')
+          print('G9_HANDOFF_WITHOUT_HIDDEN_SESSION_CONTEXT=PASS')
+          print('G11_EXACTLY_ONCE_COMPLETION=PASS')
+          print('SOURCE_WRITEBACK=FALSE')
+          print('AUTHORITY_DELTA=0')
+          PY
+
+      - name: Assert repository source tree remained unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          git status --porcelain --untracked-files=no > "$RUNNER_TEMP/repo-status.txt"
+          test ! -s "$RUNNER_TEMP/repo-status.txt"
+          echo "GENESIS_SOURCE_TREE_MUTATED_BY_REPLAY=FALSE"
+
+      - name: Upload fresh-main compatibility witness
+        uses: actions/upload-artifact@v4
+        with:
+          name: janus-habitat-current-main-g8-g9-g11-replay-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/JANUS-HABITAT-CURRENT-MAIN-G8-G9-G11-RECEIPT.json
+            ${{ runner.temp }}/armor-v18-7-50.json
+            ${{ runner.temp }}/armor-v18-7-51.json
+          if-no-files-found: error
+          retention-days: 30
