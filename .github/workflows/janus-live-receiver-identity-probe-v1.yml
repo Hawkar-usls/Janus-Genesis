@@ -1,0 +1,75 @@
+name: JANUS Live Receiver Identity Probe v1
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'protocol/JANUS_LIVE_RECEIVER_IDENTITY_PROBE_V1.json'
+      - 'tools/janus_live_receiver_identity_probe.py'
+      - 'tests/test_janus_live_receiver_identity_probe.py'
+      - '.github/workflows/janus-live-receiver-identity-probe-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fail-closed-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Compile probe
+        run: python -m py_compile tools/janus_live_receiver_identity_probe.py
+
+      - name: Run probe unit tests
+        run: python -m unittest tests.test_janus_live_receiver_identity_probe -v
+
+      - name: Enforce claim ceiling and local-only exact-pin policy
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          contract = json.loads(Path('protocol/JANUS_LIVE_RECEIVER_IDENTITY_PROBE_V1.json').read_text(encoding='utf-8'))
+          assert contract['claim_ceiling']['probe_implementation_ready'] is True
+          assert contract['claim_ceiling']['live_receiver_bound'] is False
+          assert contract['claim_ceiling']['live_hr1_hr10_pass'] is False
+          assert contract['claim_ceiling']['issue_164_pass'] is False
+          assert contract['claim_ceiling']['issue_162_pass'] is False
+          assert contract['privacy']['unredacted_receipt_scope'] == 'LOCAL_ONLY'
+          assert contract['privacy']['public_private_exact_pin_disclosure'] is False
+          assert contract['safety']['SOURCE_WRITEBACK_DEFAULT'] == 'DENY'
+          assert contract['safety']['DESTRUCTIVE_ACTION'] == 'FORBIDDEN'
+          assert contract['safety']['NETWORK_MUTATION'] == 'FORBIDDEN'
+          assert contract['safety']['CONTAINER_MUTATION'] == 'FORBIDDEN'
+          assert contract['safety']['AUTHORITY_DELTA'] == 0
+          PY
+
+      - name: Reject obvious mutation surfaces
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          source = Path('tools/janus_live_receiver_identity_probe.py').read_text(encoding='utf-8')
+          forbidden = (
+              'docker", "exec',
+              'docker", "restart',
+              'docker", "stop',
+              'docker", "rm',
+              'os.kill(',
+              '.unlink(',
+              'shutil.rmtree(',
+              'socket.connect(',
+          )
+          hits = [token for token in forbidden if token in source]
+          assert not hits, hits
+          assert '["docker", "ps"' in source
+          assert '"docker",\n                    "inspect"' in source
+          PY
