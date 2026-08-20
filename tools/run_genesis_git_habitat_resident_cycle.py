@@ -5,7 +5,17 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import sys
 from pathlib import Path
+
+# Keep direct-script execution equivalent to package/module execution.  GitHub
+# Actions and the NAS operator path both invoke this file directly; without the
+# repository root on sys.path, Python resolves only the tools/ directory and the
+# canonical Genesis modules cannot be imported.  This bootstrap changes import
+# context only; it grants no capability and performs no external effect.
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from genesis_v18_7_40_third_wish_capability_fabric import ThirdWishCapabilityFabric
 from genesis_v18_7_ai import AIProviderConfig
