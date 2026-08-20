@@ -1,8 +1,8 @@
 {
   "schema": "janus.genesis.git_habitat.resident_trigger.v1",
-  "trigger_version": 1,
-  "nonce": "resident-live-bootstrap-1",
-  "purpose": "Explicit auditable operator trigger for one bounded model-backed JANUS Git Habitat resident cycle.",
+  "trigger_version": 2,
+  "nonce": "resident-live-current-main-5d654e91-1",
+  "purpose": "Explicit auditable operator trigger for one bounded model-backed JANUS Git Habitat resident cycle after current-main #186 real-local MODEL.CALL PASS.",
   "authority": {
     "creates_external_effect_authority": false,
     "executes_outbox": false,
