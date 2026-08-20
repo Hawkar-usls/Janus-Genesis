@@ -5,10 +5,20 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools.janus_live_receiver_identity_probe import evaluate, parse_proc_tcp, public_summary
+from tools.janus_live_receiver_identity_probe import (
+    bind_docker_names_to_listener_owners,
+    evaluate,
+    parse_proc_tcp,
+    public_summary,
+)
 
 
 class LiveReceiverIdentityProbeTests(unittest.TestCase):
+    def _pid_ns_link(self, proc_root: Path, pid: int, target: str) -> None:
+        ns_dir = proc_root / str(pid) / "ns"
+        ns_dir.mkdir(parents=True, exist_ok=True)
+        (ns_dir / "pid").symlink_to(target)
+
     def test_parse_proc_tcp_finds_8008_listener_only(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "tcp"
@@ -90,6 +100,42 @@ class LiveReceiverIdentityProbeTests(unittest.TestCase):
         self.assertEqual(gate["port_8008_owner"], "EXPECTED_OWNER_MATCH")
         self.assertTrue(gate["live_receiver_bound"])
         self.assertFalse(gate["issue_164_pass"])
+
+    def test_standard_container_pid_namespace_binds_actual_listener_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proc_root = Path(tmp)
+            self._pid_ns_link(proc_root, 1, "pid:[host]")
+            self._pid_ns_link(proc_root, 100, "pid:[container]")
+            dockers = [{"name": "janus_nas_brain", "init_pid": 100}]
+            namespaces = [
+                {
+                    "listeners": [{"inode": "10"}],
+                    "owners": [{"pid": 101, "pid_namespace": "pid:[container]"}],
+                    "docker_names": [],
+                }
+            ]
+            bind_docker_names_to_listener_owners(proc_root, dockers, namespaces)
+            self.assertEqual(namespaces[0]["docker_names"], ["janus_nas_brain"])
+
+    def test_host_pid_namespace_does_not_bind_unrelated_listener_owner(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proc_root = Path(tmp)
+            self._pid_ns_link(proc_root, 1, "pid:[host]")
+            self._pid_ns_link(proc_root, 100, "pid:[host]")
+            dockers = [{"name": "janus_nas_brain", "init_pid": 100}]
+            namespaces = [
+                {
+                    "listeners": [{"inode": "11"}],
+                    "owners": [{"pid": 101, "pid_namespace": "pid:[host]"}],
+                    "docker_names": [],
+                }
+            ]
+            bind_docker_names_to_listener_owners(proc_root, dockers, namespaces)
+            self.assertEqual(namespaces[0]["docker_names"], [])
+
+            namespaces[0]["owners"] = [{"pid": 100, "pid_namespace": "pid:[host]"}]
+            bind_docker_names_to_listener_owners(proc_root, dockers, namespaces)
+            self.assertEqual(namespaces[0]["docker_names"], ["janus_nas_brain"])
 
     def test_public_summary_does_not_disclose_private_pin(self) -> None:
         receipt = {
