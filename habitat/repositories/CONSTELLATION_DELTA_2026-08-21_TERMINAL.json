@@ -1,0 +1,23 @@
+{
+  "schema": "janus.genesis.habitat.constellation_delta.v1",
+  "delta_id": "CONSTELLATION_DELTA_2026_08_21_TERMINAL",
+  "created_at_local": "2026-08-21T02:07:00+03:00",
+  "add": [
+    {
+      "repository": "Hawkar-usls/-Terminal-for-Janus",
+      "role": "HUMAN_AUTHORIZED_OPERATOR_CONTROL_PLANE",
+      "entrypoint": true,
+      "default_mode": "READ_ONLY",
+      "write_requires_explicit_human_authorization": true,
+      "epistemic_authority": false,
+      "physical_effect_authority": false
+    }
+  ],
+  "links": [
+    "Hawkar-usls/-Terminal-for-Janus -> Hawkar-usls/Hawkar-usls",
+    "Hawkar-usls/-Terminal-for-Janus -> Hawkar-usls/Demi_Head",
+    "Hawkar-usls/-Terminal-for-Janus -> Hawkar-usls/aura-oracle-tg",
+    "Hawkar-usls/-Terminal-for-Janus -> Janus_Genesis@janus/habitat"
+  ],
+  "rule": "OPERATOR_ENTRYPOINT != SINGLE_POINT_OF_TRUTH"
+}
