@@ -14,9 +14,12 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any, Mapping, Sequence
 
-from genesis_v18_7_ai import AIProviderError
-
 RESIDENT_PROVIDER_VERSION = "18.7.52"
+
+
+class ResidentProviderError(RuntimeError):
+    """Resident transport/schema failure without coupling to the legacy AI adapter."""
+
 
 # The schema constrains syntax and the safe choice vocabulary. It deliberately
 # does not select a branch, fill content, or execute any capability.
@@ -90,12 +93,12 @@ class OllamaResidentChoiceProvider:
             role = str(row.get("role") or "").strip()
             content = str(row.get("content") or "")
             if role not in {"system", "user", "assistant"}:
-                raise AIProviderError("RESIDENT_OLLAMA_MESSAGE_ROLE_INVALID")
+                raise ResidentProviderError("RESIDENT_OLLAMA_MESSAGE_ROLE_INVALID")
             if len(content) > 40_000:
-                raise AIProviderError("RESIDENT_OLLAMA_MESSAGE_TOO_LONG")
+                raise ResidentProviderError("RESIDENT_OLLAMA_MESSAGE_TOO_LONG")
             normalized.append({"role": role, "content": content})
         if not normalized:
-            raise AIProviderError("RESIDENT_OLLAMA_MESSAGES_REQUIRED")
+            raise ResidentProviderError("RESIDENT_OLLAMA_MESSAGES_REQUIRED")
 
         payload = {
             "model": self.model,
@@ -119,24 +122,24 @@ class OllamaResidentChoiceProvider:
             with urllib.request.urlopen(request, timeout=float(self.timeout_seconds)) as response:
                 raw = response.read()
         except urllib.error.HTTPError as exc:
-            raise AIProviderError(f"RESIDENT_OLLAMA_HTTP_{exc.code}") from exc
+            raise ResidentProviderError(f"RESIDENT_OLLAMA_HTTP_{exc.code}") from exc
         except urllib.error.URLError as exc:
-            raise AIProviderError("RESIDENT_OLLAMA_CONNECTION_FAILED") from exc
+            raise ResidentProviderError("RESIDENT_OLLAMA_CONNECTION_FAILED") from exc
         except TimeoutError as exc:
-            raise AIProviderError("RESIDENT_OLLAMA_TIMEOUT") from exc
+            raise ResidentProviderError("RESIDENT_OLLAMA_TIMEOUT") from exc
 
         try:
             envelope = json.loads(raw.decode("utf-8"))
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_ENVELOPE_INVALID") from exc
+            raise ResidentProviderError("RESIDENT_OLLAMA_RESPONSE_ENVELOPE_INVALID") from exc
         if not isinstance(envelope, dict):
-            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_ENVELOPE_NOT_OBJECT")
+            raise ResidentProviderError("RESIDENT_OLLAMA_RESPONSE_ENVELOPE_NOT_OBJECT")
         message = envelope.get("message")
         if not isinstance(message, dict):
-            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_MESSAGE_MISSING")
+            raise ResidentProviderError("RESIDENT_OLLAMA_RESPONSE_MESSAGE_MISSING")
         content = message.get("content")
         if not isinstance(content, str) or not content.strip():
-            raise AIProviderError("RESIDENT_OLLAMA_RESPONSE_CONTENT_MISSING")
+            raise ResidentProviderError("RESIDENT_OLLAMA_RESPONSE_CONTENT_MISSING")
 
         # Do not parse/repair the model choice here. The resident schema gate is
         # the only place allowed to decide whether model content is acceptable.
