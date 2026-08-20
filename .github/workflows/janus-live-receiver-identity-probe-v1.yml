@@ -40,6 +40,7 @@ jobs:
           from pathlib import Path
           contract = json.loads(Path('protocol/JANUS_LIVE_RECEIVER_IDENTITY_PROBE_V1.json').read_text(encoding='utf-8'))
           admission = contract['admission']
+          privacy = contract['privacy']
           assert contract['claim_ceiling']['probe_implementation_ready'] is True
           assert contract['claim_ceiling']['live_receiver_bound'] is False
           assert contract['claim_ceiling']['live_hr1_hr10_pass'] is False
@@ -49,8 +50,10 @@ jobs:
           assert admission['container_namespace_name_is_owner_evidence'] is False
           assert admission['network_namespace_equality_alone_is_owner_evidence'] is False
           assert admission['host_pid_namespace_requires_exact_init_pid_owner'] is True
-          assert contract['privacy']['unredacted_receipt_scope'] == 'LOCAL_ONLY'
-          assert contract['privacy']['public_private_exact_pin_disclosure'] is False
+          assert privacy['unredacted_receipt_scope'] == 'LOCAL_ONLY'
+          assert privacy['unredacted_receipt_requires_explicit_local_output'] is True
+          assert privacy['stdout_projection'] == 'PUBLIC_SUMMARY_ONLY'
+          assert privacy['public_private_exact_pin_disclosure'] is False
           assert contract['safety']['SOURCE_WRITEBACK_DEFAULT'] == 'DENY'
           assert contract['safety']['DESTRUCTIVE_ACTION'] == 'FORBIDDEN'
           assert contract['safety']['NETWORK_MUTATION'] == 'FORBIDDEN'
@@ -58,7 +61,7 @@ jobs:
           assert contract['safety']['AUTHORITY_DELTA'] == 0
           PY
 
-      - name: Reject obvious mutation surfaces
+      - name: Reject mutation and stdout pin-leak surfaces
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -72,6 +75,8 @@ jobs:
               '.unlink(',
               'shutil.rmtree(',
               'socket.connect(',
+              'print(full_text',
+              'print(text, end=',
           )
           hits = [token for token in forbidden if token in source]
           assert not hits, hits
@@ -79,4 +84,6 @@ jobs:
           assert '"docker",\n                    "inspect"' in source
           assert 'PID namespace' in source
           assert 'Network-namespace equality alone is insufficient' in source
+          assert 'print(summary_text, end=' in source
+          assert 'args.output.write_text(full_text' in source
           PY
