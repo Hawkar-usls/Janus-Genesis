@@ -1,5 +1,6 @@
 {
   "admission": {
+    "container_namespace_name_is_owner_evidence": true,
     "exact_source_identity_required": true,
     "expected_owner_default": "janus_nas_brain",
     "heartbeat_is_execution_proof": false,
@@ -32,7 +33,8 @@
     "SOURCE_FILE_SHA256_WHERE_DISCOVERABLE",
     "GIT_COMMIT_WHERE_DISCOVERABLE",
     "PORT_8008_LISTENER_IN_NETWORK_NAMESPACE",
-    "PORT_8008_OWNER_PROCESS"
+    "CONTAINER_NETWORK_NAMESPACE_BINDING",
+    "PORT_8008_OWNER_PROCESS_OR_BOUND_CONTAINER"
   ],
   "role": "READ_ONLY_LIVE_RECEIVER_SOURCE_AND_PORT_OWNER_BINDING",
   "safety": {
