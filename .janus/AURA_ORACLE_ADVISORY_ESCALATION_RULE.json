@@ -1,0 +1,79 @@
+{
+  "schema": "janus.governance.aura_oracle_advisory_escalation.v1",
+  "rule_id": "AURA_ORACLE_ADVISORY_ESCALATION_V1",
+  "status": "ACTIVE_CANDIDATE_PENDING_CI_AND_MERGE",
+  "purpose": "When a JANUS task reaches a genuine unresolved question after deterministic evidence and applicable contracts have been checked, consult AURA ORACLE for reflective framing or candidate next steps before inventing an answer.",
+  "oracle": {
+    "repository": "Hawkar-usls/aura-oracle-tg",
+    "pinned_reference_sha": "0e965f9dd237753ee6608ada99271c69635ab597",
+    "maturity": "WORK_IN_PROGRESS",
+    "role": "REFLECTIVE_ADVISORY_HEURISTIC",
+    "truth_authority": false,
+    "prediction_authority": false,
+    "execution_authority": false,
+    "merge_authority": false,
+    "world_permission_authority": false
+  },
+  "trigger": {
+    "unresolved_question_exists": true,
+    "deterministic_local_evidence_checked_first": true,
+    "applicable_frozen_contracts_checked_first": true,
+    "exact_head_or_source_identity_checked_when_relevant": true,
+    "operator_instruction_not_already_decisive": true
+  },
+  "required_action": {
+    "consult_aura_oracle": true,
+    "ask_for": [
+      "REFLECTIVE_REFRAME",
+      "CANDIDATE_NEXT_STEP",
+      "MISSING_QUESTION_OR_CONTROL"
+    ],
+    "record_oracle_output_as": "ADVISORY_ONLY",
+    "return_to_evidence_gate_after_consultation": true
+  },
+  "hard_boundaries": {
+    "aura_output_may_not_turn_hold_into_pass": true,
+    "aura_output_may_not_override_empirical_evidence": true,
+    "aura_output_may_not_override_frozen_contract": true,
+    "aura_output_may_not_override_explicit_operator_instruction": true,
+    "aura_output_may_not_authorize_source_writeback": true,
+    "aura_output_may_not_authorize_external_effect": true,
+    "aura_output_may_not_be_treated_as_future_event_evidence": true,
+    "aura_output_may_not_be_treated_as_scientific_measurement": true,
+    "aura_output_may_not_be_treated_as_medical_legal_or_financial_advice": true
+  },
+  "failure_mode": {
+    "oracle_unavailable": "KEEP_HOLD_OR_USE_PREEXISTING_FAIL_CLOSED_DEFAULT",
+    "oracle_output_ambiguous": "KEEP_HOLD_AND_FORMULATE_NEXT_EMPIRICAL_TEST",
+    "oracle_conflicts_with_evidence": "EVIDENCE_WINS",
+    "oracle_conflicts_with_operator": "OPERATOR_WINS_WITHIN_EXISTING_SAFETY_AND_AUTHORITY_BOUNDARIES"
+  },
+  "non_blocking_exceptions": {
+    "do_not_delay_safety_containment": true,
+    "do_not_delay_data_preservation": true,
+    "do_not_replace_deterministic_validation_with_oracle": true,
+    "do_not_require_oracle_when_no_material_question_exists": true
+  },
+  "receipt_minimum": [
+    "question_or_ambiguity",
+    "evidence_checked_before_oracle",
+    "oracle_reference_sha",
+    "oracle_advisory_summary",
+    "decision_after_return_to_evidence",
+    "authority_delta"
+  ],
+  "canonical_laws": [
+    "QUESTION + UNRESOLVED_AFTER_EVIDENCE => CONSULT_AURA_ADVISORY",
+    "AURA_ADVISORY != TRUTH",
+    "AURA_ADVISORY != PREDICTION_EVIDENCE",
+    "AURA_ADVISORY != AUTHORITY",
+    "AURA_ADVISORY != PASS",
+    "EVIDENCE_WINS",
+    "FROZEN_CONTRACT_WINS",
+    "AUTHORITY_DELTA = 0"
+  ],
+  "source_writeback_default": "DENY",
+  "destructive_action": "FORBIDDEN",
+  "authority_delta": 0,
+  "mass_effect_budget_delta": 0
+}
