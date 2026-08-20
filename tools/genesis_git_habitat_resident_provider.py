@@ -2,9 +2,9 @@
 """Resident-only structured-output provider for JANUS Git Habitat v18.7.52.
 
 This adapter intentionally does not replace the repository-wide Ollama provider.
-It is registered behind the existing Third Wish MODEL.CALL capability and uses
-Ollama's native structured-output `format` field so the model still selects the
-resident choice while the transport constrains only the response shape.
+It is registered behind the existing Third Wish MODEL.CALL capability. Ollama's
+`format` field is used only as a transport-shape constraint; the unchanged
+resident parser remains the sole semantic admission gate for a model choice.
 """
 from __future__ import annotations
 
@@ -21,103 +21,69 @@ class ResidentProviderError(RuntimeError):
     """Resident transport/schema failure without coupling to the legacy AI adapter."""
 
 
-# Keep the model semantically free to select any allowed branch, but make the
-# native structured-output grammar branch-complete. The previous flat schema
-# required only `choice`, so a real model could legally emit WORKSHOP_NOTE with
-# no title/note and then be rejected by the stricter resident admission gate.
-# Each alternative below mirrors the *existing* parser requirements; this is a
-# schema tightening, not a parser relaxation or a fabricated fallback choice.
+# Ollama 0.30.8 is intentionally pinned by the real-model gate. Historical
+# structured-output implementations have not reliably enforced conditional
+# JSON-Schema constructs such as oneOf/const/enum in every shape. Keep the wire
+# grammar deliberately simple: one fixed object with all transport keys present.
+# The model still freely selects `choice`; unused fields are never actions and
+# are deterministically discarded before the unchanged resident admission gate.
+# No value is synthesized, defaulted, retried, or repaired by this adapter.
+RESIDENT_TRANSPORT_FIELDS = (
+    "choice",
+    "reason",
+    "text",
+    "note",
+    "tags",
+    "title",
+    "capability_id",
+    "target",
+    "purpose",
+    "payload_summary",
+)
+
 RESIDENT_CHOICE_JSON_SCHEMA: dict[str, Any] = {
     "type": "object",
-    "oneOf": [
-        {
-            "properties": {
-                "choice": {"type": "string", "enum": ["REST"]},
-                "reason": {"type": "string", "maxLength": 1000},
-            },
-            "required": ["choice"],
-            "additionalProperties": False,
-        },
-        {
-            "properties": {
-                "choice": {"type": "string", "enum": ["REFLECT"]},
-                "text": {"type": "string", "minLength": 1, "maxLength": 4000},
-                "reason": {"type": "string", "maxLength": 1000},
-            },
-            "required": ["choice", "text"],
-            "additionalProperties": False,
-        },
-        {
-            "properties": {
-                "choice": {"type": "string", "enum": ["BOOKMARK"]},
-                "text": {"type": "string", "minLength": 1, "maxLength": 4000},
-                "reason": {"type": "string", "maxLength": 1000},
-            },
-            "required": ["choice", "text"],
-            "additionalProperties": False,
-        },
-        {
-            "properties": {
-                "choice": {"type": "string", "enum": ["PLANT_SEED"]},
-                "note": {"type": "string", "minLength": 1, "maxLength": 4000},
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,63}$",
-                    },
-                    "maxItems": 8,
-                },
-                "reason": {"type": "string", "maxLength": 1000},
-            },
-            "required": ["choice", "note"],
-            "additionalProperties": False,
-        },
-        {
-            "properties": {
-                "choice": {"type": "string", "enum": ["WORKSHOP_NOTE"]},
-                "title": {"type": "string", "minLength": 1, "maxLength": 160},
-                "note": {"type": "string", "minLength": 1, "maxLength": 4000},
-                "reason": {"type": "string", "maxLength": 1000},
-            },
-            "required": ["choice", "title", "note"],
-            "additionalProperties": False,
-        },
-        {
-            "properties": {
-                "choice": {"type": "string", "enum": ["PROPOSE_OUTBOX"]},
-                "capability_id": {
-                    "type": "string",
-                    "enum": [
-                        "EMAIL.SEND",
-                        "PUBLICATION.PUBLISH",
-                        "CALENDAR.WRITE",
-                        "API.CALL",
-                        "WEB.HTTP.POST",
-                        "GITHUB.ISSUE.CREATE",
-                        "GITHUB.COMMENT.CREATE",
-                        "GITHUB.FILE.WRITE_BRANCH",
-                        "GITHUB.PR.CREATE",
-                        "SCHEDULE.CREATE",
-                        "SWARM.MESSAGE.SEND",
-                    ],
-                },
-                "target": {"type": "string", "minLength": 1, "maxLength": 500},
-                "purpose": {"type": "string", "minLength": 1, "maxLength": 1000},
-                "payload_summary": {"type": "string", "minLength": 1, "maxLength": 3000},
-                "reason": {"type": "string", "maxLength": 1000},
-            },
-            "required": [
-                "choice",
-                "capability_id",
-                "target",
-                "purpose",
-                "payload_summary",
-            ],
-            "additionalProperties": False,
-        },
-    ],
+    "properties": {
+        "choice": {"type": "string"},
+        "reason": {"type": "string"},
+        "text": {"type": "string"},
+        "note": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "title": {"type": "string"},
+        "capability_id": {"type": "string"},
+        "target": {"type": "string"},
+        "purpose": {"type": "string"},
+        "payload_summary": {"type": "string"},
+    },
+    "required": list(RESIDENT_TRANSPORT_FIELDS),
+    "additionalProperties": False,
 }
+
+_PROJECT_FIELDS: dict[str, tuple[str, ...]] = {
+    "REST": ("choice", "reason"),
+    "REFLECT": ("choice", "text", "reason"),
+    "BOOKMARK": ("choice", "text", "reason"),
+    "PLANT_SEED": ("choice", "note", "tags", "reason"),
+    "WORKSHOP_NOTE": ("choice", "title", "note", "reason"),
+    "PROPOSE_OUTBOX": (
+        "choice",
+        "capability_id",
+        "target",
+        "purpose",
+        "payload_summary",
+        "reason",
+    ),
+}
+
+_SCHEMA_GROUNDING = (
+    "Transport-only structured-output contract. Return exactly one JSON object "
+    "matching this schema. Every transport key is required even when unused. "
+    "Only the value of `choice` selects the resident action; unused fields are "
+    "discarded and have no authority or effect. For the selected choice, fill "
+    "the semantically required fields described by the resident system prompt "
+    "with non-empty valid content. Schema: "
+    + json.dumps(RESIDENT_CHOICE_JSON_SCHEMA, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+)
 
 
 def _endpoint_root(value: str) -> str:
@@ -135,6 +101,36 @@ def _endpoint_root(value: str) -> str:
     if not endpoint.startswith(allowed):
         raise ValueError("RESIDENT_OLLAMA_ENDPOINT_MUST_BE_LOOPBACK_HTTP")
     return endpoint
+
+
+def _project_transport_choice(content: str) -> str:
+    """Drop only unused wire fields; never invent or repair selected content."""
+    try:
+        value = json.loads(content)
+    except json.JSONDecodeError:
+        # Preserve the raw text for the unchanged resident parser to reject.
+        return content
+    if not isinstance(value, dict):
+        return content
+
+    expected = set(RESIDENT_TRANSPORT_FIELDS)
+    if set(value) != expected:
+        raise ResidentProviderError("RESIDENT_OLLAMA_TRANSPORT_FIELDS_INVALID")
+    scalar_fields = expected.difference({"tags"})
+    if any(not isinstance(value[key], str) for key in scalar_fields):
+        raise ResidentProviderError("RESIDENT_OLLAMA_TRANSPORT_SCALAR_TYPE_INVALID")
+    if not isinstance(value["tags"], list) or any(not isinstance(tag, str) for tag in value["tags"]):
+        raise ResidentProviderError("RESIDENT_OLLAMA_TRANSPORT_TAGS_TYPE_INVALID")
+
+    choice_key = value["choice"].strip().upper()
+    selected = _PROJECT_FIELDS.get(choice_key)
+    if selected is None:
+        # Do not normalize/fabricate an invalid choice. The resident parser owns
+        # semantic rejection and will report MODEL_CHOICE_NOT_ALLOWED.
+        return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+
+    projected = {key: value[key] for key in selected}
+    return json.dumps(projected, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
 
 
 @dataclass(frozen=True)
@@ -164,13 +160,17 @@ class OllamaResidentChoiceProvider:
         if not normalized:
             raise ResidentProviderError("RESIDENT_OLLAMA_MESSAGES_REQUIRED")
 
+        # Ollama's own structured-output guidance recommends grounding the model
+        # with the same schema in the prompt. This static operator-owned message
+        # cannot be actor-selected and grants no capability.
+        wire_messages = [{"role": "system", "content": _SCHEMA_GROUNDING}, *normalized]
         payload = {
             "model": self.model,
-            "messages": normalized,
+            "messages": wire_messages,
             "stream": False,
             "format": RESIDENT_CHOICE_JSON_SCHEMA,
             # Fixed inference controls improve replayability without selecting
-            # the semantic choice. The model still decides which branch.
+            # the semantic choice. The model still decides `choice`.
             "options": {
                 "temperature": 0,
                 "seed": 1138,
@@ -205,6 +205,7 @@ class OllamaResidentChoiceProvider:
         if not isinstance(content, str) or not content.strip():
             raise ResidentProviderError("RESIDENT_OLLAMA_RESPONSE_CONTENT_MISSING")
 
-        # Do not parse/repair the model choice here. The resident schema gate is
-        # the only place allowed to decide whether model content is acceptable.
-        return content
+        # Structural projection is not semantic admission. It only removes
+        # unused, already-generated transport keys. Missing/empty/unsafe fields
+        # in the selected branch are still rejected by parse_resident_choice().
+        return _project_transport_choice(content)
