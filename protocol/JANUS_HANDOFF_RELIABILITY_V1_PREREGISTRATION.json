@@ -1,0 +1,90 @@
+{
+  "schema": "janus.handoff_reliability.preregistration.v1",
+  "contract_id": "JANUS_HANDOFF_RELIABILITY_V1_PREREGISTRATION",
+  "status": "FROZEN_SCOPE_BLOCKED_BY_LIVE_RECEIVER_SOURCE_IDENTITY",
+  "created_at": "2026-08-20T18:05:00+03:00",
+  "issue": "Hawkar-usls/Janus_Genesis#164",
+  "final_acceptance": "Hawkar-usls/Janus_Genesis#162",
+  "genesis_base": "b85aa73b43b931abc333f033723e19880f228482",
+  "evidence_pins": {
+    "registry_repository": "Hawkar-usls/janus-meta-registry",
+    "registry_commit": "121afbec7779569bc05ec2c7b7a8c3432fb18023",
+    "receiver_boundary": {
+      "path": "data/JANUS-QUANT-PC-NAS-RECEIVER-BOUNDARY-2026-08-17-v1.0.json",
+      "blob_sha": "5849275edb8d7fe294bfec207977325d2c441ae9"
+    },
+    "remediation_roadmap": {
+      "path": "data/JANUS-HANDOFF-RELIABILITY-REMEDIATION-ROADMAP-2026-08-17-v1.0.json",
+      "blob_sha": "38de1575d4500e083d3a0dd6c2942deade40c8b3"
+    }
+  },
+  "observed_boundary": {
+    "destination_host": "192.168.1.92",
+    "intended_hrain_route": "http://192.168.1.92:8008/api/device/data",
+    "intended_receiver_service": "janus_nas_brain",
+    "observed_port_8008_owner": "janus_nas_api",
+    "service_owner_reconciled": false,
+    "live_receiver_source_identity": "UNRESOLVED",
+    "private_janus_io_candidate_commit": "e9d15e60f83a3e877e45d8f78af6f90e791da88f",
+    "private_janus_io_proven_to_own_live_receiver": false
+  },
+  "canonical_states": [
+    "SEEN",
+    "STABLE",
+    "HASHED",
+    "PARSED",
+    "ADMITTED_OR_HOLD",
+    "RECEIPT_COMMITTED",
+    "OPTIONAL_LOAD",
+    "OPTIONAL_EXECUTE",
+    "CONSUMED_EXACTLY_ONCE_OR_HOLD"
+  ],
+  "required_gates": {
+    "HR1_LIVE_QUANT_INGRESS_NOT_BLOCKED_BY_HRAIN": "OPEN",
+    "HR2_EXACT_RECEIVER_SHA_RECEIPT": "OPEN",
+    "HR3_EVENT_DEDUPE_REBINDING_FAIL_CLOSED": "OPEN",
+    "HR4_HRAIN_SERVICE_OWNER_AND_ROUTE_EXPLICIT": "OPEN",
+    "HR5_HRAIN_BOUNDED_RETRY_AND_DURABLE_QUEUE": "OPEN",
+    "HR6_SQLITE_BUSY_RECOVERY_NO_LOSS": "OPEN",
+    "HR7_FALLBACK_REPLAY_IDEMPOTENT": "OPEN",
+    "HR8_PROCESS_DROP_RECOVERY": "OPEN",
+    "HR9_DOWNSTREAM_EXACTLY_ONCE_CONSUME": "OPEN",
+    "HR10_RECEIVED_PARSED_LOADED_EXECUTED_SEPARATED": "OPEN"
+  },
+  "required_failure_vectors": [
+    "duplicate arrival same event same digest",
+    "conflicting arrival same event different digest",
+    "partial/truncated arrival",
+    "receiver restart after hash before receipt commit",
+    "receiver restart after receipt commit before downstream consume",
+    "HRAIN unavailable during arrival",
+    "SQLite locked during arrival",
+    "JSONL fallback then process death then replay",
+    "stale or duplicate downstream consume attempt"
+  ],
+  "admission_rules": {
+    "exact_live_receiver_git_or_content_identity_required": true,
+    "all_required_gates_must_pass_on_one_compatible_view": true,
+    "all_failure_vectors_must_be_executed_against_bound_receiver": true,
+    "component_ci_is_sufficient": false,
+    "heartbeat_is_execution_proof": false,
+    "http_200_is_durable_storage_proof": false,
+    "receipt_is_execution_permission": false,
+    "same_host_implies_same_service_or_database": false,
+    "unknown_identity_result": "HOLD",
+    "contradiction_or_data_loss_result": "FAIL"
+  },
+  "claim": {
+    "structural_preregistration_complete": true,
+    "live_receiver_verified": false,
+    "reliability_lane_pass": false,
+    "can_make_issue_162_runnable": false
+  },
+  "safety": {
+    "SOURCE_WRITEBACK_DEFAULT": "DENY",
+    "DESTRUCTIVE_ACTION": "FORBIDDEN",
+    "AUTHORITY_DELTA": 0,
+    "MASS_EFFECT_BUDGET_DELTA": 0
+  },
+  "next_gate": "BIND_RUNNING_RECEIVER_TO_EXACT_SOURCE_IDENTITY_THEN_EXECUTE_HR1_HR10_AND_ALL_FAILURE_VECTORS"
+}
