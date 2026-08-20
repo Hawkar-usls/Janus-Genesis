@@ -12,7 +12,12 @@
     "port_8008_owner_required": true,
     "reference_ci_is_live_proof": false
   },
-  "base_main": "b42397428883b3414d14923ecfc33d2ae2267417",
+  "base_main": "05cf2facb3aa59d3c6a520eea3c3a0ea8439b6e5",
+  "canonical_predecessor": {
+    "pull_request": "Hawkar-usls/Janus_Genesis#187",
+    "merge_commit": "05cf2facb3aa59d3c6a520eea3c3a0ea8439b6e5",
+    "tool": "tools/janus_receiver_identity_probe.py"
+  },
   "claim_ceiling": {
     "issue_162_pass": false,
     "issue_164_pass": false,
@@ -22,7 +27,7 @@
   },
   "contract_id": "JANUS_LIVE_RECEIVER_IDENTITY_PROBE_V1",
   "final_acceptance": "Hawkar-usls/Janus_Genesis#162",
-  "implementation_path": "tools/janus_live_receiver_identity_probe.py",
+  "implementation_path": "tools/janus_receiver_identity_probe.py",
   "issue": "Hawkar-usls/Janus_Genesis#164",
   "privacy": {
     "public_private_exact_pin_disclosure": false,
@@ -34,15 +39,16 @@
   "required_observations": [
     "RUNNING_PROCESS_IDENTITY",
     "CONTAINER_IDENTITY_IF_PRESENT",
-    "EXECUTABLE_CMDLINE_CWD",
+    "EXECUTABLE_CMDLINE_CWD_HASHED_OR_LOCAL_ONLY",
     "SOURCE_FILE_SHA256_WHERE_DISCOVERABLE",
     "GIT_COMMIT_WHERE_DISCOVERABLE",
     "PORT_8008_LISTENER_IN_NETWORK_NAMESPACE",
-    "CONTAINER_PID_NAMESPACE_BINDING",
     "SOCKET_INODE_TO_OWNER_PID_BINDING",
-    "PORT_8008_OWNER_PROCESS_OR_PROVEN_CONTAINER"
+    "CONTAINER_PID_NAMESPACE_BINDING",
+    "PORT_8008_OWNER_PROCESS_TO_PROVEN_CONTAINER",
+    "RECEIVER_CONTAINER_SOURCE_PROCESS_DISCOVERY"
   ],
-  "role": "READ_ONLY_LIVE_RECEIVER_SOURCE_AND_PORT_OWNER_BINDING",
+  "role": "HARDEN_CANONICAL_READ_ONLY_LIVE_RECEIVER_SOURCE_AND_PORT_OWNER_BINDING",
   "safety": {
     "AUTHORITY_DELTA": 0,
     "CONTAINER_MUTATION": "FORBIDDEN",
