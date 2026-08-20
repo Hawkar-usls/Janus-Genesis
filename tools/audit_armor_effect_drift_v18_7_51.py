@@ -50,6 +50,10 @@ SURFACE_CLASSIFICATIONS = (
     ("janus_genesis.py", "LEGACY_ROOT_GEMINI_NARRATOR_EGRESS"),
     ("tools/janus_habitat_process_death_gauntlet_v1.py", "CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET"),
     (
+        "tools/janus_handoff_reliability_reference_gauntlet.py",
+        "CONTROLLED_HANDOFF_RELIABILITY_FAILURE_INJECTION_GAUNTLET",
+    ),
+    (
         "tools/janus_receiver_identity_probe.py",
         "READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE",
     ),
