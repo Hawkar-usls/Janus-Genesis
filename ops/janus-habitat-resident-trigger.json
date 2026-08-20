@@ -1,0 +1,13 @@
+{
+  "schema": "janus.genesis.git_habitat.resident_trigger.v1",
+  "trigger_version": 1,
+  "nonce": "resident-live-bootstrap-1",
+  "purpose": "Explicit auditable operator trigger for one bounded model-backed JANUS Git Habitat resident cycle.",
+  "authority": {
+    "creates_external_effect_authority": false,
+    "executes_outbox": false,
+    "grants_high_impact_authority": false,
+    "changes_habitat_resident_identity": false,
+    "model_choice_is_world_command": false
+  }
+}
