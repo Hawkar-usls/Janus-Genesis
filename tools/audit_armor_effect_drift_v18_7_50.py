@@ -36,10 +36,31 @@ DIRECT_EFFECT_CALLS = {
 
 # Ordered most-specific first. Classification != Armor admission.
 SURFACE_CLASSIFICATIONS = (
+    (
+        "ops/live_nas_intent_sovereignty_v1_2/deploy_live_nas.py",
+        "EXPLICIT_OPERATOR_LIVE_NAS_DEPLOYMENT_TOOL",
+    ),
+    (
+        "genesis_v18_7_51_shabitat_aura_oracle.py",
+        "ARMOR_GATED_LOCAL_SHABITAT_AURA_HEURISTIC_BRIDGE",
+    ),
     ("genesis_v18_7_ai.py", "LEGACY_DIRECT_PROVIDER_EGRESS"),
     ("genesis_v18_7_network.py", "LEGACY_DIRECT_NETWORK_ADAPTER"),
     ("genesis_v18_7_38_durable_network_outbox.py", "LEGACY_DURABLE_NETWORK_ADAPTER"),
     ("janus_genesis.py", "LEGACY_ROOT_GEMINI_NARRATOR_EGRESS"),
+    ("tools/janus_habitat_process_death_gauntlet_v1.py", "CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET"),
+    (
+        "tools/janus_handoff_reliability_reference_gauntlet.py",
+        "CONTROLLED_HANDOFF_RELIABILITY_FAILURE_INJECTION_GAUNTLET",
+    ),
+    (
+        "tools/janus_receiver_identity_probe.py",
+        "READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE",
+    ),
+    (
+        "tools/genesis_git_habitat_resident_provider.py",
+        "LOOPBACK_ONLY_RESIDENT_MODEL_PROVIDER_BEHIND_MODEL_CALL",
+    ),
     ("tools/genesis_third_wish_*.py", "THIRD_WISH_EFFECT_BROKER_ARMOR_SUBCLASS_COMPATIBLE"),
     ("tools/genesis_api_server.py", "LEGACY_LOCAL_MUTATION_SERVICE"),
     ("tools/genesis_hosted_gateway.py", "HOSTED_LOCAL_MUTATION_SERVICE"),
