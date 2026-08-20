@@ -33,7 +33,11 @@ class LiveReceiverIdentityProbeTests(unittest.TestCase):
                 }
             ],
             "port_8008_namespaces": [
-                {"listeners": [{"inode": "1"}], "owners": [{"comm": "janus_nas_api", "cmdline": []}]}
+                {
+                    "listeners": [{"inode": "1"}],
+                    "owners": [{"comm": "janus_nas_api", "cmdline": []}],
+                    "docker_names": ["janus_nas_api"],
+                }
             ],
         }
         gate = evaluate(receipt, "janus_nas_brain", "deadbeef")
@@ -55,6 +59,7 @@ class LiveReceiverIdentityProbeTests(unittest.TestCase):
                 {
                     "listeners": [{"inode": "9"}],
                     "owners": [{"comm": "python", "cmdline": ["janus_nas_brain", "receiver.py"]}],
+                    "docker_names": [],
                 }
             ],
         }
@@ -62,6 +67,29 @@ class LiveReceiverIdentityProbeTests(unittest.TestCase):
         self.assertTrue(gate["live_receiver_bound"])
         self.assertFalse(gate["issue_164_pass"])
         self.assertEqual(gate["claim"], "IDENTITY_BINDING_PASS_NOT_HR1_HR10")
+
+    def test_docker_name_can_bind_listener_namespace_owner(self) -> None:
+        receipt = {
+            "matching_processes": [
+                {
+                    "source_candidates": [
+                        {"sha256": "c" * 64, "git": {"commit": "cafebabe"}}
+                    ]
+                }
+            ],
+            "port_8008_namespaces": [
+                {
+                    "listeners": [{"inode": "10"}],
+                    "owners": [{"comm": "python", "cmdline": ["python", "receiver.py"]}],
+                    "docker_names": ["janus_nas_brain"],
+                }
+            ],
+        }
+        gate = evaluate(receipt, "janus_nas_brain", "cafebabe")
+        self.assertEqual(gate["live_receiver_source_identity"], "EXPECTED_COMMIT_MATCH")
+        self.assertEqual(gate["port_8008_owner"], "EXPECTED_OWNER_MATCH")
+        self.assertTrue(gate["live_receiver_bound"])
+        self.assertFalse(gate["issue_164_pass"])
 
     def test_public_summary_does_not_disclose_private_pin(self) -> None:
         receipt = {
