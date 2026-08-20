@@ -30,24 +30,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Checkout exact SWARM fencing producer
-        uses: actions/checkout@v4
-        with:
-          repository: Hawkar-usls/janus-distributed-ai-swarm
-          ref: 2b72afe83dfb7318858a103657648bbc668ee6c3
-          path: _deps/swarm
-          fetch-depth: 1
-          persist-credentials: false
-
-      - name: Checkout exact DemiHead NOHAND producer
-        uses: actions/checkout@v4
-        with:
-          repository: Hawkar-usls/Demi_Head
-          ref: e287e62fc41d473c2add3eded92d3d163365b9dc
-          path: _deps/demihead
-          fetch-depth: 1
-          persist-credentials: false
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -64,10 +46,6 @@ jobs:
           test "$(git hash-object tools/janus_hippocampus_hdd_buffer.py)" = "2c20a79e86aa489a6ffb55d8bc8493a74621707a"
           test "$(git hash-object tools/janus_habitat_process_death_gauntlet_v1.py)" = "80017d1603904caa39dd117fabf2672f8d783496"
           test "$(git hash-object protocol/JANUS_HABITAT_PROCESS_DEATH_GAUNTLET-v1.0.json)" = "de95f0263d2da9e00566c371c1107b51b9b42aeb"
-          test "$(git -C _deps/swarm rev-parse HEAD)" = "2b72afe83dfb7318858a103657648bbc668ee6c3"
-          test "$(git -C _deps/swarm hash-object tools/habitat_objective_lease_fencing.py)" = "1abeb71206a1f17ac69b5dcd8565c431159b8deb"
-          test "$(git -C _deps/demihead rev-parse HEAD)" = "e287e62fc41d473c2add3eded92d3d163365b9dc"
-          test "$(git -C _deps/demihead hash-object tools/nohand_habitat_peer_v1_4_2.py)" = "1cda7d8d3c353b6a477c99635e06fecbb592c3d0"
 
       - name: Enforce additive reconciliation scope
         shell: bash
@@ -88,12 +66,23 @@ jobs:
           sort -o /tmp/allowed.txt /tmp/allowed.txt
           diff -u /tmp/allowed.txt /tmp/actual.txt
 
-      - name: Revalidate current Armor effect inventories
+      - name: Revalidate Genesis-only Armor effect inventories before foreign checkouts
         shell: bash
         run: |
           set -euo pipefail
+          test ! -e _deps
+          set +e
           python tools/audit_armor_effect_drift_v18_7_50.py > "$RUNNER_TEMP/armor-v18-7-50.json"
+          rc50=$?
           python tools/audit_armor_effect_drift_v18_7_51.py > "$RUNNER_TEMP/armor-v18-7-51.json"
+          rc51=$?
+          set -e
+          echo '--- Armor v18.7.50 inventory ---'
+          cat "$RUNNER_TEMP/armor-v18-7-50.json"
+          echo '--- Armor v18.7.51 inventory ---'
+          cat "$RUNNER_TEMP/armor-v18-7-51.json"
+          test "$rc50" -eq 0
+          test "$rc51" -eq 0
           python - <<'PY'
           import json, os
           from pathlib import Path
@@ -104,6 +93,33 @@ jobs:
               surface = value['surfaces']['tools/janus_habitat_process_death_gauntlet_v1.py']
               assert surface['classification'] == 'CONTROLLED_FRESH_PROCESS_DEATH_GAUNTLET'
           PY
+
+      - name: Checkout exact SWARM fencing producer
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/janus-distributed-ai-swarm
+          ref: 2b72afe83dfb7318858a103657648bbc668ee6c3
+          path: _deps/swarm
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Checkout exact DemiHead NOHAND producer
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Demi_Head
+          ref: e287e62fc41d473c2add3eded92d3d163365b9dc
+          path: _deps/demihead
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Verify exact external heads and source blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C _deps/swarm rev-parse HEAD)" = "2b72afe83dfb7318858a103657648bbc668ee6c3"
+          test "$(git -C _deps/swarm hash-object tools/habitat_objective_lease_fencing.py)" = "1abeb71206a1f17ac69b5dcd8565c431159b8deb"
+          test "$(git -C _deps/demihead rev-parse HEAD)" = "e287e62fc41d473c2add3eded92d3d163365b9dc"
+          test "$(git -C _deps/demihead hash-object tools/nohand_habitat_peer_v1_4_2.py)" = "1cda7d8d3c353b6a477c99635e06fecbb592c3d0"
 
       - name: Compile exact integration closure
         run: |
