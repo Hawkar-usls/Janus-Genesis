@@ -5,10 +5,10 @@ import unittest
 from unittest import mock
 import urllib.error
 
-from genesis_v18_7_ai import AIProviderError
 from tools.genesis_git_habitat_resident_provider import (
     OllamaResidentChoiceProvider,
     RESIDENT_CHOICE_JSON_SCHEMA,
+    ResidentProviderError,
 )
 
 
@@ -92,7 +92,7 @@ class ResidentStructuredProviderTests(unittest.TestCase):
             "urllib.request.urlopen",
             side_effect=urllib.error.URLError("offline"),
         ):
-            with self.assertRaisesRegex(AIProviderError, "CONNECTION_FAILED"):
+            with self.assertRaisesRegex(ResidentProviderError, "CONNECTION_FAILED"):
                 provider.chat([{"role": "user", "content": "snapshot"}])
 
     def test_invalid_response_envelope_is_rejected(self) -> None:
@@ -101,15 +101,19 @@ class ResidentStructuredProviderTests(unittest.TestCase):
             "urllib.request.urlopen",
             return_value=FakeResponse({"response": "wrong API shape"}),
         ):
-            with self.assertRaisesRegex(AIProviderError, "MESSAGE_MISSING"):
+            with self.assertRaisesRegex(ResidentProviderError, "MESSAGE_MISSING"):
                 provider.chat([{"role": "user", "content": "snapshot"}])
 
     def test_invalid_message_role_is_rejected_before_transport(self) -> None:
         provider = OllamaResidentChoiceProvider(model="qwen")
         with mock.patch("urllib.request.urlopen") as transport:
-            with self.assertRaisesRegex(AIProviderError, "ROLE_INVALID"):
+            with self.assertRaisesRegex(ResidentProviderError, "ROLE_INVALID"):
                 provider.chat([{"role": "tool", "content": "not allowed"}])
         transport.assert_not_called()
+
+    def test_provider_error_is_local_runtime_error_without_legacy_coupling(self) -> None:
+        self.assertTrue(issubclass(ResidentProviderError, RuntimeError))
+        self.assertEqual(ResidentProviderError.__module__, "tools.genesis_git_habitat_resident_provider")
 
 
 if __name__ == "__main__":
