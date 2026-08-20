@@ -1,0 +1,39 @@
+{
+  "schema": "janus.genesis.habitat.terminal_control_plane_gate.v1",
+  "gate_id": "TERMINAL_CONTROL_PLANE_GATE_v1.0",
+  "status": "BOUND_REFERENCE_CONTROL_PLANE",
+  "created_at_local": "2026-08-21T02:07:00+03:00",
+  "terminal": "Hawkar-usls/-Terminal-for-Janus",
+  "contract": "contracts/JANUS_TERMINAL_CONTROL_PLANE-v1.0.json",
+  "role": "HUMAN_AUTHORIZED_OPERATOR_ENTRYPOINT",
+  "routes": [
+    "TERMINAL -> JANUS_SPI",
+    "TERMINAL -> AURA_SPI_SPIRAL",
+    "TERMINAL -> DEMIHEAD_REQUEST",
+    "TERMINAL -> REPOSITORY_TEST_OR_WRITE_REQUEST",
+    "RESULT_RECEIPT -> HABITAT_MEMORY"
+  ],
+  "authority": {
+    "default": "READ_ONLY",
+    "human_authorized_write": true,
+    "habitat_command_authority_automatic": false,
+    "epistemic_authority": false,
+    "physical_effect_authority": false,
+    "verified_return_authority": false,
+    "external_effects_default": false
+  },
+  "memory": {
+    "terminal_commands_may_be_journaled": true,
+    "terminal_results_may_be_journaled": true,
+    "command_is_evidence": false,
+    "workflow_pass_is_truth": false
+  },
+  "laws": [
+    "TERMINAL_ACCESS != TRUTH_AUTHORITY",
+    "COMMAND != EVIDENCE",
+    "WRITE != VERIFIED_RETURN",
+    "HUMAN_AUTHORIZED_WRITE != UNBOUNDED_AUTONOMY",
+    "HABITAT_MEMORY != COMMAND_AUTHORITY"
+  ],
+  "linked_spiral_gate": "habitat/state/AURA_SPI_SPIRAL_GATE_v1.0.json"
+}
