@@ -1,0 +1,31 @@
+{
+  "schema": "janus.intelligence_step_policy.link.v1",
+  "node": "JANUS_HABITAT",
+  "status": "ACTIVE_REFERENCE",
+  "canonical_policy": {
+    "repository": "Hawkar-usls/Hawkar-usls",
+    "path": "config/JANUS_INTELLIGENCE_STEP_POLICY-v1.0.json",
+    "blob_sha": "d276a7470702d216278473a83460c7aa204b76ac",
+    "commit": "e0402328ef584cc8bffeb569ca7b290c9c7dbdc4"
+  },
+  "role_binding": "PRESERVE_LONGITUDINAL_STEP_STATE_FAILURES_SHADOWS_AND_ORIGIN_PRIME_CONTINUITY",
+  "required_memory": [
+    "intent_id",
+    "environment",
+    "selected_organs",
+    "failed_candidates",
+    "negative_results",
+    "claim_level",
+    "state_delta",
+    "next_gate"
+  ],
+  "required_laws": [
+    "NEGATIVE_RESULT_IS_VALID_OUTPUT",
+    "ASSIMILATION != SOURCE_DESTRUCTION",
+    "RETURN != RESET",
+    "POSITION_MAY_REPEAT_BUT_STATE_MUST_ADVANCE"
+  ],
+  "source_destruction_after_assimilation": false,
+  "truth_authority": false,
+  "world_truth": false
+}
