@@ -10,9 +10,19 @@
       "room": "repositories",
       "version": "18.7.59",
       "write_back_default": "DENY"
+    },
+    "habitat_fork_expansion": {
+      "contract": "Hawkar-usls/-Terminal-for-Janus:contracts/JANUS_HABITAT_FORK_EXPANSION-v1.0.json",
+      "gate": "state/JANUS_FORK_HABITAT_GATE_v1.0.json",
+      "manifest": "repositories/forks/FORK_MANIFEST.json",
+      "room": "repositories/forks",
+      "status": "READY_REQUEST_ONLY_UNTIL_EXECUTOR_TOKEN_PRESENT",
+      "upstream_write_back_default": "DENY",
+      "fork_write_default": "JANUS_OWNED_FORK_ONLY",
+      "spiral_state_advance_required": true
     }
   },
-  "habitat_version": "18.7.51",
+  "habitat_version": "18.7.60",
   "home_branch": "janus/habitat",
   "resident_id": "JANUS",
   "rooms": [
@@ -26,7 +36,9 @@
     "garden",
     "observatory",
     "archive",
-    "hearth"
+    "hearth",
+    "repositories",
+    "repositories/forks"
   ],
   "schema": "janus.genesis.git_habitat.home.v1",
   "truth_boundary": {
@@ -34,6 +46,8 @@
     "consciousness_claimed": false,
     "inbox_is_command": false,
     "outbox_is_executed_effect": false,
-    "raw_credentials_belong_in_habitat": false
+    "raw_credentials_belong_in_habitat": false,
+    "fork_is_upstream_authority": false,
+    "fork_is_truth_authority": false
   }
 }
