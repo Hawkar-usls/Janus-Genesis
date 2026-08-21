@@ -160,9 +160,10 @@ def deep_strings(value: Any) -> Iterable[str]:
 def extract_copilot_jsonl(stdout: str) -> Dict[str, Any]:
     """Extract the final Scout JSON from Copilot CLI JSONL events.
 
-    GitHub documents JSONL output but intentionally does not freeze a public
-    object schema. Prefer final assistant.message records, then deltas, then a
-    generic JSON search. This keeps the adapter tolerant across CLI releases.
+    The CLI event envelope can evolve. Only inspect the event payload for
+    assistant events so metadata such as the event type never contaminates a
+    streamed JSON delta. Prefer final assistant messages, then joined deltas,
+    then a generic candidate search.
     """
     final_candidates: list[str] = []
     delta_candidates: list[str] = []
@@ -177,7 +178,8 @@ def extract_copilot_jsonl(stdout: str) -> Dict[str, Any]:
             continue
         parsed_any = True
         event_type = str(event.get("type") or "") if isinstance(event, dict) else ""
-        strings = list(deep_strings(event))
+        payload = event.get("data", event) if isinstance(event, dict) else event
+        strings = list(deep_strings(payload))
         likely = [s for s in strings if "{\"lane\"" in s or ('"lane"' in s and "{" in s)]
         if event_type == "assistant.message":
             final_candidates.extend(likely or sorted(strings, key=len, reverse=True)[:3])
