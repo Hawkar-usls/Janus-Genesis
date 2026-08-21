@@ -160,14 +160,15 @@ def deep_strings(value: Any) -> Iterable[str]:
 def extract_copilot_jsonl(stdout: str) -> Dict[str, Any]:
     """Extract the final Scout JSON from Copilot CLI JSONL events.
 
-    The CLI event envelope can evolve. Only inspect the event payload for
-    assistant events so metadata such as the event type never contaminates a
-    streamed JSON delta. Prefer final assistant messages, then joined deltas,
-    then a generic candidate search.
+    Prefer the documented assistant.message `data.content` and
+    assistant.message_delta `data.deltaContent` fields. Keep generic payload
+    scanning only as a compatibility fallback for future CLI envelope changes.
     """
     final_candidates: list[str] = []
     delta_candidates: list[str] = []
+    generic_candidates: list[str] = []
     parsed_any = False
+
     for raw_line in stdout.splitlines():
         line = raw_line.strip()
         if not line:
@@ -177,16 +178,31 @@ def extract_copilot_jsonl(stdout: str) -> Dict[str, Any]:
         except json.JSONDecodeError:
             continue
         parsed_any = True
-        event_type = str(event.get("type") or "") if isinstance(event, dict) else ""
-        payload = event.get("data", event) if isinstance(event, dict) else event
-        strings = list(deep_strings(payload))
-        likely = [s for s in strings if "{\"lane\"" in s or ('"lane"' in s and "{" in s)]
+        if not isinstance(event, dict):
+            continue
+
+        event_type = str(event.get("type") or "")
+        data = event.get("data") if isinstance(event.get("data"), dict) else {}
+
         if event_type == "assistant.message":
-            final_candidates.extend(likely or sorted(strings, key=len, reverse=True)[:3])
-        elif event_type == "assistant.message_delta":
-            delta_candidates.extend(strings)
-        elif likely:
-            final_candidates.extend(likely)
+            content = data.get("content")
+            if isinstance(content, str) and content.strip():
+                final_candidates.append(content)
+                continue
+
+        if event_type == "assistant.message_delta":
+            delta = data.get("deltaContent")
+            if not isinstance(delta, str):
+                delta = data.get("delta")
+            if isinstance(delta, str):
+                delta_candidates.append(delta)
+                continue
+
+        payload = event.get("data", event)
+        strings = list(deep_strings(payload))
+        generic_candidates.extend(
+            s for s in strings if "{\"lane\"" in s or ('"lane"' in s and "{" in s)
+        )
 
     for candidate in reversed(final_candidates):
         try:
@@ -195,11 +211,16 @@ def extract_copilot_jsonl(stdout: str) -> Dict[str, Any]:
             continue
 
     if delta_candidates:
-        joined = "".join(delta_candidates)
         try:
-            return extract_json_object(joined)
+            return extract_json_object("".join(delta_candidates))
         except ValueError:
             pass
+
+    for candidate in reversed(generic_candidates):
+        try:
+            return extract_json_object(candidate)
+        except ValueError:
+            continue
 
     if not parsed_any:
         return extract_json_object(stdout)
@@ -246,7 +267,7 @@ def call_copilot_cli(request_obj: Dict[str, Any], memory: list[Dict[str, Any]]) 
             "GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP": "false",
         })
         cmd = [
-            "copilot", "-s", "-p", prompt, "--output-format=json", "--no-ask-user",
+            "copilot", "-p", prompt, "--output-format=json", "--no-ask-user",
             "--no-color", "--no-custom-instructions", "--no-remote", "--no-remote-export",
             "--disable-builtin-mcps", "--deny-tool=read", "--deny-tool=write",
             "--deny-tool=shell", "--deny-tool=url", "--deny-tool=memory",
@@ -328,12 +349,14 @@ def self_test() -> int:
     a = gate_report({"lane": "METAPHYSICAL_HYPOTHESIS", "requested_status": "VERIFIED"})
     assert a["status"] == "METAPHYSICAL_HYPOTHESIS" and not a["fact_allowed"]
     sample = '\n'.join([
-        json.dumps({"type": "assistant.message_delta", "data": {"delta": '{"lane":"METAPHYSICAL_'}}),
-        json.dumps({"type": "assistant.message_delta", "data": {"delta": 'HYPOTHESIS","requested_status":"UNRESOLVED"}'}}),
+        json.dumps({"type": "assistant.message_delta", "data": {"messageId": "m1", "deltaContent": '{"lane":"METAPHYSICAL_'}}),
+        json.dumps({"type": "assistant.message_delta", "data": {"messageId": "m1", "deltaContent": 'HYPOTHESIS","requested_status":"UNRESOLVED"}'}}),
         json.dumps({"type": "result", "sessionId": "x"}),
     ])
     parsed = extract_copilot_jsonl(sample)
     assert parsed["lane"] == "METAPHYSICAL_HYPOTHESIS"
+    complete = json.dumps({"type": "assistant.message", "data": {"messageId": "m2", "content": '{"lane":"SYMBOLIC_MODEL","requested_status":"SYMBOLIC_MODEL"}'}})
+    assert extract_copilot_jsonl(complete)["lane"] == "SYMBOLIC_MODEL"
     scrub = normalize_report({"lane": "METAPHYSICAL_HYPOTHESIS", "requested_status": "UNRESOLVED",
                               "facts": [{"claim": "I am Claude", "support": "Anthropic"}],
                               "answer": "I'm Claude, an AI assistant."}, "Янус ты бог?")
