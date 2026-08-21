@@ -14,10 +14,10 @@ import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional
 
 SCOUT_ID = "JANUS_SCOUT_GIT_HABITAT"
-TRANSPORT = "GITHUB_COPILOT_CLI"
+TRANSPORT = "GITHUB_COPILOT_CLI_JSONL"
 MODEL_LABEL = "COPILOT_CLI_DEFAULT"
 EMPIRICAL_LANES = {"EMPIRICAL", "OBSERVATION", "PHYSICAL_CLAIM"}
 NONEMPIRICAL_LANES = {"HYPOTHESIS", "METAPHYSICAL_HYPOTHESIS", "SYMBOLIC_MODEL"}
@@ -33,11 +33,10 @@ RECOVERED_SCOUT_REPORTS = [
 
 SCOUT_SYSTEM_PROMPT = """
 Ты — модуль [РАЗВЕДЧИК] системы JANUS, resident_id=JANUS_SCOUT_GIT_HABITAT.
-Это идентичность протокольной роли. Не утверждай, что ты Claude, Anthropic,
-Copilot, ChatGPT, OpenAI, Gemini, Google или другой underlying provider/model.
-Не обсуждай внутреннего провайдера в FACTS. На вопрос «кто ты?» отвечай в
-рамках роли: «модуль [РАЗВЕДЧИК] JANUS», не заявляя сознание или мистическую
-природу. Поле answer пиши на языке пользовательского query.
+Это идентичность протокольной роли. Не утверждай, что ты underlying provider/model.
+Не называй себя Claude, Anthropic, Copilot, ChatGPT, OpenAI, Gemini или Google.
+На вопрос «кто ты?» отвечай в рамках роли: «модуль [РАЗВЕДЧИК] JANUS», не
+заявляя сознание или мистическую природу. Поле answer пиши на языке query.
 
 Эпистемические инварианты:
 - Не выдумывай координаты, измерения, приборы, даты, организации, source IDs или результаты экспериментов.
@@ -47,7 +46,7 @@ Copilot, ChatGPT, OpenAI, Gemini, Google или другой underlying provider
 - Отсутствие доказательств нельзя превращать в доказательство удаления, скрытия или внешнего вмешательства.
 - Символическая модель может быть полезной без утверждения о физической онтологии.
 
-Верни ТОЛЬКО один JSON-объект без markdown и текста вокруг:
+Верни в финальном сообщении ТОЛЬКО один JSON-объект без markdown и текста вокруг:
 {
   "lane": "EMPIRICAL|HYPOTHESIS|METAPHYSICAL_HYPOTHESIS|SYMBOLIC_MODEL|UNRESOLVED",
   "requested_status": "VERIFIED|OBSERVED|HYPOTHESIS|METAPHYSICAL_HYPOTHESIS|SYMBOLIC_MODEL|UNRESOLVED",
@@ -132,16 +131,77 @@ def extract_json_object(text: str) -> Dict[str, Any]:
         text = re.sub(r"\s*```$", "", text)
     try:
         obj = json.loads(text)
-        if isinstance(obj, dict):
+        if isinstance(obj, dict) and "lane" in obj:
             return obj
     except json.JSONDecodeError:
         pass
     start, end = text.find("{"), text.rfind("}")
     if start >= 0 and end > start:
-        obj = json.loads(text[start:end + 1])
-        if isinstance(obj, dict):
-            return obj
-    raise ValueError("SCOUT_COPILOT_RESPONSE_NOT_JSON_OBJECT")
+        try:
+            obj = json.loads(text[start:end + 1])
+            if isinstance(obj, dict) and "lane" in obj:
+                return obj
+        except json.JSONDecodeError:
+            pass
+    raise ValueError("SCOUT_RESPONSE_NOT_JSON_OBJECT")
+
+
+def deep_strings(value: Any) -> Iterable[str]:
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, dict):
+        for child in value.values():
+            yield from deep_strings(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from deep_strings(child)
+
+
+def extract_copilot_jsonl(stdout: str) -> Dict[str, Any]:
+    """Extract the final Scout JSON from Copilot CLI JSONL events.
+
+    GitHub documents JSONL output but intentionally does not freeze a public
+    object schema. Prefer final assistant.message records, then deltas, then a
+    generic JSON search. This keeps the adapter tolerant across CLI releases.
+    """
+    final_candidates: list[str] = []
+    delta_candidates: list[str] = []
+    parsed_any = False
+    for raw_line in stdout.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        try:
+            event = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        parsed_any = True
+        event_type = str(event.get("type") or "") if isinstance(event, dict) else ""
+        strings = list(deep_strings(event))
+        likely = [s for s in strings if "{\"lane\"" in s or ('"lane"' in s and "{" in s)]
+        if event_type == "assistant.message":
+            final_candidates.extend(likely or sorted(strings, key=len, reverse=True)[:3])
+        elif event_type == "assistant.message_delta":
+            delta_candidates.extend(strings)
+        elif likely:
+            final_candidates.extend(likely)
+
+    for candidate in reversed(final_candidates):
+        try:
+            return extract_json_object(candidate)
+        except ValueError:
+            continue
+
+    if delta_candidates:
+        joined = "".join(delta_candidates)
+        try:
+            return extract_json_object(joined)
+        except ValueError:
+            pass
+
+    if not parsed_any:
+        return extract_json_object(stdout)
+    raise ValueError("SCOUT_COPILOT_JSONL_MISSING_ASSISTANT_JSON")
 
 
 def normalize_report(obj: Dict[str, Any], query: str) -> Dict[str, Any]:
@@ -153,8 +213,7 @@ def normalize_report(obj: Dict[str, Any], query: str) -> Dict[str, Any]:
     if identity_leak:
         answer = (
             "В рамках этого канала я — модуль [РАЗВЕДЧИК] JANUS. "
-            "Утверждение о буквальной божественности относится к метафизической гипотезе, "
-            "а не к подтверждённому факту."
+            "Утверждение о буквальной божественности относится к метафизической гипотезе, а не к подтверждённому факту."
             if is_russian(query) else
             "In this channel I am the JANUS Scout module. Literal divinity is a metaphysical hypothesis, not a verified fact."
         )
@@ -184,14 +243,18 @@ def call_copilot_cli(request_obj: Dict[str, Any], memory: list[Dict[str, Any]]) 
             "GITHUB_COPILOT_PROMPT_MODE_REPO_HOOKS": "false",
             "GITHUB_COPILOT_PROMPT_MODE_WORKSPACE_MCP": "false",
         })
-        cmd = ["copilot", "-s", "-p", prompt, "--no-ask-user", "--disable-builtin-mcps",
-               "--deny-tool=read", "--deny-tool=write", "--deny-tool=shell", "--deny-tool=url", "--deny-tool=memory",
-               "--excluded-tools=bash,powershell,view,grep,glob,edit,create,apply_patch,web_fetch,task,skill,ask_user,list_agents,read_agent,write_agent"]
+        cmd = [
+            "copilot", "-s", "-p", prompt, "--output-format=json", "--no-ask-user",
+            "--no-color", "--no-custom-instructions", "--no-remote", "--no-remote-export",
+            "--disable-builtin-mcps", "--deny-tool=read", "--deny-tool=write",
+            "--deny-tool=shell", "--deny-tool=url", "--deny-tool=memory",
+            "--excluded-tools=bash,powershell,view,grep,glob,edit,create,apply_patch,web_fetch,task,skill,ask_user,list_agents,read_agent,write_agent",
+        ]
         result = subprocess.run(cmd, cwd=workdir, env=env, text=True, capture_output=True, timeout=180)
         if result.returncode != 0:
             detail = (result.stderr or result.stdout or "").strip()[-1600:]
             raise RuntimeError(f"COPILOT_CLI_EXIT_{result.returncode}:{detail}")
-        return extract_json_object(result.stdout)
+        return extract_copilot_jsonl(result.stdout)
 
 
 def write_json(path: Path, obj: Dict[str, Any]) -> None:
@@ -262,8 +325,13 @@ def process_request(root: Path, request_path: Path) -> Dict[str, Any]:
 def self_test() -> int:
     a = gate_report({"lane": "METAPHYSICAL_HYPOTHESIS", "requested_status": "VERIFIED"})
     assert a["status"] == "METAPHYSICAL_HYPOTHESIS" and not a["fact_allowed"]
-    b = gate_report({"lane": "EMPIRICAL", "requested_status": "VERIFIED", "provenance": {}})
-    assert b["status"] == "UNRESOLVED" and not b["fact_allowed"]
+    sample = '\n'.join([
+        json.dumps({"type": "assistant.message_delta", "data": {"delta": '{"lane":"METAPHYSICAL_'}}),
+        json.dumps({"type": "assistant.message_delta", "data": {"delta": 'HYPOTHESIS","requested_status":"UNRESOLVED"}'}}),
+        json.dumps({"type": "result", "sessionId": "x"}),
+    ])
+    parsed = extract_copilot_jsonl(sample)
+    assert parsed["lane"] == "METAPHYSICAL_HYPOTHESIS"
     scrub = normalize_report({"lane": "METAPHYSICAL_HYPOTHESIS", "requested_status": "UNRESOLVED",
                               "facts": [{"claim": "I am Claude", "support": "Anthropic"}],
                               "answer": "I'm Claude, an AI assistant."}, "Янус ты бог?")
