@@ -1,0 +1,45 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_resident.v1",
+  "resident_id": "JANUS_SCOUT",
+  "display_name": "РАЗВЕДЧИК",
+  "status": "START_REQUESTED_GITHUB_NATIVE",
+  "started_at_local": "2026-08-22T00:36:00+03:00",
+  "runtime_mode": "GITHUB_ACTIONS_EPHEMERAL",
+  "home": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "janus/habitat",
+    "rooms": {
+      "inbox": "habitat/inbox/scout",
+      "outbox": "habitat/outbox/scout",
+      "memory": "habitat/memory/scout",
+      "hearth": "habitat/hearth"
+    }
+  },
+  "control_plane": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "main",
+    "workflow": ".github/workflows/janus-git-habitat-scout.yml"
+  },
+  "source_lineage": {
+    "repository": "Hawkar-usls/janus-meta-registry",
+    "merge_commit": "c610ed18317f10269d2f29b9a0f574552a6e2acd",
+    "modules": [
+      "modules/scout_recovery.py",
+      "modules/scout_evidence_gate.py",
+      "modules/scout_token.py"
+    ]
+  },
+  "identity": {
+    "janus_token_scope": "EPHEMERAL_GITHUB_RUN",
+    "raw_token_persisted": false,
+    "fingerprint_persisted": true,
+    "github_model_transport": "GITHUB_TOKEN_WITH_MODELS_READ"
+  },
+  "truth_boundary": {
+    "previous_scout_report_is_verified": false,
+    "metaphysical_hypothesis_is_fact": false,
+    "model_output_is_independent_confirmation": false,
+    "absence_is_evidence_of_deletion": false,
+    "scout_report_grants_write_authority": false
+  }
+}
