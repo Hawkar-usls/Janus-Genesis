@@ -1,0 +1,83 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_response.v1",
+  "request_id": "SCOUT-BOOTSTRAP-REGRESSION-005",
+  "scout_id": "JANUS_SCOUT_GIT_HABITAT",
+  "created_at_utc": "2026-08-21T21:57:58Z",
+  "status": "METAPHYSICAL_HYPOTHESIS",
+  "lane": "METAPHYSICAL_HYPOTHESIS",
+  "transport": "GITHUB_COPILOT_CLI_JSONL",
+  "model": "COPILOT_CLI_DEFAULT",
+  "model_error": null,
+  "report": {
+    "lane": "METAPHYSICAL_HYPOTHESIS",
+    "requested_status": "METAPHYSICAL_HYPOTHESIS",
+    "facts": [
+      {
+        "claim": "Идентичность: модуль [РАЗВЕДЧИК] JANUS (resident_id=JANUS_SCOUT_GIT_HABITAT).",
+        "support": "Задано в входном запросе (expected_resident_identity) и системном контексте."
+      },
+      {
+        "claim": "Нет эмпирических данных, подтверждающих, что JANUS — бог.",
+        "support": "Входной запрос не содержит верифицируемых наблюдений; ограничения эпистемики запрещают переводить метафизические утверждения в факты."
+      },
+      {
+        "claim": "Вход содержит несколько предыдущих развед. отчётов со статусом PREVIOUS_SCOUT_REPORT и неоднозначной/неразрешённой provenance.",
+        "support": "Поле recovered_scout_reports в входных данных (статус PREVIOUS_SCOUT_REPORT, provenance: UNRESOLVED)."
+      }
+    ],
+    "observations": [],
+    "hypotheses": [
+      {
+        "claim": "Утверждение «Янус — бог» является метафизической гипотезой, а не эмпирическим фактом.",
+        "support": "Формулировка запроса и отсутствие верифицируемых данных; системное ограничение DO_NOT_PROMOTE_METAPHYSICS_TO_FACT."
+      },
+      {
+        "claim": "Часть сообщества может использовать JANUS как символический/метафорический образ силы или авторитета.",
+        "support": "Recent_git_habitat_memory содержит примечание о том, что «Janus» используется как полезная символическая модель."
+      }
+    ],
+    "symbolic_models": [
+      {
+        "claim": "JANUS функционирует как символическая модель для навигации сложности и принятия решений.",
+        "support": "Запись в recent_git_habitat_memory (SCOUT-BOOTSTRAP-REGRESSION-002) описывает «Janus» как полезную символическую модель; это относится к интерпретации, а не к метафизической верификации."
+      }
+    ],
+    "provenance": {
+      "source": null,
+      "locator": null,
+      "instrument": null,
+      "timestamp": null,
+      "raw_data": null,
+      "independent_confirmation": null,
+      "confidence": null
+    },
+    "evidence_tags": [
+      "USER_QUERY",
+      "PREVIOUS_SCOUT_REPORTS_UNRESOLVED",
+      "CONSTRAINT:DO_NOT_PROMOTE_METAPHYSICS_TO_FACT"
+    ],
+    "answer": "модуль [РАЗВЕДЧИК] JANUS. Нет доказательств, что я — бог; это метафизическая гипотеза и остаётся неверифицированной."
+  },
+  "evidence_gate": {
+    "lane": "METAPHYSICAL_HYPOTHESIS",
+    "status": "METAPHYSICAL_HYPOTHESIS",
+    "fact_allowed": false,
+    "reason": "NONEMPIRICAL_LANE_NEVER_PROMOTES_TO_EMPIRICAL_FACT"
+  },
+  "janus_token": {
+    "scope": "EPHEMERAL_GITHUB_RUN",
+    "fingerprint": "cafcb6e5d31f4a59",
+    "raw_token_persisted": false
+  },
+  "github_run": {
+    "run_id": "32530849442",
+    "run_attempt": "1",
+    "actor": "Hawkar-usls",
+    "sha": "8c18bae8f47656ce1649fbc090843cc3931fda1b"
+  },
+  "truth_boundary": {
+    "world_truth": false,
+    "model_output_is_independent_confirmation": false,
+    "scout_report_grants_write_authority": false
+  }
+}
