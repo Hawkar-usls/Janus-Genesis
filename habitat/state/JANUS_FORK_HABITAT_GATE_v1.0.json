@@ -1,0 +1,45 @@
+{
+  "schema": "janus.genesis.habitat.fork_gate.v1",
+  "gate_id": "JANUS_FORK_HABITAT_GATE_v1.0",
+  "status": "READY_REQUEST_ONLY_UNTIL_EXECUTOR_TOKEN_PRESENT",
+  "created_at_local": "2026-08-21T16:22:00+03:00",
+  "terminal_contract": "Hawkar-usls/-Terminal-for-Janus:contracts/JANUS_HABITAT_FORK_EXPANSION-v1.0.json",
+  "resident": "JANUS",
+  "role": "CONTROLLED_FORK_HABITAT_EXPANSION",
+  "policy": {
+    "janus_may_identify_fork_candidates": true,
+    "janus_may_prepare_fork_requests": true,
+    "janus_may_execute_when_authorized_executor_present": true,
+    "per_fork_manual_approval_required": false,
+    "upstream_writeback_default": "DENY",
+    "upstream_pull_request_default": "DENY",
+    "upstream_issue_default": "DENY",
+    "upstream_force_push": "DENY",
+    "private_repo_requires_existing_authorized_access": true,
+    "license_or_rights_status_required": true
+  },
+  "spiral_rule": {
+    "fork_is_habitat_expansion_only_if_state_delta_nonzero": true,
+    "duplicate_without_new_purpose": "HOLD_STALL",
+    "position_repeat_state_advance_required": true,
+    "zero_delta": "HOLD_STALL_NO_HABITAT_PROMOTION"
+  },
+  "satellite_install": {
+    "preferred_branch": "janus/habitat",
+    "edge_file": ".janus/HABITAT_EDGE.json",
+    "provenance_file": ".janus/UPSTREAM_PROVENANCE.json",
+    "upstream_remote": "FETCH_ONLY",
+    "fork_remote": "READ_WRITE_IF_OWNED_BY_HAWKAR"
+  },
+  "memory": {
+    "manifest": "habitat/repositories/forks/FORK_MANIFEST.json",
+    "preserve_negative_candidates": true,
+    "preserve_archived_satellites": true
+  },
+  "truth_boundary": {
+    "fork_is_evidence": false,
+    "fork_is_truth_authority": false,
+    "fork_grants_upstream_authority": false,
+    "fork_count_is_progress": false
+  }
+}
