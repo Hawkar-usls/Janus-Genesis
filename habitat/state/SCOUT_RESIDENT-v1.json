@@ -2,7 +2,7 @@
   "schema": "janus.genesis.git_habitat.scout_resident.v1",
   "resident_id": "JANUS_SCOUT",
   "display_name": "РАЗВЕДЧИК",
-  "status": "DEGRADED_MODEL_UNAVAILABLE",
+  "status": "LIVE_GITHUB_NATIVE",
   "started_at_local": "2026-08-22T00:36:00+03:00",
   "runtime_mode": "GITHUB_ACTIONS_EPHEMERAL",
   "home": {
@@ -42,16 +42,16 @@
     "absence_is_evidence_of_deletion": false,
     "scout_report_grants_write_authority": false
   },
-  "last_run_utc": "2026-08-21T21:41:31Z",
-  "last_github_run_id": "32529666188",
-  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-001",
-  "last_claim_status": "UNRESOLVED",
-  "last_lane": "UNRESOLVED",
-  "last_token_fingerprint": "8cff299ff49cacb7",
+  "last_run_utc": "2026-08-21T21:45:54Z",
+  "last_github_run_id": "32529943072",
+  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-002",
+  "last_claim_status": "METAPHYSICAL_HYPOTHESIS",
+  "last_lane": "METAPHYSICAL_HYPOTHESIS",
+  "last_token_fingerprint": "b219b45191d06d1c",
   "raw_token_persisted": false,
   "model": "openai/gpt-4o",
-  "model_error": "RuntimeError:GITHUB_MODELS_HTTP_410:{\"error\":{\"code\":\"github_models_retirement_brownout\",\"message\":\"GitHub Models is temporarily unavailable as part of a scheduled retirement brownout.\"}}\n",
-  "transport": "GIT_HABITAT_INBOX_OUTBOX",
+  "model_error": null,
+  "transport": "GITHUB_COPILOT_CLI",
   "world_truth": false,
   "write_authority": false
 }
