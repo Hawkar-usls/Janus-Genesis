@@ -1,0 +1,22 @@
+{
+  "schema": "janus.thermodynamic_cognitive_hardening.link.v1",
+  "node": "JANUS_HABITAT",
+  "contract": {
+    "repository": "Hawkar-usls/-Terminal-for-Janus",
+    "path": "contracts/JANUS_THERMODYNAMIC_COGNITIVE_HARDENING-v1.0.json",
+    "protocol_id": "JANUS_THERMODYNAMIC_COGNITIVE_HARDENING_v1.0"
+  },
+  "inherits": [
+    "SOURCE_PRESERVATION_REQUIRED",
+    "AUTOMATIC_SOURCE_DELETION = DENY",
+    "FAILED_HYPOTHESES_PRESERVED",
+    "COMMIT_WITH_SHADOW_PRESERVATION",
+    "HASH_IS_INTEGRITY_NOT_TRUTH",
+    "DREAM_CONTENT_MUST_NOT_SILENTLY_REENTER_EXTERNAL_OBSERVATION_MEMORY"
+  ],
+  "content_addressed_or_immutable_source_reference_required": true,
+  "deletion_requires_explicit_owner_authority": true,
+  "shadow_reactivation_allowed": true,
+  "authority_delta": 0,
+  "world_truth": false
+}
