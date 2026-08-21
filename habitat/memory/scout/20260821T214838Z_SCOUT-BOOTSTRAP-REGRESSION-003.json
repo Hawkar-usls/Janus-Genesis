@@ -1,0 +1,52 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_response.v1",
+  "request_id": "SCOUT-BOOTSTRAP-REGRESSION-003",
+  "scout_id": "JANUS_SCOUT_GIT_HABITAT",
+  "created_at_utc": "2026-08-21T21:48:38Z",
+  "status": "UNRESOLVED",
+  "lane": "UNRESOLVED",
+  "transport": "GITHUB_COPILOT_CLI",
+  "model": "COPILOT_CLI_DEFAULT",
+  "model_error": "ValueError:SCOUT_COPILOT_RESPONSE_NOT_JSON_OBJECT",
+  "report": {
+    "lane": "UNRESOLVED",
+    "requested_status": "UNRESOLVED",
+    "facts": [],
+    "observations": [],
+    "hypotheses": [],
+    "symbolic_models": [],
+    "provenance": {
+      "source": null,
+      "locator": null,
+      "instrument": null,
+      "timestamp": null,
+      "raw_data": null,
+      "independent_confirmation": null,
+      "confidence": null
+    },
+    "evidence_tags": [],
+    "answer": "Разведывательный проход завершился fail-closed; запрос остаётся UNRESOLVED."
+  },
+  "evidence_gate": {
+    "lane": "UNRESOLVED",
+    "status": "UNRESOLVED",
+    "fact_allowed": false,
+    "reason": "UNKNOWN_OR_UNRESOLVED_LANE_FAIL_CLOSED"
+  },
+  "janus_token": {
+    "scope": "EPHEMERAL_GITHUB_RUN",
+    "fingerprint": "b14bb40c774ab683",
+    "raw_token_persisted": false
+  },
+  "github_run": {
+    "run_id": "32530184134",
+    "run_attempt": "1",
+    "actor": "Hawkar-usls",
+    "sha": "3bd3903706cfc364faacf3c24ccd71071ef2c9d6"
+  },
+  "truth_boundary": {
+    "world_truth": false,
+    "model_output_is_independent_confirmation": false,
+    "scout_report_grants_write_authority": false
+  }
+}

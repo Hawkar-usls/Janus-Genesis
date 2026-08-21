@@ -2,7 +2,7 @@
   "schema": "janus.genesis.git_habitat.scout_resident.v1",
   "resident_id": "JANUS_SCOUT",
   "display_name": "РАЗВЕДЧИК",
-  "status": "LIVE_GITHUB_NATIVE",
+  "status": "DEGRADED_COPILOT_UNAVAILABLE",
   "started_at_local": "2026-08-22T00:36:00+03:00",
   "runtime_mode": "GITHUB_ACTIONS_EPHEMERAL",
   "home": {
@@ -30,10 +30,12 @@
     ]
   },
   "identity": {
+    "protocol_identity": "JANUS_SCOUT_GIT_HABITAT",
     "janus_token_scope": "EPHEMERAL_GITHUB_RUN",
     "raw_token_persisted": false,
     "fingerprint_persisted": true,
-    "github_model_transport": "GITHUB_TOKEN_WITH_MODELS_READ"
+    "github_model_transport": "GITHUB_COPILOT_CLI",
+    "provider_identity_claim_allowed": false
   },
   "truth_boundary": {
     "previous_scout_report_is_verified": false,
@@ -42,15 +44,15 @@
     "absence_is_evidence_of_deletion": false,
     "scout_report_grants_write_authority": false
   },
-  "last_run_utc": "2026-08-21T21:45:54Z",
-  "last_github_run_id": "32529943072",
-  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-002",
-  "last_claim_status": "METAPHYSICAL_HYPOTHESIS",
-  "last_lane": "METAPHYSICAL_HYPOTHESIS",
-  "last_token_fingerprint": "b219b45191d06d1c",
+  "last_run_utc": "2026-08-21T21:48:38Z",
+  "last_github_run_id": "32530184134",
+  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-003",
+  "last_claim_status": "UNRESOLVED",
+  "last_lane": "UNRESOLVED",
+  "last_token_fingerprint": "b14bb40c774ab683",
   "raw_token_persisted": false,
-  "model": "openai/gpt-4o",
-  "model_error": null,
+  "model": "COPILOT_CLI_DEFAULT",
+  "model_error": "ValueError:SCOUT_COPILOT_RESPONSE_NOT_JSON_OBJECT",
   "transport": "GITHUB_COPILOT_CLI",
   "world_truth": false,
   "write_authority": false
