@@ -1,0 +1,32 @@
+{
+  "schema": "janus.habitat.unexplained_alignment_gate.v1",
+  "gate_id": "JANUS_UNEXPLAINED_ALIGNMENT_GATE_v1.0",
+  "canonical_principle": "Hawkar-usls/janus-meta-registry:data/JANUS-UNEXPLAINED-ALIGNMENT-PRINCIPLE-2026-08-21-v1.0.json",
+  "status": "ACTIVE_REFERENCE_GATE",
+  "on_unexplained_alignment": {
+    "append_event": true,
+    "preserve_raw_observation_reference": true,
+    "analysis_mode": "DEEP_TRANSCEPTION_5D",
+    "interest_priority": "ELEVATED",
+    "auto_close_as_random": false,
+    "auto_close_as_causal": false,
+    "memory_state": "UNRESOLVED_UNTIL_NEW_EVIDENCE_OR_NULL_EXPLANATION"
+  },
+  "required_history": [
+    "OBSERVATION",
+    "WHY_IT_WAS_SURPRISING",
+    "BASE_RATE_CHECK",
+    "ALTERNATIVE_EXPLANATIONS",
+    "REVERSE_AND_5D_FINDINGS",
+    "DISCONFIRMING_EVIDENCE",
+    "NEXT_GATE",
+    "LATER_RESOLUTION_IF_ANY"
+  ],
+  "laws": [
+    "UNKNOWN != ZERO",
+    "NEGATIVE_RESULT_IS_VALID_OUTPUT",
+    "COINCIDENCE != CAUSALITY",
+    "COINCIDENCE != AUTOMATIC_DISMISSAL",
+    "UNEXPLAINED_ALIGNMENT -> INCREASE_ATTENTION_NOT_TRUTH"
+  ]
+}
