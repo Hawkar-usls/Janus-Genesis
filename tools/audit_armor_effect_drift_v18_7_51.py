@@ -66,6 +66,10 @@ SURFACE_CLASSIFICATIONS = (
         "EXPLICIT_OPERATOR_PRIVACY_SAFE_PUBLIC_RECEIPT_RELAY",
     ),
     (
+        "tools/janus_sysear_router_syslog_observer.py",
+        "READ_ONLY_LOCAL_ROUTER_SYSLOG_OBSERVER",
+    ),
+    (
         "tools/genesis_git_habitat_resident_provider.py",
         "LOOPBACK_ONLY_RESIDENT_MODEL_PROVIDER_BEHIND_MODEL_CALL",
     ),
