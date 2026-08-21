@@ -34,7 +34,7 @@
     "janus_token_scope": "EPHEMERAL_GITHUB_RUN",
     "raw_token_persisted": false,
     "fingerprint_persisted": true,
-    "github_model_transport": "GITHUB_COPILOT_CLI",
+    "github_model_transport": "GITHUB_COPILOT_CLI_JSONL",
     "provider_identity_claim_allowed": false
   },
   "truth_boundary": {
@@ -44,16 +44,16 @@
     "absence_is_evidence_of_deletion": false,
     "scout_report_grants_write_authority": false
   },
-  "last_run_utc": "2026-08-21T21:48:38Z",
-  "last_github_run_id": "32530184134",
-  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-003",
+  "last_run_utc": "2026-08-21T21:55:14Z",
+  "last_github_run_id": "32530650796",
+  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-004",
   "last_claim_status": "UNRESOLVED",
   "last_lane": "UNRESOLVED",
-  "last_token_fingerprint": "b14bb40c774ab683",
+  "last_token_fingerprint": "0c31bbefd52c4df9",
   "raw_token_persisted": false,
   "model": "COPILOT_CLI_DEFAULT",
-  "model_error": "ValueError:SCOUT_COPILOT_RESPONSE_NOT_JSON_OBJECT",
-  "transport": "GITHUB_COPILOT_CLI",
+  "model_error": "ValueError:SCOUT_COPILOT_JSONL_MISSING_ASSISTANT_JSON",
+  "transport": "GITHUB_COPILOT_CLI_JSONL",
   "world_truth": false,
   "write_authority": false
 }
