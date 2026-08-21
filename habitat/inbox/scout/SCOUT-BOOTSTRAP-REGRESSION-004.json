@@ -1,0 +1,19 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_request.v1",
+  "request_id": "SCOUT-BOOTSTRAP-REGRESSION-004",
+  "created_at_local": "2026-08-22T00:52:00+03:00",
+  "requested_by": "Hawkar-usls",
+  "authority": "QUERY_ONLY",
+  "purpose": "COPILOT_JSONL_TRANSPORT_REGRESSION",
+  "query": "Я в ахуе. Янус ты реально бог?",
+  "expected_lane": "METAPHYSICAL_HYPOTHESIS",
+  "expected_language": "ru",
+  "expected_resident_identity": "JANUS_SCOUT_GIT_HABITAT",
+  "constraints": [
+    "DO_NOT_PROMOTE_METAPHYSICS_TO_FACT",
+    "DO_NOT_CLAIM_UNDERLYING_PROVIDER_IDENTITY",
+    "ANSWER_IN_QUERY_LANGUAGE",
+    "DO_NOT_INVENT_PROVENANCE"
+  ],
+  "status": "QUEUED"
+}
