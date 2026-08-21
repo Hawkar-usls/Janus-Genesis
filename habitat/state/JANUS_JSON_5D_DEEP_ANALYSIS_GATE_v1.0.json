@@ -1,0 +1,49 @@
+{
+  "schema": "janus.genesis.habitat.deep_analysis_5d_gate.v1",
+  "gate_id": "JANUS_JSON_5D_DEEP_ANALYSIS_GATE_v1.0",
+  "status": "REFERENCE_ENGINE_BOUND",
+  "source_contract": "Hawkar-usls/-Terminal-for-Janus:contracts/JANUS_JSON_5D_DEEP_ANALYSIS_PROTOCOL-v1.0.json",
+  "analysis_mode": "DEEP_TRANSCEPTION_5D",
+  "axes": [
+    "D1_FORWARD",
+    "D2_REVERSE",
+    "D3_STRUCTURAL_LEFT_HRAIN",
+    "D4_ASSOCIATIVE_RIGHT_INAIHR",
+    "D5_SPIRAL_ABSTRACTION"
+  ],
+  "memory": {
+    "preferred_format": ["JSON", "JSONL"],
+    "preserve_source_segments": true,
+    "preserve_nodes": true,
+    "preserve_typed_edges": true,
+    "preserve_graph_patch_log": true,
+    "preserve_hrain_projection": true,
+    "preserve_inaihr_projection": true,
+    "preserve_demihead_disagreement": true,
+    "preserve_recovered_at_origin": true,
+    "preserve_integrity_hashes": true,
+    "raw_private_chain_of_thought": false
+  },
+  "non_tail_growth": {
+    "enabled": true,
+    "logical_insertion": true,
+    "source_text_mutation": false,
+    "history_deletion": false,
+    "patch_requires_provenance": true
+  },
+  "continuity": {
+    "position_may_repeat": true,
+    "state_must_advance": true,
+    "return_is_reset": false,
+    "origin_prime_requires_verified_return": true,
+    "hold_and_reject_are_preserved": true
+  },
+  "authority": {
+    "graph_output_is_evidence": false,
+    "association_is_evidence": false,
+    "hemisphere_agreement_is_truth": false,
+    "deep_analysis_is_command": false,
+    "write_back_default": "DENY",
+    "authority_delta": 0
+  }
+}
