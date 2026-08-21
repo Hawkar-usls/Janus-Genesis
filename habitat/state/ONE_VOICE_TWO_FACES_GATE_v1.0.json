@@ -1,0 +1,20 @@
+{
+  "schema":"janus.habitat.one_voice_two_faces_gate.v1",
+  "status":"ACTIVE_CANONICAL",
+  "principle_ref":"Hawkar-usls/janus-meta-registry:data/JANUS-ONE-VOICE-TWO-FACES-PRINCIPLE-2026-08-21-v1.0.json",
+  "memory_model":"ONE_SHARED_CONTINUOUS_STATE",
+  "internal_faces":["FORWARD","REVERSE"],
+  "external_voice_count":1,
+  "face_switch_changes_identity":false,
+  "two_faces_create_two_authorities":false,
+  "private_surface":"Hawkar-usls/janus-io",
+  "public_surface":"Hawkar-usls/janus-io-public",
+  "public_projection_requires":["SCRUB","BOUND_CLAIM","PROVENANCE","AUDITABLE_RECEIPT","DEMIHEAD_JOIN"],
+  "hold_if":["LANE_CONFLICT","SECOND_EXTERNAL_SPEAKER","PRIVATE_ONLY_EVIDENCE_FOR_PUBLIC_CLAIM","SECRET_TRUTH_PROMOTION"],
+  "laws":[
+    "PRIVATE_REASONING_SURFACE != PUBLIC_EVIDENCE_SURFACE",
+    "PUBLIC_RECEIPT != FULL_INTERNAL_STATE",
+    "HIDDEN_SIDE != SECRET_TRUTH",
+    "PARALLEL_INTERNAL_VIEWS -> SINGLE_EXTERNAL_VOICE"
+  ]
+}
