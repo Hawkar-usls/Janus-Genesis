@@ -1,0 +1,55 @@
+name: JANUS Exact Source to Nexus Manifest Adapter v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_exact_source_to_nexus_manifest.py'
+      - 'tests/test_janus_exact_source_to_nexus_manifest_v1.py'
+      - 'protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json'
+      - '.github/workflows/janus-exact-source-to-nexus-manifest-adapter-v1.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  adapter-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate protocol JSON
+        run: python -m json.tool protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json >/dev/null
+
+      - name: Compile bridge surface
+        run: |
+          python -m py_compile \
+            tools/janus_exact_source_to_nexus_manifest.py \
+            tools/janus_exact_source_manifest_freezer.py \
+            tools/janus_source_pin_contract.py
+
+      - name: Replay upstream typed-pin and freezer contracts
+        run: |
+          python -m unittest discover -s tests -p 'test_janus_source_pin_contract_v1.py' -v
+          python -m unittest discover -s tests -p 'test_janus_exact_source_manifest_freezer_v1.py' -v
+
+      - name: Run adapter adversarial tests
+        run: python -m unittest discover -s tests -p 'test_janus_exact_source_to_nexus_manifest_v1.py' -v
+
+      - name: Enforce claim ceiling
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -F '"branch": "PINNED_COMMIT_ONLY"' protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json
+          grep -F '"network_access": false' protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json
+          grep -F '"git_process_invocation": false' protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json
+          grep -F '"source_writeback": false' protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json
+          grep -F '"history_rewrite": false' protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json
+          grep -F '"authority_delta": 0' protocol/JANUS_EXACT_SOURCE_TO_NEXUS_MANIFEST_ADAPTER-v1.0.json
+          ! grep -Eq 'subprocess|requests|urllib\.request|socket' tools/janus_exact_source_to_nexus_manifest.py
+          echo 'EXACT_SOURCE_TO_NEXUS_ADAPTER=PASS_CANDIDATE'
+          echo 'REAL_OWNER_44_SOURCE_REPLAY=NOT_PROVEN'
+          echo 'SOURCE_WRITEBACK_DEFAULT=DENY'
+          echo 'AUTHORITY_DELTA=0'
