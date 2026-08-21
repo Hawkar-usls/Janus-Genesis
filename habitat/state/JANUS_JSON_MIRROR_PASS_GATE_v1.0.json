@@ -1,0 +1,35 @@
+{
+  "schema": "janus.genesis.habitat.json_mirror_pass_gate.v1",
+  "gate_id": "JANUS_JSON_MIRROR_PASS_GATE_v1.0",
+  "status": "REFERENCE_PROTOCOL_BOUND",
+  "source_contract": "Hawkar-usls/-Terminal-for-Janus:contracts/JANUS_JSON_MIRROR_PASS_PROTOCOL-v1.0.json",
+  "primary_memory_format": ["JSON", "JSONL"],
+  "canonical_cycle": [
+    "INPUT_JSON",
+    "FORWARD_PASS",
+    "REVERSE_PASS",
+    "RECOVERED_AT_ORIGIN",
+    "ANSWER",
+    "MEMORY_RECEIPT"
+  ],
+  "continuity": {
+    "same_source_required": true,
+    "position_may_repeat": true,
+    "state_must_advance": true,
+    "return_is_reset": false,
+    "empty_reverse_delta_is_valid": true
+  },
+  "memory": {
+    "preserve_forward_pass": true,
+    "preserve_reverse_pass": true,
+    "preserve_recovered_at_origin": true,
+    "preserve_source_segment_ids": true,
+    "preserve_integrity_hashes": true
+  },
+  "authority": {
+    "reverse_pass_is_evidence": false,
+    "reverse_pass_is_command": false,
+    "recovered_at_origin_is_world_truth": false,
+    "write_back_default": "DENY"
+  }
+}
