@@ -1,0 +1,73 @@
+{
+  "schema": "janus.protocol.sysear_router_syslog_observer.v1",
+  "protocol_id": "JANUS_SYSEAR_ROUTER_SYSLOG_OBSERVER_v1.0",
+  "status": "FROZEN_FAIL_CLOSED",
+  "role": "READ_ONLY_LOCAL_NETWORK_EDGE_OBSERVER",
+  "canonical_route": [
+    "LOCAL_EDGE_ROUTER",
+    "LOCAL_SYSLOG_DATAGRAM",
+    "JANUS_SYSEAR_BOUNDED_LISTENER",
+    "LOCAL_RAW_0600_RETENTION",
+    "EVENT_CLASS_NORMALIZATION",
+    "PRIVACY_SAFE_PUBLIC_RECEIPT",
+    "OPTIONAL_DEMIHEAD_SIGNALFRAME_ADVISORY_ONLY"
+  ],
+  "source_binding": {
+    "default": "DISCOVERED_DEFAULT_GATEWAY_EXACT_LOCAL_ONLY",
+    "operator_override": "EXPLICIT_EXPECTED_SOURCE",
+    "non_matching_source": "REJECT_AND_COUNT",
+    "transport_authenticated": false,
+    "udp_spoofability_acknowledged": true
+  },
+  "capture": {
+    "bounded_duration_required": true,
+    "bounded_event_count_required": true,
+    "bounded_datagram_size_required": true,
+    "raw_output": "CREATE_ONLY_LOCAL_SENSITIVE_0600",
+    "local_receipt": "CREATE_ONLY_LOCAL_SENSITIVE_0600",
+    "public_receipt": "CREATE_ONLY_PRIVACY_SAFE_PROJECTION"
+  },
+  "public_redaction": {
+    "raw_messages": "DENY",
+    "router_ip": "DENY",
+    "lan_ips": "DENY",
+    "mac_addresses": "DENY",
+    "deployment_paths": "DENY",
+    "exact_interface_names": "DENY_BY_DEFAULT",
+    "allowed": [
+      "bounded_counts",
+      "event_class_histogram",
+      "raw_capture_sha256",
+      "transport_authentication_boolean",
+      "claim_ceiling",
+      "authority_delta"
+    ]
+  },
+  "event_classes": [
+    "FIREWALL",
+    "DHCP",
+    "WIFI",
+    "ROUTING",
+    "DNS",
+    "AUTH",
+    "SYSTEM"
+  ],
+  "authority": {
+    "truth_authority": false,
+    "effect_authority": false,
+    "router_control_authority": false,
+    "demihead_constitutional_authority": false,
+    "authority_delta": 0,
+    "network_event_to_model_temperature": "FORBIDDEN_BY_DEFAULT"
+  },
+  "laws": [
+    "ROUTER_TELEMETRY != TRUTH",
+    "UDP_SOURCE_FILTER != CRYPTOGRAPHIC_AUTHENTICATION",
+    "SYSLOG_EVENT != EXECUTION_PERMISSION",
+    "RAW_ROUTER_TELEMETRY_PUBLICATION = DENY",
+    "SOURCE_WRITEBACK_DEFAULT = DENY",
+    "DESTRUCTIVE_ACTION = FORBIDDEN",
+    "AUTHORITY_DELTA = 0"
+  ],
+  "claim_ceiling": "A live PASS may establish only that bounded syslog datagrams from the locally bound router address were observed and privacy-safe statistics were derived. It does not authenticate a human, prove causation, or authorize external effects."
+}
