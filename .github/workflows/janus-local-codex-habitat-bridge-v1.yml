@@ -1,0 +1,44 @@
+name: JANUS Local Codex Habitat Bridge v1
+
+on:
+  pull_request:
+    paths:
+      - 'tools/janus_local_habitat_bridge.py'
+      - 'tests/test_janus_local_habitat_bridge_v1.py'
+      - 'protocol/JANUS_LOCAL_CODEX_HABITAT_BRIDGE-v1.0.json'
+      - 'docs/JANUS_LOCAL_CODEX_HABITAT_BRIDGE-v1.md'
+      - '.github/workflows/janus-local-codex-habitat-bridge-v1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-habitat-contract:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile
+        run: python -m py_compile tools/janus_local_habitat_bridge.py
+      - name: Unit tests
+        run: python -m pytest -q tests/test_janus_local_habitat_bridge_v1.py
+      - name: Protocol JSON parse
+        run: python -m json.tool protocol/JANUS_LOCAL_CODEX_HABITAT_BRIDGE-v1.0.json >/dev/null
+      - name: Authority sentinels
+        shell: python
+        run: |
+          from pathlib import Path
+          p = Path('tools/janus_local_habitat_bridge.py').read_text(encoding='utf-8')
+          assert 'SOURCE_WRITEBACK_DEFAULT = "DENY"' in p
+          assert 'DESTRUCTIVE_ACTION = "FORBIDDEN"' in p
+          assert 'AUTHORITY_DELTA = 0' in p
+          assert 'OLLAMA_NON_LOOPBACK_REJECTED' in p
+          assert 'EXPLICIT_APPLY_REQUIRED' in p
+          print('JANUS_LOCAL_CODEX_HABITAT_BRIDGE_AUTHORITY=PASS')
