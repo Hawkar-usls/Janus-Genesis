@@ -16,12 +16,12 @@ concurrency:
 
 permissions:
   contents: write
-  models: read
+  copilot-requests: write
 
 jobs:
   scout-cycle:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 15
     steps:
       - name: Checkout control plane
         uses: actions/checkout@v4
@@ -41,6 +41,16 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install GitHub Copilot CLI
+        run: |
+          npm install -g @github/copilot
+          copilot --version
 
       - name: Self-test Scout evidence boundary
         run: python control/tools/habitat_scout_agent.py --self-test
@@ -90,7 +100,7 @@ jobs:
         if: steps.discover.outputs.count != '0'
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          JANUS_SCOUT_MODEL: openai/gpt-4o
+          COPILOT_AUTO_UPDATE: 'false'
         shell: bash
         run: |
           while IFS= read -r REQUEST; do
@@ -105,13 +115,14 @@ jobs:
         run: |
           python - <<'PY'
           import json
+          import re
           from pathlib import Path
 
           outbox = Path('habitat-repo/habitat/outbox/scout')
           checked = 0
           for request_path in Path('runtime/requests.txt').read_text(encoding='utf-8').splitlines():
               req = json.loads(Path(request_path).read_text(encoding='utf-8'))
-              rid = req['request_id']
+              rid = re.sub(r'[^A-Za-z0-9._-]+', '_', str(req['request_id']).strip())[:120]
               response = json.loads((outbox / f'{rid}.json').read_text(encoding='utf-8'))
               assert response['janus_token']['raw_token_persisted'] is False, response
               assert response['truth_boundary']['world_truth'] is False, response
@@ -136,7 +147,7 @@ jobs:
             echo "SCOUT_HABITAT_NO_CHANGES"
             exit 0
           fi
-          git commit -m "Scout: process Git Habitat inbox"
+          git commit -m "Scout: process Git Habitat inbox via Copilot CLI"
           git pull --rebase origin janus/habitat
           git push origin HEAD:janus/habitat
           echo "SCOUT_HABITAT_PERSIST=PASS"
