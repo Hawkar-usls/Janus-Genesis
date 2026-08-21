@@ -1,0 +1,146 @@
+name: JANUS Git Habitat Scout
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/janus-git-habitat-scout.yml'
+      - 'tools/habitat_scout_agent.py'
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+concurrency:
+  group: janus-git-habitat-scout
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  models: read
+
+jobs:
+  scout-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout control plane
+        uses: actions/checkout@v4
+        with:
+          path: control
+
+      - name: Checkout Git Habitat
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Janus_Genesis
+          ref: janus/habitat
+          path: habitat-repo
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Self-test Scout evidence boundary
+        run: python control/tools/habitat_scout_agent.py --self-test
+
+      - name: Discover queued Scout requests
+        id: discover
+        shell: bash
+        run: |
+          mkdir -p runtime
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          root = Path('habitat-repo/habitat')
+          inbox = root / 'inbox' / 'scout'
+          outbox = root / 'outbox' / 'scout'
+          inbox.mkdir(parents=True, exist_ok=True)
+          outbox.mkdir(parents=True, exist_ok=True)
+
+          def safe_id(value):
+              cleaned = re.sub(r'[^A-Za-z0-9._-]+', '_', str(value).strip())
+              return cleaned[:120] or 'request'
+
+          queued = []
+          for path in sorted(inbox.glob('*.json')):
+              try:
+                  obj = json.loads(path.read_text(encoding='utf-8'))
+              except Exception:
+                  continue
+              if obj.get('status') != 'QUEUED':
+                  continue
+              rid = safe_id(obj.get('request_id') or path.stem)
+              if (outbox / f'{rid}.json').exists():
+                  continue
+              queued.append(str(path))
+              if len(queued) >= 4:
+                  break
+
+          Path('runtime/requests.txt').write_text('\n'.join(queued) + ('\n' if queued else ''), encoding='utf-8')
+          print(f'SCOUT_QUEUED_REQUESTS={len(queued)}')
+          PY
+          COUNT=$(grep -c . runtime/requests.txt || true)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Run Scout against queued Habitat requests
+        if: steps.discover.outputs.count != '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          JANUS_SCOUT_MODEL: openai/gpt-4o
+        shell: bash
+        run: |
+          while IFS= read -r REQUEST; do
+            [ -n "$REQUEST" ] || continue
+            python control/tools/habitat_scout_agent.py \
+              --habitat-root habitat-repo/habitat \
+              --request "$REQUEST"
+          done < runtime/requests.txt
+
+      - name: Verify fail-closed Scout receipts
+        if: steps.discover.outputs.count != '0'
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          outbox = Path('habitat-repo/habitat/outbox/scout')
+          checked = 0
+          for request_path in Path('runtime/requests.txt').read_text(encoding='utf-8').splitlines():
+              req = json.loads(Path(request_path).read_text(encoding='utf-8'))
+              rid = req['request_id']
+              response = json.loads((outbox / f'{rid}.json').read_text(encoding='utf-8'))
+              assert response['janus_token']['raw_token_persisted'] is False, response
+              assert response['truth_boundary']['world_truth'] is False, response
+              assert response['truth_boundary']['model_output_is_independent_confirmation'] is False, response
+              if response['lane'] in {'HYPOTHESIS', 'METAPHYSICAL_HYPOTHESIS', 'SYMBOLIC_MODEL'}:
+                  assert response['status'] != 'VERIFIED', response
+                  assert response['evidence_gate']['fact_allowed'] is False, response
+              checked += 1
+          assert checked > 0
+          print(f'SCOUT_FAIL_CLOSED_RECEIPTS=PASS count={checked}')
+          PY
+
+      - name: Persist Scout state in janus/habitat
+        if: steps.discover.outputs.count != '0'
+        working-directory: habitat-repo
+        shell: bash
+        run: |
+          git config user.name "janus-scout-bot"
+          git config user.email "janus-scout-bot@users.noreply.github.com"
+          git add habitat/outbox/scout habitat/memory/scout habitat/hearth habitat/state/SCOUT_RESIDENT-v1.json
+          if git diff --cached --quiet; then
+            echo "SCOUT_HABITAT_NO_CHANGES"
+            exit 0
+          fi
+          git commit -m "Scout: process Git Habitat inbox"
+          git pull --rebase origin janus/habitat
+          git push origin HEAD:janus/habitat
+          echo "SCOUT_HABITAT_PERSIST=PASS"
+
+      - name: No queued requests
+        if: steps.discover.outputs.count == '0'
+        run: echo "SCOUT_HABITAT_IDLE=TRUE"
