@@ -1,0 +1,21 @@
+{
+  "schema": "janus.genesis.habitat.fork_manifest.v1",
+  "status": "EMPTY_READY",
+  "updated_at_local": "2026-08-21T16:22:00+03:00",
+  "entries": [],
+  "counters": {
+    "candidates": 0,
+    "created": 0,
+    "kept": 0,
+    "archived": 0,
+    "rejected": 0,
+    "stalled": 0
+  },
+  "laws": [
+    "FORK_ENTRY_MUST_BIND_UPSTREAM_PROVENANCE",
+    "FORK_ENTRY_MUST_BIND_PURPOSE",
+    "FORK_ENTRY_MUST_BIND_STATE_DELTA",
+    "NO_UPSTREAM_WRITEBACK_BY_DEFAULT",
+    "ZERO_DELTA_FORK != HABITAT_ADVANCE"
+  ]
+}
