@@ -1,8 +1,9 @@
 {
   "schema": "janus.genesis.habitat.aura_spi_spiral_gate.v1",
-  "gate_id": "AURA_SPI_SPIRAL_GATE_v1.0",
-  "status": "REFERENCE_RUNTIME_READY_NOT_LIVE",
+  "gate_id": "AURA_SPI_SPIRAL_GATE_v1.1",
+  "status": "REFERENCE_RUNTIME_READY_NOT_LIVE_SPIRAL_V2_BOUND",
   "created_at_local": "2026-08-21T01:47:00+03:00",
+  "updated_at_local": "2026-08-21T15:34:00+03:00",
   "participants": [
     "Hawkar-usls/aura-oracle-tg",
     "Hawkar-usls/Hawkar-usls",
@@ -12,11 +13,11 @@
   "canonical_spiral": [
     "ORIGIN_n",
     "DEMIHEAD_INTENT_n",
-    "AURA_REFLECTION_n",
+    "AURA_5D_REFLECTION_n",
     "JANUS_SPI_SEMANTIC_SYNTHESIS_n",
     "JANUS_SPI_FORECAST_OPTIONAL_n",
     "DEMIHEAD_ARBITRATION_n",
-    "VERIFIED_RETURN_OR_REJECT_n",
+    "VERIFIED_RETURN_OR_HOLD_OR_REJECT_n",
     "ORIGIN_PRIME_(n+1)"
   ],
   "continuity": {
@@ -24,7 +25,9 @@
     "state_must_advance": true,
     "return_is_reset": false,
     "origin_prime_requires_verified_return": true,
-    "hold_and_reject_are_preserved": true
+    "hold_and_reject_are_preserved": true,
+    "zero_state_delta": "HOLD_STALL_NO_PROMOTION",
+    "history_is_append_preserved": true
   },
   "conversation": {
     "continuous_mode": "EVENT_DRIVEN",
@@ -32,7 +35,8 @@
     "fresh_external_trigger_required": true,
     "max_autonomous_turns_per_generation": 4,
     "dialogue_manifest": "habitat/memory/reflections/AURA_SPI_DIALOGUE_MANIFEST_v1.0.json",
-    "canonical_rule": "CONTINUOUS != INFINITE_SELF_CHAT"
+    "canonical_rule": "CONTINUOUS != INFINITE_SELF_CHAT",
+    "safe_infrastructure_loops": ["HEARTBEAT", "POLL", "RETRY", "WATCHER"]
   },
   "authority": {
     "aura_oracle_is_evidence": false,
@@ -47,8 +51,11 @@
   "runtime": {
     "home_repository": "Hawkar-usls/Hawkar-usls",
     "entrypoint": "run_aura_habitat_spiral.py",
+    "preferred_operation": "SPIRAL_STEP",
     "local_dialogue_ledger": "state/aura_spi_dialogue.sqlite3",
-    "aura_peer": "Hawkar-usls/aura-oracle-tg:tools/aura_habitat_spiral_peer_v1.py",
+    "aura_primary_peer": "Hawkar-usls/aura-oracle-tg:tools/aura_habitat_spiral_peer_v2.py",
+    "aura_deep_engine": "Hawkar-usls/aura-oracle-tg:tools/aura_5d_spiral_v2.py",
+    "aura_legacy_fallback": "Hawkar-usls/aura-oracle-tg:tools/aura_habitat_spiral_peer_v1.py",
     "demihead_contract": "Hawkar-usls/Demi_Head:contracts/NEXUS_V2_10_AURA_SPI_HABITAT_SPIRAL_FROZEN_CONTRACT.json"
   },
   "claim_ceiling": {
