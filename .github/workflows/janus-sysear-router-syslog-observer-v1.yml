@@ -1,0 +1,63 @@
+name: JANUS SysEar Router Syslog Observer v1
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sysear-contract:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Compile
+        run: python -m py_compile tools/janus_sysear_router_syslog_observer.py tests/test_janus_sysear_router_syslog_observer_v1.py
+      - name: Unit and loopback tests
+        run: python -m unittest -v tests.test_janus_sysear_router_syslog_observer_v1
+      - name: Protocol parse and authority sentinels
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=json.loads(Path('protocol/JANUS_SYSEAR_ROUTER_SYSLOG_OBSERVER-v1.0.json').read_text())
+          assert p['authority']['truth_authority'] is False
+          assert p['authority']['effect_authority'] is False
+          assert p['authority']['router_control_authority'] is False
+          assert p['authority']['authority_delta'] == 0
+          assert p['public_redaction']['raw_messages'] == 'DENY'
+          assert p['source_binding']['transport_authenticated'] is False
+          PY
+      - name: Public receipt must not expose deployment identifiers
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          cat > "$tmp/local.json" <<'JSON'
+          {
+            "schema":"janus.sysear.router_syslog_observer.v1",
+            "status":"PASS_CAPTURED",
+            "listen_port":5514,
+            "accepted_events":2,
+            "rejected_non_router_source_events":0,
+            "event_classes":{"FIREWALL":1,"DHCP":1},
+            "raw_jsonl_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "expected_source_exact_local_only":"192.168.1.1",
+            "raw_jsonl_path_local_only":"/private/router.jsonl"
+          }
+          JSON
+          python tools/janus_sysear_router_syslog_observer.py public-receipt --local-receipt "$tmp/local.json" --output "$tmp/public.json"
+          ! grep -E '192\.168\.|([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}|/private/' "$tmp/public.json"
+          grep -F '"authority_delta": 0' "$tmp/public.json"
