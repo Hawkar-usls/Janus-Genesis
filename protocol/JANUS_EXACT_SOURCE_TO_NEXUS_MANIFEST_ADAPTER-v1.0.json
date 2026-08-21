@@ -1,0 +1,72 @@
+{
+  "schema": "janus.exact_source_to_nexus_manifest_adapter.v1",
+  "artifact_id": "JANUS-EXACT-SOURCE-TO-NEXUS-MANIFEST-ADAPTER-v1.0",
+  "purpose": "Bridge a verified local exact-source manifest into the sensitive local janus.nexus.manifest.v1 input required by the offline materializer without inventing or exposing private repository identity.",
+  "inputs": {
+    "local_exact_source_manifest_schema": "janus.nexus.exact_source_manifest.local.v1",
+    "constellation_schema": "janus.genesis.git_habitat.repository_constellation.v1",
+    "source_count": 44,
+    "public_source_count": 41,
+    "private_source_count": 3
+  },
+  "output": {
+    "schema": "janus.nexus.manifest.v1",
+    "sensitivity": "LOCAL_SENSITIVE",
+    "file_mode": "0600",
+    "overwrite": false,
+    "write_back_default": "DENY",
+    "source_code_execution": false
+  },
+  "mapping": {
+    "public": {
+      "repository_id": "constellation.public_repositories[].id",
+      "repository": "Hawkar-usls/<constellation.public_repositories[].name>",
+      "branch": "constellation.public_repositories[].default_branch",
+      "sha": "verified_local_exact_manifest.sources[].pin.value"
+    },
+    "private": {
+      "repository_id": "constellation.private_repository_slots[].repository_id",
+      "repository_identity": "OMITTED",
+      "branch": "PINNED_COMMIT_ONLY",
+      "branch_semantics": "NON_AUTHORITATIVE_SENTINEL_REQUIRED_BY_NEXUS_V1_SCHEMA",
+      "sha": "verified_local_exact_manifest.sources[].pin.value",
+      "sha_publication": "FORBIDDEN"
+    }
+  },
+  "authority_model": {
+    "replay_authority": "EXACT_GIT_COMMIT_SHA1",
+    "public_branch_is_replay_authority": false,
+    "private_branch_sentinel_is_replay_authority": false,
+    "manifest_is_permission": false,
+    "source_repository_history_remains_authoritative": true,
+    "authority_delta": 0,
+    "mass_effect_budget_delta": 0
+  },
+  "privacy": {
+    "private_repository_name_read_by_adapter": false,
+    "private_repository_name_persisted": false,
+    "private_branch_queried": false,
+    "private_branch_persisted": false,
+    "private_exact_pin_persisted_locally": true,
+    "private_exact_pin_printed": false,
+    "private_exact_pin_public_receipt_allowed": false,
+    "whole_sensitive_manifest_digest_publication_allowed": false
+  },
+  "effects": {
+    "network_access": false,
+    "git_process_invocation": false,
+    "source_writeback": false,
+    "source_delete": false,
+    "history_rewrite": false,
+    "source_code_execution": false
+  },
+  "claim_ceiling": [
+    "ADAPTER_PASS != REAL_OWNER_44_SOURCE_REPLAY",
+    "LOCAL_SENSITIVE_NEXUS_MANIFEST != PUBLIC_EVIDENCE",
+    "PINNED_COMMIT_ONLY != PRIVATE_REMOTE_BRANCH_NAME",
+    "BRANCH_LABEL != REPLAY_AUTHORITY",
+    "CI_GREEN != MERGE_PERMISSION",
+    "SOURCE_WRITEBACK_DEFAULT = DENY",
+    "AUTHORITY_DELTA = 0"
+  ]
+}
