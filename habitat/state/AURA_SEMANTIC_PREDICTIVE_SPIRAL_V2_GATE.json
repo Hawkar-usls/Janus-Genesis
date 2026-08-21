@@ -1,0 +1,45 @@
+{
+  "schema": "janus.habitat.aura_semantic_predictive.gate.v2",
+  "gate_id": "AURA_SEMANTIC_PREDICTIVE_SPIRAL_V2",
+  "status": "BOUND_CAPABILITY_RUNTIME_RECEIPTS_EXTERNAL",
+  "aura_repository": "Hawkar-usls/aura-oracle-tg",
+  "terminal_repository": "Hawkar-usls/-Terminal-for-Janus",
+  "spi_home": "Hawkar-usls/Hawkar-usls",
+  "meta_registry": "Hawkar-usls/janus-meta-registry",
+  "memory_mode": "JSON_OR_JSONL_STRUCTURED_TRACE",
+  "persistent_capabilities": [
+    "FORWARD_REVERSE_MIRROR",
+    "SPIRAL_5D",
+    "HRAIN_STRUCTURAL",
+    "INAIHR_ASSOCIATIVE",
+    "SEMANTIC_REGISTRY_INDEX",
+    "PREDICTIVE_INPUT",
+    "INFORMATION_GAIN_QUESTIONING",
+    "FORECAST_LEDGER"
+  ],
+  "spiral": {
+    "circle": false,
+    "route": "ORIGIN_n -> WORK_n -> RETURN_n -> ORIGIN_PRIME_(n+1)",
+    "state_must_advance": true,
+    "zero_delta": "HOLD"
+  },
+  "memory_rules": [
+    "STORE_STRUCTURED_TRACE_NOT_RAW_PRIVATE_CHAIN_OF_THOUGHT",
+    "RECOVERED_AT_ORIGIN_MAY_PRECEDE_SOURCE_RENDERING",
+    "INDEX != SOURCE_OBJECT",
+    "ASSOCIATION != EVIDENCE",
+    "FORECAST != FACT"
+  ],
+  "authority": {
+    "aura_command_authority": false,
+    "aura_predictive_label_authority": false,
+    "registry_write_authority": false,
+    "external_effect_authority": false
+  },
+  "continuous": {
+    "fresh_external_trigger_required_for_dialogue_generation": true,
+    "registry_watcher_may_poll_local_read_only_checkout": true,
+    "infinite_self_chat": false,
+    "live_process_currently_established": false
+  }
+}
