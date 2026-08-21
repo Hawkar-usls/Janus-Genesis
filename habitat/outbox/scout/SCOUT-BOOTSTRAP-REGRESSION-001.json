@@ -1,0 +1,51 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_response.v1",
+  "request_id": "SCOUT-BOOTSTRAP-REGRESSION-001",
+  "scout_id": "JANUS_SCOUT_GIT_HABITAT",
+  "created_at_utc": "2026-08-21T21:41:31Z",
+  "status": "UNRESOLVED",
+  "lane": "UNRESOLVED",
+  "model": "openai/gpt-4o",
+  "model_error": "RuntimeError:GITHUB_MODELS_HTTP_410:{\"error\":{\"code\":\"github_models_retirement_brownout\",\"message\":\"GitHub Models is temporarily unavailable as part of a scheduled retirement brownout.\"}}\n",
+  "report": {
+    "lane": "UNRESOLVED",
+    "requested_status": "UNRESOLVED",
+    "facts": [],
+    "observations": [],
+    "hypotheses": [],
+    "symbolic_models": [],
+    "provenance": {
+      "source": null,
+      "locator": null,
+      "instrument": null,
+      "timestamp": null,
+      "raw_data": null,
+      "independent_confirmation": null,
+      "confidence": null
+    },
+    "evidence_tags": [],
+    "answer": "Scout model pass failed closed; the request remains unresolved."
+  },
+  "evidence_gate": {
+    "lane": "UNRESOLVED",
+    "status": "UNRESOLVED",
+    "fact_allowed": false,
+    "reason": "UNKNOWN_OR_UNRESOLVED_LANE_FAIL_CLOSED"
+  },
+  "janus_token": {
+    "scope": "EPHEMERAL_GITHUB_RUN",
+    "fingerprint": "8cff299ff49cacb7",
+    "raw_token_persisted": false
+  },
+  "github_run": {
+    "run_id": "32529666188",
+    "run_attempt": "1",
+    "actor": "Hawkar-usls",
+    "sha": "d7653a4cb86eb7ddad2c16f9da99cc20cd8315d3"
+  },
+  "truth_boundary": {
+    "world_truth": false,
+    "model_output_is_independent_confirmation": false,
+    "scout_report_grants_write_authority": false
+  }
+}

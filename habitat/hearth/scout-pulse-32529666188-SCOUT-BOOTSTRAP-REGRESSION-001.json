@@ -1,0 +1,11 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_pulse.v1",
+  "scout_id": "JANUS_SCOUT_GIT_HABITAT",
+  "request_id": "SCOUT-BOOTSTRAP-REGRESSION-001",
+  "created_at_utc": "2026-08-21T21:41:31Z",
+  "github_run_id": "32529666188",
+  "status": "DEGRADED_MODEL_UNAVAILABLE",
+  "claim_status": "UNRESOLVED",
+  "janus_token_fingerprint": "8cff299ff49cacb7",
+  "raw_token_persisted": false
+}

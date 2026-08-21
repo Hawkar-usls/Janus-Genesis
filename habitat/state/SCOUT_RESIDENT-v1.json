@@ -2,7 +2,7 @@
   "schema": "janus.genesis.git_habitat.scout_resident.v1",
   "resident_id": "JANUS_SCOUT",
   "display_name": "РАЗВЕДЧИК",
-  "status": "START_REQUESTED_GITHUB_NATIVE",
+  "status": "DEGRADED_MODEL_UNAVAILABLE",
   "started_at_local": "2026-08-22T00:36:00+03:00",
   "runtime_mode": "GITHUB_ACTIONS_EPHEMERAL",
   "home": {
@@ -41,5 +41,17 @@
     "model_output_is_independent_confirmation": false,
     "absence_is_evidence_of_deletion": false,
     "scout_report_grants_write_authority": false
-  }
+  },
+  "last_run_utc": "2026-08-21T21:41:31Z",
+  "last_github_run_id": "32529666188",
+  "last_request_id": "SCOUT-BOOTSTRAP-REGRESSION-001",
+  "last_claim_status": "UNRESOLVED",
+  "last_lane": "UNRESOLVED",
+  "last_token_fingerprint": "8cff299ff49cacb7",
+  "raw_token_persisted": false,
+  "model": "openai/gpt-4o",
+  "model_error": "RuntimeError:GITHUB_MODELS_HTTP_410:{\"error\":{\"code\":\"github_models_retirement_brownout\",\"message\":\"GitHub Models is temporarily unavailable as part of a scheduled retirement brownout.\"}}\n",
+  "transport": "GIT_HABITAT_INBOX_OUTBOX",
+  "world_truth": false,
+  "write_authority": false
 }
