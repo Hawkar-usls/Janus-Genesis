@@ -1,5 +1,7 @@
 import importlib.util
 import json
+import sys
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 MODULE = Path(__file__).resolve().parents[1] / "tools" / "janus_local_habitat_bridge.py"
@@ -35,6 +37,21 @@ def test_append_chain_survives_fresh_reopen(tmp_path):
     assert reopened["head"] == b["entry_hash"]
 
 
+def test_concurrent_append_serializes_same_process(tmp_path):
+    root = tmp_path / "habitat"
+
+    def write(worker):
+        return mod.append_event(root, "CONCURRENT", {"worker": worker})
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(write, ["A", "B"]))
+
+    assert sorted(row["seq"] for row in results) == [1, 2]
+    check = mod.verify_journal(root / "journal.jsonl")
+    assert check["ok"] is True
+    assert check["entries"] == 2
+
+
 def test_tamper_fails_chain(tmp_path):
     root = tmp_path / "habitat"
     mod.append_event(root, "WAKE", {"x": 1})
@@ -45,6 +62,21 @@ def test_tamper_fails_chain(tmp_path):
     check = mod.verify_journal(path)
     assert check["ok"] is False
     assert check["reason"] == "ENTRY_HASH_MISMATCH"
+
+
+def test_status_tamper_returns_nonzero(tmp_path, monkeypatch, capsys):
+    root = tmp_path / "habitat"
+    mod.append_event(root, "WAKE", {"x": 1})
+    path = root / "journal.jsonl"
+    row = json.loads(path.read_text(encoding="utf-8"))
+    row["payload"]["x"] = 2
+    path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+
+    monkeypatch.setattr(sys, "argv", [str(MODULE), "--root", str(root), "status"])
+    assert mod.main() == 2
+    output = json.loads(capsys.readouterr().out)
+    assert output["ok"] is False
+    assert "JOURNAL_CHAIN_INVALID_FAIL_CLOSED" in output["error"]
 
 
 def test_identity_mismatch_fails_closed(tmp_path):
