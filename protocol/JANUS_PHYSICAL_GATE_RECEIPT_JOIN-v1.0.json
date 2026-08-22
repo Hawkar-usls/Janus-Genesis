@@ -1,6 +1,6 @@
 {
   "schema": "JANUS_PHYSICAL_GATE_RECEIPT_JOIN_PROTOCOL_V1",
-  "version": "1.0",
+  "version": "1.1",
   "purpose": "Join only privacy-safe public projections of the two remaining physical launch gates before the final #162 one-compatible-view gauntlet.",
   "authority": {
     "SOURCE_WRITEBACK_DEFAULT": "DENY",
@@ -44,9 +44,26 @@
     ],
     "rule": "Both public projections must bind to the exact same expected Genesis and Swarm main SHAs. Any drift fails closed."
   },
+  "trusted_receipt_bindings": {
+    "status": "PENDING_REAL_EXECUTION",
+    "binding_source": "SOURCE_CONTROLLED_PROTOCOL_ONLY",
+    "owner44": {
+      "projection_sha256": null,
+      "evidence_sha256": null,
+      "execution_id": null,
+      "producer": null
+    },
+    "nas164": {
+      "projection_sha256": null,
+      "evidence_sha256": null,
+      "execution_id": null,
+      "producer": null
+    }
+  },
+  "authentication_rule": "READY_FOR_FINAL_162_GAUNTLET is forbidden until exact public projection digests and underlying execution-evidence digests from real owner44 and NAS164 runs are pinned here in source control. The CLI exposes no trust-binding override.",
   "output": {
     "positive_marker": "READY_FOR_FINAL_162_GAUNTLET=true",
     "mandatory_claim_ceiling": "FULL_ISSUE_162_ACCEPTANCE=false",
-    "next_step": "Run the final closed-loop #162 gauntlet on one frozen compatible view after rechecking live heads."
+    "next_step": "After both real runs, pin their projection/evidence digests in this protocol, review that commit, then run the authenticated join and the final closed-loop #162 gauntlet on one frozen compatible view."
   }
 }
