@@ -85,6 +85,24 @@ def ensure_private_dir(path: Path) -> None:
         pass
 
 
+def fsync_directory(path: Path) -> None:
+    """Persist a newly-created/replaced directory entry where the OS supports it.
+
+    POSIX requires fsync on the containing directory to make a successful file
+    creation/rename durable across a host or power crash. Windows does not expose
+    portable directory fsync through Python's os API, so this is a no-op there;
+    file contents are still flushed before close.
+    """
+    if os.name == "nt":  # pragma: no cover - platform-specific
+        return
+    flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0)
+    fd = os.open(path, flags)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
 def _path_lock(path: Path) -> threading.RLock:
     key = str(path.resolve())
     with _PATH_LOCKS_GUARD:
@@ -117,6 +135,7 @@ def exclusive_file_lock(path: Path, timeout: float = 30.0) -> Iterator[None]:
             handle.write(b"\0")
             handle.flush()
             os.fsync(handle.fileno())
+            fsync_directory(path.parent)
 
         deadline = time.monotonic() + timeout
         if os.name == "nt":
@@ -174,6 +193,7 @@ def atomic_create_json(path: Path, value: Any) -> None:
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp, path)
+        fsync_directory(path.parent)
         try:
             os.chmod(path, 0o600)
         except OSError:
@@ -213,8 +233,23 @@ def init_habitat(root: Path) -> dict[str, Any]:
     journal = root / "journal.jsonl"
     if not journal.exists():
         fd = os.open(journal, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
-        os.close(fd)
-    return {"schema": SCHEMA, "resident_id": RESIDENT_ID, "identity_created": created, "journal_chain_ok": verify_journal(journal)["ok"]}
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        fsync_directory(root)
+    journal_status = verify_journal(journal)
+    if not journal_status["ok"]:
+        reason = str(journal_status.get("reason") or "UNKNOWN")
+        raise RuntimeError(f"JOURNAL_CHAIN_INVALID_FAIL_CLOSED:{reason}")
+    return {
+        "schema": SCHEMA,
+        "resident_id": RESIDENT_ID,
+        "identity_created": created,
+        "journal_chain_ok": True,
+        "journal_entries": int(journal_status.get("entries", 0)),
+        "journal_head": journal_status.get("head"),
+    }
 
 
 def read_entries(journal: Path) -> list[dict[str, Any]]:
@@ -378,7 +413,9 @@ def main() -> int:
 
     try:
         if args.cmd == "init":
-            result = init_habitat(root)
+            ensure_private_dir(root)
+            with exclusive_file_lock(root / ".journal.lock"):
+                result = init_habitat(root)
         elif args.cmd == "status":
             ensure_private_dir(root)
             with exclusive_file_lock(root / ".journal.lock"):
