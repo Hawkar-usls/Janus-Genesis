@@ -6,9 +6,9 @@ itself. It verifies two deliberately minimal public projections and, before it
 can emit READY_FOR_FINAL_162_GAUNTLET, authenticates those exact projections
 against source-controlled bindings to real execution evidence.
 
-The CLI intentionally has no option for callers to supply their own trust
-bindings. Until real runs are completed and their exact projection/evidence
-digests are pinned in the repository protocol, the join fails closed.
+The public join path has no caller-controlled trust-root override. Until real
+runs are completed and their exact projection/evidence digests are pinned in the
+repository protocol, the join fails closed.
 """
 from __future__ import annotations
 
@@ -192,14 +192,14 @@ def _authenticate_receipts(owner: dict[str, Any], nas: dict[str, Any], bindings:
     }
 
 
-def join(
+def _join_with_bindings_for_test(
     owner: dict[str, Any],
     nas: dict[str, Any],
     expected_genesis: str,
     expected_swarm: str,
-    *,
-    trusted_bindings: dict[str, Any] | None = None,
+    bindings: dict[str, Any],
 ) -> dict[str, Any]:
+    """Deterministic unit-test seam; production code must call join()."""
     if not SHA40.fullmatch(expected_genesis):
         raise ValueError("EXPECTED_GENESIS_SHA_INVALID")
     if not SHA40.fullmatch(expected_swarm):
@@ -209,11 +209,7 @@ def join(
     if owner_view != nas_view:
         raise ValueError("PHYSICAL_RECEIPT_VIEW_MISMATCH")
 
-    authentication = _authenticate_receipts(
-        owner,
-        nas,
-        _load_trusted_bindings() if trusted_bindings is None else trusted_bindings,
-    )
+    authentication = _authenticate_receipts(owner, nas, bindings)
     return {
         "schema": "JANUS_PHYSICAL_GATE_RECEIPT_JOIN_RESULT_V1",
         "view": owner_view,
@@ -235,6 +231,22 @@ def join(
         },
         "claim_ceiling": "PHYSICAL_GATES_AUTHENTICATED_FINAL_ONE_VIEW_GAUNTLET_STILL_REQUIRED",
     }
+
+
+def join(
+    owner: dict[str, Any],
+    nas: dict[str, Any],
+    expected_genesis: str,
+    expected_swarm: str,
+) -> dict[str, Any]:
+    """Production join: trust root always comes from the source-controlled protocol."""
+    return _join_with_bindings_for_test(
+        owner,
+        nas,
+        expected_genesis,
+        expected_swarm,
+        _load_trusted_bindings(),
+    )
 
 
 def _write_private_no_overwrite(path: Path, value: dict[str, Any]) -> None:
