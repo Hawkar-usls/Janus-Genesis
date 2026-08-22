@@ -24,11 +24,24 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
+from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterator
+
+try:
+    import fcntl  # type: ignore
+except ImportError:  # pragma: no cover - Windows
+    fcntl = None
+
+try:
+    import msvcrt  # type: ignore
+except ImportError:  # pragma: no cover - POSIX
+    msvcrt = None
 
 SCHEMA = "JANUS_LOCAL_HABITAT_V1"
 IDENTITY_SCHEMA = "JANUS_LOCAL_HABITAT_IDENTITY_V1"
@@ -38,6 +51,9 @@ SWARM_EXPECTED = "b0bb07418cb1c0e1bc2da8ae443977825c0b19d1"
 SOURCE_WRITEBACK_DEFAULT = "DENY"
 DESTRUCTIVE_ACTION = "FORBIDDEN"
 AUTHORITY_DELTA = 0
+
+_PATH_LOCKS: dict[str, threading.RLock] = {}
+_PATH_LOCKS_GUARD = threading.Lock()
 
 
 def utc_now() -> str:
@@ -67,6 +83,80 @@ def ensure_private_dir(path: Path) -> None:
         os.chmod(path, 0o700)
     except OSError:
         pass
+
+
+def _path_lock(path: Path) -> threading.RLock:
+    key = str(path.resolve())
+    with _PATH_LOCKS_GUARD:
+        lock = _PATH_LOCKS.get(key)
+        if lock is None:
+            lock = threading.RLock()
+            _PATH_LOCKS[key] = lock
+        return lock
+
+
+@contextmanager
+def exclusive_file_lock(path: Path, timeout: float = 30.0) -> Iterator[None]:
+    """Serialize a critical section across threads and local processes.
+
+    The process-global RLock closes the same-process/multiple-instance hole,
+    while the OS file lock closes the cross-process hole. The lock file is
+    persistent; closing the file descriptor releases the OS lock after crashes.
+    """
+    ensure_private_dir(path.parent)
+    thread_lock = _path_lock(path)
+    if not thread_lock.acquire(timeout=timeout):
+        raise TimeoutError("HABITAT_LOCK_TIMEOUT")
+
+    handle = None
+    locked = False
+    try:
+        handle = path.open("a+b")
+        handle.seek(0, os.SEEK_END)
+        if handle.tell() == 0:
+            handle.write(b"\0")
+            handle.flush()
+            os.fsync(handle.fileno())
+
+        deadline = time.monotonic() + timeout
+        if os.name == "nt":
+            if msvcrt is None:
+                raise RuntimeError("WINDOWS_FILE_LOCK_UNAVAILABLE")
+            while True:
+                try:
+                    handle.seek(0)
+                    msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+                    locked = True
+                    break
+                except OSError as exc:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError("HABITAT_LOCK_TIMEOUT") from exc
+                    time.sleep(0.05)
+        else:
+            if fcntl is None:
+                raise RuntimeError("POSIX_FILE_LOCK_UNAVAILABLE")
+            while True:
+                try:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    locked = True
+                    break
+                except OSError as exc:
+                    if time.monotonic() >= deadline:
+                        raise TimeoutError("HABITAT_LOCK_TIMEOUT") from exc
+                    time.sleep(0.05)
+        yield
+    finally:
+        if handle is not None:
+            try:
+                if locked:
+                    if os.name == "nt" and msvcrt is not None:
+                        handle.seek(0)
+                        msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+                    elif fcntl is not None:
+                        fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            finally:
+                handle.close()
+        thread_lock.release()
 
 
 def atomic_create_json(path: Path, value: Any) -> None:
@@ -161,29 +251,34 @@ def verify_journal(journal: Path) -> dict[str, Any]:
 
 
 def append_event(root: Path, event_type: str, payload: dict[str, Any]) -> dict[str, Any]:
-    init_habitat(root)
-    journal = root / "journal.jsonl"
-    check = verify_journal(journal)
-    if not check["ok"]:
-        raise RuntimeError("JOURNAL_CHAIN_INVALID_FAIL_CLOSED")
-    body = {
-        "schema": SCHEMA,
-        "seq": int(check.get("entries", 0)) + 1,
-        "prev_hash": check.get("head", "0" * 64),
-        "timestamp": utc_now(),
-        "resident_id": RESIDENT_ID,
-        "event_type": event_type,
-        "payload": payload,
-        "authority_delta": AUTHORITY_DELTA,
-    }
-    row = dict(body)
-    row["entry_hash"] = sha256_value(body)
-    line = json.dumps(row, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
-    with journal.open("a", encoding="utf-8", newline="\n") as f:
-        f.write(line)
-        f.flush()
-        os.fsync(f.fileno())
-    return {"seq": row["seq"], "entry_hash": row["entry_hash"], "journal_chain_ok": verify_journal(journal)["ok"]}
+    ensure_private_dir(root)
+    with exclusive_file_lock(root / ".journal.lock"):
+        init_habitat(root)
+        journal = root / "journal.jsonl"
+        check = verify_journal(journal)
+        if not check["ok"]:
+            raise RuntimeError("JOURNAL_CHAIN_INVALID_FAIL_CLOSED")
+        body = {
+            "schema": SCHEMA,
+            "seq": int(check.get("entries", 0)) + 1,
+            "prev_hash": check.get("head", "0" * 64),
+            "timestamp": utc_now(),
+            "resident_id": RESIDENT_ID,
+            "event_type": event_type,
+            "payload": payload,
+            "authority_delta": AUTHORITY_DELTA,
+        }
+        row = dict(body)
+        row["entry_hash"] = sha256_value(body)
+        line = json.dumps(row, sort_keys=True, separators=(",", ":"), ensure_ascii=False) + "\n"
+        with journal.open("a", encoding="utf-8", newline="\n") as f:
+            f.write(line)
+            f.flush()
+            os.fsync(f.fileno())
+        final_check = verify_journal(journal)
+        if not final_check["ok"]:
+            raise RuntimeError("JOURNAL_CHAIN_INVALID_AFTER_APPEND")
+        return {"seq": row["seq"], "entry_hash": row["entry_hash"], "journal_chain_ok": True}
 
 
 def command_version(name: str, args: list[str]) -> dict[str, Any]:
@@ -285,8 +380,14 @@ def main() -> int:
         if args.cmd == "init":
             result = init_habitat(root)
         elif args.cmd == "status":
-            init_habitat(root)
-            result = {"schema": SCHEMA, "resident_id": RESIDENT_ID, "journal": verify_journal(root / "journal.jsonl"), "authority_delta": AUTHORITY_DELTA}
+            ensure_private_dir(root)
+            with exclusive_file_lock(root / ".journal.lock"):
+                init_habitat(root)
+                journal_status = verify_journal(root / "journal.jsonl")
+            if not journal_status["ok"]:
+                reason = str(journal_status.get("reason") or "UNKNOWN")
+                raise RuntimeError(f"JOURNAL_CHAIN_INVALID_FAIL_CLOSED:{reason}")
+            result = {"schema": SCHEMA, "resident_id": RESIDENT_ID, "journal": journal_status, "authority_delta": AUTHORITY_DELTA}
         elif args.cmd == "doctor":
             result = doctor(args.ollama_url)
         elif args.cmd == "append":
