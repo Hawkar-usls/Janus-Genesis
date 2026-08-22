@@ -17,11 +17,27 @@ def test_init_identity_is_stable_and_non_overwriting(tmp_path):
     second = mod.init_habitat(root)
     assert first["identity_created"] is True
     assert second["identity_created"] is False
+    assert first["journal_chain_ok"] is True
+    assert second["journal_chain_ok"] is True
     identity = json.loads((root / "identity.json").read_text(encoding="utf-8"))
     assert identity["resident_id"] == "JANUS"
     assert identity["source_writeback_default"] == "DENY"
     assert identity["destructive_action"] == "FORBIDDEN"
     assert identity["authority_delta"] == 0
+
+
+def test_new_journal_creation_fsyncs_parent_directory(tmp_path, monkeypatch):
+    root = tmp_path / "habitat"
+    calls = []
+    real = mod.fsync_directory
+
+    def tracked(path):
+        calls.append(Path(path))
+        return real(path)
+
+    monkeypatch.setattr(mod, "fsync_directory", tracked)
+    mod.init_habitat(root)
+    assert root in calls
 
 
 def test_append_chain_survives_fresh_reopen(tmp_path):
@@ -52,25 +68,51 @@ def test_concurrent_append_serializes_same_process(tmp_path):
     assert check["entries"] == 2
 
 
-def test_tamper_fails_chain(tmp_path):
-    root = tmp_path / "habitat"
-    mod.append_event(root, "WAKE", {"x": 1})
+def tamper_journal(root):
     path = root / "journal.jsonl"
     row = json.loads(path.read_text(encoding="utf-8"))
     row["payload"]["x"] = 2
     path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    return path
+
+
+def test_tamper_fails_chain(tmp_path):
+    root = tmp_path / "habitat"
+    mod.append_event(root, "WAKE", {"x": 1})
+    path = tamper_journal(root)
     check = mod.verify_journal(path)
     assert check["ok"] is False
     assert check["reason"] == "ENTRY_HASH_MISMATCH"
 
 
+def test_init_habitat_rejects_tampered_existing_journal(tmp_path):
+    root = tmp_path / "habitat"
+    mod.append_event(root, "WAKE", {"x": 1})
+    tamper_journal(root)
+    try:
+        mod.init_habitat(root)
+    except RuntimeError as exc:
+        assert "JOURNAL_CHAIN_INVALID_FAIL_CLOSED" in str(exc)
+    else:
+        raise AssertionError("init must fail closed on journal corruption")
+
+
+def test_init_command_tamper_returns_nonzero(tmp_path, monkeypatch, capsys):
+    root = tmp_path / "habitat"
+    mod.append_event(root, "WAKE", {"x": 1})
+    tamper_journal(root)
+
+    monkeypatch.setattr(sys, "argv", [str(MODULE), "--root", str(root), "init"])
+    assert mod.main() == 2
+    output = json.loads(capsys.readouterr().out)
+    assert output["ok"] is False
+    assert "JOURNAL_CHAIN_INVALID_FAIL_CLOSED" in output["error"]
+
+
 def test_status_tamper_returns_nonzero(tmp_path, monkeypatch, capsys):
     root = tmp_path / "habitat"
     mod.append_event(root, "WAKE", {"x": 1})
-    path = root / "journal.jsonl"
-    row = json.loads(path.read_text(encoding="utf-8"))
-    row["payload"]["x"] = 2
-    path.write_text(json.dumps(row) + "\n", encoding="utf-8")
+    tamper_journal(root)
 
     monkeypatch.setattr(sys, "argv", [str(MODULE), "--root", str(root), "status"])
     assert mod.main() == 2
