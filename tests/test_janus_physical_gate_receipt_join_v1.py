@@ -35,44 +35,95 @@ def nas_receipt():
     }
 
 
+def trusted_bindings(owner=None, nas=None):
+    owner = owner_receipt() if owner is None else owner
+    nas = nas_receipt() if nas is None else nas
+    return {
+        "status": gate.TRUST_STATUS,
+        "binding_source": "SOURCE_CONTROLLED_PROTOCOL_ONLY",
+        "owner44": {
+            "projection_sha256": gate._sha256(owner),
+            "evidence_sha256": "1" * 64,
+            "execution_id": "OWNER44-REAL-TEST-001",
+            "producer": "JANUS_OWNER44_PHYSICAL_RUNNER_V1",
+        },
+        "nas164": {
+            "projection_sha256": gate._sha256(nas),
+            "evidence_sha256": "2" * 64,
+            "execution_id": "NAS164-REAL-TEST-001",
+            "producer": "JANUS_NAS164_LIVE_RUNNER_V1",
+        },
+    }
+
+
 class PhysicalGateJoinTests(unittest.TestCase):
     def test_positive_join_stops_below_final_acceptance(self):
-        result = gate.join(owner_receipt(), nas_receipt(), GENESIS, SWARM)
+        owner = owner_receipt()
+        nas = nas_receipt()
+        result = gate.join(owner, nas, GENESIS, SWARM, trusted_bindings=trusted_bindings(owner, nas))
         self.assertEqual(result["markers"]["REAL_OWNER44_SOURCE_REPLAY"], "PASS")
         self.assertEqual(result["markers"]["LIVE_NAS_164_HR1_HR10"], "PASS")
+        self.assertEqual(result["markers"]["AUTHENTICATED_REAL_EXECUTION_BINDINGS"], "PASS")
         self.assertTrue(result["markers"]["READY_FOR_FINAL_162_GAUNTLET"])
         self.assertFalse(result["markers"]["FULL_ISSUE_162_ACCEPTANCE"])
         self.assertEqual(result["markers"]["AUTHORITY_DELTA"], 0)
+
+    def test_unpinned_source_control_bindings_fail_closed(self):
+        bindings = trusted_bindings()
+        bindings["status"] = "PENDING_REAL_EXECUTION"
+        with self.assertRaisesRegex(ValueError, "TRUSTED_RECEIPT_BINDINGS_NOT_PINNED"):
+            gate.join(owner_receipt(), nas_receipt(), GENESIS, SWARM, trusted_bindings=bindings)
+
+    def test_forged_projection_cannot_reuse_trusted_binding(self):
+        owner = owner_receipt()
+        nas = nas_receipt()
+        bindings = trusted_bindings(owner, nas)
+        forged = owner_receipt()
+        forged["markers"]["TWO_CLEAN_TARGET_REBUILDS_MATCH"] = False
+        with self.assertRaises(ValueError):
+            gate.join(forged, nas, GENESIS, SWARM, trusted_bindings=bindings)
 
     def test_genesis_view_drift_fails_closed(self):
         value = owner_receipt()
         value["view"]["genesis_main_sha"] = "0" * 40
         with self.assertRaisesRegex(ValueError, "GENESIS_SHA_DRIFT"):
-            gate.join(value, nas_receipt(), GENESIS, SWARM)
+            gate.join(value, nas_receipt(), GENESIS, SWARM, trusted_bindings=trusted_bindings())
 
     def test_private_exact_pin_disclosure_fails_closed(self):
         value = owner_receipt()
         value["privacy"]["private_exact_pins_disclosed"] = True
         with self.assertRaises(ValueError):
-            gate.join(value, nas_receipt(), GENESIS, SWARM)
+            gate.join(value, nas_receipt(), GENESIS, SWARM, trusted_bindings=trusted_bindings())
 
     def test_reference_only_nas_cannot_pass_as_live(self):
         value = nas_receipt()
         value["live"]["reference_only"] = True
         with self.assertRaises(ValueError):
-            gate.join(owner_receipt(), value, GENESIS, SWARM)
+            gate.join(owner_receipt(), value, GENESIS, SWARM, trusted_bindings=trusted_bindings())
+
+    def test_bool_integer_substitution_fails_closed(self):
+        value = nas_receipt()
+        value["live"]["hr1_hr10_live_execution"] = 1
+        with self.assertRaisesRegex(ValueError, "TYPE_MISMATCH"):
+            gate.join(owner_receipt(), value, GENESIS, SWARM, trusted_bindings=trusted_bindings())
+
+    def test_false_is_not_accepted_for_integer_authority_delta(self):
+        value = owner_receipt()
+        value["markers"]["AUTHORITY_DELTA"] = False
+        with self.assertRaisesRegex(ValueError, "TYPE_MISMATCH"):
+            gate.join(value, nas_receipt(), GENESIS, SWARM, trusted_bindings=trusted_bindings())
 
     def test_missing_hr_gate_fails_closed(self):
         value = nas_receipt()
         del value["markers"]["HR7"]
         with self.assertRaisesRegex(ValueError, "KEYSET_MISMATCH"):
-            gate.join(owner_receipt(), value, GENESIS, SWARM)
+            gate.join(owner_receipt(), value, GENESIS, SWARM, trusted_bindings=trusted_bindings())
 
     def test_unknown_field_rejected_to_reduce_public_leak_surface(self):
         value = owner_receipt()
         value["private_repo"] = "must-not-be-accepted"
         with self.assertRaisesRegex(ValueError, "KEYSET_MISMATCH"):
-            gate.join(value, nas_receipt(), GENESIS, SWARM)
+            gate.join(value, nas_receipt(), GENESIS, SWARM, trusted_bindings=trusted_bindings())
 
     def test_output_is_no_overwrite(self):
         with tempfile.TemporaryDirectory() as td:
