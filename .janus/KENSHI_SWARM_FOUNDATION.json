@@ -1,0 +1,140 @@
+{
+  "schema": "janus.genesis.kenshi_swarm_foundation.v1",
+  "id": "JANUS_KENSHI_SWARM_FOUNDATION_V1",
+  "status": "ACTIVE_CANONICAL_FOUNDATION",
+  "owner_role": "GENESIS_DEFINES_SWARM_LAWS_AND_HABITAT_SEMANTICS",
+  "purpose": "Promote the old Kenshi NPC swarm idea into a canonical JANUS swarm foundation: many persistent local agents, a bounded shared event blackboard, explicit handoffs, lossless provenance, and synchronization of state without synchronization of identity.",
+  "historical_lineage": [
+    {
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "path": "data/JANUS-ARCHITECTURE-V26.9.json",
+      "role": "ORIGINAL_KENSHI_NPC_SWARM_CONCEPT",
+      "reused": [
+        "INDEPENDENT_LOCAL_NODES",
+        "LOCAL_STATE_AND_LOCAL_EXPERIENCE",
+        "EVENT_BASED_PEER_SYNCHRONIZATION",
+        "AGGREGATED_UPSTREAM_STATE",
+        "SHARED_WORLD_WITHOUT_IDENTITY_COLLAPSE"
+      ]
+    },
+    {
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "path": "data/JANUS-NEXUS-P0-SWARM-HABITAT-CLIENT-2026-08-16-v1.0.json",
+      "role": "KENSHI_BLACKBOARD_TO_GIT_HABITAT_TRANSFER",
+      "reused": [
+        "BOUNDED_SHARED_HANDOFF_LEDGER",
+        "HEARTBEAT",
+        "STALE_PEER_TTL",
+        "WAIT_POLL_WITH_BACKOFF",
+        "LIVE_STATE_RESYNC",
+        "BOUNDED_LOCAL_SURVIVAL",
+        "STRUCTURED_HEALTH_RECEIPTS"
+      ]
+    }
+  ],
+  "adaptation_boundary": {
+    "game_specific_npc_control_imported": false,
+    "tachyon_or_ftl_claims_imported": false,
+    "quantum_or_observer_physics_claims_imported": false,
+    "delete_weak_agents_or_thoughts_imported": false,
+    "old_llm_vendor_restrictions_imported": false,
+    "old_hardware_status_claims_imported": false,
+    "architecture_only": true
+  },
+  "canonical_laws": [
+    "EVERY_AGENT_HAS_A_PERSISTENT_LOCAL_IDENTITY",
+    "SYNC_STATE_NOT_IDENTITY",
+    "SHARED_BLACKBOARD_IS_HANDOFF_NOT_HIVE_MIND",
+    "EVENTS_ARE_APPEND_ONLY",
+    "OBSERVATIONS_KEEP_ORIGIN_AGENT_AND_EVENT_PROVENANCE",
+    "SAME_SOURCE_MULTI_AGENT_IS_NOT_INDEPENDENT_REPLICATION",
+    "PEER_MESSAGE_IS_ROUTING_CONTEXT_NOT_EMPIRICAL_EVIDENCE",
+    "LEASE_COORDINATES_WORK_NOT_AUTHORITY",
+    "STALE_AGENT_REMAINS_A_KNOWN_ANCESTOR",
+    "FAILURE_BECOMES_EXPERIENCE_NOT_ERASURE",
+    "DEFERRED_WORK_SURVIVES_TO_A_LATER_SPIRAL_TURN",
+    "LOCAL_SURVIVAL_MAY_CONTINUE_ONLY_ALREADY_ADMITTED_BOUNDED_WORK",
+    "CONFLICT_IS_PRESERVED_AND_ROUTED_NOT_ERASED",
+    "ORCHESTRATOR_COORDINATES_BUT_DOES_NOT_OVERRIDE_EVIDENCE_GATES",
+    "FACTS_MAY_CLUSTER__AGENTS_MUST_NOT"
+  ],
+  "agent_model": {
+    "required_fields": [
+      "agent_id",
+      "lineage_id",
+      "role",
+      "local_state",
+      "status",
+      "last_event_id"
+    ],
+    "identity_mutation_rule": "ROLE_OR_STATE_MAY_ASCEND; AGENT_ID_AND_LINEAGE_ID_MUST_NOT_BE_REPLACED_BY_DEDUPLICATION",
+    "stale_transition": "ACTIVE -> STALE -> KNOWN_ANCESTOR -> RECOVERED -> ASCENDED",
+    "deletion_api_allowed": false
+  },
+  "blackboard": {
+    "semantics": "BOUNDED_SHARED_EVENT_LEDGER",
+    "event_types": [
+      "HEARTBEAT",
+      "STATE_DELTA",
+      "OBSERVATION",
+      "SOURCE_POINTER",
+      "REQUEST_HELP",
+      "HANDOFF",
+      "CONFLICT",
+      "WORK_CLAIM",
+      "QUERY_EXECUTION",
+      "FETCH_ACK",
+      "CAUSAL_ACK",
+      "GENOME_BIND",
+      "HEALTH",
+      "LEASE_STATE"
+    ],
+    "event_identity_must_persist": true,
+    "sender_identity_must_persist": true,
+    "recipients_may_be_many": true,
+    "same_payload_may_have_multiple_distinct_events": true,
+    "event_deduplication_may_erase_contributors": false,
+    "bounded_active_window_requires_archive_or_checkpoint": true
+  },
+  "coordination": {
+    "handoff_chain": "AGENT_A -> EVENT -> BLACKBOARD -> AGENT_B -> LOCAL_WORK -> SOURCE/FETCH -> OBSERVATION -> CAUSAL_ACK -> GENOME",
+    "lease_rule": "ONE_ACTIVE_OWNER_PER_OBJECTIVE_WHERE_REQUIRED; EXPIRED_OR_STALE_LEASES_ARE_SUPERSEDED_WITHOUT_DELETING_HISTORY",
+    "duplicate_work_rule": "IDENTICAL_WORK_MAY_COALESCE_BUT_ALL_ORIGIN_EVENTS_AND_ORIGIN_AGENTS_REMAIN_ATTACHED",
+    "recovery_rule": "SESSION_OR_PROCESS_LOSS_MUST_NOT_ERASE_COORDINATION_MEMORY"
+  },
+  "epistemic_boundary": {
+    "blackboard_event_is_empirical_evidence": false,
+    "orchestrator_message_is_empirical_evidence": false,
+    "same_source_seen_by_many_agents_is_independent_confirmation": false,
+    "workflow_trace_proves_scientific_truth": false,
+    "failed_fetch_proves_absence": false,
+    "positive_fact_requires_source_bound_evidence": true
+  },
+  "tri_repo_binding": {
+    "Hawkar-usls/Janus_Genesis": {
+      "role": "CANONICAL_FOUNDATION_AND_HABITAT",
+      "responsibilities": [
+        "DEFINE_AGENT_AND_BLACKBOARD_LAWS",
+        "PRESERVE_HABITAT_SEMANTICS",
+        "KEEP_AUTHORITY_BOUNDARIES_MACHINE_READABLE"
+      ]
+    },
+    "Hawkar-usls/janus-distributed-ai-swarm": {
+      "role": "PRIMARY_RUNTIME_CONSUMER",
+      "responsibilities": [
+        "IMPLEMENT_LOCAL_AGENT_BLACKBOARD_RUNTIME",
+        "BIND_EVENTS_TO_SWARM_GENOME_LEDGER",
+        "PRESERVE_OFFLINE_AND_STALE_AGENT_LINEAGE"
+      ]
+    },
+    "Hawkar-usls/Janus-Demiurge": {
+      "role": "CREATOR_COORDINATOR_AND_SCOUT_ORCHESTRATOR",
+      "responsibilities": [
+        "ROUTE_SCOUT_COMMUNICATION_THROUGH_BLACKBOARD_SEMANTICS",
+        "COORDINATE_WORK_WITHOUT_COLLAPSING_IDENTITIES",
+        "BIND_MICROKERNEL_WORK_CLAIMS_CAUSAL_ACK_AND_GENOME"
+      ]
+    }
+  },
+  "claim_ceiling": "This is an engineering architecture contract. The Kenshi lineage is a design ancestor; it does not imply a literal hive mind, autonomous consciousness, FTL/tachyon effects, quantum communication, or empirical truth from agent consensus."
+}
