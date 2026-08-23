@@ -1,42 +1,69 @@
 {
-  "schema": "janus.genesis.topa_foundation.v1.1",
-  "id": "JANUS_TOPA_FOUNDATION_V1_1",
-  "version": "1.1",
+  "schema": "janus.genesis.topa_foundation.v1.2",
+  "id": "JANUS_TOPA_FOUNDATION_V1_2",
+  "version": "1.2",
   "status": "ACTIVE_CANONICAL_EPISTEMIC_FOUNDATION",
   "name": "TOPA",
   "motto": "NOTHING SUPERNATURAL — ONLY NATURE NOT YET UNDERSTOOD.",
   "owner_role": "GENESIS_DEFINES_ANOMALY_TO_HYPOTHESIS_LAWS",
-  "purpose": "Give every JANUS agent a common evidence-bounded method for unusual, anomalous, paranormal-labeled or extraordinary reports: neither dismiss the unknown nor promote an interpretation beyond the evidence; convert the report into explicit competing hypotheses, falsification routes and source-bound observations.",
+  "purpose": "Give every JANUS agent a common evidence-bounded method for unusual, anomalous, paranormal-labeled or extraordinary reports: preserve raw provenance, distinguish report channels and firsthand/hearsay, test competing explanations, freeze predictions before outcomes, allow evidence to lower confidence, and preserve unresolved or falsified states without identity collapse.",
   "formalization_status": {
     "standalone_preexisting_topa_artifact_found": true,
     "git_branch_named_topa_found": false,
     "formalized_here": true,
-    "note": "TOPA was first recovered as a conceptual JANUS research branch and canonicalized in Genesis v1.0. A concurrent canonical case corpus then appeared in janus-meta-registry and is adopted here as lineage without treating documented calls as truth of the claims made."
+    "note": "TOPA was recovered as a conceptual JANUS research branch, canonicalized in Genesis, then refined against the living Art Bell archival corpus and the fictional Prey observer-node pattern. Archival occurrence and fictional design patterns are lineage inputs, not empirical proof of extraordinary claims."
   },
   "registry_lineage": [
     {
       "repository": "Hawkar-usls/janus-meta-registry",
-      "path": "data/JANUS-TOPA-ART-BELL-REAL-CALLER-ARCHIVE-v1.0.json",
-      "role": "FIRST_CANONICAL_TOPA_CASE_CORPUS",
+      "path": "data/JANUS-TOPA-ART-BELL-REAL-CALLER-ARCHIVE-v1.2.json",
+      "role": "CURRENT_CANONICAL_TOPA_CASE_CORPUS",
+      "corpus_version": "1.2",
       "corpus_status": "LIVING_ARCHIVAL_CORPUS",
+      "caller_records_at_adoption": 136,
+      "canonical_current_at_adoption": true,
       "adopted_pipeline": [
         "REPORT",
-        "PRESERVE",
-        "NORMALIZE",
+        "PRESERVE_RAW_PROVENANCE",
+        "CHANNEL_CLASSIFY",
+        "FIRSTHAND_VS_HEARSAY",
+        "TIME_LOCATION",
+        "INDEPENDENCE_CHECK",
         "CORROBORATE",
         "MUNDANE_FIRST",
         "FALSIFY",
+        "PREDICTION_DEADLINE_SCORE",
         "UPDATE",
         "UNRESOLVED_ALLOWED"
       ],
       "adopted_hard_rules": [
+        "CALL_OCCURRED_DOES_NOT_IMPLY_CLAIM_TRUE",
+        "EMAIL_READ_ON_AIR_IS_NOT_A_CALL",
+        "GUEST_CLAIM_IS_NOT_A_CALLER_CASE",
         "MISSING_DATA_STAYS_MISSING",
         "AUDIENCE_SIZE_IS_NOT_CORROBORATION",
         "REPETITION_IS_NOT_INDEPENDENCE",
-        "FAILED_TESTS_MUST_BE_ABLE_TO_LOWER_CONFIDENCE"
+        "FAILED_TESTS_MUST_LOWER_CONFIDENCE_WHEN_RELEVANT",
+        "NO_POST_HOC_REDEFINITION_TO_SAVE_A_FAILED_PREDICTION"
       ],
       "adopted_alarm": "CLOSED_BELIEF_LOOP_WARNING",
-      "boundary": "A documented broadcast occurrence establishes that a claim was made in the sourceable segment; it does not establish the physical truth of the claim."
+      "boundary": "A sourceable broadcast occurrence establishes the provenance of a report, not the physical truth of its extraordinary interpretation."
+    },
+    {
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "path": "data/JANUS-TOPA-ART-BELL-OBSERVER-NODE-PREY-2006-v1.0.json",
+      "role": "ARCHIVAL_INFORMATION_HANDLING_REFERENCE_PATTERN",
+      "source_is_fiction": true,
+      "empirical_authority": false,
+      "adopted_design_lessons": [
+        "PRESERVE_LIVE_STATE_CHANGE_SEPARATELY_FROM_RETROSPECTIVE_ACCOUNT",
+        "WITNESS_ROLE_IS_PROVENANCE_NOT_PROOF",
+        "SELF_IDENTIFIED_SOURCE_REQUIRES_AUTHENTICATION",
+        "MODELS_MAY_NOT_REWRITE_RAW_LEDGER",
+        "MISSING_CONTENT_REMAINS_MISSING",
+        "I_DO_NOT_KNOW_IS_VALID",
+        "FINAL_MODEL_IS_PROVISIONAL_AND_FALSIFIABLE"
+      ]
     }
   ],
   "canonical_laws": [
@@ -64,24 +91,53 @@
     "REPETITION_IS_NOT_INDEPENDENCE",
     "FAILED_TESTS_MUST_BE_ABLE_TO_LOWER_CONFIDENCE",
     "MUNDANE_EXPLANATIONS_ARE_TESTED_EARLY_NOT_ASSUMED_TRUE",
-    "CLOSED_BELIEF_LOOP_MUST_RAISE_WARNING"
+    "CLOSED_BELIEF_LOOP_MUST_RAISE_WARNING",
+    "RAW_PROVENANCE_MUST_BE_PRESERVED",
+    "CHANNEL_CLASSIFICATION_REQUIRED",
+    "FIRSTHAND_AND_HEARSAY_MUST_BE_DISTINCT",
+    "TIME_AND_LOCATION_MUST_BE_PRESERVED_WHEN_AVAILABLE",
+    "CALL_OCCURRED_DOES_NOT_IMPLY_CLAIM_TRUE",
+    "EMAIL_READ_ON_AIR_IS_NOT_A_CALL",
+    "GUEST_CLAIM_IS_NOT_A_CALLER_CASE",
+    "INSTITUTIONAL_STATUS_IS_PROVENANCE_NOT_TRUTH",
+    "SELF_IDENTIFIED_SOURCE_IS_NOT_AUTHENTICATED",
+    "MODELS_MAY_NOT_REWRITE_RAW_LEDGER",
+    "PREDICTIONS_MUST_BE_FROZEN_BEFORE_OUTCOME_SCORING",
+    "NO_POST_HOC_REDEFINITION_TO_SAVE_A_FAILED_PREDICTION",
+    "I_DO_NOT_KNOW_IS_A_VALID_OUTPUT"
   ],
   "claim_pipeline": [
     "RAW_REPORT",
-    "PRESERVE_ORIGINAL_REPORT",
+    "PRESERVE_RAW_PROVENANCE",
+    "CHANNEL_CLASSIFICATION",
+    "FIRSTHAND_HEARSAY_CLASSIFICATION",
+    "TIME_LOCATION_CAPTURE",
     "SOURCE_CHECK",
-    "NORMALIZE_CLAIM",
+    "NORMALIZE_CLAIM_WITHOUT_REWRITING_RAW_LEDGER",
     "CLAIM_DECOMPOSITION",
     "OBSERVATION_INTERPRETATION_SPLIT",
     "COMPETING_HYPOTHESES",
     "MUNDANE_FIRST_PASS",
+    "PREDICTION_FREEZE_IF_APPLICABLE",
     "FALSIFIERS_AND_TESTS",
     "SOURCE_BOUND_EVIDENCE",
     "CORROBORATION_AND_SOURCE_INDEPENDENCE_CHECK",
     "ADVERSARIAL_DISCONFIRMATION_PASS",
+    "PREDICTION_DEADLINE_SCORE_IF_APPLICABLE",
     "CONFIDENCE_UPDATE",
     "STATUS_ASSIGNMENT",
     "APPEND_ONLY_MEMORY"
+  ],
+  "provenance_channels": [
+    "DIRECT_OBSERVATION",
+    "FIRSTHAND_REPORT",
+    "HEARSAY_REPORT",
+    "PEER_MESSAGE",
+    "GUEST_CLAIM",
+    "LISTENER_EMAIL",
+    "HOST_STATEMENT",
+    "SYMBOLIC_CONTEXT",
+    "MODEL_INFERENCE"
   ],
   "allowed_statuses": [
     "UNVERIFIED_REPORT",
@@ -99,6 +155,8 @@
     "claim_text",
     "claim_kind",
     "source_pointers",
+    "provenance_channel",
+    "firsthand_status",
     "alternative_hypotheses",
     "falsification_tests",
     "status",
@@ -116,7 +174,33 @@
     "audience_size_counts_as_corroboration": false,
     "repetition_counts_as_independence": false,
     "failed_test_may_lower_confidence": true,
-    "favored_hypothesis_requires_possible_confidence_lowering_observation": true
+    "favored_hypothesis_requires_possible_confidence_lowering_observation": true,
+    "channel_may_be_silently_reclassified": false,
+    "hearsay_may_be_promoted_to_firsthand": false,
+    "institutional_role_counts_as_truth": false,
+    "self_identification_authenticates_source": false,
+    "post_hoc_prediction_redefinition_allowed": false,
+    "raw_ledger_may_be_rewritten_by_model": false
+  },
+  "prediction_gate": {
+    "applies_when_claim_contains_future_testable_outcome": true,
+    "freeze_before_deadline": [
+      "claim_text",
+      "prediction_timestamp",
+      "deadline_or_window",
+      "success_criterion",
+      "failure_criterion",
+      "allowed_tolerance"
+    ],
+    "score_after_deadline": [
+      "PASS",
+      "FAIL",
+      "PARTIAL_WITH_PREDECLARED_TOLERANCE",
+      "UNSCORABLE_TOO_VAGUE",
+      "UNRESOLVED_MISSING_OUTCOME_DATA"
+    ],
+    "post_hoc_redefinition_allowed": false,
+    "failed_prediction_must_be_able_to_lower_confidence": true
   },
   "closed_belief_loop_alarm": {
     "name": "CLOSED_BELIEF_LOOP_WARNING",
@@ -127,6 +211,10 @@
   "scout_requirements": {
     "applies_to_every_scout": true,
     "required_actions": [
+      "PRESERVE_RAW_PROVENANCE_BEFORE_NORMALIZATION",
+      "CLASSIFY_PROVENANCE_CHANNEL",
+      "DISTINGUISH_FIRSTHAND_FROM_HEARSAY",
+      "CAPTURE_TIME_AND_LOCATION_WHEN_AVAILABLE",
       "SEPARATE_WHAT_WAS_REPORTED_FROM_WHAT_WAS_OBSERVED",
       "ATTACH_SOURCE_POINTERS_TO_POSITIVE_FACTS",
       "ENUMERATE_AT_LEAST_ONE_PLAUSIBLE_ALTERNATIVE_WHEN_INTERPRETATION_IS_NONTRIVIAL",
@@ -137,49 +225,43 @@
       "TEST_MUNDANE_EXPLANATIONS_EARLY_WITHOUT_ASSUMING_THEM_TRUE",
       "KEEP_MISSING_DATA_MISSING",
       "DO_NOT_COUNT_AUDIENCE_OR_REPETITION_AS_CORROBORATION",
-      "NAME_AT_LEAST_ONE_OBSERVATION_THAT_COULD_LOWER_CONFIDENCE"
+      "NAME_AT_LEAST_ONE_OBSERVATION_THAT_COULD_LOWER_CONFIDENCE",
+      "FREEZE_TESTABLE_PREDICTIONS_BEFORE_OUTCOME",
+      "DO_NOT_REDEFINE_FAILED_PREDICTIONS_POST_HOC",
+      "DO_NOT_TREAT_INSTITUTIONAL_ROLE_AS_TRUTH",
+      "DO_NOT_TREAT_SELF_IDENTIFICATION_AS_AUTHENTICATION",
+      "NEVER_ALLOW_MODEL_TO_REWRITE_RAW_LEDGER",
+      "ALLOW_I_DO_NOT_KNOW"
     ]
   },
   "kenshi_binding": {
     "rule": "SYNC_STATE_NOT_IDENTITY",
-    "effect": "TOPA assessments may be handed off through the Kenshi blackboard, but each Scout keeps its identity, observation provenance and independent evidence boundary.",
+    "effect": "TOPA assessments may be handed off through the Kenshi blackboard, but each Scout keeps its identity, observation provenance, channel classification and independent evidence boundary.",
     "fact_clustering_allowed": true,
-    "agent_identity_clustering_allowed": false
+    "agent_identity_clustering_allowed": false,
+    "provenance_may_be_erased_during_handoff": false
   },
   "microkernel_binding": {
-    "JOB_INTAKE_KERNEL": "Accept anomalous reports as questions or work claims without pre-adjudicating truth.",
+    "JOB_INTAKE_KERNEL": "Accept anomalous reports as questions or work claims and preserve their raw provenance before normalization.",
     "ADMISSION_KERNEL": "Admit bounded tests, source checks and competing hypotheses rather than desired conclusions.",
-    "COHORT_KERNEL": "Seal the test set before result quality is known.",
-    "DRAIN_KERNEL": "Let admitted checks finish; preserve failures and overflow.",
-    "EVIDENCE_KERNEL": "Enforce source-bound positive claims and source independence.",
-    "POLICY_MEMORY_KERNEL": "Persist negative, falsified and unresolved outcomes without erasure."
+    "COHORT_KERNEL": "Seal test sets and prediction criteria before result quality or outcomes are known.",
+    "DRAIN_KERNEL": "Let admitted checks finish; preserve failures, missing data and overflow.",
+    "EVIDENCE_KERNEL": "Enforce source-bound positive claims, provenance channels and source independence.",
+    "POLICY_MEMORY_KERNEL": "Persist raw ledger, negative, falsified, failed-prediction and unresolved outcomes without erasure."
   },
   "tri_repo_binding": {
     "Hawkar-usls/Janus_Genesis": {
       "role": "CANONICAL_EPISTEMIC_FOUNDATION",
-      "responsibilities": [
-        "DEFINE_TOPA_LAWS",
-        "KEEP_CLAIM_PIPELINE_MACHINE_READABLE",
-        "DEFINE_PROMOTION_CEILING"
-      ]
+      "responsibilities": ["DEFINE_TOPA_LAWS","KEEP_CLAIM_PIPELINE_MACHINE_READABLE","DEFINE_PROMOTION_CEILING","DEFINE_PROVENANCE_AND_PREDICTION_GATES"]
     },
     "Hawkar-usls/janus-distributed-ai-swarm": {
       "role": "PRIMARY_RUNTIME_CONSUMER",
-      "responsibilities": [
-        "VALIDATE_TOPA_CLAIM_ENVELOPES",
-        "ROUTE_TOPA_ASSESSMENTS_WITHOUT_IDENTITY_COLLAPSE",
-        "PRESERVE_FALSIFIED_AND_UNRESOLVED_STATES"
-      ]
+      "responsibilities": ["VALIDATE_TOPA_CLAIM_ENVELOPES","ROUTE_TOPA_ASSESSMENTS_WITHOUT_IDENTITY_OR_PROVENANCE_COLLAPSE","PRESERVE_FALSIFIED_AND_UNRESOLVED_STATES","SCORE_FROZEN_PREDICTIONS_WITHOUT_POST_HOC_REDEFINITION"]
     },
     "Hawkar-usls/Janus-Demiurge": {
       "role": "SCOUT_ORCHESTRATOR",
-      "responsibilities": [
-        "REQUIRE_TOPA_FOR_ALL_17_SCOUTS",
-        "INJECT_TOPA_INTO_EVERY_SCOUT_MISSION",
-        "VERIFY_17_OF_17_POLICY_COVERAGE",
-        "KEEP_WORLD_TRUTH_EVIDENCE_BOUND"
-      ]
+      "responsibilities": ["REQUIRE_TOPA_FOR_ALL_17_SCOUTS","INJECT_TOPA_INTO_EVERY_SCOUT_MISSION","VERIFY_17_OF_17_POLICY_COVERAGE","KEEP_WORLD_TRUTH_EVIDENCE_BOUND","PRESERVE_CHANNEL_AND_FIRSTHAND_STATUS"]
     }
   },
-  "claim_ceiling": "TOPA is an epistemic and engineering protocol. It does not assert that any paranormal, anomalous, mythic, oracle-derived, UAP, precognitive or otherwise extraordinary interpretation is physically real. Its purpose is to keep unusual reports investigable without confusing uncertainty, symbolism, consensus, audience size, repetition or workflow traces with empirical proof."
+  "claim_ceiling": "TOPA is an epistemic and engineering protocol. It does not assert that any paranormal, anomalous, mythic, oracle-derived, UAP, precognitive or otherwise extraordinary interpretation is physically real. It preserves report provenance and uncertainty, prevents channel/source-role inflation, and requires testable claims to remain vulnerable to failure without post-hoc rescue."
 }
