@@ -1,0 +1,43 @@
+name: Validate Kenshi Swarm Foundation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.janus/KENSHI_SWARM_FOUNDATION.json'
+      - '.github/workflows/validate-kenshi-swarm-foundation.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.janus/KENSHI_SWARM_FOUNDATION.json'
+      - '.github/workflows/validate-kenshi-swarm-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate canonical foundation
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('.janus/KENSHI_SWARM_FOUNDATION.json'))
+          assert p['status']=='ACTIVE_CANONICAL_FOUNDATION'
+          assert 'SYNC_STATE_NOT_IDENTITY' in p['canonical_laws']
+          assert 'SHARED_BLACKBOARD_IS_HANDOFF_NOT_HIVE_MIND' in p['canonical_laws']
+          assert p['adaptation_boundary']['tachyon_or_ftl_claims_imported'] is False
+          assert p['agent_model']['deletion_api_allowed'] is False
+          assert set(p['tri_repo_binding']) == {
+              'Hawkar-usls/Janus_Genesis',
+              'Hawkar-usls/janus-distributed-ai-swarm',
+              'Hawkar-usls/Janus-Demiurge'
+          }
+          print('JANUS_KENSHI_CANONICAL_FOUNDATION=PASS')
+          PY
