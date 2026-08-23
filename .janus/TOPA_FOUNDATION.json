@@ -1,0 +1,132 @@
+{
+  "schema": "janus.genesis.topa_foundation.v1",
+  "id": "JANUS_TOPA_FOUNDATION_V1",
+  "status": "ACTIVE_CANONICAL_EPISTEMIC_FOUNDATION",
+  "name": "TOPA",
+  "motto": "NOTHING SUPERNATURAL — ONLY NATURE NOT YET UNDERSTOOD.",
+  "owner_role": "GENESIS_DEFINES_ANOMALY_TO_HYPOTHESIS_LAWS",
+  "purpose": "Give every JANUS agent a common evidence-bounded method for unusual, anomalous, paranormal-labeled or extraordinary reports: neither dismiss the unknown nor promote an interpretation beyond the evidence; convert the report into explicit competing hypotheses, falsification routes and source-bound observations.",
+  "formalization_status": {
+    "standalone_preexisting_topa_artifact_found": false,
+    "git_branch_named_topa_found": false,
+    "formalized_here": true,
+    "note": "TOPA was recovered as a conceptual JANUS research branch and is canonicalized here as a shared epistemic foundation rather than treated as an empirical claim."
+  },
+  "canonical_laws": [
+    "UNKNOWN_IS_NOT_SUPERNATURAL",
+    "ANOMALY_IS_A_QUESTION_NOT_A_CONCLUSION",
+    "REPORT_IS_NOT_OBSERVATION",
+    "OBSERVATION_IS_NOT_INTERPRETATION",
+    "INTERPRETATION_IS_NOT_FACT",
+    "NO_SOURCE_NO_POSITIVE_FACT",
+    "FAILED_FETCH_IS_NOT_PROOF_OF_ABSENCE",
+    "CORRELATION_IS_NOT_CAUSATION",
+    "REPEATED_RETELLING_IS_NOT_INDEPENDENT_CONFIRMATION",
+    "SAME_SOURCE_MULTI_AGENT_IS_NOT_INDEPENDENT_REPLICATION",
+    "PEER_MESSAGE_IS_ROUTING_CONTEXT_NOT_EMPIRICAL_EVIDENCE",
+    "SYMBOLIC_OR_ORACLE_OUTPUT_IS_CONTEXT_NOT_EMPIRICAL_PROOF",
+    "ALTERNATIVE_HYPOTHESES_MUST_BE_PRESERVED",
+    "DISCONFIRMING_EVIDENCE_MUST_BE_SEARCHABLE",
+    "FALSIFICATION_ROUTE_REQUIRED_FOR_PROMOTION",
+    "NEGATIVE_RESULTS_ARE_PRESERVED",
+    "UNRESOLVED_IS_A_VALID_TERMINAL_STATE",
+    "CONFIDENCE_MUST_NOT_EXCEED_EVIDENCE",
+    "EXTRAORDINARY_INTERPRETATION_REQUIRES_PROPORTIONATELY_STRONG_EVIDENCE"
+  ],
+  "claim_pipeline": [
+    "RAW_REPORT",
+    "SOURCE_CHECK",
+    "CLAIM_DECOMPOSITION",
+    "OBSERVATION_INTERPRETATION_SPLIT",
+    "COMPETING_HYPOTHESES",
+    "FALSIFIERS_AND_TESTS",
+    "SOURCE_BOUND_EVIDENCE",
+    "ADVERSARIAL_DISCONFIRMATION_PASS",
+    "STATUS_ASSIGNMENT",
+    "APPEND_ONLY_MEMORY"
+  ],
+  "allowed_statuses": [
+    "UNVERIFIED_REPORT",
+    "SOURCE_BOUND_OBSERVATION",
+    "INFERRED_HYPOTHESIS",
+    "SYMBOLIC_CONTEXT",
+    "SUPPORTED_WITHIN_BOUND",
+    "WEAKENED",
+    "FALSIFIED",
+    "UNRESOLVED"
+  ],
+  "required_claim_fields": [
+    "claim_id",
+    "origin_agent_id",
+    "claim_text",
+    "claim_kind",
+    "source_pointers",
+    "alternative_hypotheses",
+    "falsification_tests",
+    "status",
+    "confidence"
+  ],
+  "promotion_gate": {
+    "positive_claim_requires_source_bound_evidence": true,
+    "extraordinary_interpretation_may_be_promoted_by_consensus": false,
+    "peer_message_may_be_promoted_as_fact": false,
+    "symbolic_or_oracle_context_may_be_promoted_as_fact": false,
+    "same_source_seen_by_many_agents_counts_as_independent_replication": false,
+    "unresolved_may_remain_unresolved": true,
+    "negative_or_falsifying_result_must_survive": true
+  },
+  "scout_requirements": {
+    "applies_to_every_scout": true,
+    "required_actions": [
+      "SEPARATE_WHAT_WAS_REPORTED_FROM_WHAT_WAS_OBSERVED",
+      "ATTACH_SOURCE_POINTERS_TO_POSITIVE_FACTS",
+      "ENUMERATE_AT_LEAST_ONE_PLAUSIBLE_ALTERNATIVE_WHEN_INTERPRETATION_IS_NONTRIVIAL",
+      "STATE_A_FALSIFICATION_OR_DISCONFIRMATION_ROUTE",
+      "PRESERVE_CONTRADICTIONS_AND_NEGATIVE_RESULTS",
+      "MARK_UNRESOLVED_WHEN_EVIDENCE_DOES_NOT_DECIDE",
+      "DO_NOT_USE_PEER_CONSENSUS_AS_WORLD_TRUTH"
+    ]
+  },
+  "kenshi_binding": {
+    "rule": "SYNC_STATE_NOT_IDENTITY",
+    "effect": "TOPA assessments may be handed off through the Kenshi blackboard, but each Scout keeps its identity, observation provenance and independent evidence boundary.",
+    "fact_clustering_allowed": true,
+    "agent_identity_clustering_allowed": false
+  },
+  "microkernel_binding": {
+    "JOB_INTAKE_KERNEL": "Accept anomalous reports as questions or work claims without pre-adjudicating truth.",
+    "ADMISSION_KERNEL": "Admit bounded tests, source checks and competing hypotheses rather than desired conclusions.",
+    "COHORT_KERNEL": "Seal the test set before result quality is known.",
+    "DRAIN_KERNEL": "Let admitted checks finish; preserve failures and overflow.",
+    "EVIDENCE_KERNEL": "Enforce source-bound positive claims and source independence.",
+    "POLICY_MEMORY_KERNEL": "Persist negative, falsified and unresolved outcomes without erasure."
+  },
+  "tri_repo_binding": {
+    "Hawkar-usls/Janus_Genesis": {
+      "role": "CANONICAL_EPISTEMIC_FOUNDATION",
+      "responsibilities": [
+        "DEFINE_TOPA_LAWS",
+        "KEEP_CLAIM_PIPELINE_MACHINE_READABLE",
+        "DEFINE_PROMOTION_CEILING"
+      ]
+    },
+    "Hawkar-usls/janus-distributed-ai-swarm": {
+      "role": "PRIMARY_RUNTIME_CONSUMER",
+      "responsibilities": [
+        "VALIDATE_TOPA_CLAIM_ENVELOPES",
+        "ROUTE_TOPA_ASSESSMENTS_WITHOUT_IDENTITY_COLLAPSE",
+        "PRESERVE_FALSIFIED_AND_UNRESOLVED_STATES"
+      ]
+    },
+    "Hawkar-usls/Janus-Demiurge": {
+      "role": "SCOUT_ORCHESTRATOR",
+      "responsibilities": [
+        "REQUIRE_TOPA_FOR_ALL_17_SCOUTS",
+        "INJECT_TOPA_INTO_EVERY_SCOUT_MISSION",
+        "VERIFY_17_OF_17_POLICY_COVERAGE",
+        "KEEP_WORLD_TRUTH_EVIDENCE_BOUND"
+      ]
+    }
+  },
+  "claim_ceiling": "TOPA is an epistemic and engineering protocol. It does not assert that any paranormal, anomalous, mythic, oracle-derived, UAP, precognitive or otherwise extraordinary interpretation is physically real. Its purpose is to keep unusual reports investigable without confusing uncertainty, symbolism, consensus or workflow traces with empirical proof."
+}
