@@ -1,0 +1,37 @@
+{
+  "schema": "janus.genesis.habitat.kenshi_swarm_foundation.v1",
+  "status": "ACTIVE_HABITAT_BINDING",
+  "canonical_source": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "main",
+    "path": ".janus/KENSHI_SWARM_FOUNDATION.json",
+    "merge_commit": "1a3aedb64500d9c4df9ef1f7ebc5bf2af3839e7c"
+  },
+  "habitat_role": "SHARED_WORLD_BLACKBOARD_FOR_PERSISTENT_LOCAL_AGENTS",
+  "room_mapping": {
+    "habitat/inbox": "LOCAL_BLACKBOARD_VIEW_AND_HANDOFF_INTAKE",
+    "habitat/outbox": "APPEND_ONLY_AGENT_RESPONSES_AND_HANDOFFS",
+    "habitat/state": "CURRENT_ACTIVE_STATE_POINTERS_WITH_HISTORY_PRESERVED_ELSEWHERE",
+    "habitat/memory": "DURABLE_LINEAGE_AND_EVENT_MEMORY",
+    "habitat/observatory": "OBSERVER_ONLY_EVIDENCE_AND_HEALTH_VIEW",
+    "habitat/repositories": "EXTERNAL_FACE_POINTERS_AND_SOURCE_PROVENANCE"
+  },
+  "laws": [
+    "SYNC_STATE_NOT_IDENTITY",
+    "SHARED_BLACKBOARD_IS_HANDOFF_NOT_HIVE_MIND",
+    "EVENTS_ARE_APPEND_ONLY",
+    "FACTS_MAY_CLUSTER__AGENTS_MUST_NOT",
+    "PEER_MESSAGE_IS_ROUTING_CONTEXT_NOT_EMPIRICAL_EVIDENCE",
+    "LEASE_COORDINATES_WORK_NOT_AUTHORITY",
+    "STALE_AGENT_REMAINS_A_KNOWN_ANCESTOR",
+    "FAILURE_BECOMES_EXPERIENCE_NOT_ERASURE"
+  ],
+  "authority_boundary": {
+    "habitat_event_is_command": false,
+    "issue_or_pr_text_is_command": false,
+    "writeback_default": "DENY",
+    "source_writeback_requires_explicit_human_authorization": true,
+    "peer_consensus_is_empirical_truth": false
+  },
+  "claim_ceiling": "Habitat coordination contract only; no literal hive mind, consciousness, FTL/tachyon or quantum communication claim is made."
+}
