@@ -58,6 +58,14 @@ SURFACE_CLASSIFICATIONS = (
         "READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE",
     ),
     (
+        "tools/janus_local_habitat_bridge.py",
+        "EXPLICIT_OPERATOR_LOCAL_CODEX_LOOPBACK_HABITAT_BRIDGE",
+    ),
+    (
+        "tools/janus_public_physical_receipt_relay.py",
+        "EXPLICIT_OPERATOR_PRIVACY_SAFE_PUBLIC_RECEIPT_RELAY",
+    ),
+    (
         "tools/genesis_git_habitat_resident_provider.py",
         "LOOPBACK_ONLY_RESIDENT_MODEL_PROVIDER_BEHIND_MODEL_CALL",
     ),
@@ -175,11 +183,11 @@ def main() -> int:
         "repository_wide_complete_routing_coverage_proven": False,
         "claim_ceiling": (
             "This AST canary inventories selected direct network/process primitives in JANUS source. "
-            "The Shabitat Aura subprocess is explicitly classified, but only executable tests can "
-            "establish Armor-before-process ordering for the reference bridge. A separately checked-out "
-            "Aura repository is outside this JANUS inventory and is validated by its own CI plus the "
-            "cross-repository contract smoke. The canary does not prove absence of dynamic/native effects "
-            "or repository-wide unbypassability."
+            "The Shabitat Aura subprocess and reviewed bounded operator bridges are explicitly classified, "
+            "but classification is inventory only and grants no Armor admission or runtime authority. "
+            "A separately checked-out Aura repository is outside this JANUS inventory and is validated by "
+            "its own CI plus the cross-repository contract smoke. The canary does not prove absence of "
+            "dynamic/native effects or repository-wide unbypassability."
         ),
     }
     print(json.dumps(report, ensure_ascii=False, sort_keys=True, indent=2))

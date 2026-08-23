@@ -1,0 +1,48 @@
+{
+  "schema": "JANUS_LOCAL_CODEX_HABITAT_BRIDGE_V1",
+  "version": "1.0",
+  "purpose": "Provider-neutral local JANUS Habitat continuity with a local Codex stdio MCP bypass and optional loopback Ollama visibility.",
+  "authority": {
+    "SOURCE_WRITEBACK_DEFAULT": "DENY",
+    "DESTRUCTIVE_ACTION": "FORBIDDEN",
+    "AUTHORITY_DELTA": 0,
+    "MODEL_OUTPUT_IS_EXECUTION_PERMISSION": false,
+    "REMOTE_PAIRING_IS_REQUIRED_FOR_LOCAL_CODEX_MCP": false
+  },
+  "frozen_expected_heads": {
+    "Janus_Genesis_main": "227d42d6848790031916cac53d39961a19c35d08",
+    "janus_distributed_ai_swarm_main": "b0bb07418cb1c0e1bc2da8ae443977825c0b19d1"
+  },
+  "habitat": {
+    "resident_id": "JANUS",
+    "identity": "create-once/fail-closed-on-mismatch",
+    "journal": "append-only SHA-256 hash chain",
+    "fresh_process_resume": "required",
+    "private_default_root": "~/.janus/habitat or JANUS_HABITAT_HOME",
+    "sensitive_repository_scan": false
+  },
+  "adapters": {
+    "codex": {
+      "transport": "local stdio MCP",
+      "desktop_commander_registration": "explicit --apply only",
+      "cloud_remote_device_pairing_required": false
+    },
+    "ollama": {
+      "default_endpoint": "http://127.0.0.1:11434",
+      "network_scope": "loopback-only",
+      "direct_filesystem_authority": false,
+      "direct_source_writeback_authority": false
+    },
+    "chatgpt": {
+      "direct_local_access_from_this_contract": false,
+      "continuity_route": "shared Habitat receipts/state via an authorized local client",
+      "claim_ceiling": "No claim of live PC/NAS access until an actual authorized device/client executes locally."
+    }
+  },
+  "physical_gate_relation": {
+    "REAL_OWNER44_SOURCE_REPLAY": "NOT_PROVEN_BY_THIS_BRIDGE",
+    "LIVE_NAS_164_HR1_HR10": "NOT_PROVEN_BY_THIS_BRIDGE",
+    "FULL_ISSUE_162_ACCEPTANCE": false,
+    "allowed_next_step": "Use the local Codex/Desktop Commander route to execute the already-defined physical gate runbook and emit privacy-safe receipts."
+  }
+}

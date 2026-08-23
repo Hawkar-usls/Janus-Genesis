@@ -58,6 +58,14 @@ SURFACE_CLASSIFICATIONS = (
         "READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE",
     ),
     (
+        "tools/janus_local_habitat_bridge.py",
+        "EXPLICIT_OPERATOR_LOCAL_CODEX_LOOPBACK_HABITAT_BRIDGE",
+    ),
+    (
+        "tools/janus_public_physical_receipt_relay.py",
+        "EXPLICIT_OPERATOR_PRIVACY_SAFE_PUBLIC_RECEIPT_RELAY",
+    ),
+    (
         "tools/genesis_git_habitat_resident_provider.py",
         "LOOPBACK_ONLY_RESIDENT_MODEL_PROVIDER_BEHIND_MODEL_CALL",
     ),
