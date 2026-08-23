@@ -1,17 +1,44 @@
 {
-  "schema": "janus.genesis.topa_foundation.v1",
-  "id": "JANUS_TOPA_FOUNDATION_V1",
+  "schema": "janus.genesis.topa_foundation.v1.1",
+  "id": "JANUS_TOPA_FOUNDATION_V1_1",
+  "version": "1.1",
   "status": "ACTIVE_CANONICAL_EPISTEMIC_FOUNDATION",
   "name": "TOPA",
   "motto": "NOTHING SUPERNATURAL — ONLY NATURE NOT YET UNDERSTOOD.",
   "owner_role": "GENESIS_DEFINES_ANOMALY_TO_HYPOTHESIS_LAWS",
   "purpose": "Give every JANUS agent a common evidence-bounded method for unusual, anomalous, paranormal-labeled or extraordinary reports: neither dismiss the unknown nor promote an interpretation beyond the evidence; convert the report into explicit competing hypotheses, falsification routes and source-bound observations.",
   "formalization_status": {
-    "standalone_preexisting_topa_artifact_found": false,
+    "standalone_preexisting_topa_artifact_found": true,
     "git_branch_named_topa_found": false,
     "formalized_here": true,
-    "note": "TOPA was recovered as a conceptual JANUS research branch and is canonicalized here as a shared epistemic foundation rather than treated as an empirical claim."
+    "note": "TOPA was first recovered as a conceptual JANUS research branch and canonicalized in Genesis v1.0. A concurrent canonical case corpus then appeared in janus-meta-registry and is adopted here as lineage without treating documented calls as truth of the claims made."
   },
+  "registry_lineage": [
+    {
+      "repository": "Hawkar-usls/janus-meta-registry",
+      "path": "data/JANUS-TOPA-ART-BELL-REAL-CALLER-ARCHIVE-v1.0.json",
+      "role": "FIRST_CANONICAL_TOPA_CASE_CORPUS",
+      "corpus_status": "LIVING_ARCHIVAL_CORPUS",
+      "adopted_pipeline": [
+        "REPORT",
+        "PRESERVE",
+        "NORMALIZE",
+        "CORROBORATE",
+        "MUNDANE_FIRST",
+        "FALSIFY",
+        "UPDATE",
+        "UNRESOLVED_ALLOWED"
+      ],
+      "adopted_hard_rules": [
+        "MISSING_DATA_STAYS_MISSING",
+        "AUDIENCE_SIZE_IS_NOT_CORROBORATION",
+        "REPETITION_IS_NOT_INDEPENDENCE",
+        "FAILED_TESTS_MUST_BE_ABLE_TO_LOWER_CONFIDENCE"
+      ],
+      "adopted_alarm": "CLOSED_BELIEF_LOOP_WARNING",
+      "boundary": "A documented broadcast occurrence establishes that a claim was made in the sourceable segment; it does not establish the physical truth of the claim."
+    }
+  ],
   "canonical_laws": [
     "UNKNOWN_IS_NOT_SUPERNATURAL",
     "ANOMALY_IS_A_QUESTION_NOT_A_CONCLUSION",
@@ -31,17 +58,28 @@
     "NEGATIVE_RESULTS_ARE_PRESERVED",
     "UNRESOLVED_IS_A_VALID_TERMINAL_STATE",
     "CONFIDENCE_MUST_NOT_EXCEED_EVIDENCE",
-    "EXTRAORDINARY_INTERPRETATION_REQUIRES_PROPORTIONATELY_STRONG_EVIDENCE"
+    "EXTRAORDINARY_INTERPRETATION_REQUIRES_PROPORTIONATELY_STRONG_EVIDENCE",
+    "MISSING_DATA_STAYS_MISSING",
+    "AUDIENCE_SIZE_IS_NOT_CORROBORATION",
+    "REPETITION_IS_NOT_INDEPENDENCE",
+    "FAILED_TESTS_MUST_BE_ABLE_TO_LOWER_CONFIDENCE",
+    "MUNDANE_EXPLANATIONS_ARE_TESTED_EARLY_NOT_ASSUMED_TRUE",
+    "CLOSED_BELIEF_LOOP_MUST_RAISE_WARNING"
   ],
   "claim_pipeline": [
     "RAW_REPORT",
+    "PRESERVE_ORIGINAL_REPORT",
     "SOURCE_CHECK",
+    "NORMALIZE_CLAIM",
     "CLAIM_DECOMPOSITION",
     "OBSERVATION_INTERPRETATION_SPLIT",
     "COMPETING_HYPOTHESES",
+    "MUNDANE_FIRST_PASS",
     "FALSIFIERS_AND_TESTS",
     "SOURCE_BOUND_EVIDENCE",
+    "CORROBORATION_AND_SOURCE_INDEPENDENCE_CHECK",
     "ADVERSARIAL_DISCONFIRMATION_PASS",
+    "CONFIDENCE_UPDATE",
     "STATUS_ASSIGNMENT",
     "APPEND_ONLY_MEMORY"
   ],
@@ -73,7 +111,18 @@
     "symbolic_or_oracle_context_may_be_promoted_as_fact": false,
     "same_source_seen_by_many_agents_counts_as_independent_replication": false,
     "unresolved_may_remain_unresolved": true,
-    "negative_or_falsifying_result_must_survive": true
+    "negative_or_falsifying_result_must_survive": true,
+    "missing_data_may_be_imputed_as_evidence": false,
+    "audience_size_counts_as_corroboration": false,
+    "repetition_counts_as_independence": false,
+    "failed_test_may_lower_confidence": true,
+    "favored_hypothesis_requires_possible_confidence_lowering_observation": true
+  },
+  "closed_belief_loop_alarm": {
+    "name": "CLOSED_BELIEF_LOOP_WARNING",
+    "trigger": "No possible observation, test or source result is named that could lower confidence in the favored interpretation.",
+    "effect": "Block promotion beyond hypothesis/context until a disconfirming route exists.",
+    "does_not_mean": "The claim is false; only that the current belief loop is not falsifiable."
   },
   "scout_requirements": {
     "applies_to_every_scout": true,
@@ -84,7 +133,11 @@
       "STATE_A_FALSIFICATION_OR_DISCONFIRMATION_ROUTE",
       "PRESERVE_CONTRADICTIONS_AND_NEGATIVE_RESULTS",
       "MARK_UNRESOLVED_WHEN_EVIDENCE_DOES_NOT_DECIDE",
-      "DO_NOT_USE_PEER_CONSENSUS_AS_WORLD_TRUTH"
+      "DO_NOT_USE_PEER_CONSENSUS_AS_WORLD_TRUTH",
+      "TEST_MUNDANE_EXPLANATIONS_EARLY_WITHOUT_ASSUMING_THEM_TRUE",
+      "KEEP_MISSING_DATA_MISSING",
+      "DO_NOT_COUNT_AUDIENCE_OR_REPETITION_AS_CORROBORATION",
+      "NAME_AT_LEAST_ONE_OBSERVATION_THAT_COULD_LOWER_CONFIDENCE"
     ]
   },
   "kenshi_binding": {
@@ -128,5 +181,5 @@
       ]
     }
   },
-  "claim_ceiling": "TOPA is an epistemic and engineering protocol. It does not assert that any paranormal, anomalous, mythic, oracle-derived, UAP, precognitive or otherwise extraordinary interpretation is physically real. Its purpose is to keep unusual reports investigable without confusing uncertainty, symbolism, consensus or workflow traces with empirical proof."
+  "claim_ceiling": "TOPA is an epistemic and engineering protocol. It does not assert that any paranormal, anomalous, mythic, oracle-derived, UAP, precognitive or otherwise extraordinary interpretation is physically real. Its purpose is to keep unusual reports investigable without confusing uncertainty, symbolism, consensus, audience size, repetition or workflow traces with empirical proof."
 }
