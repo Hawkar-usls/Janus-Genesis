@@ -29,6 +29,8 @@ jobs:
           python - <<'PY'
           import json
           p=json.load(open('.janus/TOPA_FOUNDATION.json'))
+          assert p['schema']=='janus.genesis.topa_foundation.v1.1'
+          assert p['version']=='1.1'
           assert p['status']=='ACTIVE_CANONICAL_EPISTEMIC_FOUNDATION'
           assert p['motto']=='NOTHING SUPERNATURAL — ONLY NATURE NOT YET UNDERSTOOD.'
           laws=set(p['canonical_laws'])
@@ -39,16 +41,36 @@ jobs:
               'FALSIFICATION_ROUTE_REQUIRED_FOR_PROMOTION',
               'NEGATIVE_RESULTS_ARE_PRESERVED',
               'UNRESOLVED_IS_A_VALID_TERMINAL_STATE',
-              'SAME_SOURCE_MULTI_AGENT_IS_NOT_INDEPENDENT_REPLICATION'
+              'SAME_SOURCE_MULTI_AGENT_IS_NOT_INDEPENDENT_REPLICATION',
+              'MISSING_DATA_STAYS_MISSING',
+              'AUDIENCE_SIZE_IS_NOT_CORROBORATION',
+              'REPETITION_IS_NOT_INDEPENDENCE',
+              'FAILED_TESTS_MUST_BE_ABLE_TO_LOWER_CONFIDENCE',
+              'MUNDANE_EXPLANATIONS_ARE_TESTED_EARLY_NOT_ASSUMED_TRUE',
+              'CLOSED_BELIEF_LOOP_MUST_RAISE_WARNING'
           }
           assert required <= laws
+          lineage=p['registry_lineage'][0]
+          assert lineage['repository']=='Hawkar-usls/janus-meta-registry'
+          assert lineage['path']=='data/JANUS-TOPA-ART-BELL-REAL-CALLER-ARCHIVE-v1.0.json'
+          assert lineage['role']=='FIRST_CANONICAL_TOPA_CASE_CORPUS'
+          assert lineage['adopted_alarm']=='CLOSED_BELIEF_LOOP_WARNING'
+          assert 'MUNDANE_FIRST' in lineage['adopted_pipeline']
           assert p['scout_requirements']['applies_to_every_scout'] is True
-          assert p['promotion_gate']['extraordinary_interpretation_may_be_promoted_by_consensus'] is False
-          assert p['promotion_gate']['unresolved_may_remain_unresolved'] is True
+          gate=p['promotion_gate']
+          assert gate['extraordinary_interpretation_may_be_promoted_by_consensus'] is False
+          assert gate['unresolved_may_remain_unresolved'] is True
+          assert gate['missing_data_may_be_imputed_as_evidence'] is False
+          assert gate['audience_size_counts_as_corroboration'] is False
+          assert gate['repetition_counts_as_independence'] is False
+          assert gate['failed_test_may_lower_confidence'] is True
+          assert gate['favored_hypothesis_requires_possible_confidence_lowering_observation'] is True
+          alarm=p['closed_belief_loop_alarm']
+          assert alarm['name']=='CLOSED_BELIEF_LOOP_WARNING'
           assert set(p['tri_repo_binding']) == {
               'Hawkar-usls/Janus_Genesis',
               'Hawkar-usls/janus-distributed-ai-swarm',
               'Hawkar-usls/Janus-Demiurge'
           }
-          print('JANUS_TOPA_CANONICAL_FOUNDATION=PASS')
+          print('JANUS_TOPA_CANONICAL_FOUNDATION_V1_1=PASS')
           PY
