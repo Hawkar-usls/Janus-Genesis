@@ -24,13 +24,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Validate canonical TOPA foundation
+      - name: Validate canonical TOPA v1.2 foundation
         run: |
           python - <<'PY'
           import json
           p=json.load(open('.janus/TOPA_FOUNDATION.json'))
-          assert p['schema']=='janus.genesis.topa_foundation.v1.1'
-          assert p['version']=='1.1'
+          assert p['schema']=='janus.genesis.topa_foundation.v1.2'
+          assert p['version']=='1.2'
           assert p['status']=='ACTIVE_CANONICAL_EPISTEMIC_FOUNDATION'
           assert p['motto']=='NOTHING SUPERNATURAL — ONLY NATURE NOT YET UNDERSTOOD.'
           laws=set(p['canonical_laws'])
@@ -38,39 +38,51 @@ jobs:
               'UNKNOWN_IS_NOT_SUPERNATURAL',
               'ANOMALY_IS_A_QUESTION_NOT_A_CONCLUSION',
               'NO_SOURCE_NO_POSITIVE_FACT',
-              'FALSIFICATION_ROUTE_REQUIRED_FOR_PROMOTION',
-              'NEGATIVE_RESULTS_ARE_PRESERVED',
               'UNRESOLVED_IS_A_VALID_TERMINAL_STATE',
-              'SAME_SOURCE_MULTI_AGENT_IS_NOT_INDEPENDENT_REPLICATION',
               'MISSING_DATA_STAYS_MISSING',
               'AUDIENCE_SIZE_IS_NOT_CORROBORATION',
               'REPETITION_IS_NOT_INDEPENDENCE',
               'FAILED_TESTS_MUST_BE_ABLE_TO_LOWER_CONFIDENCE',
-              'MUNDANE_EXPLANATIONS_ARE_TESTED_EARLY_NOT_ASSUMED_TRUE',
-              'CLOSED_BELIEF_LOOP_MUST_RAISE_WARNING'
+              'CLOSED_BELIEF_LOOP_MUST_RAISE_WARNING',
+              'RAW_PROVENANCE_MUST_BE_PRESERVED',
+              'CHANNEL_CLASSIFICATION_REQUIRED',
+              'FIRSTHAND_AND_HEARSAY_MUST_BE_DISTINCT',
+              'CALL_OCCURRED_DOES_NOT_IMPLY_CLAIM_TRUE',
+              'INSTITUTIONAL_STATUS_IS_PROVENANCE_NOT_TRUTH',
+              'SELF_IDENTIFIED_SOURCE_IS_NOT_AUTHENTICATED',
+              'MODELS_MAY_NOT_REWRITE_RAW_LEDGER',
+              'PREDICTIONS_MUST_BE_FROZEN_BEFORE_OUTCOME_SCORING',
+              'NO_POST_HOC_REDEFINITION_TO_SAVE_A_FAILED_PREDICTION',
+              'I_DO_NOT_KNOW_IS_A_VALID_OUTPUT'
           }
           assert required <= laws
-          lineage=p['registry_lineage'][0]
-          assert lineage['repository']=='Hawkar-usls/janus-meta-registry'
-          assert lineage['path']=='data/JANUS-TOPA-ART-BELL-REAL-CALLER-ARCHIVE-v1.0.json'
-          assert lineage['role']=='FIRST_CANONICAL_TOPA_CASE_CORPUS'
-          assert lineage['adopted_alarm']=='CLOSED_BELIEF_LOOP_WARNING'
-          assert 'MUNDANE_FIRST' in lineage['adopted_pipeline']
-          assert p['scout_requirements']['applies_to_every_scout'] is True
+          corpus=p['registry_lineage'][0]
+          assert corpus['path']=='data/JANUS-TOPA-ART-BELL-REAL-CALLER-ARCHIVE-v1.2.json'
+          assert corpus['role']=='CURRENT_CANONICAL_TOPA_CASE_CORPUS'
+          assert corpus['caller_records_at_adoption']==136
+          assert 'CHANNEL_CLASSIFY' in corpus['adopted_pipeline']
+          assert 'FIRSTHAND_VS_HEARSAY' in corpus['adopted_pipeline']
+          assert 'PREDICTION_DEADLINE_SCORE' in corpus['adopted_pipeline']
+          assert 'NO_POST_HOC_REDEFINITION_TO_SAVE_A_FAILED_PREDICTION' in corpus['adopted_hard_rules']
+          observer=p['registry_lineage'][1]
+          assert observer['path']=='data/JANUS-TOPA-ART-BELL-OBSERVER-NODE-PREY-2006-v1.0.json'
+          assert observer['source_is_fiction'] is True
+          assert observer['empirical_authority'] is False
           gate=p['promotion_gate']
-          assert gate['extraordinary_interpretation_may_be_promoted_by_consensus'] is False
-          assert gate['unresolved_may_remain_unresolved'] is True
-          assert gate['missing_data_may_be_imputed_as_evidence'] is False
-          assert gate['audience_size_counts_as_corroboration'] is False
-          assert gate['repetition_counts_as_independence'] is False
-          assert gate['failed_test_may_lower_confidence'] is True
-          assert gate['favored_hypothesis_requires_possible_confidence_lowering_observation'] is True
-          alarm=p['closed_belief_loop_alarm']
-          assert alarm['name']=='CLOSED_BELIEF_LOOP_WARNING'
+          assert gate['hearsay_may_be_promoted_to_firsthand'] is False
+          assert gate['institutional_role_counts_as_truth'] is False
+          assert gate['self_identification_authenticates_source'] is False
+          assert gate['post_hoc_prediction_redefinition_allowed'] is False
+          assert gate['raw_ledger_may_be_rewritten_by_model'] is False
+          prediction=p['prediction_gate']
+          assert prediction['post_hoc_redefinition_allowed'] is False
+          assert prediction['failed_prediction_must_be_able_to_lower_confidence'] is True
+          assert p['scout_requirements']['applies_to_every_scout'] is True
+          assert p['kenshi_binding']['provenance_may_be_erased_during_handoff'] is False
           assert set(p['tri_repo_binding']) == {
               'Hawkar-usls/Janus_Genesis',
               'Hawkar-usls/janus-distributed-ai-swarm',
               'Hawkar-usls/Janus-Demiurge'
           }
-          print('JANUS_TOPA_CANONICAL_FOUNDATION_V1_1=PASS')
+          print('JANUS_TOPA_CANONICAL_FOUNDATION_V1_2=PASS')
           PY
