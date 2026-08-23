@@ -58,6 +58,10 @@ SURFACE_CLASSIFICATIONS = (
         "READ_ONLY_OPERATOR_LIVE_RECEIVER_IDENTITY_PROBE",
     ),
     (
+        "tools/habitat_scout_agent.py",
+        "CONSTRAINED_COPILOT_CLI_SCOUT_PROVIDER_BRIDGE",
+    ),
+    (
         "tools/genesis_git_habitat_resident_provider.py",
         "LOOPBACK_ONLY_RESIDENT_MODEL_PROVIDER_BEHIND_MODEL_CALL",
     ),
