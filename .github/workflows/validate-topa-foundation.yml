@@ -1,0 +1,54 @@
+name: Validate TOPA Foundation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.janus/TOPA_FOUNDATION.json'
+      - '.github/workflows/validate-topa-foundation.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.janus/TOPA_FOUNDATION.json'
+      - '.github/workflows/validate-topa-foundation.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate canonical TOPA foundation
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('.janus/TOPA_FOUNDATION.json'))
+          assert p['status']=='ACTIVE_CANONICAL_EPISTEMIC_FOUNDATION'
+          assert p['motto']=='NOTHING SUPERNATURAL — ONLY NATURE NOT YET UNDERSTOOD.'
+          laws=set(p['canonical_laws'])
+          required={
+              'UNKNOWN_IS_NOT_SUPERNATURAL',
+              'ANOMALY_IS_A_QUESTION_NOT_A_CONCLUSION',
+              'NO_SOURCE_NO_POSITIVE_FACT',
+              'FALSIFICATION_ROUTE_REQUIRED_FOR_PROMOTION',
+              'NEGATIVE_RESULTS_ARE_PRESERVED',
+              'UNRESOLVED_IS_A_VALID_TERMINAL_STATE',
+              'SAME_SOURCE_MULTI_AGENT_IS_NOT_INDEPENDENT_REPLICATION'
+          }
+          assert required <= laws
+          assert p['scout_requirements']['applies_to_every_scout'] is True
+          assert p['promotion_gate']['extraordinary_interpretation_may_be_promoted_by_consensus'] is False
+          assert p['promotion_gate']['unresolved_may_remain_unresolved'] is True
+          assert set(p['tri_repo_binding']) == {
+              'Hawkar-usls/Janus_Genesis',
+              'Hawkar-usls/janus-distributed-ai-swarm',
+              'Hawkar-usls/Janus-Demiurge'
+          }
+          print('JANUS_TOPA_CANONICAL_FOUNDATION=PASS')
+          PY
