@@ -1,0 +1,40 @@
+{
+  "schema": "janus.genesis.habitat.shared_capability.v1",
+  "capability_id": "JANUS_RETINA_VIDEO_SHARED_CAPABILITY_V1",
+  "display_name": "JANUS Retina Video",
+  "created_at_local": "2026-08-24T15:45:00+03:00",
+  "canonical_source": {
+    "repository": "Hawkar-usls/TOPA",
+    "branch": "main",
+    "path": "tools/topa_retina_video.py",
+    "pinned_commit": "be5d88d6c5afd63b6f1b105791a489d1a787f132",
+    "git_blob_sha1": "206056bce5b9b980311df680dffdc53393d3bd3e"
+  },
+  "habitat_loader": "habitat/workshop/retina_video/retina_video_loader.py",
+  "capabilities": [
+    "LOCAL_VIDEO_INGEST",
+    "HTTP_VIDEO_INGEST",
+    "PUBLIC_GOOGLE_DRIVE_FILE_OR_FOLDER_INGEST",
+    "SHA256_SOURCE_FREEZE",
+    "FFPROBE_METADATA",
+    "DETERMINISTIC_TIMESTAMPED_FRAME_SAMPLING",
+    "DERIVED_FRAME_HASHING",
+    "CONTACT_SHEETS",
+    "OPTIONAL_RETINA_FRAME_ANALYSIS"
+  ],
+  "system_requirements": ["python>=3.10", "ffmpeg", "ffprobe"],
+  "optional_dependencies": ["gdown>=5.2", "TOPA_RETINA_API_KEY"],
+  "consumer_contract": {
+    "transport_is_not_evidence": true,
+    "retina_is_visual_observer_not_cause_detector": true,
+    "sampled_frames_are_not_full_rate_detection": true,
+    "unrecognized_is_not_extraordinary": true,
+    "source_mutation_default": "DENY",
+    "raw_deletion_default": "DENY",
+    "write_back_default": "DENY"
+  },
+  "distribution_policy": "PIN_ONE_CANONICAL_IMPLEMENTATION_AND_LINK_CONSUMERS_INSTEAD_OF_COPYING_DRIFTING_FORKS",
+  "source_history_remains_authoritative": true,
+  "external_effect_authority": false,
+  "world_truth": false
+}
