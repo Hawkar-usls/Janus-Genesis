@@ -1,0 +1,16 @@
+{
+  "schema": "janus.organism.member_link.v1",
+  "organism_id": "JANUS_FEDERATED_ORGANISM",
+  "canonical_manifest": "Hawkar-usls/Janus:organism/JANUS_ORGANISM_v1.json",
+  "member_repository": "Hawkar-usls/Janus_Genesis",
+  "organ_key": "simulation_habitat",
+  "class": "CORE",
+  "role": "PERSISTENT_SIMULATION_AND_DEVELOPMENT_HABITAT",
+  "consumes": ["AGENT_MODEL", "SCENARIO", "CONSTRAINT", "PRIOR_STATE"],
+  "emits": ["SIMULATION_TRACE", "PORTABLE_STATE", "BEHAVIORAL_COUNTEREXAMPLE", "HABITAT_RECEIPT"],
+  "routes_to": ["guardian_cortex", "memory", "hypothesis_metabolism"],
+  "authority": "SIMULATION_SCOPE_ONLY",
+  "authority_delta": 0,
+  "cross_repo_write_default": "DENY",
+  "claim_boundary": ["SIMULATION != WORLD_EVIDENCE", "FICTIONAL_LANGUAGE != SCIENTIFIC_EVIDENCE", "HABITAT_PERSISTENCE != CONSCIOUSNESS_PROOF"]
+}
