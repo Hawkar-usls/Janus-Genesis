@@ -1,0 +1,27 @@
+{
+  "schema": "janus.genesis.git_habitat.constellation_delta.v1",
+  "delta_id": "CONSTELLATION_DELTA_2026-08-24_TOPA_RETINA_VIDEO",
+  "created_at_local": "2026-08-24T15:45:00+03:00",
+  "repository_additions": [
+    {
+      "repository": "Hawkar-usls/TOPA",
+      "repository_id": "1344607553",
+      "default_branch": "main",
+      "link": "habitat/repositories/public/1344607553/LINK.json",
+      "relationship": "HABITAT_REFERENCE"
+    }
+  ],
+  "capability_additions": [
+    {
+      "capability_id": "JANUS_RETINA_VIDEO_SHARED_CAPABILITY_V1",
+      "protocol": "habitat/protocol/JANUS_RETINA_VIDEO_SHARED_CAPABILITY-v1.0.json",
+      "loader": "habitat/workshop/retina_video/retina_video_loader.py",
+      "canonical_repository": "Hawkar-usls/TOPA",
+      "canonical_path": "tools/topa_retina_video.py"
+    }
+  ],
+  "source_history_remains_authoritative": true,
+  "automatic_external_effects": false,
+  "write_back_default": "DENY",
+  "world_truth": false
+}
