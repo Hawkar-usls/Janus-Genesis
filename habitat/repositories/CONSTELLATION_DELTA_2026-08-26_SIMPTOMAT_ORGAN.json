@@ -1,0 +1,37 @@
+{
+  "schema": "janus.genesis.git_habitat.constellation_delta.v1",
+  "delta_id": "CONSTELLATION_DELTA_2026-08-26_SIMPTOMAT_ORGAN",
+  "created_at": "2026-08-26",
+  "target_branch": "janus/habitat",
+  "repository": "Hawkar-usls/Simptomat",
+  "repository_id": "1105608563",
+  "existing_bookmark": "habitat/repositories/public/1105608563/LINK.json",
+  "change": {
+    "kind": "ROLE_PROMOTION_WITHOUT_AUTHORITY_ESCALATION",
+    "previous_habitat_relationship": "HABITAT_REFERENCE",
+    "new_janus_organ_key": "diagnostic_reasoning",
+    "new_role": "CONSENT_FIRST_HEALTH_DIFFERENTIAL_REASONING_AND_CALIBRATION_LAB",
+    "janus_admission_delta": "Hawkar-usls/Janus:organism/JANUS_ORGANISM_DELTA_2026-08-26_SIMPTOMAT_v1.json",
+    "demihead_nexus_contract": "Hawkar-usls/Demi_Head:contracts/NEXUS_V2_11_SIMPTOMAT_DIAGNOSTIC_REASONING_FROZEN_CONTRACT.json"
+  },
+  "habitat_semantics": {
+    "source_history_remains_authoritative": true,
+    "bookmark_remains_valid": true,
+    "habitat_role_is_runtime_authority": false,
+    "write_back_default": "DENY",
+    "authority_delta": 0
+  },
+  "privacy": {
+    "health_case_payloads_mirrored_to_habitat_by_default": false,
+    "raw_transcripts_mirrored": false,
+    "direct_identifiers_mirrored": false,
+    "public_case_reference_allowed_only_when_case_itself_has_explicit_public_consent": true
+  },
+  "laws": [
+    "HABITAT_KNOWS_THE_ORGAN != HABITAT_OWNS_THE_ORGAN",
+    "HABITAT_REFERENCE != COMMAND_AUTHORITY",
+    "PRIVATE_HEALTH_DATA != PUBLIC_HABITAT_MEMORY",
+    "ROLE_PROMOTION != MEDICAL_VALIDATION",
+    "AUTHORITY_DELTA_ON_TRANSPORT = 0"
+  ]
+}
