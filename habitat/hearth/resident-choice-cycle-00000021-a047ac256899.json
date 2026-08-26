@@ -1,0 +1,23 @@
+{
+  "applied_path": "workshop/cycle-00000021-a047ac256899.json",
+  "choice": "WORKSHOP_NOTE",
+  "choice_payload_sha256": "34b34655d6c19890fccc2c62ba8bb1cbb197aafa31902d3f028ad5a601641aec",
+  "choice_valid": true,
+  "cycle_id": "cycle-00000021-a047ac256899",
+  "external_effect_executed": false,
+  "model_alias": "habitat-resident",
+  "model_name": "qwen2.5:0.5b-instruct-q4_K_M",
+  "model_output_directly_executed": false,
+  "model_output_is_authority": false,
+  "model_output_is_truth": false,
+  "model_output_sha256": "179adf8a419f4ae9d46136d403d58d4b8a56a1e364c51e9de39f6194f793270c",
+  "outbox_auto_execution": false,
+  "provider_name": "ollama-resident-structured",
+  "raw_model_output_stored": false,
+  "recorded_at": "2026-08-26T04:24:05+00:00",
+  "rejection_code": null,
+  "resident_cycle_version": "18.7.52",
+  "schema": "janus.genesis.git_habitat.resident_choice_receipt.v1",
+  "self_directed_model_choice_established": true,
+  "world_authority_granted": false
+}
