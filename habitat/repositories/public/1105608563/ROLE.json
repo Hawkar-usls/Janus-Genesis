@@ -1,0 +1,18 @@
+{
+  "schema": "janus.genesis.git_habitat.repository_role.v1",
+  "repository": "Hawkar-usls/Simptomat",
+  "repository_id": "1105608563",
+  "organism_id": "JANUS_FEDERATED_ORGANISM",
+  "organ_key": "diagnostic_reasoning",
+  "role": "CONSENT_FIRST_HEALTH_DIFFERENTIAL_REASONING_AND_CALIBRATION_LAB",
+  "status": "ACTIVE_PROTOTYPE_ORGAN",
+  "member_link": "Hawkar-usls/Simptomat:.janus/JANUS_ORGANISM_LINK.json",
+  "demihead_peer": "Hawkar-usls/Demi_Head",
+  "nexus_contract": "Hawkar-usls/Demi_Head:contracts/NEXUS_V2_11_SIMPTOMAT_DIAGNOSTIC_REASONING_FROZEN_CONTRACT.json",
+  "authority": "RESEARCH_DIAGNOSTIC_HYPOTHESIS_ONLY",
+  "clinical_diagnostic_authority": false,
+  "evidence_authority": false,
+  "cross_repo_write_default": "DENY",
+  "health_data_mirror_default": "DENY",
+  "authority_delta": 0
+}
