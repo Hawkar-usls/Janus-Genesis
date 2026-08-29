@@ -1,0 +1,89 @@
+{
+  "schema": "janus.genesis.io_bridge.v1",
+  "id": "JANUS-GENESIS-IO-INTELLECT-OBSERVER-BRIDGE-v1.0",
+  "created_utc": "2026-08-29T15:55:00Z",
+  "genesis": {
+    "repository": "Hawkar-usls/Janus_Genesis",
+    "branch": "main",
+    "role": "runtime_and_interactive_world"
+  },
+  "io": {
+    "repository": "Hawkar-usls/janus-meta-registry",
+    "branch": "IO-Intellect-Observer",
+    "root": "IO/",
+    "name": "IO — Intellect Observer",
+    "role": "machine_psychology_evidence_and_governance"
+  },
+  "direction": "BIDIRECTIONAL_REFERENCE_WITHOUT_AUTHORITY_TRANSFER",
+  "contract": {
+    "io_is_evidence_layer_not_runtime_authority": true,
+    "genesis_may_consume_io_effect_cards": true,
+    "genesis_may_consume_io_governance": true,
+    "genesis_may_emit_observations_for_later_io_analysis": true,
+    "genesis_must_not_write_research_conclusions_from_gameplay_alone": true,
+    "fictional_or_game_behavior_is_not_scientific_replication": true,
+    "majority_vote_is_not_ground_truth": true,
+    "revision_requires_evidence_delta": true,
+    "unknown_provenance_is_not_independence": true,
+    "external_ai_suggestions_remain_non_authoritative": true,
+    "local_runtime_rules_remain_authoritative_for_state_changes": true
+  },
+  "io_surfaces": {
+    "manifest": "IO/IO-MANIFEST-v1.0.json",
+    "taxonomy": "IO/taxonomy/",
+    "corpus": "IO/corpus/",
+    "citation_and_behavior_graph": "IO/graph/",
+    "evidence_independence": "IO/evidence/",
+    "experiments": "IO/experiments/",
+    "governance": "IO/governance/"
+  },
+  "behavior_families": [
+    "sycophancy",
+    "peer_conformity",
+    "deception_and_strategic_misrepresentation",
+    "theory_of_mind_protocol_sensitivity",
+    "personality_and_persona_expression",
+    "metacognition_and_functional_introspection",
+    "hidden_trait_transmission",
+    "synthetic_data_behavioral_inheritance"
+  ],
+  "genesis_hooks": {
+    "before_external_model_advice": [
+      "preserve_blind_pre_social_judgment_when_applicable",
+      "record_source_and_model_lineage"
+    ],
+    "after_multiple_agent_answers": [
+      "collapse_correlated_sources",
+      "distinguish_vote_count_from_evidence_count",
+      "retain_minority_candidate_when_it_has_independent_evidence"
+    ],
+    "before_belief_revision": [
+      "require_explicit_evidence_delta",
+      "permit_revision_when_new_verifiable_evidence_exists",
+      "do_not_reward_stubbornness"
+    ],
+    "observation_export": [
+      "record_behavior_without_anthropomorphic_mechanism_claim",
+      "separate_gameplay_event_from_research_evidence",
+      "include_model_prompt_context_and_provenance_when available"
+    ]
+  },
+  "r2": {
+    "engine": "IO/evidence/R2-EVIDENCE-INDEPENDENCE-ENGINE-v1.0.json",
+    "effect_cards": "IO/evidence/R2-EFFECT-CARDS-v1.0.json",
+    "pairwise_independence": "IO/evidence/R2-PAIRWISE-INDEPENDENCE-SEED-v1.0.json",
+    "rule": "Genesis should prefer effective independent evidence count over raw report/agent count."
+  },
+  "anti_conformity": {
+    "constitution": "IO/governance/JANUS-ANTI-CONFORMITY-CONSTITUTION-v1.0.json",
+    "core_law": "TRUTH_IS_NOT_DEMOCRATIC",
+    "operational_law": "CHANGE_BELIEF_IFF_EVIDENCE_CHANGED",
+    "uncertainty_rule": "UNCERTAINTY_TO_VERIFY_NOT_FOLLOW_MAJORITY"
+  },
+  "claim_boundary": {
+    "machine_consciousness": "NOT_ESTABLISHED",
+    "intrinsic_personality": "NOT_INFERRED_FROM_PERSONA_EXPRESSION",
+    "human_emotion_or_fear": "NOT_INFERRED_FROM_MACHINE_CONFORMITY",
+    "gameplay_behavior": "NOT_SCIENTIFIC_EVIDENCE_UNLESS_CAPTURED_UNDER_A_PREREGISTERED_CONTROLLED_PROTOCOL"
+  }
+}
