@@ -1,4 +1,5 @@
 name: Janus Cosmos FractalGPT
+
 on:
   push:
     paths:
@@ -20,24 +21,31 @@ jobs:
           python-version: '3.12'
       - name: Install HST ingestion dependencies
         run: python -m pip install -r experiments/janus_cosmos_fractalgpt/requirements.txt
-      - name: Ingest public HST/MAST cutouts
-        run: python experiments/janus_cosmos_fractalgpt/ingest_hst.py experiments/janus_cosmos_fractalgpt/hst_targets.json hst-features.csv | tee janus-cosmos-ingest.json
+      - name: Ingest public Hubble/HLA cutouts
+        run: |
+          set -o pipefail
+          python experiments/janus_cosmos_fractalgpt/ingest_hst.py experiments/janus_cosmos_fractalgpt/hst_targets.json hst-features.csv | tee janus-cosmos-ingest.json
       - name: Run blind FractalGPT spatial gate
-        run: python experiments/janus_cosmos_fractalgpt/run_search.py hst-features.csv | tee janus-cosmos-receipt.json
+        run: |
+          set -o pipefail
+          python experiments/janus_cosmos_fractalgpt/run_search.py hst-features.csv | tee janus-cosmos-receipt.json
       - name: Validate scientific guardrails
-        run: python - <<'PY'
-import json
-r=json.load(open('janus-cosmos-receipt.json'))
-assert r['semantic_analysis'] is False
-assert r['nulls'] == 256
-assert r['object_count'] >= 3
-print('JANUS COSMOS REAL-HST PILOT PASS')
-print(json.dumps(r, indent=2))
-PY
+        run: |
+          python - <<'PY'
+          import json
+          r = json.load(open('janus-cosmos-receipt.json'))
+          assert r['semantic_analysis'] is False
+          assert r['nulls'] == 256
+          assert r['object_count'] >= 3
+          print('JANUS COSMOS REAL-HST PILOT PASS')
+          print(json.dumps(r, indent=2))
+          PY
       - name: Upload Cosmos receipts
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: janus-cosmos-hst-pilot
+          if-no-files-found: warn
           path: |
             janus-cosmos-ingest.json
             janus-cosmos-receipt.json
