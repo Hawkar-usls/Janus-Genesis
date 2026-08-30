@@ -24,7 +24,7 @@ from astropy.io import fits
 from astropy.io.votable import parse_single_table
 
 
-USER_AGENT = "Janus-Cosmos/0.2.1"
+USER_AGENT = "Janus-Cosmos/0.2.2"
 HLA_SIA = "https://hla.stsci.edu/cgi-bin/hlaSIAP.cgi"
 HLA_FITSCUT = "https://hla.stsci.edu/cgi-bin/fitscut.cgi"
 MAX_PRODUCTS_PER_TARGET = 3
@@ -154,22 +154,32 @@ def normalize_cutout_url(access_url: str, item) -> str:
 def read_fits_image(blob: bytes, object_id: str, source_url: str):
     try:
         with fits.open(io.BytesIO(blob), memmap=False) as hdul:
-            arr = next(
-                (
-                    np.asarray(hdu.data)
-                    for hdu in hdul
-                    if getattr(hdu, "data", None) is not None
-                    and np.asarray(hdu.data).ndim == 2
-                ),
-                None,
-            )
+            arr = None
+            raw_shapes = []
+            for hdu in hdul:
+                data = getattr(hdu, "data", None)
+                if data is None:
+                    continue
+                candidate = np.asarray(data)
+                raw_shapes.append(tuple(candidate.shape))
+                # FITS cutout products can carry singleton image axes
+                # (for example 1x96x96). Singleton axes are representation
+                # detail, not an additional measured dimension, so normalize
+                # them before enforcing a genuinely 2-D science plane.
+                normalized = np.squeeze(candidate)
+                if normalized.ndim == 2:
+                    arr = normalized
+                    break
     except Exception as exc:
         prefix = blob[:120].decode("utf-8", "replace")
         raise RuntimeError(
             f"Non-FITS HLA payload for {object_id} from {source_url}: {prefix!r}"
         ) from exc
     if arr is None:
-        raise RuntimeError(f"No 2-D science image in HLA FITS payload for {object_id}")
+        raise RuntimeError(
+            f"No squeezable 2-D science image in HLA FITS payload for {object_id}; "
+            f"HDU data shapes={raw_shapes!r}"
+        )
     return arr
 
 
