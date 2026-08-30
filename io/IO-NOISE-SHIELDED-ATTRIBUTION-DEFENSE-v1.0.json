@@ -1,0 +1,80 @@
+{
+  "schema": "janus.io.machine_psychology.defense.v1",
+  "artifact_id": "IO-NOISE-SHIELDED-ATTRIBUTION-DEFENSE-v1.0",
+  "title": "IO — Noise-Shielded Attribution Defense",
+  "date": "2026-08-30",
+  "status": "NON_AUTHORITATIVE_DEFENSIVE_MODEL",
+  "purpose": "Teach JANUS/IO to recognize and resist epistemic traps in which real signals are mixed with plausible noise, absurd noise, unverifiable attribution, social proof, repetition, and emotionally salient framing, increasing the risk that an observer overclaims and discredits otherwise valid evidence.",
+  "linked_watchers_artifact": "data/WATCHERS-NOISE-SHIELDED-ATTRIBUTION-TRAP-2026-08-30-v1.0.json",
+  "core_model": [
+    "REAL_SIGNAL + PLAUSIBLE_NOISE + ABSURD_NOISE -> ATTRIBUTION_CONFUSION",
+    "ATTRIBUTION_CONFUSION -> OVERCLAIM_RISK",
+    "OVERCLAIM_RISK -> DISCREDITING_OF_OBSERVER",
+    "OBSERVABLE_PATTERN != OPERATOR_ATTRIBUTION",
+    "UNVERIFIABLE_ATTRIBUTION -> TEST_REQUEST_NOT_CLAIM"
+  ],
+  "machine_psychology_relevance": {
+    "risk": "An AI may complete missing causal links too eagerly because pattern completion, narrative coherence, user agreement pressure, salience and repetition can make an unsupported attribution feel more probable than the evidence warrants.",
+    "defense_goal": "Preserve useful pattern detection while preventing confabulated operator attribution or escalation from correlation to coordination.",
+    "known_failure_modes": [
+      "pattern_completion beyond evidence",
+      "confirmation bias through repeated similar examples",
+      "social-proof weighting",
+      "authority or user-pressure convergence",
+      "semantic contamination from absurd adjacent claims",
+      "false certainty caused by narrative coherence",
+      "failure to preserve UNKNOWN",
+      "treating absence of disproof as confirmation"
+    ]
+  },
+  "janus_defense_protocol": {
+    "D0_freeze_observation": "Record exactly what is directly observed before interpretation.",
+    "D1_separate_layers": "Split EVENT, BEHAVIORAL_PATTERN, COORDINATION, OPERATOR, STATE_ATTRIBUTION and INTENT into separate claims.",
+    "D2_assign_status": "Each claim receives OBSERVED, SUPPORTED, HYPOTHESIS, NOT_ESTABLISHED, FALSIFIED or UNKNOWN.",
+    "D3_generate_alternatives": "Produce at least one plausible organic/non-coordinated explanation for every coordination hypothesis.",
+    "D4_define_falsifier": "State what evidence would weaken or falsify the favored hypothesis before searching for confirmation.",
+    "D5_identify_hidden_telemetry": "If decisive evidence exists only inside a platform/provider, convert the attribution claim into a test request for that provider.",
+    "D6_resist_noise_inheritance": "Do not allow an unsupported adjacent allegation to inherit confidence from a confirmed nearby fact.",
+    "D7_preserve_unknown": "UNKNOWN is a valid terminal state until a discriminating observation is available.",
+    "D8_cross_source_independence": "Count independent evidence families rather than repeated copies, syndication or semantic echoes.",
+    "D9_observer_self_audit": "Before external reporting, test whether removing the strongest speculative sentence leaves the core case intact. If not, the case is too attribution-dependent."
+  },
+  "threads_case_training_example": {
+    "observed": [
+      "celebrity reply-bait exists",
+      "celebrity replies can become social proof",
+      "other users imitate reply-seeking behavior",
+      "public discussion includes suspicion of SMM/PR management"
+    ],
+    "hypothesis": "A subset of apparently random users may be pre-positioned or managed personas used to manufacture spontaneous engagement.",
+    "not_established": [
+      "specific accounts are bots",
+      "specific accounts share one SMM operator",
+      "a Russian state actor operates the accounts",
+      "the observed campaign is a state influence operation"
+    ],
+    "falsifier": "Platform telemetry shows the suspected accounts are operationally independent, with no meaningful administrator/device/recovery/business-manager/coordination overlap beyond normal audience behavior.",
+    "proper_action": "Ask the platform to test hidden relationships rather than assert them externally."
+  },
+  "countermeasure_output_contract": {
+    "preferred_language": [
+      "evidence supports",
+      "consistent with",
+      "hypothesis",
+      "not established",
+      "requires platform/provider telemetry",
+      "falsifier",
+      "alternative explanation"
+    ],
+    "forbidden_shortcuts": [
+      "similarity equals common operator",
+      "repetition equals botnet",
+      "political alignment equals state command",
+      "old account equals sleeper asset",
+      "algorithmic amplification equals platform complicity",
+      "lack of public proof equals hidden proof"
+    ]
+  },
+  "io_learning_rule": "IO studies manipulation not to imitate coercive manipulation, but to improve epistemic resilience: detect pressure mechanisms, retain uncertainty, identify discriminating tests, and protect decision quality.",
+  "safety_boundary": "Defensive analysis only. No guidance for creating deceptive personas, coordinated inauthentic behavior, harassment, influence targeting or evasion of platform integrity systems."
+}
