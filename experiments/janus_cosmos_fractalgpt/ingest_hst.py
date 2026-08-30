@@ -24,7 +24,7 @@ from astropy.io import fits
 from astropy.io.votable import parse_single_table
 
 
-USER_AGENT = "Janus-Cosmos/0.2.2"
+USER_AGENT = "Janus-Cosmos/0.2.3"
 HLA_SIA = "https://hla.stsci.edu/cgi-bin/hlaSIAP.cgi"
 HLA_FITSCUT = "https://hla.stsci.edu/cgi-bin/fitscut.cgi"
 MAX_PRODUCTS_PER_TARGET = 3
@@ -151,36 +151,42 @@ def normalize_cutout_url(access_url: str, item) -> str:
     return access_url
 
 
-def read_fits_image(blob: bytes, object_id: str, source_url: str):
+def read_fits_planes(blob: bytes, object_id: str, source_url: str):
+    """Return every genuine 2-D science plane without silently discarding bands."""
     try:
         with fits.open(io.BytesIO(blob), memmap=False) as hdul:
-            arr = None
+            planes = []
             raw_shapes = []
-            for hdu in hdul:
+            for hdu_index, hdu in enumerate(hdul):
                 data = getattr(hdu, "data", None)
                 if data is None:
                     continue
                 candidate = np.asarray(data)
                 raw_shapes.append(tuple(candidate.shape))
-                # FITS cutout products can carry singleton image axes
-                # (for example 1x96x96). Singleton axes are representation
-                # detail, not an additional measured dimension, so normalize
-                # them before enforcing a genuinely 2-D science plane.
                 normalized = np.squeeze(candidate)
                 if normalized.ndim == 2:
-                    arr = normalized
-                    break
+                    planes.append((f"hdu{hdu_index}:plane0", normalized))
+                    continue
+                # HLA colour/composite fitscut products can legitimately be
+                # channel-first cubes such as 3x96x96. Preserve every 2-D
+                # channel as an independent, provenance-bound band instead of
+                # selecting one after observing the data.
+                if normalized.ndim == 3 and normalized.shape[-2] > 1 and normalized.shape[-1] > 1:
+                    for plane_index in range(normalized.shape[0]):
+                        plane = np.asarray(normalized[plane_index])
+                        if plane.ndim == 2:
+                            planes.append((f"hdu{hdu_index}:plane{plane_index}", plane))
     except Exception as exc:
         prefix = blob[:120].decode("utf-8", "replace")
         raise RuntimeError(
             f"Non-FITS HLA payload for {object_id} from {source_url}: {prefix!r}"
         ) from exc
-    if arr is None:
+    if not planes:
         raise RuntimeError(
-            f"No squeezable 2-D science image in HLA FITS payload for {object_id}; "
+            f"No 2-D science plane in HLA FITS payload for {object_id}; "
             f"HDU data shapes={raw_shapes!r}"
         )
-    return arr
+    return planes
 
 
 def main(manifest: str, out: str):
@@ -195,8 +201,28 @@ def main(manifest: str, out: str):
         for access_url in access_urls:
             data_url = normalize_cutout_url(access_url, item)
             blob = fetch(data_url)
-            arr = resize(read_fits_image(blob, item["object_id"], data_url), 64)
-            if arr is None:
+            planes = read_fits_planes(blob, item["object_id"], data_url)
+            accepted_planes = 0
+            for plane_label, plane in planes:
+                arr = resize(plane, 64)
+                if arr is None:
+                    continue
+                accepted_planes += 1
+                band_id = f"{access_url}#{plane_label}"
+                for iy, y in enumerate(np.linspace(-1, 1, 64)):
+                    for ix, x in enumerate(np.linspace(-1, 1, 64)):
+                        rows.append(
+                            {
+                                "object_id": item["object_id"],
+                                "band": band_id,
+                                "x": float(x),
+                                "y": float(y),
+                                "signal": float(arr[iy, ix]),
+                                "source_url": sia_url,
+                                "source_file": data_url,
+                            }
+                        )
+            if accepted_planes == 0:
                 continue
             accepted += 1
             provenance.append(
@@ -206,21 +232,9 @@ def main(manifest: str, out: str):
                     "access_url": access_url,
                     "data_url": data_url,
                     "bytes": len(blob),
+                    "science_planes": accepted_planes,
                 }
             )
-            for iy, y in enumerate(np.linspace(-1, 1, 64)):
-                for ix, x in enumerate(np.linspace(-1, 1, 64)):
-                    rows.append(
-                        {
-                            "object_id": item["object_id"],
-                            "band": access_url,
-                            "x": float(x),
-                            "y": float(y),
-                            "signal": float(arr[iy, ix]),
-                            "source_url": sia_url,
-                            "source_file": data_url,
-                        }
-                    )
         if accepted == 0:
             raise RuntimeError(f"No usable HLA FITS product for {item['object_id']}")
 
@@ -246,6 +260,7 @@ def main(manifest: str, out: str):
                 "status": "INGESTED_HLA_SIA",
                 "rows": len(rows),
                 "objects": sorted({row["object_id"] for row in rows}),
+                "bands": len({row["band"] for row in rows}),
                 "products": provenance,
             },
             indent=2,
