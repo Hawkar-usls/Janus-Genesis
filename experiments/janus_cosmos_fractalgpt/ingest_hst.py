@@ -2,16 +2,17 @@
 
 The original pilot treated MAST zCut as a generic HST cutout endpoint. zCut is
 survey-oriented and can legitimately return a non-ZIP response when no
-supported survey image exists at a target.  This implementation uses the
-Hubble Legacy Archive (HLA) SIA service to discover Hubble images that cover an
-exact sky position, then retrieves small true-pixel FITS cutouts through the
-HLA fitscut service.
+supported survey image exists at a target. This implementation uses the Hubble
+Legacy Archive (HLA) SIA service to discover Hubble images that cover an exact
+sky position, then retrieves small true-pixel FITS cutouts through the HLA
+fitscut service.
 
 Requires numpy and astropy only.
 """
 from __future__ import annotations
 
 import csv
+import html
 import io
 import json
 import sys
@@ -23,7 +24,7 @@ from astropy.io import fits
 from astropy.io.votable import parse_single_table
 
 
-USER_AGENT = "Janus-Cosmos/0.2"
+USER_AGENT = "Janus-Cosmos/0.2.1"
 HLA_SIA = "https://hla.stsci.edu/cgi-bin/hlaSIAP.cgi"
 HLA_FITSCUT = "https://hla.stsci.edu/cgi-bin/fitscut.cgi"
 MAX_PRODUCTS_PER_TARGET = 3
@@ -79,8 +80,6 @@ def discover_hla_images(item):
     if len(table) == 0:
         raise RuntimeError(f"No HLA image covers target {item['object_id']}")
 
-    # HLA documents the SIA access reference as the URL field.  Keep a small
-    # compatibility fallback for case/legacy naming without guessing content.
     by_casefold = {name.casefold(): name for name in table.colnames}
     url_column = by_casefold.get("url")
     if url_column is None:
@@ -99,7 +98,10 @@ def discover_hla_images(item):
 
     urls = []
     for value in table[url_column]:
-        text = _text(value)
+        # VOTable text may expose query separators as XML entities. Normalize
+        # them before URL parsing; otherwise keys like "amp;green" silently
+        # change the requested product.
+        text = html.unescape(_text(value))
         if text.startswith(("https://", "http://")):
             urls.append(text)
     urls = sorted(set(urls))
@@ -108,32 +110,44 @@ def discover_hla_images(item):
     return query_url, urls[:MAX_PRODUCTS_PER_TARGET]
 
 
+def _fitscut_url(params: dict[str, object], item) -> str:
+    flat = {key: value for key, value in params.items() if value not in (None, "")}
+    flat.update(
+        {
+            "RA": item["ra"],
+            "Dec": item["dec"],
+            "size": item.get("size_px", 96),
+            "format": "fits",
+            "TextErrors": "yes",
+            "config": flat.get("config", "ops"),
+        }
+    )
+    return f"{HLA_FITSCUT}?{urllib.parse.urlencode(flat)}"
+
+
 def normalize_cutout_url(access_url: str, item) -> str:
-    """Keep HLA/MAST data provenance but force small FITS cutouts when possible."""
+    """Preserve HLA provenance while forcing bounded target-centred FITS data."""
+    access_url = html.unescape(access_url)
     parsed = urllib.parse.urlparse(access_url)
     params = urllib.parse.parse_qs(parsed.query)
+    flat = {key: values[-1] for key, values in params.items() if values}
 
-    # HLA SIA commonly returns fitscut access references. Rebuild those with a
-    # fixed target-centered cutout and FITS output so CI never downloads a full
-    # archival mosaic merely to obtain the 64x64 analysis grid.
     if parsed.netloc.casefold() == "hla.stsci.edu" and parsed.path.endswith("/fitscut.cgi"):
-        flat = {key: values[-1] for key, values in params.items() if values}
-        flat.update(
-            {
-                "RA": item["ra"],
-                "Dec": item["dec"],
-                "size": item.get("size_px", 96),
-                "format": "fits",
-                "TextErrors": "yes",
-            }
-        )
-        return urllib.parse.urlunparse(
-            parsed._replace(query=urllib.parse.urlencode(flat))
-        )
+        return _fitscut_url(flat, item)
 
-    # If HLA returned a dataset identifier through a standard data URL rather
-    # than fitscut, do not synthesize a dataset name. Fetch the authoritative
-    # URL as returned and let the FITS parser validate it fail-closed.
+    # SIA can also return full-product getdata URLs. Convert the exact returned
+    # dataset id to fitscut instead of downloading hundreds of MB merely to
+    # derive a 64x64 analysis grid.
+    if parsed.netloc.casefold() == "hla.stsci.edu" and parsed.path.endswith("/getdata.cgi"):
+        dataset = flat.get("dataset")
+        if not dataset:
+            raise RuntimeError(
+                f"HLA getdata access URL has no dataset id for {item['object_id']}: {access_url}"
+            )
+        return _fitscut_url({"red": dataset, "config": flat.get("config", "ops")}, item)
+
+    # Unknown access forms remain authoritative as returned and must validate
+    # as FITS below; no guessed dataset identity is permitted.
     return access_url
 
 
