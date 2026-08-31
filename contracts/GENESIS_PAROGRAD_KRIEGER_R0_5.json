@@ -1,0 +1,69 @@
+{
+  "schema": "janus.genesis.parograd_krieger.runtime.v1",
+  "version": "0.5.0",
+  "status": "IMPLEMENTED_CANDIDATE_R0_5",
+  "supersedes_active_pages_runtime": "GENESIS_SCENE_INTENT_GRAPH_R0_4",
+  "preserves_r0_4_as_lineage": true,
+  "runtime": {
+    "active_world_runtime": "site/genesis-world-runtime-v5.js",
+    "scene_executor": "site/genesis-scene-graph-executor-r0-5.js",
+    "command_bridge": "site/genesis-command-bridge-v5.js",
+    "mechanic_forge": "site/genesis-mechanic-forge-r0-5.js",
+    "asset_trunk": "site/genesis-asset-trunk-r0-5.js",
+    "hotkeys": "site/genesis-hotkeys-v3.js",
+    "generator_version_preserved": "GENESIS_COMMAND_RUNTIME_R0.3.0"
+  },
+  "jump": {
+    "keyboard_code": "Space",
+    "layout_independent": true,
+    "text_intent": "JUMP",
+    "languages_local_r0": ["EN", "RU", "UK", "PL", "DE", "ES", "FR"],
+    "gravity": 16.8,
+    "jump_velocity": 5.9,
+    "air_spam_blocked": true,
+    "canonical_world_mutation": false,
+    "persisted_in_world_save": false
+  },
+  "distance_streaming": {
+    "policy": "ADAPTIVE_FULL_LOD_HORIZON_RECIPE_ONLY",
+    "profiles": {
+      "low": {"full_detail": 18, "coarse_lod": 48, "horizon": 112},
+      "balanced": {"full_detail": 24, "coarse_lod": 64, "horizon": 160},
+      "high": {"full_detail": 28, "coarse_lod": 80, "horizon": 200}
+    },
+    "recipe_only_beyond_horizon": true,
+    "procedural_objects_full_detail_only": true,
+    "distant_explicit_structures_have_silhouette_fallback": true,
+    "lod_changes_canonical_facts": false
+  },
+  "parograd_krieger": {
+    "parograd_lineage": "CONCEPTUAL_STREAMING_PATTERN_ONLY_NO_CODE_IMPORT_ASSERTED",
+    "krieger_lineage": "CONCEPTUAL_CAUSE_FIRST_PROCEDURAL_PATTERN_ONLY_NO_CODE_IMPORT_ASSERTED",
+    "laws": ["STREAM_WHEN_NECESSARY", "GENERATE_WHEN_CHEAPER", "STORE_CAUSES_NOT_RENDERED_CONSEQUENCES", "DISTANCE_LOD_DOES_NOT_CHANGE_CANONICAL_FACTS", "RECIPE_ONLY_FAR_WORLD_IS_VALID_WORLD_STATE"]
+  },
+  "asset_trunks": {
+    "channels": ["MATERIAL", "MESH", "AUDIO", "MECHANIC_REFERENCE"],
+    "control_plane": "SLIME",
+    "binary_data_plane": "DIRECT_PROVIDER_OR_CDN",
+    "binary_bytes_through_slime": false,
+    "rights_gate": "FAIL_CLOSED",
+    "procedural_fallback_required": true,
+    "registered_source_ne_live_adapter": true,
+    "registry": "asset_sources/ASSET_SOURCE_REGISTRY_R0_5.json"
+  },
+  "mechanic_forge": {
+    "registry": "asset_sources/MECHANIC_RECIPE_SOURCE_REGISTRY_R0_5.json",
+    "foreign_code_execution": false,
+    "allowlisted_recipe_kinds": ["HINGE", "DOOR", "ELEVATOR", "ROTATOR", "OSCILLATOR", "PARTICLE_EMITTER", "BREAKABLE", "BUOYANT", "VEHICLE_WHEEL", "NPC_PATH", "TRIGGER_ZONE", "ANIMATION_CLIP", "COLLIDER_PROFILE"],
+    "lighthouse_has_rotator_recipe": true,
+    "portal_has_oscillator_recipe": true
+  },
+  "authority": {
+    "janus_graph_is_world_authority": false,
+    "asset_pointer_is_world_authority": false,
+    "foreign_mechanic_metadata_is_world_authority": false,
+    "genesis_validator_required": true,
+    "shared_mmo_authority": "NOT_YET_CONNECTED"
+  },
+  "laws": ["JUMP_NE_WORLD_MUTATION", "JUMP_NE_FACT_HASH_CHANGE", "DISTANCE_LOD_DOES_NOT_CHANGE_CANONICAL_FACTS", "STREAM_WHEN_NECESSARY", "GENERATE_WHEN_CHEAPER", "STORE_CAUSES_NOT_RENDERED_CONSEQUENCES", "SLIME_CONTROL_PLANE_NE_ASSET_BYTES", "ASSET_REFERENCE_NE_CANONICAL_BINARY", "FOREIGN_MECHANIC_CODE_NE_EXECUTABLE_AUTHORITY", "RIGHTS_GATE_BEFORE_EXTERNAL_REFERENCE", "PROCEDURAL_FALLBACK_REQUIRED"]
+}

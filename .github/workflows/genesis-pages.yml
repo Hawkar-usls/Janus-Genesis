@@ -10,24 +10,20 @@ on:
       - '.janus/GENESIS_FULL_RUNTIME_V1.json'
       - '.janus/GENESIS_COMMAND_RUNTIME_R0_3.json'
       - '.janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
-      - 'contracts/GENESIS_WORLD_SHELL_R0.json'
-      - 'contracts/GENESIS_ACTION_FORGE_R0.json'
-      - 'contracts/GENESIS_FULL_RUNTIME_V1.json'
-      - 'contracts/GENESIS_COMMAND_RUNTIME_R0_3.json'
-      - 'contracts/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
+      - '.janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json'
+      - 'contracts/**'
       - 'genesis-audio-forge.js'
       - 'index.html'
       - 'kernel-lab.html'
       - 'site/**'
       - 'asset_sources/**'
-      - 'docs/GENESIS_WORLD_SHELL_R0.md'
-      - 'docs/GENESIS_ACTION_FORGE_R0.md'
       - 'tests/test_genesis_pages_contracts.py'
       - 'tests/test_genesis_world_shell.py'
       - 'tests/test_genesis_action_forge.py'
       - 'tests/test_genesis_full_runtime_v1.py'
       - 'tests/test_genesis_command_runtime_r0_3.py'
       - 'tests/test_genesis_scene_intent_graph_r0_4.py'
+      - 'tests/test_genesis_parograd_krieger_r0_5.py'
       - '.github/workflows/genesis-pages.yml'
   push:
     branches: [main]
@@ -39,24 +35,20 @@ on:
       - '.janus/GENESIS_FULL_RUNTIME_V1.json'
       - '.janus/GENESIS_COMMAND_RUNTIME_R0_3.json'
       - '.janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
-      - 'contracts/GENESIS_WORLD_SHELL_R0.json'
-      - 'contracts/GENESIS_ACTION_FORGE_R0.json'
-      - 'contracts/GENESIS_FULL_RUNTIME_V1.json'
-      - 'contracts/GENESIS_COMMAND_RUNTIME_R0_3.json'
-      - 'contracts/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
+      - '.janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json'
+      - 'contracts/**'
       - 'genesis-audio-forge.js'
       - 'index.html'
       - 'kernel-lab.html'
       - 'site/**'
       - 'asset_sources/**'
-      - 'docs/GENESIS_WORLD_SHELL_R0.md'
-      - 'docs/GENESIS_ACTION_FORGE_R0.md'
       - 'tests/test_genesis_pages_contracts.py'
       - 'tests/test_genesis_world_shell.py'
       - 'tests/test_genesis_action_forge.py'
       - 'tests/test_genesis_full_runtime_v1.py'
       - 'tests/test_genesis_command_runtime_r0_3.py'
       - 'tests/test_genesis_scene_intent_graph_r0_4.py'
+      - 'tests/test_genesis_parograd_krieger_r0_5.py'
       - '.github/workflows/genesis-pages.yml'
   workflow_dispatch:
 
@@ -85,12 +77,14 @@ jobs:
           python -m unittest tests.test_genesis_full_runtime_v1 -v
           python -m unittest tests.test_genesis_command_runtime_r0_3 -v
           python -m unittest tests.test_genesis_scene_intent_graph_r0_4 -v
-          python -m json.tool .janus/GENESIS_COMMAND_RUNTIME_R0_3.json >/dev/null
-          python -m json.tool .janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json >/dev/null
+          python -m unittest tests.test_genesis_parograd_krieger_r0_5 -v
+          python -m json.tool .janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json >/dev/null
+          python -m json.tool asset_sources/ASSET_SOURCE_REGISTRY_R0_5.json >/dev/null
+          python -m json.tool asset_sources/MECHANIC_RECIPE_SOURCE_REGISTRY_R0_5.json >/dev/null
           python - <<'PY'
           import json
           from pathlib import Path
-          for name in ('GENESIS_COMMAND_RUNTIME_R0_3.json','GENESIS_SCENE_INTENT_GRAPH_R0_4.json'):
+          for name in ('GENESIS_COMMAND_RUNTIME_R0_3.json','GENESIS_SCENE_INTENT_GRAPH_R0_4.json','GENESIS_PAROGRAD_KRIEGER_R0_5.json'):
               a=json.loads((Path('.janus')/name).read_text())
               b=json.loads((Path('contracts')/name).read_text())
               assert a == b, name
@@ -103,17 +97,24 @@ jobs:
           node --check site/genesis-action-input-ru.js
           node --check site/genesis-action-forge.js
           node --check site/genesis-world-runtime-v3.js
-          node --check site/genesis-janus-bridge-v1.js
-          node --check site/genesis-asset-materializer-v1.js
-          node --check site/genesis-audio-runtime-v1.js
-          node --check site/genesis-hotkeys-v1.js
           node --check site/genesis-world-runtime-v4.js
+          node --check site/genesis-world-runtime-v5.js
+          node --check site/genesis-janus-bridge-v1.js
           node --check site/genesis-command-bridge-v2.js
           node --check site/genesis-command-bridge-v3.js
+          node --check site/genesis-command-lexicon-r0-5.js
+          node --check site/genesis-asset-materializer-v1.js
           node --check site/genesis-asset-materializer-v2.js
+          node --check site/genesis-asset-trunk-r0-5.js
+          node --check site/genesis-audio-runtime-v1.js
+          node --check site/genesis-hotkeys-v1.js
           node --check site/genesis-hotkeys-v2.js
+          node --check site/genesis-hotkeys-v3.js
+          node --check site/genesis-mechanic-forge-r0-5.js
           node --check site/genesis-scene-graph-executor-r0-4.js
+          node --check site/genesis-scene-graph-executor-r0-5.js
           node --check site/genesis-command-bridge-v4.js
+          node --check site/genesis-command-bridge-v5.js
           node --check site/genesis-pages.js
           node --check genesis-audio-forge.js
 
@@ -132,40 +133,10 @@ jobs:
           cp .janus/GENESIS_FULL_RUNTIME_V1.json _site/contracts/GENESIS_FULL_RUNTIME_V1.json
           cp .janus/GENESIS_COMMAND_RUNTIME_R0_3.json _site/contracts/GENESIS_COMMAND_RUNTIME_R0_3.json
           cp .janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json _site/contracts/GENESIS_SCENE_INTENT_GRAPH_R0_4.json
+          cp .janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json _site/contracts/GENESIS_PAROGRAD_KRIEGER_R0_5.json
           touch _site/.nojekyll
-          test -s _site/index.html
-          test -s _site/kernel-lab.html
-          test -s _site/genesis-world-shell.js
-          test -s _site/genesis-world-shell-v2.js
-          test -s _site/genesis-action-input-ru.js
-          test -s _site/genesis-action-forge.js
-          test -s _site/genesis-world-runtime-v3.js
-          test -s _site/genesis-janus-bridge-v1.js
-          test -s _site/genesis-asset-materializer-v1.js
-          test -s _site/genesis-world-runtime-v4.js
-          test -s _site/genesis-command-bridge-v2.js
-          test -s _site/genesis-command-bridge-v3.js
-          test -s _site/genesis-asset-materializer-v2.js
-          test -s _site/genesis-hotkeys-v2.js
-          test -s _site/genesis-scene-graph-executor-r0-4.js
-          test -s _site/genesis-command-bridge-v4.js
-          test -s _site/genesis-audio-runtime-v1.js
-          test -s _site/world-shell.css
-          test -s _site/world-shell-camera.css
-          test -s _site/action-forge.css
-          test -s _site/runtime-v3.css
-          test -s _site/runtime-v4.css
-          test -s _site/scene-graph-r0-4.css
-          test -s _site/genesis-pages.js
-          test -s _site/genesis-pages.css
-          test -s _site/genesis-audio-forge.js
-          test -s _site/contracts/GENESIS_LAWS_V1.json
-          test -s _site/contracts/GENESIS_KERNEL_ROADMAP_V1.json
-          test -s _site/contracts/GENESIS_WORLD_SHELL_R0.json
-          test -s _site/contracts/GENESIS_ACTION_FORGE_R0.json
-          test -s _site/contracts/GENESIS_FULL_RUNTIME_V1.json
-          test -s _site/contracts/GENESIS_COMMAND_RUNTIME_R0_3.json
-          test -s _site/contracts/GENESIS_SCENE_INTENT_GRAPH_R0_4.json
+          for f in index.html kernel-lab.html genesis-world-runtime-v5.js genesis-command-lexicon-r0-5.js genesis-asset-trunk-r0-5.js genesis-hotkeys-v3.js genesis-mechanic-forge-r0-5.js genesis-scene-graph-executor-r0-5.js genesis-command-bridge-v5.js genesis-audio-runtime-v1.js genesis-asset-materializer-v2.js scene-graph-r0-4.css; do test -s "_site/$f"; done
+          for f in GENESIS_LAWS_V1.json GENESIS_KERNEL_ROADMAP_V1.json GENESIS_WORLD_SHELL_R0.json GENESIS_ACTION_FORGE_R0.json GENESIS_FULL_RUNTIME_V1.json GENESIS_COMMAND_RUNTIME_R0_3.json GENESIS_SCENE_INTENT_GRAPH_R0_4.json GENESIS_PAROGRAD_KRIEGER_R0_5.json; do test -s "_site/contracts/$f"; done
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

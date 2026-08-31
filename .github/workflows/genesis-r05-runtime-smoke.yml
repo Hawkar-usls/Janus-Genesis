@@ -1,0 +1,34 @@
+name: Genesis R0.5 Runtime Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'site/genesis-world-runtime-v5.js'
+      - 'site/genesis-mechanic-forge-r0-5.js'
+      - 'tests/test_genesis_runtime_v5_smoke.py'
+      - '.github/workflows/genesis-r05-runtime-smoke.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'site/genesis-world-runtime-v5.js'
+      - 'site/genesis-mechanic-forge-r0-5.js'
+      - 'tests/test_genesis_runtime_v5_smoke.py'
+      - '.github/workflows/genesis-r05-runtime-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Syntax
+        run: |
+          node --check site/genesis-world-runtime-v5.js
+          node --check site/genesis-mechanic-forge-r0-5.js
+      - name: Boot runtime and prove jump does not drift canonical state
+        run: python -m unittest tests.test_genesis_runtime_v5_smoke -v
