@@ -6,7 +6,10 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LAWS_PATH = ROOT / ".janus" / "GENESIS_LAWS_V1.json"
 ROADMAP_PATH = ROOT / ".janus" / "GENESIS_KERNEL_ROADMAP_V1.json"
+PUBLIC_LAWS_PATH = ROOT / "contracts" / "GENESIS_LAWS_V1.json"
+PUBLIC_ROADMAP_PATH = ROOT / "contracts" / "GENESIS_KERNEL_ROADMAP_V1.json"
 SITE_HTML = ROOT / "site" / "index.html"
+ROOT_HTML = ROOT / "index.html"
 SITE_JS = ROOT / "site" / "genesis-pages.js"
 
 
@@ -15,7 +18,10 @@ class GenesisPagesContractsTests(unittest.TestCase):
     def setUpClass(cls):
         cls.laws = json.loads(LAWS_PATH.read_text(encoding="utf-8"))
         cls.roadmap = json.loads(ROADMAP_PATH.read_text(encoding="utf-8"))
+        cls.public_laws = json.loads(PUBLIC_LAWS_PATH.read_text(encoding="utf-8"))
+        cls.public_roadmap = json.loads(PUBLIC_ROADMAP_PATH.read_text(encoding="utf-8"))
         cls.html = SITE_HTML.read_text(encoding="utf-8")
+        cls.root_html = ROOT_HTML.read_text(encoding="utf-8")
         cls.js = SITE_JS.read_text(encoding="utf-8")
 
     def test_laws_are_frozen_and_unique(self):
@@ -66,6 +72,10 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertEqual(stages[1]["status"], "NEXT")
         self.assertEqual(self.roadmap["current_front"], "R1_MATERIAL_FORGE")
 
+    def test_public_contract_mirrors_match_canonical_contracts(self):
+        self.assertEqual(self.public_laws, self.laws)
+        self.assertEqual(self.public_roadmap, self.roadmap)
+
     def test_pages_surface_links_only_local_runtime_and_contracts(self):
         self.assertIn("./genesis-audio-forge.js", self.html)
         self.assertIn("./genesis-pages.js", self.html)
@@ -74,6 +84,15 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertIn("./contracts/GENESIS_KERNEL_ROADMAP_V1.json", self.js)
         self.assertNotIn("http://", self.html + self.js)
         self.assertNotIn("https://", self.html + self.js)
+
+    def test_root_entrypoint_survives_classic_pages_mode(self):
+        self.assertTrue((ROOT / ".nojekyll").exists())
+        self.assertIn("GENESIS <span>//</span> GENERATIVE KERNEL", self.root_html)
+        self.assertIn("./site/genesis-pages.css", self.root_html)
+        self.assertIn("./site/genesis-pages.js", self.root_html)
+        self.assertIn("./genesis-audio-forge.js", self.root_html)
+        self.assertNotIn("http://", self.root_html)
+        self.assertNotIn("https://", self.root_html)
 
     def test_pages_runtime_does_not_introduce_dynamic_code_execution(self):
         forbidden = ("eval(", "new Function(", "WebSocket(", "EventSource(")
