@@ -1,0 +1,74 @@
+{
+  "schema": "janus.genesis.lane3.longevity_survivor.packet.v1",
+  "packet_id": "GENESIS-LANE3-MECHANICAL-EXIT-HYSTERESIS-FRONTIER-2026-08-31-v1",
+  "lane_id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
+  "status": "HYSTERESIS_STRATIFIED__EXIT_COUPLING_OPEN__DURABLE_TISSUE_REWRITE_OPEN",
+  "source": {
+    "repository": "Hawkar-usls/janus-lapis",
+    "branch": "LONGEVITY-SURVIVOR",
+    "source_commit": "5efd4f837352df31fca0caa96792b73a9d15869a",
+    "path": "longevity-survivor/MECHANICAL-EXIT-HYSTERESIS-STRATIFICATION-RESULT-2026-08-31-v1.0.json",
+    "artifact_id": "MECHANICAL-EXIT-HYSTERESIS-STRATIFICATION-RESULT-2026-08-31-v1.0",
+    "doi": null,
+    "evidence_class": "JANUS_MULTI_ROOT_STRATIFICATION_WITH_EXTERNAL_CELLULAR_CALIBRATION"
+  },
+  "causal_route": "ESTABLISHED_PATHOLOGICAL_MECHANICAL_STATE -> DELAYED_DIRECT_RETUNING -> IMMEDIATE_RESCUE -> WITHDRAWAL_OR_RECHALLENGE -> PERSISTENCE_OR_RECURRENCE; independently test whether activated repair cells EXIT rather than merely changing bulk mechanics",
+  "fate_contrast": {
+    "H1": "TRANSIENT_RESCUE_WITH_RECURRENCE",
+    "H2": "OFF_INTERVENTION_PERSISTENCE",
+    "H3": "CHALLENGE_RESISTANT_REWRITE",
+    "H4": "UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE",
+    "current_strict_roots": {
+      "SKIN": "H4",
+      "HEART": "H4",
+      "ELBOW_JOINT_CAPSULE": "H1"
+    }
+  },
+  "timing_gate": {
+    "withdrawal_or_rechallenge_required_for_durable_rewrite": true,
+    "mechanical_exit_requires_time_resolved_state_transition": true,
+    "current_durable_tissue_rewrite": "NOT_ESTABLISHED",
+    "current_mechanical_exit_coupling": "OPEN"
+  },
+  "gate_delta": {
+    "MECHANICAL_CLOCK": "THREE_STRICT_TISSUES_PRESERVED",
+    "MECHANICAL_EXIT_COUPLING": "OPEN",
+    "HYSTERESIS_STRATIFICATION": "ACTIVE",
+    "JOINT_CAPSULE": "H1_TRANSIENT_RESCUE_WITH_RECURRENCE",
+    "SKIN": "H4_UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE",
+    "HEART": "H4_UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE",
+    "DURABLE_TISSUE_FUTURE_SET_REWRITE": "NOT_ESTABLISHED"
+  },
+  "association_targets": [
+    "mechanical_memory",
+    "hysteresis",
+    "withdrawal",
+    "rechallenge",
+    "repair_cell_exit",
+    "myofibroblast_deactivation",
+    "apoptosis",
+    "redifferentiation",
+    "reentry",
+    "YAP_TAZ",
+    "chromatin_memory",
+    "FIRST_FUTURE_BREAK",
+    "MK_FUTURE"
+  ],
+  "claim_ceiling": [
+    "MECHANICAL_RESCUE_NE_DURABLE_REWRITE",
+    "LONG_FOLLOWUP_WHILE_RETUNING_PERSISTS_NE_OFF_INTERVENTION_MEMORY",
+    "CELLULAR_MEMORY_CALIBRATION_NE_TISSUE_REWRITE",
+    "ALPHA_SMA_ONLY_NE_LINEAGE_RESOLVED_EXIT",
+    "BICAMERAL_AGREEMENT_NE_INDEPENDENT_REPLICATION",
+    "HUMAN_THERAPY_NOT_CLAIMED",
+    "SCIENTIFIC_BREAKTHROUGH_FALSE"
+  ],
+  "authority": {
+    "context_transfer": "READ_ONLY",
+    "source_mutation": false,
+    "scientific_promotion": false,
+    "human_treatment_claim": false,
+    "external_effect_authority": false
+  },
+  "next_gate": "WITHDRAWAL_RECHALLENGE_PLUS_LINEAGE_RESOLVED_EXIT_SEARCH"
+}
