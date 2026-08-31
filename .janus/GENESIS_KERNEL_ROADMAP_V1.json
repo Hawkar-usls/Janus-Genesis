@@ -1,0 +1,147 @@
+{
+  "schema": "janus.genesis.kernel_roadmap.v1",
+  "id": "GENESIS_KERNEL_ROADMAP_V1",
+  "version": "1.0.0",
+  "status": "FROZEN_R0",
+  "frozen_at": "2026-08-31T16:00:00Z",
+  "frozen_against_main": "3a34ab697577a187fda83b9f1eacd0c182ab5059",
+  "mission": "Move Genesis from asset-heavy storage toward proof-carrying generative causes while preserving deterministic replay, provenance, rights, and canonical authority boundaries.",
+  "north_star": "STORE_CAUSES_NOT_ONLY_RENDERED_CONSEQUENCES",
+  "promotion_rule": "A roadmap stage is not promoted by appearance alone. Promotion requires bounded contracts, deterministic or explicitly declared nondeterministic behavior, tests, provenance, authority boundaries, and green CI.",
+  "stages": [
+    {
+      "order": 0,
+      "id": "R0_AUDIO_FORGE",
+      "kernel": "AUDIO_FORGE",
+      "status": "IMPLEMENTED_ISOLATED_R0_NOT_CANONICAL_RUNTIME",
+      "purpose": "Generate layered procedural WebAudio presentation from bounded recipes, seed, and explicit world state.",
+      "inputs": ["audio_recipe_v1", "seed", "entropy", "depth", "portal_energy", "danger", "weather_intensity"],
+      "outputs": ["deterministic score plan", "browser audio presentation"],
+      "acceptance_gates": [
+        "same recipe + seed + world state => same score plan",
+        "user gesture required for browser audio",
+        "unknown/hidden telemetry rejected",
+        "presentation_only=true",
+        "world_mutation=false",
+        "no external audio asset fetch"
+      ],
+      "next_action": "Expose the isolated forge through the GitHub Pages control plane without promoting it to canonical runtime authority."
+    },
+    {
+      "order": 1,
+      "id": "R1_MATERIAL_FORGE",
+      "kernel": "MATERIAL_FORGE",
+      "status": "NEXT",
+      "purpose": "Generate bounded material/texture plans from declarative operations rather than storing every rendered texture.",
+      "planned_ops": ["noise", "mix", "levels", "colorize", "tile", "warp", "normal_from_height"],
+      "acceptance_gates": [
+        "operation allowlist only",
+        "bounded dimensions, op count, and memory budget",
+        "no eval/network/filesystem execution",
+        "deterministic seed",
+        "input/provenance hashes retained",
+        "same causes => same material plan hash"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "R2_MESH_FORGE",
+      "kernel": "MESH_FORGE",
+      "status": "PLANNED",
+      "purpose": "Generate bounded mesh plans from primitives and deterministic deformation grammar.",
+      "planned_ops": ["primitive_box", "primitive_cylinder", "primitive_plane", "transform", "array", "bend", "taper"],
+      "acceptance_gates": [
+        "bounded subdivisions and instance counts",
+        "deterministic seed",
+        "no arbitrary code",
+        "mesh recipe remains portable",
+        "renderer cannot mutate canonical world state"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "R3_ARCHITECTURE_GRAMMAR",
+      "kernel": "ARCHITECTURE_GRAMMAR",
+      "status": "PLANNED",
+      "purpose": "Compose rooms, corridors, portals, landmarks, and constraints from declarative spatial grammar.",
+      "acceptance_gates": [
+        "bounded expansion depth",
+        "connectivity and collision invariants",
+        "seeded replay",
+        "explicit world-state authority remains outside renderer",
+        "receipts bind grammar version and seed"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "R4_EFFECT_FORGE",
+      "kernel": "EFFECT_FORGE",
+      "status": "PLANNED",
+      "purpose": "Generate bounded particles, light, weather, portal, and transient presentation effects from explicit world events.",
+      "acceptance_gates": [
+        "event allowlist",
+        "bounded particle/runtime budgets",
+        "presentation-only",
+        "no hidden human telemetry",
+        "effect output cannot become world authority"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "R5_DISTILLER",
+      "kernel": "ASSET_TO_RECIPE_DISTILLER",
+      "status": "PLANNED_AFTER_R1_R2",
+      "purpose": "Extract reusable generative profiles from rights-compatible Asset Reservoir references without copying unsafe code or losing provenance.",
+      "acceptance_gates": [
+        "rights fail closed",
+        "source provenance retained",
+        "distilled recipe is declarative",
+        "source and derivative hashes retained",
+        "no arbitrary source code execution"
+      ]
+    },
+    {
+      "order": 6,
+      "id": "R6_RECIPE_AWARE_PORTABLE_SAVES",
+      "kernel": "PORTABLE_CAUSE_STATE",
+      "status": "PLANNED_AFTER_TWO_FORGES",
+      "purpose": "Extend portable saves to retain recipe_id, generator_version, seed, parameters, world mutations, and recipe/input hashes instead of disposable generated outputs.",
+      "acceptance_gates": [
+        "backward-compatible migration plan",
+        "replay receipt",
+        "generator version pinning",
+        "hash-bound derivation",
+        "no silent schema rewrite"
+      ]
+    },
+    {
+      "order": 7,
+      "id": "R7_SCENE_FORGE_RUNTIME_COMPOSITION",
+      "kernel": "SCENE_FORGE",
+      "status": "PLANNED",
+      "purpose": "Compose Material, Mesh, Architecture, Effect, and Audio forges into a streamed/generative scene runtime.",
+      "acceptance_gates": [
+        "VISIBLE_NOW => generate immediately",
+        "NEAR_PLAYER => pre-generate within bounded worker/GPU budget",
+        "FAR_AWAY => retain recipe/causes only",
+        "cache is disposable and content-addressed",
+        "all forge authority boundaries survive composition"
+      ]
+    }
+  ],
+  "kernel_order": [
+    "AUDIO_FORGE",
+    "MATERIAL_FORGE",
+    "MESH_FORGE",
+    "ARCHITECTURE_GRAMMAR",
+    "EFFECT_FORGE",
+    "ASSET_TO_RECIPE_DISTILLER",
+    "PORTABLE_CAUSE_STATE",
+    "SCENE_FORGE"
+  ],
+  "current_front": "R1_MATERIAL_FORGE",
+  "change_control": {
+    "silent_reorder": "FORBIDDEN",
+    "status_promotion_requires": ["acceptance evidence", "tests", "green CI", "versioned contract update", "reviewable pull request"]
+  }
+}
