@@ -1,0 +1,66 @@
+{
+  "schema": "janus.physarius.asset_trunk.manifest.v1",
+  "trunk_id": "PHYSARIUS_ASSET_TRUNK_V1",
+  "status": "ACTIVE_CONTROL_PLANE_CONTRACT",
+  "purpose": "Federated discovery and provenance transport for external open/public asset reservoirs without carrying bulk binary assets through SLIME.",
+  "architecture": {
+    "control_plane": "PHYSARIUS_SLIME",
+    "data_plane": "DIRECT_PROVIDER_API_OR_CDN",
+    "binary_payload_over_slime": false,
+    "source_mutation": false,
+    "authority_delta": 0,
+    "scientific_claim_promotion": false
+  },
+  "message_classes": [
+    "ASSET_QUERY",
+    "ASSET_CANDIDATE",
+    "ASSET_POINTER",
+    "LICENSE_ATTESTATION",
+    "PROVENANCE_POINTER",
+    "DERIVATION_REQUEST",
+    "DERIVATION_RECEIPT",
+    "CACHE_POINTER"
+  ],
+  "federation": {
+    "selection_policy": "QUERY_ALL_RELEVANT_ENABLED_ADAPTERS",
+    "winner_take_all": false,
+    "provider_failure_isolation": true,
+    "provider_join_policy": "OPEN_REGISTRY_IF_ADAPTER_AND_RIGHTS_CONTRACT_PASS",
+    "provider_count_ceiling": null
+  },
+  "rights_gate": {
+    "default": "FAIL_CLOSED",
+    "auto_derivation": ["CC0", "PUBLIC_DOMAIN"],
+    "conditional_derivation": ["CC-BY", "CC-BY-SA", "OTHER_EXPLICITLY_DERIVATIVE_COMPATIBLE"],
+    "blocked_without_explicit_clearance": ["UNKNOWN", "ALL_RIGHTS_RESERVED", "NO_DERIVATIVES", "NONCOMMERCIAL_ONLY"],
+    "item_level_verification_required_when_provider_is_mixed": true,
+    "non_copyright_restrictions_must_be_preserved": true
+  },
+  "provenance_minimum": [
+    "provider_id",
+    "source_asset_id",
+    "source_url",
+    "retrieved_at",
+    "rights_expression",
+    "rights_source_url",
+    "source_sha256"
+  ],
+  "derivation_receipt_minimum": [
+    "derivation_id",
+    "source_sha256_set",
+    "generator_id",
+    "generator_version",
+    "parameters_sha256",
+    "output_sha256_set"
+  ],
+  "laws": [
+    "SLIME_CONTROL_PLANE_NE_BINARY_DATA_PLANE",
+    "DISCOVERY_NE_LICENSE_CLEARANCE",
+    "PROVIDER_OPENNESS_NE_ITEM_OPENNESS",
+    "UNKNOWN_RIGHTS_FAIL_CLOSED",
+    "SOURCE_BYTES_NE_EXECUTABLE_CODE",
+    "DERIVATIVE_NE_SOURCE_MUTATION",
+    "PROVENANCE_SURVIVES_DERIVATION",
+    "ONE_SOURCE_MANY_ADAPTERS_NE_MANY_INDEPENDENT_SOURCES"
+  ]
+}
