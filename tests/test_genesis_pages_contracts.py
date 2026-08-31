@@ -17,7 +17,7 @@ HISTORICAL_WORLD_JS = ROOT / "site" / "genesis-world-shell-v2.js"
 R02_WORLD_JS = ROOT / "site" / "genesis-world-runtime-v3.js"
 R02_BRIDGE_JS = ROOT / "site" / "genesis-janus-bridge-v1.js"
 R03_WORLD_JS = ROOT / "site" / "genesis-world-runtime-v4.js"
-R03_BRIDGE_JS = ROOT / "site" / "genesis-command-bridge-v2.js"
+R03_BRIDGE_JS = ROOT / "site" / "genesis-command-bridge-v3.js"
 FULL_RUNTIME_CONTRACT = ROOT / ".janus" / "GENESIS_FULL_RUNTIME_V1.json"
 COMMAND_RUNTIME_CONTRACT = ROOT / ".janus" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
 
@@ -54,13 +54,7 @@ class GenesisPagesContractsTests(unittest.TestCase):
 
     def test_required_genesis_laws_are_present(self):
         names = {law["name"] for law in self.laws["laws"]}
-        required = {
-            "RECIPE_NE_ARBITRARY_CODE", "RENDERER_NE_AUTHORITY", "WORLD_STATE_TO_PRESENTATION_ALLOWED",
-            "PRESENTATION_TO_WORLD_MUTATION_DEFAULT_DENY", "HIDDEN_HUMAN_TELEMETRY_FORBIDDEN",
-            "EXPLICIT_USER_GESTURE_REQUIRED_FOR_BROWSER_AUDIO", "SAME_RECIPE_SEED_VERSION_EQ_SAME_PLAN",
-            "PROVENANCE_REQUIRED", "RIGHTS_FAIL_CLOSED_FOR_EXTERNAL_ASSETS", "NO_BINARY_BYTES_OVER_SLIME",
-            "CONTENT_HASH_BINDS_DERIVATION", "FREEZE_NE_IMMUTABILITY_WITHOUT_VERSION",
-        }
+        required = {"RECIPE_NE_ARBITRARY_CODE", "RENDERER_NE_AUTHORITY", "WORLD_STATE_TO_PRESENTATION_ALLOWED", "PRESENTATION_TO_WORLD_MUTATION_DEFAULT_DENY", "HIDDEN_HUMAN_TELEMETRY_FORBIDDEN", "EXPLICIT_USER_GESTURE_REQUIRED_FOR_BROWSER_AUDIO", "SAME_RECIPE_SEED_VERSION_EQ_SAME_PLAN", "PROVENANCE_REQUIRED", "RIGHTS_FAIL_CLOSED_FOR_EXTERNAL_ASSETS", "NO_BINARY_BYTES_OVER_SLIME", "CONTENT_HASH_BINDS_DERIVATION", "FREEZE_NE_IMMUTABILITY_WITHOUT_VERSION"}
         self.assertTrue(required.issubset(names))
 
     def test_authority_boundary_fails_closed(self):
@@ -93,7 +87,7 @@ class GenesisPagesContractsTests(unittest.TestCase):
         for html in (self.root_html, self.site_html):
             self.assertIn("TEXT-NATIVE WORLD ENGINE", html)
             self.assertIn("genesis-world-runtime-v4.js", html)
-            self.assertIn("genesis-command-bridge-v2.js", html)
+            self.assertIn("genesis-command-bridge-v3.js", html)
             self.assertIn("genesis-asset-materializer-v2.js", html)
             self.assertNotIn("genesis-world-shell-v2.js", html)
             self.assertNotIn("genesis-action-input-ru.js", html)
