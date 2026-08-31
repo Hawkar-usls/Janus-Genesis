@@ -7,7 +7,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 CANONICAL = ROOT / ".janus" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
 PUBLIC = ROOT / "contracts" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
 WORLD = ROOT / "site" / "genesis-world-runtime-v4.js"
-BRIDGE = ROOT / "site" / "genesis-command-bridge-v2.js"
+BRIDGE = ROOT / "site" / "genesis-command-bridge-v3.js"
 MATERIAL = ROOT / "site" / "genesis-asset-materializer-v2.js"
 HOTKEYS = ROOT / "site" / "genesis-hotkeys-v2.js"
 CSS = ROOT / "site" / "runtime-v4.css"
@@ -37,7 +37,7 @@ class GenesisCommandRuntimeR03Tests(unittest.TestCase):
         for html in (self.root_html, self.site_html):
             self.assertIn("TEXT-NATIVE WORLD ENGINE", html)
             self.assertIn("genesis-world-runtime-v4.js", html)
-            self.assertIn("genesis-command-bridge-v2.js", html)
+            self.assertIn("genesis-command-bridge-v3.js", html)
             self.assertIn("genesis-asset-materializer-v2.js", html)
             self.assertIn("genesis-hotkeys-v2.js", html)
             self.assertIn("runtime-v4.css", html)
@@ -68,14 +68,19 @@ class GenesisCommandRuntimeR03Tests(unittest.TestCase):
         self.assertTrue(generic["unknown_build_nouns_use_generic_structure_recipe"])
         self.assertTrue(generic["unknown_spawn_nouns_use_generic_entity_recipe"])
         self.assertTrue(generic["unsupported_semantics_return_visible_reason"])
-        self.assertIn("generic_structure", self.bridge)
-        self.assertIn("SPAWN_ENTITY", self.bridge)
-        self.assertIn("GENERATE_STRUCTURE", self.bridge)
-        self.assertIn("SET_ATMOSPHERE", self.bridge)
-        self.assertIn("WORLD_TRANSFORM", self.bridge)
-        self.assertIn("INSPECT", self.bridge)
-        self.assertIn("LOCAL_DEGRADED_NEEDS_JANUS_SEMANTIC_COMPILER", self.bridge)
-        self.assertIn("Genesis did not mutate the world", self.bridge)
+        for token in (
+            "generic_structure", "SPAWN_ENTITY", "GENERATE_STRUCTURE", "SET_ATMOSPHERE",
+            "WORLD_TRANSFORM", "INSPECT", "LOCAL_DEGRADED_NEEDS_JANUS_SEMANTIC_COMPILER",
+            "Genesis did not mutate the world",
+        ):
+            self.assertIn(token, self.bridge)
+
+    def test_spawn_castle_is_structure_not_generic_entity(self):
+        self.assertIn("const STRUCTURES=", self.bridge)
+        self.assertIn("(has(text,LEX.build)||has(text,LEX.spawn))&&sk", self.bridge)
+        self.assertIn("kind:'GENERATE_STRUCTURE'", self.bridge)
+        self.assertIn("structure_kind:sk", self.bridge)
+        self.assertIn("castle:['castle'", self.bridge)
 
     def test_first_person_camera_is_centered_level_and_movement_uses_camera_forward(self):
         presentation = self.contract["presentation"]
@@ -93,18 +98,8 @@ class GenesisCommandRuntimeR03Tests(unittest.TestCase):
     def test_lighthouse_r2_has_real_parts_and_rotating_beam(self):
         structures = self.contract["structures"]
         self.assertEqual(structures["lighthouse_recipe"], "KRR_LIGHTHOUSE_R2")
-        self.assertEqual(
-            set(structures["lighthouse_required_parts"]),
-            {"BASE", "TAPERED_TOWER", "DOOR", "WINDOWS", "GALLERY", "LANTERN_GLASS", "ROOF", "ROTATING_BEAM"},
-        )
-        for token in (
-            "function drawLighthouse",
-            "primitiveFrustum",
-            "function drawBeam",
-            "performance.now()/1700",
-            "KRR_LIGHTHOUSE_R2",
-            "castle",
-        ):
+        self.assertEqual(set(structures["lighthouse_required_parts"]), {"BASE", "TAPERED_TOWER", "DOOR", "WINDOWS", "GALLERY", "LANTERN_GLASS", "ROOF", "ROTATING_BEAM"})
+        for token in ("function drawLighthouse", "primitiveFrustum", "function drawBeam", "performance.now()/1700", "KRR_LIGHTHOUSE_R2", "castle"):
             self.assertIn(token, self.world)
 
     def test_asset_materializer_is_visible_and_rights_gated(self):
@@ -112,30 +107,18 @@ class GenesisCommandRuntimeR03Tests(unittest.TestCase):
         self.assertTrue(asset["rights_gate_before_external_asset_use"])
         self.assertTrue(asset["krr_material_dna_visible_on_world_geometry"])
         self.assertTrue(asset["procedural_fallback_when_offline"])
-        for token in (
-            "rights==='CC0'",
-            "new Image()",
-            "createPattern",
-            "proceduralTile",
-            "materialDNA",
-            "external_binary_is_canonical:false",
-        ):
+        for token in ("rights==='CC0'", "new Image()", "createPattern", "proceduralTile", "materialDNA", "external_binary_is_canonical:false"):
             self.assertIn(token, self.material)
         self.assertIn("materialFill", self.world)
         self.assertIn("terrainFill", self.world)
+        self.assertIn("Powered by Poly Haven", self.bridge)
 
     def test_hud_is_collapsible_and_has_compact_responsive_breakpoints(self):
         responsive = self.contract["responsive_ui"]
         self.assertTrue(responsive["side_panels_collapsible"])
         self.assertTrue(responsive["hud_overlap_forbidden"])
         self.assertEqual(responsive["target_desktop_minimum"], "1366x768")
-        for token in (
-            ".is-collapsed .panel-body",
-            "@media (max-height: 760px)",
-            "@media (max-width: 760px)",
-            "@media (max-width: 430px)",
-            ".action-bar { display:none !important; }",
-        ):
+        for token in (".is-collapsed .panel-body", "@media (max-height: 760px)", "@media (max-width: 760px)", "@media (max-width: 430px)", ".action-bar { display:none !important; }"):
             self.assertIn(token, self.css)
         for html in (self.root_html, self.site_html):
             self.assertIn('data-collapse-target="world-status-panel"', html)
