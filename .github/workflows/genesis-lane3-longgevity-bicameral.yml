@@ -79,3 +79,73 @@ jobs:
           name: genesis-lane3-longgevity-${{ github.run_id }}
           path: out/lane3/receipt.json
           retention-days: 30
+
+  lane3-third-tissue-candidate-roundtrip:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact hemisphere and PLOD2 candidate bindings
+        run: |
+          mkdir -p out/lane3-plod2/hrain out/lane3-plod2/inaihr out/lane3-plod2/lapis
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/genesis-lane3-intake.js -o out/lane3-plod2/hrain/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/hemispheric-commissure.js -o out/lane3-plod2/hrain/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/demihead-bridge.js -o out/lane3-plod2/hrain/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/genesis-lane3-intake.js -o out/lane3-plod2/inaihr/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/hemispheric-commissure.js -o out/lane3-plod2/inaihr/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/demihead-bridge.js -o out/lane3-plod2/inaihr/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/janus-lapis/aa87834d92807dbc68d8a13a13e24380167b70fc/longevity-survivor/LIVER-PLOD2-DELAYED-MECHANICAL-LOCK-CANDIDATE-YUE-2024-v1.0.json -o out/lane3-plod2/lapis/source.json
+      - name: Assert third-tissue candidate remains fail-closed
+        run: |
+          python - <<'PY'
+          import json
+          lane=json.load(open('lanes/lane-3-longgevity-survivor/LIVER_PLOD2_THIRD_TISSUE_CANDIDATE_PACKET_v1.json'))
+          src=json.load(open('out/lane3-plod2/lapis/source.json'))
+          assert src['paper']['doi']=='10.1016/j.bbadis.2024.167205'
+          assert src['strict_criteria']['C1_DELAYED_AFTER_ESTABLISHMENT']['value']=='UNKNOWN'
+          assert src['decision']['binary_gate']=='NOT_ADMITTED'
+          assert lane['source']['source_commit']=='aa87834d92807dbc68d8a13a13e24380167b70fc'
+          assert lane['timing_gate']['C1_DELAYED_AFTER_ESTABLISHMENT']=='UNKNOWN'
+          assert lane['timing_gate']['strict_delayed_mechanical_lock_pass'] is False
+          assert lane['authority']['scientific_promotion'] is False
+          assert lane['authority']['human_treatment_claim'] is False
+          assert 'FOUR_OF_FIVE_NE_ADMITTED' in lane['claim_ceiling']
+          print('GENESIS_LANE3_PLOD2_FAIL_CLOSED_GATE_PASS')
+          PY
+      - name: Run PLOD2 candidate through both hemispheres and duplex commissure
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'), crypto=require('crypto');
+          const packet=JSON.parse(fs.readFileSync('lanes/lane-3-longgevity-survivor/LIVER_PLOD2_THIRD_TISSUE_CANDIDATE_PACKET_v1.json','utf8'));
+          const leftIntake=require('./out/lane3-plod2/hrain/genesis-lane3-intake.js');
+          const rightIntake=require('./out/lane3-plod2/inaihr/genesis-lane3-intake.js');
+          const leftBridge=require('./out/lane3-plod2/hrain/demihead-bridge.js');
+          const rightBridge=require('./out/lane3-plod2/inaihr/demihead-bridge.js');
+          const leftCom=require('./out/lane3-plod2/hrain/hemispheric-commissure.js');
+          const rightCom=require('./out/lane3-plod2/inaihr/hemispheric-commissure.js');
+          (async()=>{
+            const L=leftIntake.accept(packet), R=rightIntake.accept(packet);
+            if(L.hemisphere!=='LEFT_HRAIN'||L.role!=='STRUCTURAL_CONTEXT') throw new Error('left role mismatch');
+            if(R.hemisphere!=='RIGHT_INAIHR'||R.role!=='ASSOCIATIVE_CONTEXT') throw new Error('right role mismatch');
+            if(L.evidence_authority||R.evidence_authority||L.independent_replication||R.independent_replication) throw new Error('evidence inflation');
+            if(L.structural_focus.timing_gate.C1_DELAYED_AFTER_ESTABLISHMENT!=='UNKNOWN') throw new Error('C1 inflation');
+            const leftPacket=leftBridge.buildUnattestedPacket({nodes:[{id:'L3P',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'lane3-left-plod2-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const rightPacket=rightBridge.buildUnattestedPacket({nodes:[{id:'R3P',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'lane3-right-plod2-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const l2r=await leftCom.buildExchange(leftPacket,'CONTEXT_RETURN',{lane_id:packet.lane_id,doi:packet.source.doi,timing:L.structural_focus.timing_gate},null,'lane3-plod2-left-right-0001');
+            const acceptedRight=await rightCom.acceptExchange(l2r);
+            const r2l=await rightCom.buildExchange(rightPacket,'HYPOTHESIS_CANDIDATE',{lane_id:packet.lane_id,doi:packet.source.doi,fate:R.associative_focus.fate_contrast},l2r.exchange_sha256,'lane3-plod2-right-left-0002');
+            const acceptedLeft=await leftCom.acceptExchange(r2l);
+            if(acceptedRight.evidence_authority!==false||acceptedLeft.evidence_authority!==false) throw new Error('commissure authority leak');
+            const packetSha=crypto.createHash('sha256').update(JSON.stringify(packet)).digest('hex');
+            const receipt={schema:'janus.genesis.lane3.third_tissue_bicameral_receipt.v1',status:'LANE3_BICAMERAL_THIRD_TISSUE_CANDIDATE_PASS_NO_PROMOTION',packet_sha256:packetSha,doi:packet.source.doi,left:{hemisphere:L.hemisphere,role:L.role,evidence_authority:false},right:{hemisphere:R.hemisphere,role:R.role,evidence_authority:false},commissure:{l2r:l2r.exchange_sha256,r2l:r2l.exchange_sha256},C1:'UNKNOWN',strict_admission:'NOT_ADMITTED',strict_delayed_mechanical_lock_pass:false,third_distinct_tissue_promoted:false,independent_replication_claimed:false,human_therapy_claimed:false,scientific_promotion:false,next_gate:packet.next_gate};
+            receipt.receipt_sha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');
+            fs.writeFileSync('out/lane3-plod2/receipt.json',JSON.stringify(receipt,null,2));
+            console.log('GENESIS_LANE3_PLOD2_BICAMERAL_PASS_NO_PROMOTION',receipt.receipt_sha256);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload PLOD2 candidate receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-lane3-plod2-third-tissue-${{ github.run_id }}
+          path: out/lane3-plod2/receipt.json
+          retention-days: 30
