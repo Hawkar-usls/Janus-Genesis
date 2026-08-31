@@ -1,0 +1,78 @@
+name: Genesis Lane 3 H3B Chronic Cardiac Search
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lanes/lane-3-longgevity-survivor/H3B_CHRONIC_CARDIAC_SAME_CHALLENGE_SEARCH_PACKET_v1.json'
+      - '.github/workflows/genesis-lane3-h3b-chronic-cardiac-search.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bicameral-h3b-chronic-cardiac:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact hemisphere and Lapis bindings
+        run: |
+          mkdir -p out/h3b/hrain out/h3b/inaihr out/h3b/lapis
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/genesis-lane3-intake.js -o out/h3b/hrain/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/hemispheric-commissure.js -o out/h3b/hrain/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/demihead-bridge.js -o out/h3b/hrain/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/genesis-lane3-intake.js -o out/h3b/inaihr/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/hemispheric-commissure.js -o out/h3b/inaihr/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/demihead-bridge.js -o out/h3b/inaihr/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/janus-lapis/f1d21db73bac78e893bda3fae0226ad3e08faea3/longevity-survivor/H3B-POST-LOCK-SAME-CHALLENGE-CHRONIC-CARDIAC-KILLER-SEARCH-2026-08-31-v1.0.json -o out/h3b/lapis/result.json
+      - name: Assert fail-closed chronic H3B boundary
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('lanes/lane-3-longgevity-survivor/H3B_CHRONIC_CARDIAC_SAME_CHALLENGE_SEARCH_PACKET_v1.json'))
+          r=json.load(open('out/h3b/lapis/result.json'))
+          assert p['source']['source_commit']=='f1d21db73bac78e893bda3fae0226ad3e08faea3'
+          assert r['search_result']['qualifying_chronic_4_to_10_week_lock_then_retac_same_root']=='NOT_LOCATED_IN_THIS_SEARCH_PASS'
+          assert r['search_result']['H3B_POST_LOCK_SAME_CHALLENGE_REWRITE']=='OPEN'
+          assert p['gate_delta']['H3B_POST_LOCK_CHALLENGE_RESISTANT_REWRITE']=='NOT_ESTABLISHED'
+          assert p['timing_gate']['absence_claim']=='FORBIDDEN'
+          assert p['authority']['scientific_promotion'] is False
+          print('GENESIS_LANE3_H3B_CHRONIC_CARDIAC_SOURCE_GATE_PASS')
+          PY
+      - name: Run both hemisphere intakes and duplex commissure
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),crypto=require('crypto');
+          const p=JSON.parse(fs.readFileSync('lanes/lane-3-longgevity-survivor/H3B_CHRONIC_CARDIAC_SAME_CHALLENGE_SEARCH_PACKET_v1.json','utf8'));
+          const LI=require('./out/h3b/hrain/genesis-lane3-intake.js');
+          const RI=require('./out/h3b/inaihr/genesis-lane3-intake.js');
+          const LB=require('./out/h3b/hrain/demihead-bridge.js');
+          const RB=require('./out/h3b/inaihr/demihead-bridge.js');
+          const LC=require('./out/h3b/hrain/hemispheric-commissure.js');
+          const RC=require('./out/h3b/inaihr/hemispheric-commissure.js');
+          (async()=>{
+            const L=LI.accept(p),R=RI.accept(p);
+            if(L.hemisphere!=='LEFT_HRAIN'||R.hemisphere!=='RIGHT_INAIHR') throw new Error('hemisphere mismatch');
+            if(L.evidence_authority||R.evidence_authority||L.independent_replication||R.independent_replication) throw new Error('authority inflation');
+            if(L.structural_focus.gate_delta.H3B_POST_LOCK_CHALLENGE_RESISTANT_REWRITE!=='NOT_ESTABLISHED') throw new Error('H3B inflation');
+            const lp=LB.buildUnattestedPacket({nodes:[{id:'H3B-L',label:p.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'h3b-left-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const rp=RB.buildUnattestedPacket({nodes:[{id:'H3B-R',label:p.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'h3b-right-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const l2r=await LC.buildExchange(lp,'CONTEXT_RETURN',{gate:L.structural_focus.gate_delta,timing:L.structural_focus.timing_gate},null,'h3b-l2r-0001');
+            const ar=await RC.acceptExchange(l2r);
+            const r2l=await RC.buildExchange(rp,'HYPOTHESIS_CANDIDATE',{fate:R.associative_focus.fate_contrast,mechanisms:R.associative_focus.mechanism_family},l2r.exchange_sha256,'h3b-r2l-0002');
+            const al=await LC.acceptExchange(r2l);
+            if(ar.evidence_authority!==false||al.evidence_authority!==false) throw new Error('commissure authority leak');
+            const rec={schema:'janus.genesis.lane3.h3b_chronic_cardiac_bicameral_receipt.v1',status:'H3B_CHRONIC_CARDIAC_SEARCH_PASS_NO_PROMOTION',packet_sha256:crypto.createHash('sha256').update(JSON.stringify(p)).digest('hex'),left:{role:L.role},right:{role:R.role},commissure:{l2r:l2r.exchange_sha256,r2l:r2l.exchange_sha256},chronic_lock_roots:'FOUND',qualifying_chronic_retac:'NOT_LOCATED_IN_THIS_SEARCH_PASS',H3B:'OPEN',absence_proven:false,scientific_promotion:false,human_therapy_claimed:false,next_gate:p.next_gate};
+            rec.receipt_sha256=crypto.createHash('sha256').update(JSON.stringify(rec)).digest('hex');
+            fs.writeFileSync('out/h3b/receipt.json',JSON.stringify(rec,null,2));
+            console.log('GENESIS_LANE3_H3B_CHRONIC_CARDIAC_BICAMERAL_PASS',rec.receipt_sha256);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-lane3-h3b-chronic-cardiac-${{ github.run_id }}
+          path: out/h3b/receipt.json
+          retention-days: 30
