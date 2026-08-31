@@ -1,0 +1,62 @@
+{
+  "schema": "janus.genesis.lane3.longevity_survivor.packet.v1",
+  "packet_id": "GENESIS-LANE3-MECHANICAL-FUTURE-SET-H3A-H3B-2026-08-31-v1",
+  "lane_id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
+  "status": "H3A_TISSUE_RECHALLENGE_RESISTANCE_FOUND__H3B_POST_LOCK_REWRITE_OPEN",
+  "source": {
+    "repository": "Hawkar-usls/janus-lapis",
+    "branch": "LONGEVITY-SURVIVOR",
+    "source_commit": "e368d2f34f5950c0f1abe678c8ef97fdccf83a39",
+    "path": "longevity-survivor/MECHANICAL-FUTURE-SET-REWRITE-KILLER-SEARCH-2026-08-31-v1.0.json",
+    "artifact_id": "MECHANICAL-FUTURE-SET-REWRITE-KILLER-SEARCH-2026-08-31-v1.0",
+    "doi": "10.1161/CIRCULATIONAHA.114.013789",
+    "evidence_class": "PEER_REVIEWED_ANIMAL_MECHANICAL_RECHALLENGE_CALIBRATION"
+  },
+  "causal_route": "HEART: TAC -> DEBAND -> RE-TAC produces challenge resistance; however initial load is preconditioning/compensatory hypertrophy rather than a directly established mature fibrotic lock. SKIN: long PGT -> withdrawal produces recurrence, supporting latent mechanical memory but not challenge resistance.",
+  "fate_contrast": {
+    "H1": "benefit disappears or pathology re-emerges after retuning withdrawal",
+    "H3A": "prior transient mechanical history reduces response to a later same-class adverse challenge before mature lock is established",
+    "H3B": "after directly established mature pathological lock, delayed retuning plus withdrawal causes durable resistance to the same adverse rechallenge",
+    "current_terminal": "H3A_SUPPORTED__H3B_NOT_ESTABLISHED"
+  },
+  "timing_gate": {
+    "H3A_heart_initial_state": "short TAC 3d or 1w; significant compensatory hypertrophy, no direct mature fibrotic-lock establishment required or demonstrated",
+    "H3B_required_initial_state": "directly measured mature pathological mechanical/fibrotic lock before retuning",
+    "H3B_status": "OPEN",
+    "mechanical_exit_coupling": "OPEN"
+  },
+  "gate_delta": {
+    "TISSUE_LEVEL_MECHANICAL_HISTORY_CHANGES_FUTURE_RESPONSE": "SUPPORTED",
+    "H3A_CHALLENGE_RESISTANT_PRECONDITIONING": "SUPPORTED_IN_HEART",
+    "H1_WITHDRAWAL_RECURRENCE": "SUPPORTED_IN_JOINT_CAPSULE_AND_SEPARATE_SKIN_CALIBRATION",
+    "H3B_POST_LOCK_CHALLENGE_RESISTANT_REWRITE": "NOT_ESTABLISHED",
+    "MECHANICAL_EXIT_COUPLING": "OPEN"
+  },
+  "association_targets": [
+    "hypertrophic_preconditioning",
+    "TAC_deband_ReTAC",
+    "S100A8_A9",
+    "mechanical_memory",
+    "pressure_garment_withdrawal",
+    "recurrence_hysteresis",
+    "challenge_resistance",
+    "future_set_rewrite",
+    "repair_cell_exit"
+  ],
+  "claim_ceiling": [
+    "H3A_PRECONDITIONING_NE_H3B_POST_LOCK_REWRITE",
+    "CROSS_ROOT_CALIBRATION_NE_SINGLE_ROOT_PROOF",
+    "TISSUE_LEVEL_CHALLENGE_RESISTANCE_SUPPORTED_BUT_POST_LOCK_REWRITE_NOT_ESTABLISHED",
+    "MECHANICAL_EXIT_COUPLING_OPEN",
+    "ANIMAL_EVIDENCE_NE_HUMAN_THERAPY",
+    "SCIENTIFIC_BREAKTHROUGH_NOT_CLAIMED"
+  ],
+  "authority": {
+    "context_transfer": "READ_ONLY",
+    "source_mutation": false,
+    "scientific_promotion": false,
+    "human_treatment_claim": false,
+    "external_effect_authority": false
+  },
+  "next_gate": "H3B_POST_LOCK_SAME_CHALLENGE_REWRITE_SEARCH"
+}
