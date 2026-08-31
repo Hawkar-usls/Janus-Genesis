@@ -57,6 +57,7 @@ jobs:
       - name: Validate browser JavaScript syntax
         run: |
           node --check site/genesis-world-shell.js
+          node --check site/genesis-world-shell-v2.js
           node --check site/genesis-pages.js
           node --check genesis-audio-forge.js
 
@@ -75,7 +76,9 @@ jobs:
           test -s _site/index.html
           test -s _site/kernel-lab.html
           test -s _site/genesis-world-shell.js
+          test -s _site/genesis-world-shell-v2.js
           test -s _site/world-shell.css
+          test -s _site/world-shell-camera.css
           test -s _site/genesis-pages.js
           test -s _site/genesis-pages.css
           test -s _site/genesis-audio-forge.js
