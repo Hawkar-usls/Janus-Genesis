@@ -1,0 +1,82 @@
+name: Genesis Lane 3 Mechanical Future Set H3A H3B
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lanes/lane-3-longgevity-survivor/MECHANICAL_FUTURE_SET_H3A_H3B_FRONTIER_PACKET_v1.json'
+      - '.github/workflows/genesis-lane3-h3a-h3b-future-set.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bicameral-h3a-h3b:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact hemisphere and Lapis bindings
+        run: |
+          mkdir -p out/h3/hrain out/h3/inaihr out/h3/lapis
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/genesis-lane3-intake.js -o out/h3/hrain/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/hemispheric-commissure.js -o out/h3/hrain/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/demihead-bridge.js -o out/h3/hrain/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/genesis-lane3-intake.js -o out/h3/inaihr/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/hemispheric-commissure.js -o out/h3/inaihr/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/demihead-bridge.js -o out/h3/inaihr/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/janus-lapis/e368d2f34f5950c0f1abe678c8ef97fdccf83a39/longevity-survivor/MECHANICAL-FUTURE-SET-REWRITE-KILLER-SEARCH-2026-08-31-v1.0.json -o out/h3/lapis/result.json
+      - name: Assert H3A and H3B remain separated
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('lanes/lane-3-longgevity-survivor/MECHANICAL_FUTURE_SET_H3A_H3B_FRONTIER_PACKET_v1.json'))
+          r=json.load(open('out/h3/lapis/result.json'))
+          assert p['source']['source_commit']=='e368d2f34f5950c0f1abe678c8ef97fdccf83a39'
+          assert r['main_result']['tissue_level_same_mechanical_class_rechallenge_resistance']=='SUPPORTED_AS_H3A_PRECONDITIONING_IN_HEART'
+          assert r['main_result']['post_mature_lock_challenge_resistant_rewrite']=='NOT_YET_ESTABLISHED'
+          assert p['gate_delta']['H3A_CHALLENGE_RESISTANT_PRECONDITIONING']=='SUPPORTED_IN_HEART'
+          assert p['gate_delta']['H3B_POST_LOCK_CHALLENGE_RESISTANT_REWRITE']=='NOT_ESTABLISHED'
+          assert p['gate_delta']['MECHANICAL_EXIT_COUPLING']=='OPEN'
+          assert p['authority']['scientific_promotion'] is False
+          assert p['authority']['human_treatment_claim'] is False
+          print('GENESIS_LANE3_H3A_H3B_SOURCE_GATE_PASS')
+          PY
+      - name: Run both hemisphere intakes and duplex commissure
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'), crypto=require('crypto');
+          const packet=JSON.parse(fs.readFileSync('lanes/lane-3-longgevity-survivor/MECHANICAL_FUTURE_SET_H3A_H3B_FRONTIER_PACKET_v1.json','utf8'));
+          const leftIntake=require('./out/h3/hrain/genesis-lane3-intake.js');
+          const rightIntake=require('./out/h3/inaihr/genesis-lane3-intake.js');
+          const leftBridge=require('./out/h3/hrain/demihead-bridge.js');
+          const rightBridge=require('./out/h3/inaihr/demihead-bridge.js');
+          const leftCom=require('./out/h3/hrain/hemispheric-commissure.js');
+          const rightCom=require('./out/h3/inaihr/hemispheric-commissure.js');
+          (async()=>{
+            const L=leftIntake.accept(packet), R=rightIntake.accept(packet);
+            if(L.hemisphere!=='LEFT_HRAIN'||L.role!=='STRUCTURAL_CONTEXT') throw new Error('left role mismatch');
+            if(R.hemisphere!=='RIGHT_INAIHR'||R.role!=='ASSOCIATIVE_CONTEXT') throw new Error('right role mismatch');
+            if(L.evidence_authority||R.evidence_authority||L.independent_replication||R.independent_replication) throw new Error('evidence inflation');
+            if(L.structural_focus.gate_delta.H3B_POST_LOCK_CHALLENGE_RESISTANT_REWRITE!=='NOT_ESTABLISHED') throw new Error('H3B inflation');
+            if(L.structural_focus.gate_delta.MECHANICAL_EXIT_COUPLING!=='OPEN') throw new Error('exit inflation');
+            const lp=leftBridge.buildUnattestedPacket({nodes:[{id:'H3-L',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'h3-left-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const rp=rightBridge.buildUnattestedPacket({nodes:[{id:'H3-R',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'h3-right-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const l2r=await leftCom.buildExchange(lp,'CONTEXT_RETURN',{lane_id:packet.lane_id,timing:L.structural_focus.timing_gate,gate:L.structural_focus.gate_delta},null,'h3-left-right-0001');
+            const ar=await rightCom.acceptExchange(l2r);
+            const r2l=await rightCom.buildExchange(rp,'HYPOTHESIS_CANDIDATE',{lane_id:packet.lane_id,fate:R.associative_focus.fate_contrast,mechanisms:R.associative_focus.mechanism_family},l2r.exchange_sha256,'h3-right-left-0002');
+            const al=await leftCom.acceptExchange(r2l);
+            if(ar.evidence_authority!==false||al.evidence_authority!==false) throw new Error('commissure authority leak');
+            const receipt={schema:'janus.genesis.lane3.h3a_h3b_bicameral_receipt.v1',status:'LANE3_BICAMERAL_H3A_SUPPORTED_H3B_OPEN',packet_sha256:crypto.createHash('sha256').update(JSON.stringify(packet)).digest('hex'),left:{hemisphere:L.hemisphere,role:L.role,evidence_authority:false},right:{hemisphere:R.hemisphere,role:R.role,evidence_authority:false},commissure:{l2r:l2r.exchange_sha256,r2l:r2l.exchange_sha256},H3A:'SUPPORTED_IN_HEART',H3B:'NOT_ESTABLISHED',mechanical_exit_coupling:'OPEN',skin_withdrawal_calibration:'H1',independent_replication_claimed:false,human_therapy_claimed:false,scientific_promotion:false,next_gate:packet.next_gate};
+            receipt.receipt_sha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');
+            fs.writeFileSync('out/h3/receipt.json',JSON.stringify(receipt,null,2));
+            console.log('GENESIS_LANE3_H3A_H3B_BICAMERAL_PASS',receipt.receipt_sha256);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload H3A H3B receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-lane3-h3a-h3b-${{ github.run_id }}
+          path: out/h3/receipt.json
+          retention-days: 30
