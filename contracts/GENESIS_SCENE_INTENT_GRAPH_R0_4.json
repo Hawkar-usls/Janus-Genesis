@@ -1,0 +1,134 @@
+{
+  "schema": "janus.genesis.scene_intent_graph.runtime.v1",
+  "version": "0.4.0",
+  "status": "IMPLEMENTED_CANDIDATE_R0_4",
+  "supersedes_active_pages_runtime": "GENESIS_COMMAND_RUNTIME_R0_3",
+  "preserves_r0_3_as_lineage_and_fallback": true,
+  "purpose": "Turn one explicit player utterance into a bounded Scene Intent Graph proposal, validate the complete DAG before the first mutation, execute nodes topologically through existing Genesis validators, and expose a visible per-node receipt for every applied, failed or dependency-skipped operation.",
+  "active_browser_layers": [
+    "site/genesis-world-runtime-v4.js",
+    "site/genesis-command-bridge-v3.js",
+    "site/genesis-scene-graph-executor-r0-4.js",
+    "site/genesis-command-bridge-v4.js"
+  ],
+  "remote_nerve": {
+    "preferred_route": "POST /v1/genesis/scene-graph",
+    "health_route": "GET /v1/health",
+    "required_health_marker": "scene_graph_available=true",
+    "response_schema": "janus.genesis.scene_graph.response.v1",
+    "transport_proof": "EXACT_UTF8_CANONICAL_GRAPH_JSON_SHA256",
+    "live_https_endpoint_status": "DEPLOYMENT_REQUIRED_NOT_LIVE_BY_REPOSITORY_FACT_ALONE",
+    "github_pages_is_persistent_post_host": false,
+    "github_actions_is_persistent_post_host": false,
+    "live_claim_requires_real_https_health_pass": true
+  },
+  "scene_graph": {
+    "schema": "janus.genesis.scene_graph.v1",
+    "version": "0.4.0",
+    "node_families": [
+      "STRUCTURE",
+      "ENTITY",
+      "MATERIAL",
+      "ATMOSPHERE",
+      "TERRAIN",
+      "SOUND",
+      "EFFECT",
+      "PRESENTATION",
+      "RULE",
+      "INSPECTION",
+      "NAVIGATION"
+    ],
+    "limits": {
+      "max_nodes": 32,
+      "max_edges": 64,
+      "max_depth": 8,
+      "max_resource_units": 128,
+      "max_node_resource_units": 16,
+      "cycles_allowed": false
+    },
+    "deterministic_ids": true,
+    "graph_hash_or_transport_proof_required_for_remote": true,
+    "scene_subject_precedes_nested_detail_nouns": true,
+    "unknown_semantics_are_not_guessed": true,
+    "arbitrary_code_execution": false
+  },
+  "validation": {
+    "validate_whole_graph_before_first_mutation": true,
+    "family_allowlist_required": true,
+    "operation_shape_required": true,
+    "dependency_existence_required": true,
+    "cycle_rejection_required": true,
+    "topological_order_required": true,
+    "node_edge_depth_resource_limits_required": true,
+    "authority_boundary_required": true,
+    "transport_structure_comparison_required_when_remote": true
+  },
+  "execution": {
+    "order": "TOPOLOGICAL",
+    "node_statuses": ["APPLIED", "FAILED", "SKIPPED_DEPENDENCY"],
+    "node_receipt_required": true,
+    "summary_receipt_required": true,
+    "failed_required_ancestor_policy": "DEPENDENT_SKIPPED",
+    "successful_prior_nodes_are_not_silently_rolled_back": true,
+    "partial_failure_is_visible": true,
+    "silent_noop_forbidden": true
+  },
+  "local_degraded_graph": {
+    "allowed": true,
+    "must_be_labeled_degraded": true,
+    "reuses_r0_3_bounded_single_intent_compiler": true,
+    "supports_bounded_cathedral_composition_example": true,
+    "unresolved_becomes_visible_failure_node": true,
+    "may_execute_arbitrary_user_code": false
+  },
+  "asset_and_material_policy": {
+    "rights_gate_before_external_asset_reference": true,
+    "r0_live_provider": "poly_haven",
+    "required_rights": "CC0",
+    "binary_bytes_through_janus_slime": false,
+    "canonical_world_contains_external_binary": false,
+    "offline_procedural_krr_fallback": true
+  },
+  "audio_and_effect_policy": {
+    "sound_is_graph_node": true,
+    "effects_are_graph_nodes": true,
+    "audio_disabled_is_visible_node_failure": true,
+    "sound_or_effect_node_is_world_authority": false,
+    "effect_fallback_must_use_bounded_genesis_intent": true
+  },
+  "authority": {
+    "janus_graph_is_world_authority": false,
+    "model_output_is_command": false,
+    "player_text_is_direct_world_authority": false,
+    "genesis_validator_required": true,
+    "world_mutation_authorized_by_janus": false,
+    "external_effect_authorized_by_janus": false,
+    "shared_mmo_authority": "NOT_YET_CONNECTED"
+  },
+  "canonical_example": {
+    "player_text": "построй заброшенный собор на холме, одна башня разрушена, внутри орган, у входа белые деревья",
+    "root_subject": "cathedral",
+    "expected_families": ["TERRAIN", "MATERIAL", "STRUCTURE", "EFFECT", "ENTITY", "SOUND", "RULE"],
+    "ruined_tower_is_nested_detail": true,
+    "organ_depends_on_cathedral": true,
+    "organ_sound_depends_on_organ": true,
+    "white_tree_grove_depends_on_cathedral": true
+  },
+  "laws": [
+    "ONE_UTTERANCE_MAY_COMPILE_TO_MANY_BOUNDED_NODES",
+    "TEXT_TO_GRAPH_NE_TEXT_TO_ARBITRARY_CODE",
+    "JANUS_GRAPH_NE_WORLD_AUTHORITY",
+    "GENESIS_VALIDATOR_REQUIRED",
+    "VALIDATE_WHOLE_GRAPH_BEFORE_FIRST_MUTATION",
+    "SCENE_GRAPH_MUST_BE_DAG",
+    "SCENE_GRAPH_LIMITS_ARE_CONSTITUTIONAL",
+    "SCENE_SUBJECT_PRECEDES_NESTED_DETAIL_NOUNS",
+    "FAILED_REQUIRED_ANCESTOR_IMPLIES_DEPENDENT_SKIPPED",
+    "EVERY_NODE_GETS_VISIBLE_RECEIPT",
+    "PARTIAL_FAILURE_NE_SILENT_CORRUPTION",
+    "UNRESOLVED_NE_GUESSED_MUTATION",
+    "RIGHTS_GATE_BEFORE_EXTERNAL_ASSET_REFERENCE",
+    "REMOTE_GRAPH_TRANSPORT_MUST_BE_VERIFIABLE",
+    "LIVE_ENDPOINT_CLAIM_REQUIRES_REAL_HTTPS_HEALTH_PASS"
+  ]
+}

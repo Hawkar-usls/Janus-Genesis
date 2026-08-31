@@ -33,11 +33,13 @@ class GenesisCommandRuntimeR03Tests(unittest.TestCase):
         self.assertEqual(self.contract["version"], "0.3.0")
         self.assertTrue(self.contract["command_console"]["primary_interface"])
 
-    def test_active_pages_use_command_runtime_v4_and_no_mirror_modal(self):
+    def test_r03_runtime_remains_loaded_as_lineage_under_active_r04_overlay(self):
         for html in (self.root_html, self.site_html):
-            self.assertIn("TEXT-NATIVE WORLD ENGINE", html)
+            self.assertIn("SCENE INTENT GRAPH R0.4", html)
             self.assertIn("genesis-world-runtime-v4.js", html)
             self.assertIn("genesis-command-bridge-v3.js", html)
+            self.assertIn("genesis-scene-graph-executor-r0-4.js", html)
+            self.assertIn("genesis-command-bridge-v4.js", html)
             self.assertIn("genesis-asset-materializer-v2.js", html)
             self.assertIn("genesis-hotkeys-v2.js", html)
             self.assertIn("runtime-v4.css", html)

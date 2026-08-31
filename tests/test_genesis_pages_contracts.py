@@ -18,8 +18,11 @@ R02_WORLD_JS = ROOT / "site" / "genesis-world-runtime-v3.js"
 R02_BRIDGE_JS = ROOT / "site" / "genesis-janus-bridge-v1.js"
 R03_WORLD_JS = ROOT / "site" / "genesis-world-runtime-v4.js"
 R03_BRIDGE_JS = ROOT / "site" / "genesis-command-bridge-v3.js"
+R04_EXECUTOR_JS = ROOT / "site" / "genesis-scene-graph-executor-r0-4.js"
+R04_BRIDGE_JS = ROOT / "site" / "genesis-command-bridge-v4.js"
 FULL_RUNTIME_CONTRACT = ROOT / ".janus" / "GENESIS_FULL_RUNTIME_V1.json"
 COMMAND_RUNTIME_CONTRACT = ROOT / ".janus" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
+SCENE_GRAPH_CONTRACT = ROOT / ".janus" / "GENESIS_SCENE_INTENT_GRAPH_R0_4.json"
 
 
 class GenesisPagesContractsTests(unittest.TestCase):
@@ -39,8 +42,11 @@ class GenesisPagesContractsTests(unittest.TestCase):
         cls.r02_bridge_js = R02_BRIDGE_JS.read_text(encoding="utf-8")
         cls.r03_world_js = R03_WORLD_JS.read_text(encoding="utf-8")
         cls.r03_bridge_js = R03_BRIDGE_JS.read_text(encoding="utf-8")
+        cls.r04_executor_js = R04_EXECUTOR_JS.read_text(encoding="utf-8")
+        cls.r04_bridge_js = R04_BRIDGE_JS.read_text(encoding="utf-8")
         cls.full_runtime = json.loads(FULL_RUNTIME_CONTRACT.read_text(encoding="utf-8"))
         cls.command_runtime = json.loads(COMMAND_RUNTIME_CONTRACT.read_text(encoding="utf-8"))
+        cls.scene_graph = json.loads(SCENE_GRAPH_CONTRACT.read_text(encoding="utf-8"))
 
     def test_laws_are_frozen_and_unique(self):
         self.assertEqual(self.laws["schema"], "janus.genesis.laws.v1")
@@ -79,15 +85,19 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertEqual(self.public_laws, self.laws)
         self.assertEqual(self.public_roadmap, self.roadmap)
 
-    def test_root_and_actions_entrypoints_use_superseding_command_runtime(self):
+    def test_root_and_actions_entrypoints_use_superseding_scene_graph_runtime(self):
         self.assertTrue((ROOT / ".nojekyll").exists())
         self.assertEqual(self.full_runtime["schema"], "janus.genesis.full_runtime.v1")
         self.assertEqual(self.command_runtime["schema"], "janus.genesis.command_runtime.v1")
         self.assertEqual(self.command_runtime["version"], "0.3.0")
+        self.assertEqual(self.scene_graph["version"], "0.4.0")
+        self.assertEqual(self.scene_graph["supersedes_active_pages_runtime"], "GENESIS_COMMAND_RUNTIME_R0_3")
         for html in (self.root_html, self.site_html):
-            self.assertIn("TEXT-NATIVE WORLD ENGINE", html)
+            self.assertIn("SCENE INTENT GRAPH R0.4", html)
             self.assertIn("genesis-world-runtime-v4.js", html)
             self.assertIn("genesis-command-bridge-v3.js", html)
+            self.assertIn("genesis-scene-graph-executor-r0-4.js", html)
+            self.assertIn("genesis-command-bridge-v4.js", html)
             self.assertIn("genesis-asset-materializer-v2.js", html)
             self.assertNotIn("genesis-world-shell-v2.js", html)
             self.assertNotIn("genesis-action-input-ru.js", html)
@@ -100,7 +110,7 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertTrue(R02_WORLD_JS.exists())
         self.assertTrue(R02_BRIDGE_JS.exists())
 
-    def test_network_isolated_to_explicit_command_bridge_not_world_generator(self):
+    def test_network_isolated_to_explicit_bridges_not_world_generator(self):
         for world in (self.r02_world_js, self.r03_world_js):
             self.assertNotIn("http://", world)
             self.assertNotIn("https://", world)
@@ -108,8 +118,11 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertIn("fetch(", self.r03_bridge_js)
         self.assertIn("/v1/health", self.r03_bridge_js)
         self.assertIn("/v1/genesis/intent", self.r03_bridge_js)
+        self.assertIn("fetch(", self.r04_bridge_js)
+        self.assertIn("/v1/genesis/scene-graph", self.r04_bridge_js)
         self.assertFalse(self.command_runtime["authority"]["janus_response_is_world_authority"])
-        self.assertTrue(self.command_runtime["authority"]["genesis_validator_required"])
+        self.assertFalse(self.scene_graph["authority"]["janus_graph_is_world_authority"])
+        self.assertTrue(self.scene_graph["authority"]["genesis_validator_required"])
 
     def test_kernel_lab_preserves_original_control_plane(self):
         self.assertIn("GENESIS // KERNEL LAB", self.root_lab_html)
@@ -128,7 +141,7 @@ class GenesisPagesContractsTests(unittest.TestCase):
     def test_pages_runtimes_do_not_introduce_dynamic_code_execution(self):
         forbidden = ("eval(", "new Function(", "WebSocket(", "EventSource(")
         for token in forbidden:
-            for surface in (self.lab_js, self.historical_world_js, self.r02_world_js, self.r02_bridge_js, self.r03_world_js, self.r03_bridge_js):
+            for surface in (self.lab_js, self.historical_world_js, self.r02_world_js, self.r02_bridge_js, self.r03_world_js, self.r03_bridge_js, self.r04_executor_js, self.r04_bridge_js):
                 self.assertNotIn(token, surface)
 
     def test_kernel_lab_uses_only_explicit_audio_world_fields(self):

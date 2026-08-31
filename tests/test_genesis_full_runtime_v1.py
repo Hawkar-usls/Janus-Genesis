@@ -13,12 +13,13 @@ AUDIO = ROOT / "site" / "genesis-audio-runtime-v1.js"
 ROOT_HTML = ROOT / "index.html"
 SITE_HTML = ROOT / "site" / "index.html"
 R03 = ROOT / ".janus" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
+R04 = ROOT / ".janus" / "GENESIS_SCENE_INTENT_GRAPH_R0_4.json"
 
 
 class GenesisFullRuntimeV1Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.contract=json.loads(CANONICAL.read_text(encoding="utf-8")); cls.public=json.loads(PUBLIC.read_text(encoding="utf-8")); cls.world=WORLD.read_text(encoding="utf-8"); cls.bridge=BRIDGE.read_text(encoding="utf-8"); cls.material=MATERIAL.read_text(encoding="utf-8"); cls.audio=AUDIO.read_text(encoding="utf-8"); cls.root_html=ROOT_HTML.read_text(encoding="utf-8"); cls.site_html=SITE_HTML.read_text(encoding="utf-8"); cls.r03=json.loads(R03.read_text(encoding="utf-8")) if R03.exists() else None
+        cls.contract=json.loads(CANONICAL.read_text(encoding="utf-8")); cls.public=json.loads(PUBLIC.read_text(encoding="utf-8")); cls.world=WORLD.read_text(encoding="utf-8"); cls.bridge=BRIDGE.read_text(encoding="utf-8"); cls.material=MATERIAL.read_text(encoding="utf-8"); cls.audio=AUDIO.read_text(encoding="utf-8"); cls.root_html=ROOT_HTML.read_text(encoding="utf-8"); cls.site_html=SITE_HTML.read_text(encoding="utf-8"); cls.r03=json.loads(R03.read_text(encoding="utf-8")) if R03.exists() else None; cls.r04=json.loads(R04.read_text(encoding="utf-8")) if R04.exists() else None
     def test_public_contract_is_exact_historical_mirror(self): self.assertEqual(self.public,self.contract); self.assertEqual(self.contract["schema"],"janus.genesis.full_runtime.v1")
     def test_r02_contract_remains_3d_only_history(self):
         self.assertEqual(self.contract["presentation"]["dimensions"],["3D"]); self.assertIn("2D_ACTIVE_RUNTIME_FORBIDDEN",self.contract["laws"])
@@ -26,7 +27,11 @@ class GenesisFullRuntimeV1Tests(unittest.TestCase):
     def test_r02_browser_artifacts_survive_supersession(self):
         for path in (WORLD,BRIDGE,MATERIAL,AUDIO): self.assertTrue(path.exists())
         self.assertIn("GENESIS_WORLD_RUNTIME_V3",self.world); self.assertIn("/v1/genesis/intent",self.bridge); self.assertIn("GENESIS_AUDIO_FORGE",self.audio)
-        if self.r03:
+        if self.r04:
+            self.assertEqual(self.r04["supersedes_active_pages_runtime"],"GENESIS_COMMAND_RUNTIME_R0_3")
+            self.assertTrue(self.r04["preserves_r0_3_as_lineage_and_fallback"])
+            for html in (self.root_html,self.site_html): self.assertIn("SCENE INTENT GRAPH R0.4",html); self.assertIn("genesis-world-runtime-v4.js",html); self.assertIn("genesis-command-bridge-v3.js",html); self.assertIn("genesis-command-bridge-v4.js",html)
+        elif self.r03:
             self.assertEqual(self.r03["supersedes_active_pages_runtime"],"GENESIS_FULL_RUNTIME_V1_R0_2")
             for html in (self.root_html,self.site_html): self.assertIn("TEXT-NATIVE WORLD ENGINE",html); self.assertIn("genesis-world-runtime-v4.js",html); self.assertIn("genesis-command-bridge-v3.js",html)
         else:
