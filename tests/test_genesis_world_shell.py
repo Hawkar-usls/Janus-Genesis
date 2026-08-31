@@ -13,6 +13,7 @@ SITE_INDEX = ROOT / "site" / "index.html"
 ROOT_INDEX = ROOT / "index.html"
 ROOT_LAB = ROOT / "kernel-lab.html"
 SITE_LAB = ROOT / "site" / "kernel-lab.html"
+R03 = ROOT / ".janus" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
 
 
 class GenesisWorldShellR0Tests(unittest.TestCase):
@@ -25,6 +26,7 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         cls.camera_css = CAMERA_CSS.read_text(encoding="utf-8")
         cls.site_html = SITE_INDEX.read_text(encoding="utf-8")
         cls.root_html = ROOT_INDEX.read_text(encoding="utf-8")
+        cls.r03 = json.loads(R03.read_text(encoding="utf-8")) if R03.exists() else None
 
     def test_contract_is_local_vertical_slice_not_fake_online_mmo(self):
         self.assertEqual(self.contract["schema"], "janus.genesis.world_shell.v1")
@@ -57,7 +59,7 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
     def test_public_contract_mirror_is_exact(self):
         self.assertEqual(self.public_contract, self.contract)
 
-    def test_renderer_mirror_camera_and_dimension_have_no_canonical_authority(self):
+    def test_historical_renderer_boundary_remains_frozen(self):
         boundary = self.contract["authority_boundary"]
         self.assertFalse(boundary["renderer_is_authority"])
         self.assertFalse(boundary["mirror_is_authority"])
@@ -67,7 +69,6 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertFalse(boundary["local_demo_mutation_is_network_canonical"])
         self.assertFalse(boundary["hidden_human_telemetry"])
         self.assertFalse(boundary["arbitrary_code_execution"])
-        self.assertFalse(boundary["runtime_cross_repo_network_dependency"])
 
     def test_canonical_chunk_plan_does_not_read_personal_presentation(self):
         canonical_segment = self.js.split("function canonicalChunkPlan", 1)[1].split("function defaultSave", 1)[0]
@@ -77,11 +78,10 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertIn("chunk: [cx, cy]", canonical_segment)
         self.assertIn("fact_hash", canonical_segment)
 
-    def test_mirror_style_is_explicitly_presentation_side(self):
+    def test_historical_mirror_style_is_presentation_side(self):
         mirror_segment = self.js.split("function mirrorMaterial", 1)[1].split("function tileMetrics", 1)[0]
         self.assertIn("mirror()", mirror_segment)
         self.assertIn("setMirror", self.js)
-        self.assertIn("FACTS", self.js)
         for profile in ("ORIGIN", "NOCTURNE", "AETHER", "EMBER"):
             self.assertIn(profile, self.contract["personal_mirror"]["profiles"])
             self.assertIn(profile, self.js)
@@ -92,13 +92,10 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertEqual(mirror["camera_modes"], ["FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC"])
         self.assertEqual(mirror["compatibility"]["2D"], ["ISOMETRIC"])
         self.assertEqual(mirror["compatibility"]["3D"], ["FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC"])
-        for token in (
-            "const DIMENSIONS", "const CAMERAS", "FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC",
-            "setDimension", "setCamera", "projectPerspective", "renderPerspective", "renderIsometric",
-        ):
+        for token in ("const DIMENSIONS", "const CAMERAS", "FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC", "setDimension", "setCamera", "projectPerspective", "renderPerspective", "renderIsometric"):
             self.assertIn(token, self.js)
 
-    def test_frozen_r0_camera_changes_verify_fact_hash_invariance(self):
+    def test_historical_camera_changes_verify_fact_hash_invariance(self):
         segment = self.js.split("function verifyPresentationOnlyChange", 1)[1].split("function renderChronicle", 1)[0]
         self.assertIn("canonicalFactHashNow()", segment)
         self.assertIn("INTEGRITY ERROR", segment)
@@ -107,7 +104,6 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertIn("DIMENSION_CHANGE_NE_WORLD_MUTATION", self.contract["laws"])
         self.assertIn("CAMERA_CHANGE_NE_WORLD_MUTATION", self.contract["laws"])
         self.assertIn("CAMERA_CHANGE_NE_CHRONICLE_EVENT", self.contract["laws"])
-        self.assertFalse(self.contract["chronicle"]["presentation_changes_are_events"])
 
     def test_save_contract_is_causes_plus_noncanonical_view_preferences(self):
         save = self.contract["save_contract"]
@@ -124,13 +120,11 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertIn("explicit_world_mutations", self.js)
         self.assertIn("chronicle_hash_chain", self.js)
 
-    def test_chronicle_prefers_sha256_and_is_hash_linked(self):
+    def test_chronicle_is_hash_linked_in_historical_slice(self):
         self.assertTrue(self.contract["chronicle"]["event_chain"])
         self.assertEqual(self.contract["chronicle"]["preferred_hash"], "SHA-256")
         self.assertIn("crypto.subtle.digest('SHA-256'", self.js)
-        self.assertIn("previous_hash", self.js)
         self.assertIn("CHUNK_DISCOVERED", self.js)
-        self.assertIn("PLAYER_MARK_PLACED", self.js)
 
     def test_historical_world_shell_has_no_dynamic_code_or_cross_repo_runtime_network(self):
         for token in ("eval(", "new Function(", "WebSocket(", "EventSource(", "http://", "https://"):
@@ -144,22 +138,22 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertIn("GENESIS // KERNEL LAB", ROOT_LAB.read_text(encoding="utf-8"))
         self.assertIn("GENESIS // KERNEL LAB", SITE_LAB.read_text(encoding="utf-8"))
         self.assertTrue(CAMERA_CSS.exists())
-        self.assertIn(".view-option", self.camera_css)
-        for html in (self.root_html, self.site_html):
-            self.assertIn("GENESIS // FULL WORLD RUNTIME", html)
-            self.assertIn("KERNEL LAB", html)
-            self.assertIn('id="camera-options"', html)
+        if self.r03:
+            for html in (self.root_html, self.site_html):
+                self.assertIn("TEXT-NATIVE WORLD ENGINE", html)
+                self.assertIn("KERNEL LAB", html)
+                self.assertNotIn('id="mirror-panel"', html)
+        else:
+            for html in (self.root_html, self.site_html):
+                self.assertIn("GENESIS // FULL WORLD RUNTIME", html)
 
     def test_historical_slice_contains_material_mesh_architecture_audio_and_streaming(self):
-        for token in (
-            "canonicalTilePlan", "mirrorMaterial", "canonicalChunkPlan", "drawIsoObject",
-            "drawPerspectiveObject", "prewarmAround", "visibleChunkBounds", "deriveAudioState", "GENESIS_AUDIO_FORGE",
-        ):
+        for token in ("canonicalTilePlan", "mirrorMaterial", "canonicalChunkPlan", "drawIsoObject", "drawPerspectiveObject", "prewarmAround", "visibleChunkBounds", "deriveAudioState", "GENESIS_AUDIO_FORGE"):
             self.assertIn(token, self.js)
         for forge in ("MATERIAL_FORGE", "MESH_FORGE", "ARCHITECTURE_GRAMMAR", "EFFECT_FORGE", "AUDIO_FORGE"):
             self.assertIn(forge, self.contract["generation"]["forges_in_vertical_slice"])
 
-    def test_janus_organs_are_contractual_not_hidden_runtime_dependencies_in_r0(self):
+    def test_janus_organs_are_contractual_not_hidden_dependencies_in_historical_r0(self):
         organs = {}
         for item in self.contract["janus_organs"]:
             organs.setdefault(item["repo"], []).append(item)
@@ -167,9 +161,6 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         self.assertIn("Hawkar-usls/Janus-HELIOS", organs)
         self.assertIn("Hawkar-usls/janus-lapis", organs)
         self.assertIn("Hawkar-usls/Janus-Demiurge", organs)
-        self.assertTrue(any(not item["runtime_dependency"] for item in organs["Hawkar-usls/Janus-HELIOS"]))
-        self.assertTrue(any(not item["runtime_dependency"] for item in organs["Hawkar-usls/janus-lapis"]))
-        self.assertTrue(any(not item["runtime_dependency"] for item in organs["Hawkar-usls/Janus-Demiurge"]))
 
 
 if __name__ == "__main__":

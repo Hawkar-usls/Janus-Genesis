@@ -1,0 +1,159 @@
+/* GENESIS Command Runtime R0.3: text-native, overlap-resistant HUD */
+body { user-select: none; }
+.top-hud {
+  top: max(10px, env(safe-area-inset-top));
+  left: 12px;
+  right: 12px;
+  min-height: 58px;
+  padding: 8px 10px 8px 14px;
+  border-radius: 13px;
+}
+.brand-block > strong { font-size: clamp(1.05rem, 1.7vw, 1.55rem); }
+.world-subtitle { font-size: .52rem; }
+.top-actions { align-items: center; }
+.top-actions button, .top-actions .hud-button { min-height: 30px; padding: 6px 9px; font-size: .54rem; }
+.status-chip {
+  display:inline-flex; align-items:center; min-height:30px; padding:6px 9px;
+  border:1px solid rgba(147,225,255,.12); border-radius:8px;
+  color:#8faab4; background:rgba(4,13,18,.5);
+  font:800 .52rem/1 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:.05em;
+}
+
+.world-status {
+  top: 82px;
+  left: 12px;
+  width: 220px;
+  padding: 9px 10px 10px;
+  border-radius: 12px;
+}
+.world-status .status-row { padding: 2px 0; }
+.world-status .status-row span { font-size: .49rem; }
+.world-status .status-row strong { font-size: .54rem; max-width: 124px; }
+.panel-head { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; }
+.panel-head strong { color:#dff8ff; font:800 .56rem ui-monospace,monospace; letter-spacing:.08em; }
+.panel-collapse { min-height:24px; padding:3px 7px; font-size:.5rem; }
+.is-collapsed .panel-body { display:none; }
+.is-collapsed { width:auto !important; min-width:0 !important; padding:6px !important; }
+.is-collapsed .panel-head { margin:0; }
+.is-collapsed .panel-head > strong { display:none; }
+
+.minimap-shell {
+  top: 82px;
+  right: 12px;
+  width: 150px;
+  padding: 8px;
+  border-radius: 12px;
+}
+#minimap { width:132px; height:132px; }
+.minimap-caption { font-size:.44rem; margin-top:5px; }
+
+.janus-nerve {
+  top: 236px;
+  right: 12px;
+  width: 280px;
+  padding: 9px;
+  border-radius: 11px;
+  max-height: calc(100vh - 370px);
+  overflow:auto;
+}
+.janus-nerve h3 { margin:0; font-size:.56rem; }
+.janus-nerve .nerve-row { padding:2px 0; }
+.janus-endpoint { margin-top:6px; }
+.asset-trunk-title { margin-top:7px; padding-top:7px; }
+#asset-trunk-results { max-height:112px; }
+.janus-nerve small { display:block; margin-top:5px; font-size:.45rem; line-height:1.35; }
+
+.action-forge {
+  left:50%;
+  right:auto;
+  bottom:max(12px, env(safe-area-inset-bottom));
+  transform:translateX(-50%);
+  width:min(920px, calc(100vw - 36px));
+  padding:9px 11px 8px;
+  border-radius:12px;
+  background:linear-gradient(180deg,rgba(3,10,14,.93),rgba(1,5,8,.91));
+  box-shadow:0 14px 46px rgba(0,0,0,.42),inset 0 0 28px rgba(115,236,255,.018);
+}
+.action-forge-head strong { font-size:9px; letter-spacing:.11em; }
+.action-forge-head span { font-size:7px; opacity:.78; }
+.action-forge form { margin:6px 0 5px; gap:6px; }
+.action-forge textarea,
+.action-forge input {
+  resize:none; overflow:auto; min-width:0; min-height:40px; max-height:92px;
+  border:1px solid rgba(115,236,255,.22); border-radius:8px;
+  background:rgba(0,0,0,.48); color:#f4fbff; padding:9px 10px;
+  outline:none; font:500 12px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  user-select:text;
+}
+.action-forge textarea:focus,
+.action-forge input:focus { border-color:rgba(115,236,255,.7); box-shadow:0 0 0 2px rgba(115,236,255,.09); }
+.action-forge button { min-height:40px; padding:0 13px; font-size:9px; }
+.action-forge-meta { gap:8px; }
+.action-forge-meta span,.action-result { font-size:7.5px; line-height:1.3; }
+.action-result { margin-top:4px; min-height:1em; max-height:40px; overflow:auto; user-select:text; }
+#action-plan { max-width:58%; }
+.command-hint { color:#6f8a94 !important; }
+
+.action-bar { display:none !important; }
+.camera-help { display:none !important; }
+.controls-hint {
+  left:12px; bottom:14px; z-index:4; padding:5px 7px; opacity:.55;
+  pointer-events:none; font-size:.45rem;
+}
+.world-footer { display:none !important; }
+
+.drawer { top:82px; max-height:calc(100vh - 190px); }
+.chronicle-drawer { left:12px; }
+.mobile-pad { bottom:116px; }
+
+@media (max-width: 1100px) {
+  .world-status { width:196px; }
+  .minimap-shell { width:128px; }
+  #minimap { width:110px; height:110px; }
+  .janus-nerve { top:210px; width:245px; max-height:calc(100vh - 340px); }
+  .controls-hint { display:none !important; }
+  .action-forge { width:min(820px, calc(100vw - 24px)); }
+}
+
+@media (max-height: 760px) {
+  .world-status { max-height:235px; overflow:auto; }
+  .janus-nerve { top:82px; max-height:235px; }
+  .minimap-shell { display:none; }
+  .action-forge-head span { display:none; }
+  .action-result { max-height:28px; }
+}
+
+@media (max-width: 760px) {
+  .top-hud { left:6px; right:6px; top:6px; min-height:50px; padding:7px 8px; }
+  .brand-block .eyebrow,.brand-block .world-subtitle { display:none; }
+  .top-actions .hud-button { display:none; }
+  .status-chip { min-height:28px; padding:5px 7px; font-size:.46rem; }
+  .world-status { top:64px; left:6px; width:172px; padding:7px; opacity:.92; }
+  .minimap-shell { display:none; }
+  .janus-nerve { top:64px; right:6px; width:176px; max-height:190px; padding:7px; }
+  .janus-endpoint input { font-size:.48rem; padding:5px; }
+  .janus-endpoint button { padding:4px 6px; }
+  .janus-nerve small,.asset-hit span,.asset-hit code { display:none; }
+  #asset-trunk-results { max-height:58px; }
+  .action-forge {
+    left:6px; right:6px; bottom:max(6px,env(safe-area-inset-bottom)); transform:none; width:auto;
+    padding:8px;
+  }
+  .action-forge-head { display:none; }
+  .action-forge form { grid-template-columns:1fr auto; margin:0 0 4px; }
+  .action-forge textarea,.action-forge input { min-height:38px; max-height:64px; font-size:11px; padding:8px; }
+  .action-forge button { min-height:38px; padding:0 10px; }
+  .action-forge-meta span:first-child { display:none; }
+  #action-plan { max-width:100%; text-align:left; }
+  .action-result { font-size:7px; max-height:24px; }
+  .mobile-pad { display:none !important; }
+  .drawer { top:62px; left:6px; right:6px; width:auto; max-height:calc(100vh - 150px); }
+}
+
+@media (max-width: 430px) {
+  .top-actions .status-chip:nth-of-type(2) { display:none; }
+  .world-status,.janus-nerve { width:150px; }
+  .world-status .status-row:nth-of-type(n+8) { display:none; }
+  .action-forge form { grid-template-columns:1fr; }
+  .action-forge button { min-height:32px; }
+}
