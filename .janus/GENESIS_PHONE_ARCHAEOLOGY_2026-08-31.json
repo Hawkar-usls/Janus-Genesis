@@ -1,0 +1,69 @@
+{
+  "schema": "janus.genesis.phone_archaeology.v1",
+  "date": "2026-08-31",
+  "status": "STATIC_REVIEW_COMPLETE_NO_LEGACY_CODE_EXECUTED",
+  "scope": "Ten user-provided historical Genesis Python files recovered from a phone were inspected as design archaeology. The originals are not copied into the repository.",
+  "source_fingerprints": [
+    {"name": "mod_genesis 2(2).py", "sha256": "ab5ffa2a36daf49e0a5813ff99fbeb982c09a336509da070d48e34916df06611"},
+    {"name": "genesis_protocol(20260831-152153).py", "sha256": "9cf144770a97d29d988fd51e7a3a771f93319c1db493531c36d471280ec2f3b3"},
+    {"name": "janus_genesisv2(2).py", "sha256": "454a5a5a5f07b2692b3dabbd946be75761c0e56b5f48bcb7922dd811f04fb46a"},
+    {"name": "janus_genesisv0.8(2).py", "sha256": "a84843b460a4cb9803630d4e984d08b4aa3f54cfcddffdcde3612113f414eb96"},
+    {"name": "mod_genesis(20260831-152153).py", "sha256": "221e20b23d09108614a1ca4444feebfbe4bc9089ce6d4fe747b20c1d09d6ca67"},
+    {"name": "janus_genesis2(3).py", "sha256": "58e798bbce09bd96e66d9c6a74f85b6530a47ed50b5bea9d58f8290429274ae0"},
+    {"name": "mod_genesis 3(1).py", "sha256": "9f64ddb99324da95ae1bd61102be83219dab0471e09c3cc3c80ec2ac0afd8855"},
+    {"name": "Gen0m.py", "sha256": "72734598b67a67b1a8ddab20721644f097ba56bd401d8b7ec8dfa7e480078d9d"},
+    {"name": "genesis_safe(1).py", "sha256": "5caaf661bbc956b9c346f51de38afb3c41472aa09e855fd56326ad8f90ff8bc5"},
+    {"name": "genesis(1).py", "sha256": "114f714c1a005081b66f5e3aaa8a6c1bc90214c5c27466e1218a135fc7962c39"}
+  ],
+  "salvage": [
+    {
+      "legacy_idea": "world_effect",
+      "modern_form": "WORLD_MODULATION_IR",
+      "decision": "SALVAGE_CONCEPT",
+      "note": "Compact world-effect intent can become a bounded declarative signal whose actual state mutation is performed by local deterministic rules, not by arbitrary model output."
+    },
+    {
+      "legacy_idea": "dreams.json event export",
+      "modern_form": "CHRONICLE_DREAM_RECEIPT_ADAPTER",
+      "decision": "SALVAGE_CONCEPT",
+      "note": "Preserve events as schema-bound, hash-chained chronicle receipts rather than an unauthenticated mutable array."
+    },
+    {
+      "legacy_idea": "auto_update_world sensor mapping",
+      "modern_form": "OPT_IN_SENSOR_TO_WORLD_ADAPTER",
+      "decision": "SALVAGE_WITH_STRICT_BOUNDARY",
+      "note": "Only explicit user-approved local signals; synthetic/demo inputs by default; no inferred psychology or hidden human monitoring."
+    },
+    {
+      "legacy_idea": "voice_control",
+      "modern_form": "AUDIO_CAPABILITY_PROPOSAL",
+      "decision": "SALVAGE_WITH_USER_AUTHORITY",
+      "note": "A model may propose audio state; enabling browser audio remains a user-gesture capability."
+    },
+    {
+      "legacy_idea": "DNA plus pluggable modules",
+      "modern_form": "DECLARATIVE_RECIPE_DNA",
+      "decision": "SALVAGE_CONCEPT_REJECT_DYNAMIC_CODE",
+      "note": "Versioned allowlisted recipe operators replace runtime loading/execution of arbitrary Python modules."
+    },
+    {
+      "legacy_idea": "crystals and vessels",
+      "modern_form": "CONTENT_ADDRESSED_GENERATED_CACHE_SHARDS",
+      "decision": "SALVAGE_CONCEPT",
+      "note": "Immutable SHA-256 addressed generated assets/recipes are a safer realization of the old storage metaphor."
+    }
+  ],
+  "rejected_raw_patterns": [
+    "HARDCODED_API_KEYS_OR_KEYRINGS",
+    "DESTRUCTIVE_LOCAL_FILE_OPERATIONS",
+    "UNAUTHENTICATED_UDP_BROADCAST_OR_SUBNET_DISCOVERY",
+    "DYNAMIC_PYTHON_MODULE_EXECUTION",
+    "HIDDEN_HUMAN_BEHAVIOR_OR_PSYCHOLOGY_AS_GAME_CONTROL"
+  ],
+  "secret_hygiene": {
+    "legacy_files_contained_embedded_api_key_material": true,
+    "secret_values_recorded_here": false,
+    "legacy_files_committed": false,
+    "recommendation": "Revoke or rotate any legacy credentials that could still be active."
+  }
+}
