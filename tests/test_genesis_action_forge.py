@@ -7,6 +7,7 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 CANONICAL = ROOT / ".janus" / "GENESIS_ACTION_FORGE_R0.json"
 PUBLIC = ROOT / "contracts" / "GENESIS_ACTION_FORGE_R0.json"
 RUNTIME = ROOT / "site" / "genesis-action-forge.js"
+LOCALE_RU = ROOT / "site" / "genesis-action-input-ru.js"
 SITE_INDEX = ROOT / "site" / "index.html"
 ROOT_INDEX = ROOT / "index.html"
 CSS = ROOT / "site" / "action-forge.css"
@@ -18,6 +19,7 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         cls.contract = json.loads(CANONICAL.read_text(encoding="utf-8"))
         cls.public = json.loads(PUBLIC.read_text(encoding="utf-8"))
         cls.js = RUNTIME.read_text(encoding="utf-8")
+        cls.locale_ru = LOCALE_RU.read_text(encoding="utf-8")
         cls.site_html = SITE_INDEX.read_text(encoding="utf-8")
         cls.root_html = ROOT_INDEX.read_text(encoding="utf-8")
         cls.css = CSS.read_text(encoding="utf-8")
@@ -85,8 +87,9 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertIn("ACTION_ANCHOR_NE_BESPOKE_GENERATED_ASSET", self.contract["laws"])
 
     def test_runtime_has_no_arbitrary_code_or_external_network(self):
+        surface = self.js + self.locale_ru
         for token in ("eval(", "new Function(", "WebSocket(", "EventSource(", "http://", "https://"):
-            self.assertNotIn(token, self.js)
+            self.assertNotIn(token, surface)
         boundary = self.contract["authority_boundary"]
         self.assertFalse(boundary["arbitrary_code_execution"])
         self.assertFalse(boundary["external_network_access"])
@@ -110,9 +113,24 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
             self.assertIn('id="action-state-hash"', html)
             self.assertIn('id="action-plan"', html)
             self.assertIn("WORLD STATE → SEED", html)
+            self.assertIn("genesis-action-input-ru.js", html)
             self.assertIn("genesis-action-forge.js", html)
             self.assertIn("action-forge.css", html)
         self.assertIn(".action-forge", self.css)
+        self.assertIn("bottom: 96px", self.css)
+
+    def test_action_input_isolated_from_world_hotkeys(self):
+        self.assertIn("isActionInput", self.locale_ru)
+        for event_type in ("keydown", "keyup", "keypress"):
+            self.assertIn(event_type, self.locale_ru)
+        self.assertIn("event.stopPropagation()", self.locale_ru)
+        self.assertIn("action-input", self.locale_ru)
+
+    def test_russian_locale_adapter_normalizes_explicit_commands_only(self):
+        self.assertIn("normalizeRussianAction", self.locale_ru)
+        for token in ("ноктюрн", "аэтер", "эмбер", "ориджин", "2д", "3д", "построй"):
+            self.assertIn(token, self.locale_ru)
+        self.assertIn("GENESIS_ACTION_LOCALE_RU", self.locale_ru)
 
     def test_legacy_lineage_is_adopted_without_old_authority(self):
         lineage = {item["name"]: item for item in self.contract["legacy_lineage"]}
