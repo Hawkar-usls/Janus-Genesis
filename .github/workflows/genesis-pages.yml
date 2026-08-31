@@ -100,6 +100,7 @@ jobs:
           node --check site/genesis-hotkeys-v1.js
           node --check site/genesis-world-runtime-v4.js
           node --check site/genesis-command-bridge-v2.js
+          node --check site/genesis-command-bridge-v3.js
           node --check site/genesis-asset-materializer-v2.js
           node --check site/genesis-hotkeys-v2.js
           node --check site/genesis-pages.js
@@ -131,6 +132,7 @@ jobs:
           test -s _site/genesis-asset-materializer-v1.js
           test -s _site/genesis-world-runtime-v4.js
           test -s _site/genesis-command-bridge-v2.js
+          test -s _site/genesis-command-bridge-v3.js
           test -s _site/genesis-asset-materializer-v2.js
           test -s _site/genesis-hotkeys-v2.js
           test -s _site/genesis-audio-runtime-v1.js
@@ -165,7 +167,6 @@ jobs:
     steps:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
-
       - name: Deploy artifact
         id: deployment
         uses: actions/deploy-pages@v4
