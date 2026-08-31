@@ -1,5 +1,7 @@
 import json
 import pathlib
+import shutil
+import subprocess
 import unittest
 
 
@@ -25,6 +27,20 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
         cls.root_html = ROOT_HTML.read_text(encoding="utf-8")
         cls.site_html = SITE_HTML.read_text(encoding="utf-8")
         cls.css = CSS.read_text(encoding="utf-8")
+
+    def run_node(self, script):
+        node = shutil.which("node")
+        self.assertIsNotNone(node, "Node.js is required for the active Pages runtime gate")
+        completed = subprocess.run(
+            [node, "-e", script],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            timeout=20,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stdout + "\n" + completed.stderr)
+        return completed.stdout
 
     def test_public_contract_is_exact_mirror_and_r03_is_preserved(self):
         self.assertEqual(self.public, self.contract)
@@ -56,8 +72,58 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
         self.assertEqual(execution["failed_required_ancestor_policy"], "DEPENDENT_SKIPPED")
         self.assertTrue(execution["partial_failure_is_visible"])
         self.assertTrue(execution["node_receipt_required"])
-        for token in ("validateGraph(graph)", "FAILED_REQUIRED_ANCESTOR", "SKIPPED_DEPENDENCY", "node_receipts", "partial_failure", "persistGraphReceipt"):
+        for token in ("validateGraph(graph)", "FAILED_REQUIRED_ANCESTOR", "SKIPPED_DEPENDENCY", "node_receipts", "partial_failure", "persistGraphReceipt", "GROUP_PARTIAL_FAILURE"):
             self.assertIn(token, self.executor)
+
+    def test_executor_adversarially_rejects_unknown_ops_code_fields_cycles_and_bad_authority(self):
+        executor_path = json.dumps(str(EXECUTOR))
+        script = f"""
+const fs=require('fs'),vm=require('vm');
+global.localStorage={{getItem:()=>null,setItem:()=>{{}}}};
+vm.runInThisContext(fs.readFileSync({executor_path},'utf8'),{{filename:'executor.js'}});
+const ex=globalThis.GENESIS_SCENE_GRAPH_EXECUTOR_R0_4;
+const limits={{max_nodes:32,max_edges:64,max_depth:8,max_resource_units:128,max_node_resource_units:16}};
+const authority={{janus_graph_is_world_authority:false,model_output_is_command:false,genesis_validator_required:true,world_mutation_authorized_by_janus:false,external_effect_authorized:false}};
+const node=(id,op='GENERATE_STRUCTURE',deps=[])=>({{id,family:'STRUCTURE',operation:op,concept:'castle',params:{{structure_kind:'castle'}},depends_on:deps,required:true,resource_units:3}});
+const graph=(nodes)=>({{schema:'janus.genesis.scene_graph.v1',version:'0.4.0',graph_id:'sg-test',nodes,limits,authority}});
+function mustReject(g,needle){{let ok=false;try{{ex.validateGraph(g);}}catch(e){{ok=String(e.message).includes(needle);}}if(!ok)throw new Error('expected '+needle);}}
+ex.validateGraph(graph([node('n-0000000000000001')]));
+mustReject(graph([node('n-0000000000000001','EXEC_ARBITRARY')]),'OPERATION_NOT_ALLOWLISTED');
+let coded=node('n-0000000000000001');coded.params.code='globalThis.pwned=true';mustReject(graph([coded]),'ARBITRARY_CODE_FIELD_FORBIDDEN');
+let a=node('n-0000000000000001','GENERATE_STRUCTURE',['n-0000000000000002']);let b=node('n-0000000000000002','GENERATE_STRUCTURE',['n-0000000000000001']);mustReject(graph([a,b]),'SCENE_GRAPH_CYCLE');
+let bad=graph([node('n-0000000000000001')]);bad.authority.janus_graph_is_world_authority=true;mustReject(bad,'AUTHORITY_BOUNDARY_INVALID');
+console.log('ADVERSARIAL_VALIDATE_PASS');
+"""
+        self.assertIn("ADVERSARIAL_VALIDATE_PASS", self.run_node(script))
+
+    def test_remote_transport_recomputes_home_graph_and_response_canonical_hashes(self):
+        executor_path = json.dumps(str(EXECUTOR))
+        script = f"""
+const fs=require('fs'),vm=require('vm'),nodeCrypto=require('crypto');
+if(!globalThis.crypto)globalThis.crypto=nodeCrypto.webcrypto;
+global.localStorage={{getItem:()=>null,setItem:()=>{{}}}};
+vm.runInThisContext(fs.readFileSync({executor_path},'utf8'),{{filename:'executor.js'}});
+const ex=globalThis.GENESIS_SCENE_GRAPH_EXECUTOR_R0_4;
+const limits={{max_nodes:32,max_edges:64,max_depth:8,max_resource_units:128,max_node_resource_units:16}};
+const authority={{janus_graph_is_world_authority:false,model_output_is_command:false,genesis_validator_required:true,world_mutation_authorized_by_janus:false,external_effect_authorized:false}};
+const canonical=v=>JSON.stringify(v,(_,x)=>x); // only used for exact graph string after key-order construction below
+const sortValue=v=>Array.isArray(v)?v.map(sortValue):(v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,sortValue(v[k])])):v);
+const rawSha=s=>nodeCrypto.createHash('sha256').update(s,'utf8').digest('hex');
+(async()=>{{
+  let graph={{schema:'janus.genesis.scene_graph.v1',version:'0.4.0',graph_id:'sg-transport',request_id:'r1',normalized_text:'spawn castle',action_seed:'seed',world_state_hash:'world',nodes:[{{id:'n-0000000000000001',family:'STRUCTURE',operation:'GENERATE_STRUCTURE',concept:'castle',params:{{structure_kind:'castle'}},depends_on:[],required:true,resource_units:3}}],limits,execution_policy:{{order:'TOPOLOGICAL'}},authority,provenance:{{compiler:'test'}},topological_order:['n-0000000000000001']}};
+  graph.graph_hash=await ex.canonicalHash(graph);
+  const graphJson=JSON.stringify(sortValue(graph));
+  let response={{schema:'janus.genesis.scene_graph.response.v1',api_version:'0.4.0',status:'PROPOSED_GRAPH',request_id:'r1',scene_graph:graph,authority:{{...authority}},transport_proof:{{canonical_graph_json:graphJson,canonical_graph_utf8_sha256:rawSha(graphJson),verification:'test'}}}};
+  response.receipt_hash=await ex.canonicalHash(response);
+  await ex.verifyTransport(response);
+  const tampered=JSON.parse(JSON.stringify(response));tampered.scene_graph.action_seed='evil';tampered.transport_proof.canonical_graph_json=JSON.stringify(sortValue(tampered.scene_graph));tampered.transport_proof.canonical_graph_utf8_sha256=rawSha(tampered.transport_proof.canonical_graph_json);
+  let rejected=false;try{{await ex.verifyTransport(tampered);}}catch(e){{rejected=String(e.message).includes('CANONICAL_HASH_MISMATCH');}}if(!rejected)throw new Error('tampered graph canonical hash was accepted');
+  const receiptTamper=JSON.parse(JSON.stringify(response));receiptTamper.status='FORGED';
+  rejected=false;try{{await ex.verifyTransport(receiptTamper);}}catch(e){{rejected=String(e.message).includes('RESPONSE_CANONICAL_HASH_MISMATCH');}}if(!rejected)throw new Error('tampered response canonical hash was accepted');
+  console.log('CANONICAL_TRANSPORT_PASS');
+}})().catch(e=>{{console.error(e);process.exit(1);}});
+"""
+        self.assertIn("CANONICAL_TRANSPORT_PASS", self.run_node(script))
 
     def test_remote_graph_has_exact_byte_transport_proof_and_authority_gate(self):
         remote = self.contract["remote_nerve"]
@@ -66,7 +132,7 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
         self.assertTrue(remote["live_claim_requires_real_https_health_pass"])
         self.assertFalse(remote["github_pages_is_persistent_post_host"])
         self.assertFalse(remote["github_actions_is_persistent_post_host"])
-        for token in ("/v1/genesis/scene-graph", "verifyTransport", "canonical_graph_json", "canonical_graph_utf8_sha256", "SCENE_GRAPH_TRANSPORT_HASH_MISMATCH", "SCENE_GRAPH_AUTHORITY_BOUNDARY_INVALID"):
+        for token in ("/v1/genesis/scene-graph", "verifyTransport", "canonical_graph_json", "canonical_graph_utf8_sha256", "SCENE_GRAPH_TRANSPORT_HASH_MISMATCH", "SCENE_GRAPH_AUTHORITY_BOUNDARY_INVALID", "SCENE_GRAPH_CANONICAL_HASH_MISMATCH", "SCENE_GRAPH_RESPONSE_CANONICAL_HASH_MISMATCH"):
             self.assertIn(token, self.bridge4 + self.executor)
 
     def test_janus_graph_remains_proposal_and_genesis_validator_executes_nodes(self):
@@ -101,6 +167,8 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
         self.assertNotIn("eval(", surface)
         self.assertNotIn("new Function", surface)
         self.assertNotIn("Function(", surface)
+        self.assertIn("SCENE_GRAPH_ARBITRARY_CODE_FIELD_FORBIDDEN", self.executor)
+        self.assertIn("SCENE_GRAPH_OPERATION_NOT_ALLOWLISTED", self.executor)
 
     def test_sound_effect_material_and_rights_nodes_are_explicit(self):
         self.assertTrue(self.contract["audio_and_effect_policy"]["sound_is_graph_node"])
@@ -114,8 +182,8 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
     def test_active_pages_load_r03_lineage_before_r04_executor_and_bridge(self):
         for html in (self.root_html, self.site_html):
             self.assertIn("SCENE INTENT GRAPH R0.4", html)
-            self.assertNotIn('id="mirror-panel"', html)
-            self.assertIn('id="action-input"', html)
+            self.assertNotIn('id=\"mirror-panel\"', html)
+            self.assertIn('id=\"action-input\"', html)
             pos_v3 = html.index("genesis-command-bridge-v3.js")
             pos_executor = html.index("genesis-scene-graph-executor-r0-4.js")
             pos_v4 = html.index("genesis-command-bridge-v4.js")
