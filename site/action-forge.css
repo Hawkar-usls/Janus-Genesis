@@ -1,7 +1,7 @@
 .action-forge {
   position: fixed;
   left: 50%;
-  bottom: 54px;
+  bottom: 96px;
   transform: translateX(-50%);
   z-index: 26;
   width: min(760px, calc(100vw - 28px));
