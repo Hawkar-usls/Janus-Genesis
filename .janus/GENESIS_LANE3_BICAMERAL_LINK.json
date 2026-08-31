@@ -1,7 +1,7 @@
 {
   "schema": "janus.genesis.lane3.bicameral_link.v1",
   "link_id": "GENESIS_LANE3_LONGEVITY_BICAMERAL_LINK_V1",
-  "status": "ACTIVE_READ_ONLY_BICAMERAL_ROUTE",
+  "status": "ACTIVE_READ_ONLY_BICAMERAL_ROUTE__TRUMP_DOMAIN_ADMITTED",
   "lane": {
     "id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
     "packet_path": "lanes/lane-3-longgevity-survivor/THY1_P38_HIGH_TENSION_SKIN_FATE_PACKET_v1.json",
@@ -40,6 +40,15 @@
     "disagreement_effect": "FIRST_CLASS_STATE",
     "scientific_promotion_authority": false
   },
+  "trump_final": {
+    "stage": "DOMAIN_EVIDENCE_CANDIDATE",
+    "workflow_run": 33359887179,
+    "verdict": "DOMAIN_EVIDENCE_ACCEPTED_NO_PROMOTION",
+    "receipt_sha256": "2a9e86573ac3ac903a82ff30703900dde31e446eb24c4727c0b6d26b9a84c8a8",
+    "next_authority": "JANUS_GENESIS_DOMAIN_LANE_ONLY",
+    "scientific_promotion": false,
+    "human_translation": false
+  },
   "laws": [
     "ONE_SOURCE_TWO_VIEWS_NE_TWO_REPLICATIONS",
     "STRUCTURAL_CONTEXT_NE_ASSOCIATIVE_CONTEXT",
@@ -47,6 +56,7 @@
     "DISAGREEMENT_IS_A_FIRST_CLASS_STATE",
     "PRECONDITIONING_NE_DELAYED_RESCUE",
     "MOUSE_SKIN_NE_HUMAN_THERAPY",
-    "LANE3_ROUTE_NE_EXTERNAL_EFFECT_AUTHORITY"
+    "LANE3_ROUTE_NE_EXTERNAL_EFFECT_AUTHORITY",
+    "TRUMP_DOMAIN_ADMISSION_NE_SCIENTIFIC_PROMOTION"
   ]
 }
