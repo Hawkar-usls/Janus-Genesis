@@ -1,0 +1,85 @@
+name: Genesis Lane 3 Third Strict Joint Capsule
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lanes/lane-3-longgevity-survivor/ELBOW_JOINT_CAPSULE_THIRD_STRICT_TISSUE_PACKET_v1.json'
+      - '.github/workflows/genesis-lane3-third-strict-joint-capsule.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  elbow-third-strict-bicameral:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact hemisphere and Lapis bindings
+        run: |
+          mkdir -p out/elbow/hrain out/elbow/inaihr out/elbow/lapis
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/genesis-lane3-intake.js -o out/elbow/hrain/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/hemispheric-commissure.js -o out/elbow/hrain/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/demihead-bridge.js -o out/elbow/hrain/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/genesis-lane3-intake.js -o out/elbow/inaihr/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/hemispheric-commissure.js -o out/elbow/inaihr/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/demihead-bridge.js -o out/elbow/inaihr/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/janus-lapis/54edf7b40e2cd8cab2a6866ebb672be04965dbaf/longevity-survivor/JOINT-CAPSULE-MECHANICAL-CLOCK-STRICT-ROOT-SCHOLP-CRS-2025-v1.0.json -o out/elbow/lapis/source.json
+      - name: Assert frozen C1-C5 without heuristic promotion
+        run: |
+          python - <<'PY'
+          import json
+          lane=json.load(open('lanes/lane-3-longgevity-survivor/ELBOW_JOINT_CAPSULE_THIRD_STRICT_TISSUE_PACKET_v1.json'))
+          src=json.load(open('out/elbow/lapis/source.json'))
+          assert src['paper']['doi']=='10.1002/jor.25967'
+          assert src['binary_decision']=='ADMITTED_5_OF_5'
+          assert src['distinct_tissue_decision']=='THIRD_DISTINCT_STRICT_TISSUE_ADMITTED'
+          for c in ['C1_DELAYED_AFTER_ESTABLISHMENT','C2_DIRECT_PHYSICAL_RETUNING','C3_PHYSICAL_STATE_MEASURED','C4_SAME_STATE_TRAJECTORY','C5_TISSUE_OUTCOME_WITH_INTEGRITY']:
+              assert src['criterion_receipt'][c]['status']=='YES', c
+          assert 'ALPHA_SMA_IS_NOT_USED_AS_THE_DECISIVE_C4_RECEIPT' in src['anti_heuristic_notes']
+          assert lane['timing_gate']['C1_DELAYED_AFTER_ESTABLISHMENT']=='YES'
+          assert lane['timing_gate']['strict_delayed_mechanical_lock_pass'] is True
+          assert all(lane['gate_delta'][c]=='YES' for c in ['C1','C2','C3','C4','C5'])
+          assert lane['authority']['scientific_promotion'] is False
+          assert lane['authority']['human_treatment_claim'] is False
+          print('GENESIS_LANE3_ELBOW_C1_C5_SOURCE_GATE_PASS')
+          PY
+      - name: Run both hemisphere intakes and duplex commissure
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'), crypto=require('crypto');
+          const packet=JSON.parse(fs.readFileSync('lanes/lane-3-longgevity-survivor/ELBOW_JOINT_CAPSULE_THIRD_STRICT_TISSUE_PACKET_v1.json','utf8'));
+          const leftIntake=require('./out/elbow/hrain/genesis-lane3-intake.js');
+          const rightIntake=require('./out/elbow/inaihr/genesis-lane3-intake.js');
+          const leftBridge=require('./out/elbow/hrain/demihead-bridge.js');
+          const rightBridge=require('./out/elbow/inaihr/demihead-bridge.js');
+          const leftCom=require('./out/elbow/hrain/hemispheric-commissure.js');
+          const rightCom=require('./out/elbow/inaihr/hemispheric-commissure.js');
+          (async()=>{
+            const L=leftIntake.accept(packet), R=rightIntake.accept(packet);
+            if(L.hemisphere!=='LEFT_HRAIN'||L.role!=='STRUCTURAL_CONTEXT') throw new Error('left role mismatch');
+            if(R.hemisphere!=='RIGHT_INAIHR'||R.role!=='ASSOCIATIVE_CONTEXT') throw new Error('right role mismatch');
+            if(L.evidence_authority||R.evidence_authority||L.independent_replication||R.independent_replication) throw new Error('evidence inflation');
+            if(L.structural_focus.timing_gate.C1_DELAYED_AFTER_ESTABLISHMENT!=='YES') throw new Error('C1 lost');
+            const leftPacket=leftBridge.buildUnattestedPacket({nodes:[{id:'L3E',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'lane3-left-elbow-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const rightPacket=rightBridge.buildUnattestedPacket({nodes:[{id:'R3E',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'lane3-right-elbow-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const l2r=await leftCom.buildExchange(leftPacket,'CONTEXT_RETURN',{lane_id:packet.lane_id,doi:packet.source.doi,timing:L.structural_focus.timing_gate,gate_delta:L.structural_focus.gate_delta},null,'lane3-elbow-left-right-0001');
+            const acceptedRight=await rightCom.acceptExchange(l2r);
+            const r2l=await rightCom.buildExchange(rightPacket,'HYPOTHESIS_CANDIDATE',{lane_id:packet.lane_id,doi:packet.source.doi,fate:R.associative_focus.fate_contrast,mechanism:R.associative_focus.mechanism_family},l2r.exchange_sha256,'lane3-elbow-right-left-0002');
+            const acceptedLeft=await leftCom.acceptExchange(r2l);
+            if(acceptedRight.evidence_authority!==false||acceptedLeft.evidence_authority!==false) throw new Error('commissure authority leak');
+            const packetSha=crypto.createHash('sha256').update(JSON.stringify(packet)).digest('hex');
+            const receipt={schema:'janus.genesis.lane3.third_strict_tissue_bicameral_receipt.v1',status:'LANE3_BICAMERAL_THIRD_STRICT_TISSUE_5_OF_5_PASS',packet_sha256:packetSha,doi:packet.source.doi,tissue:'ELBOW_JOINT_CAPSULE',left:{hemisphere:L.hemisphere,role:L.role,evidence_authority:false},right:{hemisphere:R.hemisphere,role:R.role,evidence_authority:false},commissure:{l2r:l2r.exchange_sha256,r2l:r2l.exchange_sha256},criteria:{C1:'YES',C2:'YES',C3:'YES',C4:'YES',C5:'YES'},strict_admission:'ADMITTED_5_OF_5',third_distinct_tissue:'ADMITTED',temporary_rescue_with_recurrence:true,independent_replication_claimed:false,human_therapy_claimed:false,scientific_promotion:false,next_gate:'TRUMP_DOMAIN_EVIDENCE_ADMISSION'};
+            receipt.receipt_sha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');
+            fs.writeFileSync('out/elbow/receipt.json',JSON.stringify(receipt,null,2));
+            console.log('GENESIS_LANE3_ELBOW_THIRD_STRICT_BICAMERAL_PASS',receipt.receipt_sha256);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload elbow third-strict receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-lane3-elbow-third-strict-${{ github.run_id }}
+          path: out/elbow/receipt.json
+          retention-days: 30
