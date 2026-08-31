@@ -42,13 +42,8 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertTrue(seed["same_state_same_text_same_plan"])
         self.assertFalse(seed["hidden_human_telemetry"])
         for field in (
-            "world_id",
-            "world_seed",
-            "generator_version",
-            "player_position",
-            "discovered_chunk_coordinates",
-            "explicit_world_mutations",
-            "chronicle_tip_hash",
+            "world_id", "world_seed", "generator_version", "player_position",
+            "discovered_chunk_coordinates", "explicit_world_mutations", "chronicle_tip_hash",
         ):
             self.assertIn(field, seed["canonical_world_state_fields"])
             self.assertIn(field, self.js)
@@ -60,19 +55,10 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
     def test_intent_vocabulary_is_bounded(self):
         vocabulary = self.contract["intent_vocabulary"]
         for intent in (
-            "MOVE",
-            "PLACE_MARK",
-            "PLACE_ACTION_ANCHOR",
-            "RETURN_TO_HEARTH",
-            "TURN_CAMERA",
-            "SET_MIRROR",
-            "SET_DIMENSION",
-            "SET_CAMERA",
+            "MOVE", "PLACE_MARK", "PLACE_ACTION_ANCHOR", "RETURN_TO_HEARTH",
+            "TURN_CAMERA", "SET_MIRROR", "SET_DIMENSION", "SET_CAMERA",
         ):
-            self.assertTrue(
-                intent in vocabulary["canonical_or_local_world_actions"]
-                or intent in vocabulary["presentation_actions"]
-            )
+            self.assertTrue(intent in vocabulary["canonical_or_local_world_actions"] or intent in vocabulary["presentation_actions"])
             self.assertIn(intent, self.js)
         self.assertEqual(vocabulary["unknown_text_policy"], "FAIL_CLOSED_WITH_EXAMPLES")
         self.assertIn("UNKNOWN ACTION", self.js)
@@ -86,7 +72,7 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertIn("type: 'PLAYER_MARK'", self.js)
         self.assertIn("ACTION_ANCHOR_NE_BESPOKE_GENERATED_ASSET", self.contract["laws"])
 
-    def test_runtime_has_no_arbitrary_code_or_external_network(self):
+    def test_historical_runtime_has_no_arbitrary_code_or_external_network(self):
         surface = self.js + self.locale_ru
         for token in ("eval(", "new Function(", "WebSocket(", "EventSource(", "http://", "https://"):
             self.assertNotIn(token, surface)
@@ -96,7 +82,7 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertFalse(boundary["hidden_psychological_inference"])
         self.assertFalse(boundary["local_r0_mutation_is_network_canonical"])
 
-    def test_bounds_match_runtime(self):
+    def test_bounds_match_historical_runtime(self):
         bounds = self.contract["bounds"]
         self.assertEqual(bounds["max_text_chars"], 280)
         self.assertEqual(bounds["max_move_steps"], 40)
@@ -106,27 +92,28 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertIn("max_concept_chars: 64", self.js)
         self.assertIn("clamp(Number(match[1]), 1, CONFIG.max_move_steps)", self.js)
 
-    def test_pages_expose_action_console_in_both_publish_modes(self):
+    def test_action_console_survives_but_active_routing_is_superseded(self):
         for html in (self.site_html, self.root_html):
             self.assertIn('id="action-form"', html)
             self.assertIn('id="action-input"', html)
             self.assertIn('id="action-state-hash"', html)
             self.assertIn('id="action-plan"', html)
-            self.assertIn("WORLD STATE → SEED", html)
-            self.assertIn("genesis-action-input-ru.js", html)
-            self.assertIn("genesis-action-forge.js", html)
+            self.assertIn("genesis-janus-bridge-v1.js", html)
+            self.assertNotIn("genesis-action-input-ru.js", html)
+            self.assertNotIn("genesis-action-forge.js", html)
             self.assertIn("action-forge.css", html)
+        self.assertTrue(RUNTIME.exists())
+        self.assertTrue(LOCALE_RU.exists())
         self.assertIn(".action-forge", self.css)
-        self.assertIn("bottom: 96px", self.css)
 
-    def test_action_input_isolated_from_world_hotkeys(self):
+    def test_historical_action_input_isolated_from_world_hotkeys(self):
         self.assertIn("isActionInput", self.locale_ru)
         for event_type in ("keydown", "keyup", "keypress"):
             self.assertIn(event_type, self.locale_ru)
         self.assertIn("event.stopPropagation()", self.locale_ru)
         self.assertIn("action-input", self.locale_ru)
 
-    def test_russian_locale_adapter_normalizes_explicit_commands_only(self):
+    def test_russian_locale_adapter_is_preserved_as_lineage_not_active_ceiling(self):
         self.assertIn("normalizeRussianAction", self.locale_ru)
         for token in ("ноктюрн", "аэтер", "эмбер", "ориджин", "2д", "3д", "построй"):
             self.assertIn(token, self.locale_ru)
