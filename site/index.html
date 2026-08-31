@@ -4,9 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Genesis World Shell R0 — playable procedural one-world vertical slice with personal mirrors, cause-first persistence and HELIOS-derived generative audio.">
+  <meta name="description" content="Genesis World Shell R0 — procedural one-world vertical slice with personal mirrors, switchable 2D/3D presentation and first-person, third-person or isometric cameras.">
   <title>GENESIS // WORLD SHELL R0</title>
   <link rel="stylesheet" href="./world-shell.css">
+  <link rel="stylesheet" href="./world-shell-camera.css">
 </head>
 <body>
   <canvas id="genesis-world" aria-label="Procedurally generated Genesis world"></canvas>
@@ -20,6 +21,7 @@
     </div>
     <div class="top-actions">
       <button id="audio-toggle" type="button">AUDIO: OFF</button>
+      <button id="view-toggle" type="button">VIEW: 3D/ISO</button>
       <button id="mirror-toggle" type="button">MIRROR</button>
       <button id="chronicle-toggle" type="button">CHRONICLE</button>
       <a class="hud-button" href="./kernel-lab.html">KERNEL LAB</a>
@@ -37,7 +39,10 @@
     <div class="status-row"><span>PREWARM</span><strong id="prewarm-count">81</strong></div>
     <div class="status-row"><span>RECIPE ONLY</span><strong>∞</strong></div>
     <div class="status-row"><span>DISCOVERED</span><strong id="discovered-count">0</strong></div>
+    <div class="status-rule"></div>
     <div class="status-row"><span>MIRROR</span><strong id="mirror-name">ORIGIN</strong></div>
+    <div class="status-row"><span>DIMENSION</span><strong id="dimension-name">3D</strong></div>
+    <div class="status-row"><span>CAMERA</span><strong id="camera-name">ISOMETRIC</strong></div>
   </aside>
 
   <aside class="hud minimap-shell" aria-label="Discovered chunk map">
@@ -48,21 +53,37 @@
   <section id="welcome" class="center-message" aria-live="polite">
     <span class="eyebrow">THE FIRST SHORE</span>
     <h1>THE WORLD BEGINS<br>WHERE YOU WALK.</h1>
-    <p>The land ahead is generated from causes. The land behind becomes remembered history.</p>
+    <p>The land ahead is generated from causes. Your Mirror decides how that one world is presented — including dimension and camera.</p>
     <button id="enter-world" class="enter-button" type="button">ENTER GENESIS</button>
   </section>
 
-  <section id="mirror-panel" class="drawer" aria-labelledby="mirror-title" hidden>
+  <section id="mirror-panel" class="drawer mirror-drawer" aria-labelledby="mirror-title" hidden>
     <div class="drawer-head">
       <div><span class="eyebrow">PERSONAL MIRROR</span><h2 id="mirror-title">Same facts. Different reality.</h2></div>
       <button class="close-drawer" data-close="mirror-panel" type="button">×</button>
     </div>
-    <p>Mirror profiles can change palette, light, fog, material shading, vector styling and audio presentation. They cannot move canonical objects or rewrite Chronicle history.</p>
-    <div id="mirror-options" class="mirror-options"></div>
+    <p>Mirror is the presentation lens. Style, 2D/3D dimension and camera can change freely. Canonical coordinates, object types, Chronicle events and world mutations cannot.</p>
+
+    <div class="mirror-section">
+      <span class="mirror-section-label">STYLE MIRROR</span>
+      <div id="mirror-options" class="mirror-options"></div>
+    </div>
+
+    <div class="mirror-section view-matrix">
+      <span class="mirror-section-label">DIMENSION</span>
+      <div id="dimension-options" class="view-options"></div>
+      <span class="mirror-section-label">CAMERA</span>
+      <div id="camera-options" class="view-options camera-options"></div>
+      <div class="view-note">
+        <strong id="view-combination">3D / ISOMETRIC</strong>
+        <span>FIRST PERSON and THIRD PERSON require 3D. Choosing 2D safely returns the camera to ISOMETRIC.</span>
+      </div>
+    </div>
+
     <div class="integrity-card">
       <span>CANONICAL CHUNK FACT HASH</span>
       <strong id="mirror-fact-hash">--------</strong>
-      <small>This value must remain unchanged when only the mirror changes.</small>
+      <small>This value must remain unchanged when style, dimension or camera changes.</small>
     </div>
   </section>
 
@@ -71,7 +92,7 @@
       <div><span class="eyebrow">HASH-LINKED MEMORY</span><h2 id="chronicle-title">Chronicle</h2></div>
       <button class="close-drawer" data-close="chronicle-panel" type="button">×</button>
     </div>
-    <p>The Pages slice stores player position, discovered chunk coordinates, explicit marks and event hashes — never rendered terrain pixels, mesh buffers or audio PCM.</p>
+    <p>The Pages slice stores player position, discovered chunk coordinates, explicit marks and event hashes — never rendered terrain pixels, mesh buffers or audio PCM. View settings are personal presentation preferences and do not create Chronicle events.</p>
     <ol id="chronicle-list" class="chronicle-list"></ol>
   </section>
 
@@ -83,7 +104,9 @@
   <div class="hud controls-hint">
     <span><kbd>WASD</kbd> / <kbd>ARROWS</kbd> WALK</span>
     <span><kbd>SHIFT</kbd> MOVE FASTER</span>
-    <span><kbd>E</kbd> WRITE A WORLD MARK</span>
+    <span><kbd>V</kbd> VIEW / MIRROR</span>
+    <span><kbd>DRAG</kbd> LOOK IN 1P/3P</span>
+    <span><kbd>Q</kbd>/<kbd>F</kbd> TURN</span>
   </div>
 
   <div class="mobile-pad" aria-label="Touch movement controls">
@@ -97,11 +120,11 @@
 
   <footer class="world-footer">
     <span id="generator-state">BOOTING WORLD GENERATOR</span>
-    <span>CANONICAL FACTS ≠ PERSONAL PRESENTATION</span>
+    <span>CAMERA ≠ AUTHORITY // CANONICAL FACTS ≠ PERSONAL PRESENTATION</span>
   </footer>
 
   <noscript>Genesis World Shell requires JavaScript to generate the local procedural world.</noscript>
   <script src="./genesis-audio-forge.js"></script>
-  <script src="./genesis-world-shell.js"></script>
+  <script src="./genesis-world-shell-v2.js"></script>
 </body>
 </html>
