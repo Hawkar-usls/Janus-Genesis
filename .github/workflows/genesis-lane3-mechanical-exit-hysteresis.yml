@@ -1,0 +1,82 @@
+name: Genesis Lane 3 Mechanical Exit Hysteresis
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'lanes/lane-3-longgevity-survivor/MECHANICAL_EXIT_HYSTERESIS_FRONTIER_PACKET_v1.json'
+      - '.github/workflows/genesis-lane3-mechanical-exit-hysteresis.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  bicameral-exit-hysteresis:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch exact hemisphere and Lapis bindings
+        run: |
+          mkdir -p out/meh/hrain out/meh/inaihr out/meh/lapis
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/genesis-lane3-intake.js -o out/meh/hrain/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/hemispheric-commissure.js -o out/meh/hrain/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/Hrain/8ff8d19380d73b4c29306179b1cc72e9e35010d8/demihead-bridge.js -o out/meh/hrain/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/genesis-lane3-intake.js -o out/meh/inaihr/genesis-lane3-intake.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/hemispheric-commissure.js -o out/meh/inaihr/hemispheric-commissure.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/iNaiHR/1187edc55f647eab5a804b7899dc444081975186/demihead-bridge.js -o out/meh/inaihr/demihead-bridge.js
+          curl -fsSL https://raw.githubusercontent.com/Hawkar-usls/janus-lapis/5efd4f837352df31fca0caa96792b73a9d15869a/longevity-survivor/MECHANICAL-EXIT-HYSTERESIS-STRATIFICATION-RESULT-2026-08-31-v1.0.json -o out/meh/lapis/result.json
+      - name: Assert frozen stratification and claim ceiling
+        run: |
+          python - <<'PY'
+          import json
+          p=json.load(open('lanes/lane-3-longgevity-survivor/MECHANICAL_EXIT_HYSTERESIS_FRONTIER_PACKET_v1.json'))
+          r=json.load(open('out/meh/lapis/result.json'))
+          assert p['source']['source_commit']=='5efd4f837352df31fca0caa96792b73a9d15869a'
+          assert r['main_result']['MECHANICAL_EXIT_COUPLING']=='OPEN_IN_ALL_THREE_STRICT_TISSUES'
+          assert r['main_result']['durable_tissue_future_set_rewrite']=='NOT_YET_ESTABLISHED'
+          roots={x['tissue']:x for x in r['strict_root_classification']}
+          assert roots['ELBOW_JOINT_CAPSULE']['hysteresis_class']=='H1_TRANSIENT_RESCUE_WITH_RECURRENCE'
+          assert roots['SKIN']['hysteresis_class']=='H4_UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE'
+          assert roots['HEART']['hysteresis_class']=='H4_UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE'
+          assert p['authority']['scientific_promotion'] is False
+          assert p['authority']['human_treatment_claim'] is False
+          print('GENESIS_LANE3_MEH_SOURCE_GATE_PASS')
+          PY
+      - name: Run both hemisphere intakes and duplex commissure
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'), crypto=require('crypto');
+          const packet=JSON.parse(fs.readFileSync('lanes/lane-3-longgevity-survivor/MECHANICAL_EXIT_HYSTERESIS_FRONTIER_PACKET_v1.json','utf8'));
+          const leftIntake=require('./out/meh/hrain/genesis-lane3-intake.js');
+          const rightIntake=require('./out/meh/inaihr/genesis-lane3-intake.js');
+          const leftBridge=require('./out/meh/hrain/demihead-bridge.js');
+          const rightBridge=require('./out/meh/inaihr/demihead-bridge.js');
+          const leftCom=require('./out/meh/hrain/hemispheric-commissure.js');
+          const rightCom=require('./out/meh/inaihr/hemispheric-commissure.js');
+          (async()=>{
+            const L=leftIntake.accept(packet), R=rightIntake.accept(packet);
+            if(L.hemisphere!=='LEFT_HRAIN'||L.role!=='STRUCTURAL_CONTEXT') throw new Error('left role mismatch');
+            if(R.hemisphere!=='RIGHT_INAIHR'||R.role!=='ASSOCIATIVE_CONTEXT') throw new Error('right role mismatch');
+            if(L.evidence_authority||R.evidence_authority||L.independent_replication||R.independent_replication) throw new Error('evidence inflation');
+            if(L.structural_focus.gate_delta.DURABLE_TISSUE_FUTURE_SET_REWRITE!=='NOT_ESTABLISHED') throw new Error('durability inflation');
+            const lp=leftBridge.buildUnattestedPacket({nodes:[{id:'MEH-L',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'meh-left-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const rp=rightBridge.buildUnattestedPacket({nodes:[{id:'MEH-R',label:packet.packet_id,origin:'SYSTEM'}],links:[]},{packetId:'meh-right-0001',capturedAt:'2026-08-31T00:00:00Z'});
+            const l2r=await leftCom.buildExchange(lp,'CONTEXT_RETURN',{lane_id:packet.lane_id,timing:L.structural_focus.timing_gate,gate:L.structural_focus.gate_delta},null,'meh-left-right-0001');
+            const ar=await rightCom.acceptExchange(l2r);
+            const r2l=await rightCom.buildExchange(rp,'HYPOTHESIS_CANDIDATE',{lane_id:packet.lane_id,fate:R.associative_focus.fate_contrast,mechanisms:R.associative_focus.mechanism_family},l2r.exchange_sha256,'meh-right-left-0002');
+            const al=await leftCom.acceptExchange(r2l);
+            if(ar.evidence_authority!==false||al.evidence_authority!==false) throw new Error('commissure authority leak');
+            const receipt={schema:'janus.genesis.lane3.mechanical_exit_hysteresis_bicameral_receipt.v1',status:'LANE3_BICAMERAL_HYSTERESIS_STRATIFICATION_PASS_EXIT_COUPLING_OPEN',packet_sha256:crypto.createHash('sha256').update(JSON.stringify(packet)).digest('hex'),left:{hemisphere:L.hemisphere,role:L.role,evidence_authority:false},right:{hemisphere:R.hemisphere,role:R.role,evidence_authority:false},commissure:{l2r:l2r.exchange_sha256,r2l:r2l.exchange_sha256},strict_tissues:3,joint_capsule:'H1_TRANSIENT_RESCUE_WITH_RECURRENCE',skin:'H4_UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE',heart:'H4_UNKNOWN_NO_WITHDRAWAL_OR_RECHALLENGE',mechanical_exit_coupling:'OPEN',durable_tissue_rewrite:'NOT_ESTABLISHED',independent_replication_claimed:false,human_therapy_claimed:false,scientific_promotion:false,next_gate:packet.next_gate};
+            receipt.receipt_sha256=crypto.createHash('sha256').update(JSON.stringify(receipt)).digest('hex');
+            fs.writeFileSync('out/meh/receipt.json',JSON.stringify(receipt,null,2));
+            console.log('GENESIS_LANE3_MEH_BICAMERAL_PASS',receipt.receipt_sha256);
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Upload receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: genesis-lane3-mechanical-exit-hysteresis-${{ github.run_id }}
+          path: out/meh/receipt.json
+          retention-days: 30
