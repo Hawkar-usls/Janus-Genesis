@@ -62,8 +62,8 @@ def test_cc_by_sa_preserves_share_alike_obligation():
     assert "SHARE_ALIKE" in decision["obligations"]
 
 
-def test_provenance_requires_hash_and_rights():
-    provenance = {
+def _valid_provenance():
+    return {
         "provider_id": "poly_haven",
         "source_asset_id": "stone-test",
         "source_url": "https://example.invalid/source",
@@ -72,12 +72,23 @@ def test_provenance_requires_hash_and_rights():
         "rights_source_url": "https://polyhaven.com/license",
         "source_sha256": "a" * 64,
     }
+
+
+def test_provenance_requires_hash_and_rights():
+    provenance = _valid_provenance()
     assert validate_provenance(provenance)["provider_id"] == "poly_haven"
 
     broken = dict(provenance)
     broken.pop("rights_source_url")
     with pytest.raises(AssetTrunkViolation, match="Incomplete provenance"):
         validate_provenance(broken)
+
+
+def test_provenance_with_unknown_policy_adapter_cannot_enter_derivation_lane():
+    provenance = _valid_provenance()
+    provenance["rights_expression"] = "CUSTOM-UNVERIFIED-LICENSE"
+    with pytest.raises(AssetTrunkViolation, match="rights fail closed"):
+        validate_provenance(provenance)
 
 
 def test_federation_returns_all_relevant_enabled_sources_not_one_winner():
