@@ -1,11 +1,11 @@
-name: Genesis R0.5.1 Provider Smoke
+name: Genesis R0.5.2 Provider Binary Smoke
 
 on:
   pull_request:
-    paths: ['site/**','tests/test_genesis_provider_fallback_r0_5_1.py','.github/workflows/genesis-r051-provider-smoke.yml']
+    paths: ['site/**','tests/test_genesis_provider_fallback_r0_5_1.py','tests/test_genesis_performance_r0_5_2.py','.github/workflows/genesis-r051-provider-smoke.yml']
   push:
     branches: [main]
-    paths: ['site/**','tests/test_genesis_provider_fallback_r0_5_1.py','.github/workflows/genesis-r051-provider-smoke.yml']
+    paths: ['site/**','tests/test_genesis_provider_fallback_r0_5_1.py','tests/test_genesis_performance_r0_5_2.py','.github/workflows/genesis-r051-provider-smoke.yml']
 permissions: {contents: read}
 jobs:
   provider-smoke:
@@ -14,21 +14,44 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: '3.12'}
-      - name: Syntax public provider fallback
-        run: node --check site/genesis-public-provider-fallback-r0-5-1.js
-      - name: Syntax asset trunk
-        run: node --check site/genesis-asset-trunk-r0-5-1.js
-      - name: Syntax materializer
-        run: node --check site/genesis-asset-materializer-v3.js
-      - name: Syntax external audio
-        run: node --check site/genesis-audio-asset-runtime-r0-5-1.js
-      - name: Syntax executor overlay
-        run: node --check site/genesis-scene-graph-executor-r0-5-1.js
-      - name: Provider contract tests
-        run: python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
-      - name: Live browser-CORS capability proof
+      - name: Syntax provider and performance overlays
+        run: |
+          node --check site/genesis-public-provider-fallback-r0-5-1.js
+          node --check site/genesis-asset-trunk-r0-5-1.js
+          node --check site/genesis-asset-materializer-v3.js
+          node --check site/genesis-audio-asset-runtime-r0-5-1.js
+          node --check site/genesis-scene-graph-executor-r0-5-1.js
+          node --check site/genesis-frame-governor-r0-5-2.js
+      - name: Provider and performance contract tests
+        run: |
+          python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
+          python -m unittest tests.test_genesis_performance_r0_5_2 -v
+      - name: Live public API browser-CORS proof
         run: |
           node <<'NODE'
           const targets=[['poly_haven','https://api.polyhaven.com/assets?type=textures'],['wikimedia','https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&list=allimages&ailimit=1']];
-          (async()=>{for(const [name,url] of targets){const r=await fetch(url,{headers:{'User-Agent':'JANUS-Genesis-R0.5.1-CI'}});if(!r.ok)throw new Error(`${name} HTTP ${r.status}`);const acao=r.headers.get('access-control-allow-origin');if(acao!=='*')throw new Error(`${name} browser CORS not proven: ${acao}`);const body=await r.text();if(!body.length)throw new Error(`${name} empty response`);console.log(`${name.toUpperCase()}_CORS_PASS`,acao,body.length);}})().catch(e=>{console.error(e);process.exit(1)});
+          (async()=>{for(const [name,url] of targets){const r=await fetch(url,{headers:{Origin:'https://hawkar-usls.github.io','User-Agent':'JANUS-Genesis-R0.5.2-CI'}});if(!r.ok)throw new Error(`${name} HTTP ${r.status}`);const acao=r.headers.get('access-control-allow-origin');if(acao!=='*'&&acao!=='https://hawkar-usls.github.io')throw new Error(`${name} API CORS not proven: ${acao}`);const body=await r.text();if(!body.length)throw new Error(`${name} empty response`);console.log(`${name.toUpperCase()}_API_CORS_PASS`,acao,body.length);}})().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+      - name: Live provider binary CDN proof through Genesis fallback code
+        run: |
+          node <<'NODE'
+          const fs=require('fs'),vm=require('vm');
+          vm.runInThisContext(fs.readFileSync('site/genesis-public-provider-fallback-r0-5-1.js','utf8'),{filename:'provider-fallback.js'});
+          const p=globalThis.GENESIS_PUBLIC_PROVIDER_FALLBACK_R0_5_1;
+          async function binary(name,ref){
+            if(!ref||!ref.download_pointer)throw new Error(`${name} no runtime download pointer`);
+            const r=await fetch(ref.download_pointer,{headers:{Origin:'https://hawkar-usls.github.io','User-Agent':'JANUS-Genesis-R0.5.2-CI'}});
+            if(!r.ok)throw new Error(`${name} binary HTTP ${r.status}`);
+            const acao=r.headers.get('access-control-allow-origin');
+            if(acao!=='*'&&acao!=='https://hawkar-usls.github.io')throw new Error(`${name} binary CORS not proven: ${acao}`);
+            const buf=await r.arrayBuffer();if(!buf.byteLength)throw new Error(`${name} binary empty`);
+            console.log(`${name}_BINARY_CORS_PASS`,ref.provider_id,ref.asset_id,ref.rights,acao,buf.byteLength);
+          }
+          (async()=>{
+            const mats=await p.polyHaven('material','old stone',1);if(!mats.length)throw new Error('Poly Haven runtime material search empty');
+            await binary('POLY_HAVEN_MATERIAL',mats[0]);
+            let audio=[];for(const q of ['wind sound','ocean sound','music']){audio=await p.wikimedia('audio',q,2);if(audio.length)break;}
+            if(!audio.length)throw new Error('Wikimedia runtime audio search found no rights-cleared item');
+            await binary('WIKIMEDIA_AUDIO',audio[0]);
+          })().catch(e=>{console.error(e);process.exit(1)});
           NODE
