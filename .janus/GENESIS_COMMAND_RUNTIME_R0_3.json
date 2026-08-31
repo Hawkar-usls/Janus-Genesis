@@ -1,0 +1,106 @@
+{
+  "schema": "janus.genesis.command_runtime.v1",
+  "version": "0.3.0",
+  "status": "IMPLEMENTED_CANDIDATE_R0_3",
+  "supersedes_active_pages_runtime": "GENESIS_FULL_RUNTIME_V1_R0_2",
+  "preserves_historical_runtime_files": true,
+  "purpose": "Make the public Genesis organ a text-native 3D world engine: explicit player text is the primary authoring interface, JANUS HOME is preferred for semantic compilation, Genesis validates bounded intents, and every accepted command materializes, transforms, inspects, navigates or changes presentation with visible provenance and failure reasons.",
+  "command_console": {
+    "primary_interface": true,
+    "global_enter_focuses_console": true,
+    "enter_submits_when_focused": true,
+    "escape_blurs": true,
+    "click_focuses": true,
+    "text_input_never_leaks_to_gameplay_hotkeys": true,
+    "mirror_modal_required": false,
+    "presentation_commands_use_same_console": true
+  },
+  "intent_pipeline": [
+    "PLAYER_TEXT_UTF8",
+    "UNICODE_NFKC_NORMALIZATION",
+    "JANUS_HOME_OR_EXPLICIT_LOCAL_DEGRADED_COMPILER",
+    "BOUNDED_INTENT_SCHEMA",
+    "GENESIS_VALIDATOR",
+    "ASSET_REQUIREMENTS",
+    "RIGHTS_GATE",
+    "KRR_MATERIAL_DNA",
+    "PROCEDURAL_GEOMETRY_OR_WORLD_TRANSFORM",
+    "CANONICAL_MUTATION_OR_PRESENTATION_CHANGE",
+    "CHRONICLE_RECEIPT"
+  ],
+  "intent_families": [
+    "MOVE",
+    "RETURN_TO_HEARTH",
+    "PLACE_MARK",
+    "GENERATE_STRUCTURE",
+    "SPAWN_ENTITY",
+    "SET_ATMOSPHERE",
+    "WORLD_TRANSFORM",
+    "SET_CAMERA",
+    "SET_MIRROR",
+    "SET_CAMERA_DISTANCE",
+    "INSPECT",
+    "UNRESOLVED"
+  ],
+  "generic_authoring": {
+    "known_nouns_have_specialized_recipes": true,
+    "unknown_build_nouns_use_generic_structure_recipe": true,
+    "unknown_spawn_nouns_use_generic_entity_recipe": true,
+    "unsupported_semantics_return_visible_reason": true,
+    "silent_noop_forbidden": true
+  },
+  "presentation": {
+    "active_dimensions": ["3D"],
+    "camera_modes": ["FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC"],
+    "first_person_auto_level_horizon": true,
+    "first_person_camera_centered_on_player_anchor": true,
+    "movement_relative_to_camera_forward_on_ground_plane": true,
+    "third_person_wheel_distance": true,
+    "mirror_modal_removed_from_primary_ui": true,
+    "mirror_style_is_command_controllable": true
+  },
+  "structures": {
+    "lighthouse_recipe": "KRR_LIGHTHOUSE_R2",
+    "lighthouse_required_parts": ["BASE", "TAPERED_TOWER", "DOOR", "WINDOWS", "GALLERY", "LANTERN_GLASS", "ROOF", "ROTATING_BEAM"],
+    "specialized_r0_3": ["lighthouse", "castle", "tower", "bridge", "wall", "house", "portal", "tree", "statue", "road"],
+    "procedural_material_fallback_required": true
+  },
+  "asset_trunk": {
+    "janus_metadata_pointer_path_preserved": true,
+    "rights_gate_before_external_asset_use": true,
+    "external_binary_bytes_not_canonical": true,
+    "krr_material_dna_visible_on_world_geometry": true,
+    "procedural_fallback_when_offline": true
+  },
+  "responsive_ui": {
+    "command_bar_compact": true,
+    "side_panels_collapsible": true,
+    "target_desktop_minimum": "1366x768",
+    "mobile_panels_stack_or_collapse": true,
+    "hud_overlap_forbidden": true
+  },
+  "authority": {
+    "janus_response_is_world_authority": false,
+    "player_text_is_direct_world_authority": false,
+    "genesis_validator_required": true,
+    "camera_and_mirror_are_presentation_only": true,
+    "shared_mmo_authority": "NOT_YET_CONNECTED"
+  },
+  "laws": [
+    "GENESIS_IS_TEXT_NATIVE_WORLD_ENGINE",
+    "ENTER_FOCUSES_OR_SUBMITS_COMMAND_CONSOLE",
+    "TEXT_INPUT_NE_GAMEPLAY_HOTKEY",
+    "MIRROR_MODAL_NE_REQUIRED_INTERFACE",
+    "ANY_ACCEPTED_COMMAND_MUST_HAVE_VISIBLE_EFFECT_OR_VISIBLE_RESULT",
+    "UNKNOWN_BUILD_NOUN_MAY_USE_GENERIC_RECIPE",
+    "UNSUPPORTED_SEMANTICS_MUST_RETURN_VISIBLE_REASON",
+    "JANUS_RESPONSE_NE_WORLD_AUTHORITY",
+    "GENESIS_VALIDATOR_REQUIRED",
+    "FIRST_PERSON_FORWARD_EQ_CAMERA_FORWARD_ON_GROUND_PLANE",
+    "FIRST_PERSON_HORIZON_AUTO_LEVEL",
+    "ASSET_REFERENCE_NE_CANONICAL_BINARY",
+    "RIGHTS_GATE_BEFORE_EXTERNAL_ASSET_USE",
+    "KRR_MATERIAL_DNA_PRESERVES_PROVENANCE",
+    "HUD_OVERLAP_FORBIDDEN"
+  ]
+}
