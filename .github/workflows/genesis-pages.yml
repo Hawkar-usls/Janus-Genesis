@@ -82,6 +82,7 @@ jobs:
           node --check site/genesis-janus-bridge-v1.js
           node --check site/genesis-asset-materializer-v1.js
           node --check site/genesis-audio-runtime-v1.js
+          node --check site/genesis-hotkeys-v1.js
           node --check site/genesis-pages.js
           node --check genesis-audio-forge.js
 
@@ -109,6 +110,7 @@ jobs:
           test -s _site/genesis-janus-bridge-v1.js
           test -s _site/genesis-asset-materializer-v1.js
           test -s _site/genesis-audio-runtime-v1.js
+          test -s _site/genesis-hotkeys-v1.js
           test -s _site/world-shell.css
           test -s _site/world-shell-camera.css
           test -s _site/action-forge.css
