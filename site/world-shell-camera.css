@@ -1,0 +1,53 @@
+/* Genesis Mirror Camera Matrix R0 — presentation-only controls. */
+.mirror-drawer { width: min(520px, calc(100vw - 44px)); }
+.mirror-section {
+  display: grid;
+  gap: 9px;
+  margin: 16px 0;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.06);
+}
+.mirror-section-label {
+  color: #78939d;
+  font: 800 .56rem ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: .12em;
+}
+.view-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.camera-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.view-option {
+  min-height: 42px;
+  text-align: center;
+  white-space: normal;
+}
+.view-option.selected {
+  color: #041217;
+  background: var(--cyan);
+  border-color: transparent;
+  box-shadow: 0 0 24px rgba(115,236,255,.16);
+}
+.view-note {
+  display: grid;
+  gap: 5px;
+  padding: 11px 12px;
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+  background: rgba(0,0,0,.18);
+}
+.view-note strong {
+  color: var(--green);
+  font: 900 .68rem ui-monospace, monospace;
+}
+.view-note span {
+  color: #748f99;
+  font-size: .64rem;
+  line-height: 1.45;
+}
+body:has(#camera-name) #genesis-world { touch-action: none; }
+@media (max-width: 620px) {
+  .mirror-drawer { width: calc(100vw - 20px); }
+  .view-options, .camera-options { grid-template-columns: 1fr; }
+}
