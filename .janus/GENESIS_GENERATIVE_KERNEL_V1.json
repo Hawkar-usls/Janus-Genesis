@@ -1,0 +1,49 @@
+{
+  "schema": "janus.genesis.generative_kernel.v1",
+  "version": "1.0.0",
+  "status": "CANDIDATE_IMPLEMENTATION_R0",
+  "purpose": "Represent large portions of Genesis content as bounded recipes, parameters, seeds and provenance rather than only as pre-rendered bytes.",
+  "principles": [
+    "STORE_CAUSES_NOT_ONLY_RENDERED_CONSEQUENCES",
+    "STREAM_WHEN_NECESSARY_GENERATE_WHEN_CHEAPER",
+    "RECIPE_NE_ARBITRARY_CODE",
+    "RENDERER_NE_AUTHORITY",
+    "CONTENT_HASH_BINDS_DERIVATION"
+  ],
+  "kernel": {
+    "material_forge": {"status": "PLANNED", "inputs": ["asset_reservoir", "material_recipe", "seed"], "outputs": ["albedo", "normal", "roughness", "ao", "height"]},
+    "mesh_forge": {"status": "PLANNED", "inputs": ["mesh_recipe", "seed"], "outputs": ["generated_mesh"]},
+    "architecture_grammar": {"status": "PLANNED", "inputs": ["grammar", "constraints", "seed"], "outputs": ["scene_structure"]},
+    "effect_forge": {"status": "PLANNED", "inputs": ["effect_recipe", "world_state", "seed"], "outputs": ["shader_particle_parameters"]},
+    "audio_forge": {
+      "status": "IMPLEMENTED_ISOLATED_R0_NOT_CANONICAL_RUNTIME",
+      "recipe_schema": "janus.genesis.audio_recipe.v1",
+      "planner": "genesis_audio_forge.py",
+      "browser_renderer": "genesis-audio-forge.js",
+      "outputs": ["deterministic_score_plan", "procedural_web_audio"],
+      "authority": "PRESENTATION_ONLY"
+    }
+  },
+  "audio_provenance": {
+    "source_repository": "Hawkar-usls/Janus-HELIOS",
+    "source_commit": "f04fd291835998491f244ac4bee2fa708e2f7705",
+    "source_files": [
+      "helios-music.js",
+      "helios-energy-spin-sonification.js",
+      "helios-resource-sonification.js",
+      "docs/COSMIC_SYNTH_ENGINE.md"
+    ],
+    "adaptation": "Extracted reusable WebAudio synthesis, lookahead scheduling, seeded variation, layered voices and presentation-only boundaries; HELIOS game/route-specific logic is not transplanted."
+  },
+  "world_to_audio_boundary": {
+    "allowed_explicit_inputs": ["entropy", "depth", "portal_energy", "danger", "weather_intensity"],
+    "hidden_human_telemetry": false,
+    "audio_may_mutate_world": false,
+    "audio_may_change_gameplay_authority": false,
+    "browser_audio_requires_user_gesture": true
+  },
+  "portable_state_direction": {
+    "prefer_store": ["recipe_id", "generator_version", "seed", "parameters", "world_mutations", "recipe_sha256"],
+    "avoid_store_when_reproducible": ["rendered_audio_track", "generated_pcm_cache"]
+  }
+}
