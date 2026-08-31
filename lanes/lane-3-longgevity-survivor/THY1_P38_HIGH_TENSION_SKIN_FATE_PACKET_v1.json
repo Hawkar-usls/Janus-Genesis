@@ -1,0 +1,80 @@
+{
+  "schema": "janus.genesis.lane3.longevity_survivor.packet.v1",
+  "packet_id": "GENESIS-LANE3-THY1-P38-HIGH-TENSION-SKIN-2026-08-31-v1",
+  "lane_id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
+  "status": "CAUSAL_FATE_ROUTING_ACCEPTED__STRICT_DELAYED_LOCK_BLOCKED",
+  "source": {
+    "repository": "Hawkar-usls/janus-lapis",
+    "branch": "LONGEVITY-SURVIVOR",
+    "source_commit": "3ae6e17020da81e93a9a6fe1456900de29de5dc4",
+    "path": "longevity-survivor/THY1-P38-HIGH-TENSION-SKIN-FATE-GATE-2026-08-31-v1.0.json",
+    "artifact_id": "THY1-P38-HIGH-TENSION-SKIN-FATE-GATE-2026-08-31-v1.0",
+    "doi": "10.1007/s00018-026-06401-z",
+    "publication_date": "2026-08-24",
+    "evidence_class": "PEER_REVIEWED_OPEN_ACCESS_ANIMAL_MECHANISTIC"
+  },
+  "causal_route": "HIGH_TENSION -> THY1 -> p38MAPK -> TGF_BETA / ALPHA_SMA / COLLAGEN_I_III -> FIBROTIC_FATE; THY1_KNOCKDOWN -> LOWER_PROFIBROTIC_PROGRAM + APPENDAGE_NEOgenesis",
+  "fate_contrast": {
+    "baseline": "HIGH_TENSION_FIBROTIC_HEALING",
+    "intervention": "THY1_KNOCKDOWN_PRECONDITIONING",
+    "observed_shift": "SCAR_DOMINANT -> HAIR_FOLLICLE_AND_SEBACEOUS_GLAND_REGENERATION_SUPPORT"
+  },
+  "timing_gate": {
+    "rAAV_start": "21_days_before_wounding",
+    "wound_day": 0,
+    "tension_device_installation": "day_4_post_operation",
+    "classification": "PRECONDITIONING_ONLY_NOT_DELAYED_RESCUE",
+    "strict_delayed_mechanical_lock_pass": false
+  },
+  "gate_delta": {
+    "SKIN_MECHANOTRANSDUCTION_FATE_ROUTING": "CAUSAL_SUPPORT_UP",
+    "NICHE_ECM_MECHANICAL_MATURATION_LOCK": "SUPPORTING_INTERVENTION_ROOT",
+    "STRICT_DELAYED_MECHANICAL_LOCK": "NO_UPGRADE"
+  },
+  "association_targets": [
+    "mechanotransduction",
+    "fibroblast_to_myofibroblast_fate",
+    "p38MAPK",
+    "TGF_BETA",
+    "ECM_mechanical_context",
+    "appendage_neogenesis",
+    "resolution_gate",
+    "first_future_break",
+    "fate_routing"
+  ],
+  "bicameral": {
+    "left": {
+      "repository": "Hawkar-usls/Hrain",
+      "head": "8ff8d19380d73b4c29306179b1cc72e9e35010d8",
+      "hemisphere": "LEFT_HRAIN",
+      "role": "STRUCTURAL_CONTEXT",
+      "intake": "genesis-lane3-intake.js"
+    },
+    "right": {
+      "repository": "Hawkar-usls/iNaiHR",
+      "head": "1187edc55f647eab5a804b7899dc444081975186",
+      "hemisphere": "RIGHT_INAIHR",
+      "role": "ASSOCIATIVE_CONTEXT",
+      "intake": "genesis-lane3-intake.js"
+    },
+    "commissure": "PHYSARIUS_HEMISPHERIC_COMMISSURE_V1",
+    "binder": "DemiHead",
+    "disagreement_policy": "PRESERVE_UNTIL_SEPARATE_RECEIPT_RESOLVES",
+    "agreement_policy": "AGREEMENT_INCREASES_CHECK_PRIORITY_NOT_EVIDENCE_STRENGTH"
+  },
+  "claim_ceiling": [
+    "ANIMAL_MECHANISTIC_EVIDENCE_NE_HUMAN_THERAPY",
+    "PRECONDITIONING_NE_DELAYED_RESCUE",
+    "CAUSAL_FATE_ROUTING_NE_MATURE_SCAR_REVERSAL",
+    "BOTH_HEMISPHERES_AGREE_NE_TRUTH",
+    "CROSS_HEMISPHERE_RECURRENCE_NE_INDEPENDENT_REPLICATION"
+  ],
+  "authority": {
+    "context_transfer": "READ_ONLY",
+    "source_mutation": false,
+    "scientific_promotion": false,
+    "human_treatment_claim": false,
+    "external_effect_authority": false
+  },
+  "next_gate": "POST_ESTABLISHMENT_SKIN_INTERVENTION_WITH_EXPLICIT_MATURE_FIBROTIC_STATE_BEFORE_TREATMENT"
+}
