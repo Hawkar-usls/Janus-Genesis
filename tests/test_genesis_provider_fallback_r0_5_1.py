@@ -34,8 +34,10 @@ class ProviderFallbackR051Tests(unittest.TestCase):
         self.assertIn("rights==='CC-BY'||rights==='CC-BY-SA'",self.mat)
         self.assertIn('license_url',self.mat); self.assertIn('author',self.mat)
     def test_external_audio_is_bounded_and_user_gesture_gated(self):
-        self.assertIn('GENESIS_AUDIO_RUNTIME?.enabled',self.audio); self.assertIn('max_seconds=12',self.audio)
-        self.assertIn('Math.min(20',self.audio); self.assertIn('SOUND',self.executor)
+        self.assertIn("GENESIS_AUDIO_RUNTIME.enabled!==true",self.audio)
+        self.assertIn('Math.min(20,maxSeconds)',self.audio)
+        self.assertIn('setTimeout(stop,bounded*1000)',self.audio)
+        self.assertIn('SOUND',self.executor)
     def test_foreign_code_and_eval_absent(self):
         surface=self.public+self.trunk+self.mat+self.audio+self.executor
         for token in ('eval(','new Function','Function('): self.assertNotIn(token,surface)
