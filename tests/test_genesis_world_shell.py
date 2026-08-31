@@ -6,8 +6,9 @@ import unittest
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 CANONICAL_CONTRACT = ROOT / ".janus" / "GENESIS_WORLD_SHELL_R0.json"
 PUBLIC_CONTRACT = ROOT / "contracts" / "GENESIS_WORLD_SHELL_R0.json"
-WORLD_JS = ROOT / "site" / "genesis-world-shell.js"
+WORLD_JS = ROOT / "site" / "genesis-world-shell-v2.js"
 WORLD_CSS = ROOT / "site" / "world-shell.css"
+CAMERA_CSS = ROOT / "site" / "world-shell-camera.css"
 SITE_INDEX = ROOT / "site" / "index.html"
 ROOT_INDEX = ROOT / "index.html"
 ROOT_LAB = ROOT / "kernel-lab.html"
@@ -21,12 +22,13 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
         cls.public_contract = json.loads(PUBLIC_CONTRACT.read_text(encoding="utf-8"))
         cls.js = WORLD_JS.read_text(encoding="utf-8")
         cls.css = WORLD_CSS.read_text(encoding="utf-8")
+        cls.camera_css = CAMERA_CSS.read_text(encoding="utf-8")
         cls.site_html = SITE_INDEX.read_text(encoding="utf-8")
         cls.root_html = ROOT_INDEX.read_text(encoding="utf-8")
 
     def test_contract_is_local_vertical_slice_not_fake_online_mmo(self):
         self.assertEqual(self.contract["schema"], "janus.genesis.world_shell.v1")
-        self.assertEqual(self.contract["version"], "1.0.0")
+        self.assertEqual(self.contract["version"], "1.1.0")
         self.assertEqual(self.contract["status"], "IMPLEMENTED_LOCAL_VERTICAL_SLICE_R0")
         world = self.contract["world_model"]
         self.assertTrue(world["shared_world_invariant"])
@@ -55,26 +57,28 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
     def test_public_contract_mirror_is_exact(self):
         self.assertEqual(self.public_contract, self.contract)
 
-    def test_renderer_and_mirror_have_no_canonical_authority(self):
+    def test_renderer_mirror_camera_and_dimension_have_no_canonical_authority(self):
         boundary = self.contract["authority_boundary"]
         self.assertFalse(boundary["renderer_is_authority"])
         self.assertFalse(boundary["mirror_is_authority"])
+        self.assertFalse(boundary["camera_is_authority"])
+        self.assertFalse(boundary["dimension_mode_is_authority"])
         self.assertFalse(boundary["audio_is_authority"])
         self.assertFalse(boundary["local_demo_mutation_is_network_canonical"])
         self.assertFalse(boundary["hidden_human_telemetry"])
         self.assertFalse(boundary["arbitrary_code_execution"])
         self.assertFalse(boundary["runtime_cross_repo_network_dependency"])
 
-    def test_canonical_chunk_plan_does_not_read_personal_mirror(self):
+    def test_canonical_chunk_plan_does_not_read_personal_presentation(self):
         canonical_segment = self.js.split("function canonicalChunkPlan", 1)[1].split("function defaultSave", 1)[0]
-        self.assertNotIn("mirror()", canonical_segment)
-        self.assertNotIn("mirror_profile", canonical_segment)
+        for token in ("mirror()", "mirror_profile", "presentation_dimension", "camera_mode", "camera_heading"):
+            self.assertNotIn(token, canonical_segment)
         self.assertIn("world_seed: CONFIG.world_seed", canonical_segment)
         self.assertIn("chunk: [cx, cy]", canonical_segment)
         self.assertIn("fact_hash", canonical_segment)
 
-    def test_mirror_is_explicitly_presentation_side(self):
-        mirror_segment = self.js.split("function mirrorMaterial", 1)[1].split("function drawTile", 1)[0]
+    def test_mirror_style_is_explicitly_presentation_side(self):
+        mirror_segment = self.js.split("function mirrorMaterial", 1)[1].split("function tileMetrics", 1)[0]
         self.assertIn("mirror()", mirror_segment)
         self.assertIn("setMirror", self.js)
         self.assertIn("FACTS", self.js)
@@ -82,9 +86,47 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
             self.assertIn(profile, self.contract["personal_mirror"]["profiles"])
             self.assertIn(profile, self.js)
 
-    def test_save_contract_is_causes_only(self):
+    def test_mirror_camera_matrix_is_explicit_and_bounded(self):
+        mirror = self.contract["personal_mirror"]
+        self.assertEqual(mirror["dimensions"], ["2D", "3D"])
+        self.assertEqual(mirror["camera_modes"], ["FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC"])
+        self.assertEqual(mirror["compatibility"]["2D"], ["ISOMETRIC"])
+        self.assertEqual(
+            mirror["compatibility"]["3D"],
+            ["FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC"],
+        )
+        for token in (
+            "const DIMENSIONS",
+            "const CAMERAS",
+            "FIRST_PERSON",
+            "THIRD_PERSON",
+            "ISOMETRIC",
+            "setDimension",
+            "setCamera",
+            "projectPerspective",
+            "renderPerspective",
+            "renderIsometric",
+        ):
+            self.assertIn(token, self.js)
+
+    def test_camera_and_dimension_changes_verify_fact_hash_invariance(self):
+        segment = self.js.split("function verifyPresentationOnlyChange", 1)[1].split("function renderChronicle", 1)[0]
+        self.assertIn("canonicalFactHashNow()", segment)
+        self.assertIn("INTEGRITY ERROR", segment)
+        self.assertIn("setDimension", segment)
+        self.assertIn("setCamera", segment)
+        self.assertIn("DIMENSION_CHANGE_NE_WORLD_MUTATION", self.contract["laws"])
+        self.assertIn("CAMERA_CHANGE_NE_WORLD_MUTATION", self.contract["laws"])
+        self.assertIn("CAMERA_CHANGE_NE_CHRONICLE_EVENT", self.contract["laws"])
+        self.assertFalse(self.contract["chronicle"]["presentation_changes_are_events"])
+
+    def test_save_contract_is_causes_plus_noncanonical_view_preferences(self):
         save = self.contract["save_contract"]
         self.assertTrue(save["stores_causes"])
+        self.assertTrue(save["presentation_preferences_are_noncanonical"])
+        for field in ("presentation_dimension", "camera_mode", "camera_heading"):
+            self.assertIn(field, save["stored_fields"])
+            self.assertIn(field, self.js)
         self.assertFalse(save["rendered_pixels_persisted"])
         self.assertFalse(save["generated_textures_persisted"])
         self.assertFalse(save["generated_mesh_buffers_persisted"])
@@ -108,26 +150,35 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
             self.assertNotIn(token, surface)
         self.assertIn("fetch('./contracts/GENESIS_WORLD_SHELL_R0.json'", self.js)
 
-    def test_pages_root_is_playable_world_and_lab_survives(self):
+    def test_pages_root_exposes_view_matrix_and_lab_survives(self):
         for html in (self.site_html, self.root_html):
             self.assertIn("GENESIS // WORLD SHELL R0", html)
-            self.assertIn("id=\"genesis-world\"", html)
+            self.assertIn('id="genesis-world"', html)
             self.assertIn("THE WORLD BEGINS", html)
             self.assertIn("ONE WORLD // MANY MIRRORS", html)
             self.assertIn("MMO AUTHORITY", html)
             self.assertIn("NOT CONNECTED", html)
             self.assertIn("KERNEL LAB", html)
+            self.assertIn('id="dimension-options"', html)
+            self.assertIn('id="camera-options"', html)
+            self.assertIn('id="view-toggle"', html)
+            self.assertIn("FIRST PERSON", html)
+            self.assertIn("THIRD PERSON", html)
+            self.assertIn("ISOMETRIC", html)
         self.assertTrue(ROOT_LAB.exists())
         self.assertTrue(SITE_LAB.exists())
         self.assertIn("GENESIS // KERNEL LAB", ROOT_LAB.read_text(encoding="utf-8"))
         self.assertIn("GENESIS // KERNEL LAB", SITE_LAB.read_text(encoding="utf-8"))
+        self.assertTrue(CAMERA_CSS.exists())
+        self.assertIn(".view-option", self.camera_css)
 
     def test_browser_slice_contains_material_mesh_architecture_audio_and_streaming(self):
         for token in (
             "canonicalTilePlan",
             "mirrorMaterial",
             "canonicalChunkPlan",
-            "drawObject",
+            "drawIsoObject",
+            "drawPerspectiveObject",
             "prewarmAround",
             "visibleChunkBounds",
             "deriveAudioState",
@@ -138,14 +189,16 @@ class GenesisWorldShellR0Tests(unittest.TestCase):
             self.assertIn(forge, self.contract["generation"]["forges_in_vertical_slice"])
 
     def test_janus_organs_are_contractual_not_hidden_runtime_dependencies(self):
-        organs = {item["repo"]: item for item in self.contract["janus_organs"]}
+        organs = {}
+        for item in self.contract["janus_organs"]:
+            organs.setdefault(item["repo"], []).append(item)
         self.assertIn("Hawkar-usls/Janus_Genesis", organs)
         self.assertIn("Hawkar-usls/Janus-HELIOS", organs)
         self.assertIn("Hawkar-usls/janus-lapis", organs)
         self.assertIn("Hawkar-usls/Janus-Demiurge", organs)
-        self.assertFalse(organs["Hawkar-usls/Janus-HELIOS"]["runtime_dependency"])
-        self.assertFalse(organs["Hawkar-usls/janus-lapis"]["runtime_dependency"])
-        self.assertFalse(organs["Hawkar-usls/Janus-Demiurge"]["runtime_dependency"])
+        self.assertTrue(any(not item["runtime_dependency"] for item in organs["Hawkar-usls/Janus-HELIOS"]))
+        self.assertTrue(any(not item["runtime_dependency"] for item in organs["Hawkar-usls/janus-lapis"]))
+        self.assertTrue(any(not item["runtime_dependency"] for item in organs["Hawkar-usls/Janus-Demiurge"]))
 
 
 if __name__ == "__main__":
