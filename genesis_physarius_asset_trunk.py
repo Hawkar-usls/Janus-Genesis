@@ -3,8 +3,8 @@
 
 The trunk transports queries, pointers, rights attestations and provenance only.
 Bulk asset bytes remain on the provider/CDN data plane and are never accepted as
-SLIME payloads.  Discovery does not grant reuse authority: rights are evaluated
-per item and unknown rights fail closed.
+SLIME payloads. Discovery does not grant reuse authority: rights are evaluated
+per item and unknown or unsupported rights fail closed.
 """
 from __future__ import annotations
 
@@ -130,11 +130,12 @@ def build_exchange(
 
     clean_payload = dict(payload or {})
     _walk_forbidden_binary(clean_payload)
+    identity_material = {"message_class": message_class, "payload": clean_payload}
 
     packet: dict[str, Any] = {
         "schema": SCHEMA,
         "version": VERSION,
-        "exchange_id": exchange_id or f"asset-{sha256_hex(clean_payload)[:24]}",
+        "exchange_id": exchange_id or f"asset-{sha256_hex(identity_material)[:24]}",
         "source": source,
         "target": target,
         "message_class": message_class,
@@ -142,8 +143,8 @@ def build_exchange(
         "previous_exchange_sha256": previous_exchange_sha256,
         "control": dict(_CONTROL),
     }
-    _validate_packet_size(packet)
     packet["exchange_sha256"] = sha256_hex(packet)
+    _validate_packet_size(packet)
     return packet
 
 
@@ -229,7 +230,12 @@ def validate_provenance(provenance: Mapping[str, Any]) -> dict[str, Any]:
         int(digest, 16)
     except ValueError as exc:
         raise AssetTrunkViolation("source_sha256 is not hexadecimal") from exc
-    if rights_decision(str(provenance.get("rights_expression")))["decision"] == "BLOCKED_PENDING_EXPLICIT_CLEARANCE":
+
+    decision = rights_decision(provenance.get("rights_expression"))
+    if decision["decision"] not in {
+        "AUTO_DERIVATION_ALLOWED",
+        "CONDITIONAL_DERIVATION_ALLOWED",
+    }:
         raise AssetTrunkViolation("Provenance rights fail closed")
     return dict(provenance)
 
