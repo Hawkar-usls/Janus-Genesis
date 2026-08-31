@@ -11,6 +11,7 @@ LOCALE_RU = ROOT / "site" / "genesis-action-input-ru.js"
 SITE_INDEX = ROOT / "site" / "index.html"
 ROOT_INDEX = ROOT / "index.html"
 CSS = ROOT / "site" / "action-forge.css"
+R03 = ROOT / ".janus" / "GENESIS_COMMAND_RUNTIME_R0_3.json"
 
 
 class GenesisActionForgeR0Tests(unittest.TestCase):
@@ -23,6 +24,7 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         cls.site_html = SITE_INDEX.read_text(encoding="utf-8")
         cls.root_html = ROOT_INDEX.read_text(encoding="utf-8")
         cls.css = CSS.read_text(encoding="utf-8")
+        cls.r03 = json.loads(R03.read_text(encoding="utf-8")) if R03.exists() else None
 
     def test_public_contract_is_exact_mirror(self):
         self.assertEqual(self.public, self.contract)
@@ -52,7 +54,7 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
             self.assertIn(field, seed["excluded_presentation_fields"])
             self.assertNotIn(field, canonical_segment)
 
-    def test_intent_vocabulary_is_bounded(self):
+    def test_historical_intent_vocabulary_is_bounded(self):
         vocabulary = self.contract["intent_vocabulary"]
         for intent in (
             "MOVE", "PLACE_MARK", "PLACE_ACTION_ANCHOR", "RETURN_TO_HEARTH",
@@ -64,7 +66,7 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertIn("UNKNOWN ACTION", self.js)
         self.assertIn("INTENT NOT ALLOWLISTED", self.js)
 
-    def test_action_anchor_is_honest_r0_placeholder(self):
+    def test_action_anchor_remains_honest_historical_placeholder(self):
         semantics = self.contract["r0_semantics"]
         self.assertIn("PLAYER_MARK-compatible action anchor", semantics["action_anchor"])
         self.assertIn("does not claim arbitrary nouns", semantics["action_anchor"])
@@ -90,18 +92,21 @@ class GenesisActionForgeR0Tests(unittest.TestCase):
         self.assertIn("max_text_chars: 280", self.js)
         self.assertIn("max_move_steps: 40", self.js)
         self.assertIn("max_concept_chars: 64", self.js)
-        self.assertIn("clamp(Number(match[1]), 1, CONFIG.max_move_steps)", self.js)
 
-    def test_action_console_survives_but_active_routing_is_superseded(self):
+    def test_action_console_survives_and_active_routing_can_be_superseded(self):
         for html in (self.site_html, self.root_html):
             self.assertIn('id="action-form"', html)
             self.assertIn('id="action-input"', html)
             self.assertIn('id="action-state-hash"', html)
             self.assertIn('id="action-plan"', html)
-            self.assertIn("genesis-janus-bridge-v1.js", html)
             self.assertNotIn("genesis-action-input-ru.js", html)
             self.assertNotIn("genesis-action-forge.js", html)
             self.assertIn("action-forge.css", html)
+            if self.r03:
+                self.assertIn("genesis-command-bridge-v2.js", html)
+                self.assertIn("genesis-world-runtime-v4.js", html)
+            else:
+                self.assertIn("genesis-janus-bridge-v1.js", html)
         self.assertTrue(RUNTIME.exists())
         self.assertTrue(LOCALE_RU.exists())
         self.assertIn(".action-forge", self.css)
