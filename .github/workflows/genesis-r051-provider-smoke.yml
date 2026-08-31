@@ -32,14 +32,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Static and contract tests
+      - name: JavaScript syntax
         run: |
           node --check site/genesis-public-provider-fallback-r0-5-1.js
           node --check site/genesis-asset-trunk-r0-5-1.js
           node --check site/genesis-asset-materializer-v3.js
           node --check site/genesis-audio-asset-runtime-r0-5-1.js
           node --check site/genesis-scene-graph-executor-r0-5-1.js
-          python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
+      - name: Provider contract tests
+        run: python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
       - name: Live browser-CORS capability proof
         run: |
           node <<'NODE'
