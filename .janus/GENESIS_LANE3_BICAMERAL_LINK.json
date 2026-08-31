@@ -1,0 +1,52 @@
+{
+  "schema": "janus.genesis.lane3.bicameral_link.v1",
+  "link_id": "GENESIS_LANE3_LONGEVITY_BICAMERAL_LINK_V1",
+  "status": "ACTIVE_READ_ONLY_BICAMERAL_ROUTE",
+  "lane": {
+    "id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
+    "packet_path": "lanes/lane-3-longgevity-survivor/THY1_P38_HIGH_TENSION_SKIN_FATE_PACKET_v1.json",
+    "domain": "LONGEVITY_SURVIVOR",
+    "current_root": "THY1_P38_HIGH_TENSION_SKIN_FATE"
+  },
+  "faces": {
+    "left": {
+      "repository": "Hawkar-usls/Hrain",
+      "head": "8ff8d19380d73b4c29306179b1cc72e9e35010d8",
+      "hemisphere": "LEFT_HRAIN",
+      "role": "STRUCTURAL_CONTEXT",
+      "intake_path": "genesis-lane3-intake.js",
+      "commissure_path": "hemispheric-commissure.js"
+    },
+    "right": {
+      "repository": "Hawkar-usls/iNaiHR",
+      "head": "1187edc55f647eab5a804b7899dc444081975186",
+      "hemisphere": "RIGHT_INAIHR",
+      "role": "ASSOCIATIVE_CONTEXT",
+      "intake_path": "genesis-lane3-intake.js",
+      "commissure_path": "hemispheric-commissure.js"
+    }
+  },
+  "transport": {
+    "type": "PHYSARIUS_HEMISPHERIC_COMMISSURE_V1",
+    "direction": "DUPLEX",
+    "packet_binding": "GENESIS_PACKET_SHA256 + HEMISPHERE_INTAKE_RESULT",
+    "direct_cross_hemisphere_mutation": false,
+    "source_mutation": false,
+    "authority_delta": 0
+  },
+  "demihead": {
+    "role": "BIND_COMPARE_PRESERVE_DISAGREEMENT",
+    "agreement_effect": "CHECK_PRIORITY_ONLY",
+    "disagreement_effect": "FIRST_CLASS_STATE",
+    "scientific_promotion_authority": false
+  },
+  "laws": [
+    "ONE_SOURCE_TWO_VIEWS_NE_TWO_REPLICATIONS",
+    "STRUCTURAL_CONTEXT_NE_ASSOCIATIVE_CONTEXT",
+    "BOTH_HEMISPHERES_AGREE_NE_TRUTH",
+    "DISAGREEMENT_IS_A_FIRST_CLASS_STATE",
+    "PRECONDITIONING_NE_DELAYED_RESCUE",
+    "MOUSE_SKIN_NE_HUMAN_THERAPY",
+    "LANE3_ROUTE_NE_EXTERNAL_EFFECT_AUTHORITY"
+  ]
+}
