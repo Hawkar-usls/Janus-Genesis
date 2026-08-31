@@ -1,0 +1,122 @@
+{
+  "schema": "janus.genesis.laws.v1",
+  "id": "GENESIS_LAWS_V1",
+  "version": "1.0.0",
+  "status": "FROZEN_R0",
+  "frozen_at": "2026-08-31T16:00:00Z",
+  "frozen_against_main": "3a34ab697577a187fda83b9f1eacd0c182ab5059",
+  "scope": "Genesis Generative Kernel, Asset Trunk adapters, renderers, browser presentation runtime, and future recipe-aware portable state.",
+  "axiom": "STORE_CAUSES_NOT_ONLY_RENDERED_CONSEQUENCES",
+  "formulas": [
+    "CONTENT != STORED_BYTES",
+    "CONTENT = GENERATOR + RECIPE + PARAMETERS + SEED",
+    "AUDIO_CONTENT = GENERATOR + RECIPE + WORLD_STATE + SEED",
+    "STREAM_WHEN_NECESSARY || GENERATE_WHEN_CHEAPER"
+  ],
+  "laws": [
+    {
+      "id": "G-LAW-001",
+      "name": "RECIPE_NE_ARBITRARY_CODE",
+      "statement": "A Genesis recipe is bounded declarative data, never executable arbitrary code.",
+      "enforcement": "Schema allowlists, bounded parameters, no eval/Function/dynamic module execution."
+    },
+    {
+      "id": "G-LAW-002",
+      "name": "GENERATED_CONTENT_NE_STORED_ASSET",
+      "statement": "Reproducible generated content may be represented by generator identity, recipe, parameters, seed, input hashes, and provenance instead of only rendered bytes.",
+      "enforcement": "Portable state prefers causes; rendered caches are disposable derivatives."
+    },
+    {
+      "id": "G-LAW-003",
+      "name": "RENDERER_NE_AUTHORITY",
+      "statement": "A renderer or presentation forge cannot become authoritative world state merely by rendering or sounding an event.",
+      "enforcement": "Presentation outputs are downstream of canonical state and carry presentation_only=true."
+    },
+    {
+      "id": "G-LAW-004",
+      "name": "WORLD_STATE_TO_PRESENTATION_ALLOWED",
+      "statement": "Explicit bounded canonical world fields may modulate presentation generators.",
+      "enforcement": "Each forge declares an allowlist of world bindings and clamps all values."
+    },
+    {
+      "id": "G-LAW-005",
+      "name": "PRESENTATION_TO_WORLD_MUTATION_DEFAULT_DENY",
+      "statement": "Audio, visual, material, mesh, effect, and scene renderers may not mutate canonical world state by default.",
+      "enforcement": "World mutation requires a separate authoritative state transition contract outside the renderer."
+    },
+    {
+      "id": "G-LAW-006",
+      "name": "HIDDEN_HUMAN_TELEMETRY_FORBIDDEN",
+      "statement": "Hidden human behavior, inferred psychology, vulnerability, or covert sensor telemetry cannot control Genesis generators.",
+      "enforcement": "Unknown telemetry fields fail closed; opt-in sensor adapters must be explicit and separately governed."
+    },
+    {
+      "id": "G-LAW-007",
+      "name": "EXPLICIT_USER_GESTURE_REQUIRED_FOR_BROWSER_AUDIO",
+      "statement": "Browser audio activation must originate from an explicit user gesture.",
+      "enforcement": "Audio Forge exposes enable() but the Pages control plane calls it only from a user control."
+    },
+    {
+      "id": "G-LAW-008",
+      "name": "SAME_RECIPE_SEED_VERSION_EQ_SAME_PLAN",
+      "statement": "For a deterministic forge, identical recipe, seed, generator version, bounded world inputs, and declared input hashes must produce the same generation plan.",
+      "enforcement": "Determinism is covered by forge-specific tests before promotion."
+    },
+    {
+      "id": "G-LAW-009",
+      "name": "PROVENANCE_REQUIRED",
+      "statement": "Every external source and every distilled/generated derivative must preserve source and generator provenance sufficient for audit.",
+      "enforcement": "Missing provenance blocks promotion into canonical asset or recipe registries."
+    },
+    {
+      "id": "G-LAW-010",
+      "name": "RIGHTS_FAIL_CLOSED_FOR_EXTERNAL_ASSETS",
+      "statement": "Unknown or incompatible rights metadata blocks external assets from the reusable Genesis reservoir.",
+      "enforcement": "Rights checks occur before reusable ingestion; uncertainty is not treated as permission."
+    },
+    {
+      "id": "G-LAW-011",
+      "name": "NO_BINARY_BYTES_OVER_SLIME",
+      "statement": "SLIME carries control-plane queries, pointers, receipts, rights, hashes, and provenance rather than bulk binary asset payloads.",
+      "enforcement": "Bulk bytes travel directly through approved provider/API/CDN paths into the Asset Reservoir."
+    },
+    {
+      "id": "G-LAW-012",
+      "name": "CONTENT_HASH_BINDS_DERIVATION",
+      "statement": "Generated or distilled derivatives must be bindable to their declared causes by content and recipe hashes.",
+      "enforcement": "Generator version, recipe identity, input hashes, parameters, and seed are retained with derivation receipts."
+    },
+    {
+      "id": "G-LAW-013",
+      "name": "GENERATOR_EXTERNAL_NETWORK_DEFAULT_DENY",
+      "statement": "Generative forge execution does not fetch arbitrary external network resources at generation time by default.",
+      "enforcement": "External acquisition belongs to explicit Asset Trunk adapters; the Pages shell may read only repository-published same-origin static contracts and runtime files."
+    },
+    {
+      "id": "G-LAW-014",
+      "name": "FREEZE_NE_IMMUTABILITY_WITHOUT_VERSION",
+      "statement": "A frozen law may be superseded only by an explicit versioned amendment; silent mutation is forbidden.",
+      "enforcement": "Any change requires a version bump, changelog rationale, tests, CI, and a reviewable pull request."
+    }
+  ],
+  "authority_boundary": {
+    "presentation_only_default": true,
+    "renderer_world_mutation": false,
+    "hidden_human_telemetry": false,
+    "arbitrary_code_execution": false,
+    "generator_external_network": false,
+    "same_origin_static_contract_loading_for_pages": true
+  },
+  "change_control": {
+    "silent_edit": "FORBIDDEN",
+    "required_for_supersession": [
+      "new version identifier",
+      "explicit supersedes pointer",
+      "human-readable rationale",
+      "machine-readable migration note",
+      "updated tests",
+      "green CI",
+      "reviewable pull request"
+    ]
+  }
+}
