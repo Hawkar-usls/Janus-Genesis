@@ -19,17 +19,22 @@
   const DIR={N:['north','север','північ','polnoc','norden','norte','nord'],NE:['northeast','north east','северо-вост','північний схід','nordost','noreste','nord-est'],E:['east','восток','схід','wschod','osten','este','est'],SE:['southeast','south east','юго-вост','південний схід','sudost','sureste','sud-est'],S:['south','юг','південь','poludnie','suden','sur','sud'],SW:['southwest','south west','юго-зап','південний захід','sudwest','suroeste','sud-ouest'],W:['west','запад','захід','zachod','westen','oeste','ouest'],NW:['northwest','north west','северо-зап','північний захід','nordwest','noroeste','nord-ouest'],BACKWARD:['backward','назад','zuruck','atras','arriere']};
   const CAM={FIRST_PERSON:['first person','1st person','первое лицо','от первого лица','від першої особи','pierwsza osoba','ego perspektive','primera persona','premiere personne'],THIRD_PERSON:['third person','3rd person','третье лицо','от третьего лица','від третьої особи','trzecia osoba','dritte person','tercera persona','troisieme personne'],ISOMETRIC:['isometric','isometry','изометр','ізометр','izometr','isometrisch','isometrica','isometrique']};
   const MIR={ORIGIN:['style origin','origin style','стиль origin','стиль исток','стиль початок'],NOCTURNE:['style nocturne','nocturne style','стиль nocturne','стиль ноктюрн'],AETHER:['style aether','aether style','стиль aether','стиль эфир','стиль ефір'],EMBER:['style ember','ember style','стиль ember','стиль жар','стиль попіл']};
-  const STRUCTURES={lighthouse:['lighthouse','маяк','latarnia','leuchtturm','faro','phare'],castle:['castle','крепост','замок','фортец','фортеця','zamek','burg','castillo','chateau'],bridge:['bridge','мост','міст','most','brucke','puente','pont'],tower:['tower','башн','веж','wieza','turm','torre','tour'],house:['house','building','дом','будинок','haus','casa','maison'],wall:['wall','стен','стіна','sciana','mauer','muro','mur'],portal:['portal','портал'],tree:['tree','дерев','drzew','baum','arbol','arbre'],statue:['statue','стату','памятник','пам\'ятник','pomnik'],road:['road','дорог','шлях','droga','strasse','camino','route']};
-  const ENTITY_HINTS=['npc','person','human','guard','guardian','creature','animal','dragon','wolf','horse','робот','человек','персонаж','нпс','страж','существо','дракон','волк','кінь','людина','істота','smok','wilka','mensch','drache','persona','dragon','personne'];
+  const STRUCTURES={lighthouse:['lighthouse','маяк','latarnia','leuchtturm','faro','phare'],castle:['castle','замок','фортеця','zamek','burg','castillo','chateau'],bridge:['bridge','мост','міст','most','brucke','puente','pont'],tower:['tower','wieza','turm','torre','tour'],house:['house','building','дом','haus','casa','maison'],wall:['wall','стіна','sciana','mauer','muro','mur'],portal:['portal','портал'],tree:['tree','drzewo','baum','arbol','arbre'],statue:['statue','pomnik'],road:['road','droga','strasse','camino','route']};
+  const STRUCTURE_STEMS={castle:['крепост','фортец'],tower:['башн','веж'],house:['будин'],wall:['стен'],tree:['дерев'],statue:['стату','памят','пам’ят'],road:['дорог','шлях']};
+  const ENTITY_HINTS=['npc','person','human','guard','guardian','creature','animal','dragon','wolf','horse','робот','человек','персонаж','нпс','страж','существо','дракон','волк','кінь','людина','істота','smok','wilk','mensch','drache','persona','personne'];
 
   function norm(v){return String(v||'').normalize('NFKC').toLowerCase().replace(/ё/g,'е').replace(/[–—−]/g,'-').replace(/\s+/g,' ').trim();}
-  function has(text,list){return list.some(v=>text.includes(v));}
+  function escRx(v){return String(v).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+  function phraseRx(token,global=false){return new RegExp(`(^|[^\\p{L}\\p{N}_])${escRx(token)}(?=$|[^\\p{L}\\p{N}_])`,global?'giu':'iu');}
+  function has(text,list){return list.some(v=>phraseRx(v).test(text));}
+  function hasFragment(text,list){return list.some(v=>text.includes(v));}
   function mapMatch(text,map){for(const [key,list] of Object.entries(map))if(has(text,list))return key;return null;}
   function hashText(text){let h=0x811c9dc5;for(const ch of String(text)){h^=ch.charCodeAt(0);h=Math.imul(h,0x01000193);}return(h>>>0).toString(16).padStart(8,'0');}
   function numberFrom(text,fallback=1,min=0,max=64){const m=text.match(/(?:^|\s)(-?\d+(?:\.\d+)?)(?:\s|$)/);return Math.max(min,Math.min(max,m?Number(m[1]):fallback));}
-  function structureKind(text){return mapMatch(text,STRUCTURES);}
+  function structureKind(text){for(const [kind,list] of Object.entries(STRUCTURES))if(has(text,list))return kind;for(const [kind,list] of Object.entries(STRUCTURE_STEMS))if(hasFragment(text,list))return kind;return null;}
   function actionSeed(text){return hashText(JSON.stringify(runtime()?.getCanonicalState()||{})+'|'+norm(text));}
-  function concept(text){let s=norm(text);for(const list of Object.values(LEX))for(const token of list)s=s.replaceAll(token,' ');s=s.replace(/\b\d+(?:\.\d+)?\b/g,' ').replace(/[^\p{L}\p{N}_\- ']+/gu,' ').replace(/\s+/g,' ').trim();return s.slice(0,120)||'generated object';}
+  function removePhrase(text,token){return text.replace(phraseRx(token,true),'$1');}
+  function concept(text){let s=norm(text);for(const list of Object.values(LEX))for(const token of list)s=removePhrase(s,token);s=s.replace(/\b\d+(?:\.\d+)?\b/g,' ').replace(/[^\p{L}\p{N}_\- ']+/gu,' ').replace(/\s+/g,' ').trim();return s.slice(0,120)||'generated object';}
 
   function localCompile(raw){
     const text=norm(raw), seed=actionSeed(raw), camera=mapMatch(text,CAM), mirror=mapMatch(text,MIR), direction=mapMatch(text,DIR), sk=structureKind(text);
@@ -90,6 +95,6 @@
     const ep=$('janus-api-endpoint');if(ep){ep.value=endpoint;ep.addEventListener('change',()=>configureEndpoint(ep.value));}$('janus-api-connect')?.addEventListener('click',()=>configureEndpoint(ep?.value||endpoint));updateStateHash();healthCheck();setInterval(healthCheck,15000);setInterval(updateStateHash,1200);
   }
   setup();
-  globalThis.GENESIS_COMMAND_BRIDGE_V3=Object.freeze({version:'3.0.0',healthCheck,executeText,configureEndpoint,localCompile,focusConsole,get online(){return online;},get endpoint(){return endpoint;},get health(){return lastHealth;}});
+  globalThis.GENESIS_COMMAND_BRIDGE_V3=Object.freeze({version:'3.0.1',healthCheck,executeText,configureEndpoint,localCompile,focusConsole,get online(){return online;},get endpoint(){return endpoint;},get health(){return lastHealth;}});
   globalThis.GENESIS_COMMAND_BRIDGE_V2=globalThis.GENESIS_COMMAND_BRIDGE_V3;globalThis.GENESIS_JANUS_BRIDGE=globalThis.GENESIS_COMMAND_BRIDGE_V3;
 })();
