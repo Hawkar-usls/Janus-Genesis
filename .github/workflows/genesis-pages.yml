@@ -14,6 +14,7 @@ on:
       - 'kernel-lab.html'
       - 'site/**'
       - 'docs/GENESIS_WORLD_SHELL_R0.md'
+      - 'docs/GENESIS_ACTION_FORGE_R0.md'
       - 'tests/test_genesis_pages_contracts.py'
       - 'tests/test_genesis_world_shell.py'
       - 'tests/test_genesis_action_forge.py'
@@ -32,6 +33,7 @@ on:
       - 'kernel-lab.html'
       - 'site/**'
       - 'docs/GENESIS_WORLD_SHELL_R0.md'
+      - 'docs/GENESIS_ACTION_FORGE_R0.md'
       - 'tests/test_genesis_pages_contracts.py'
       - 'tests/test_genesis_world_shell.py'
       - 'tests/test_genesis_action_forge.py'
@@ -65,6 +67,7 @@ jobs:
         run: |
           node --check site/genesis-world-shell.js
           node --check site/genesis-world-shell-v2.js
+          node --check site/genesis-action-input-ru.js
           node --check site/genesis-action-forge.js
           node --check site/genesis-pages.js
           node --check genesis-audio-forge.js
@@ -86,6 +89,7 @@ jobs:
           test -s _site/kernel-lab.html
           test -s _site/genesis-world-shell.js
           test -s _site/genesis-world-shell-v2.js
+          test -s _site/genesis-action-input-ru.js
           test -s _site/genesis-action-forge.js
           test -s _site/world-shell.css
           test -s _site/world-shell-camera.css
