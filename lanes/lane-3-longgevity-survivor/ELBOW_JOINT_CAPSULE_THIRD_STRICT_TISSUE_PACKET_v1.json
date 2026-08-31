@@ -1,0 +1,70 @@
+{
+  "schema": "janus.genesis.lane3.longevity_survivor.packet.v1",
+  "packet_id": "GENESIS-LANE3-ELBOW-JOINT-CAPSULE-THIRD-STRICT-TISSUE-2026-08-31-v1",
+  "lane_id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
+  "status": "THIRD_DISTINCT_STRICT_TISSUE_5_OF_5_CANDIDATE_FOR_BICAMERAL_REPLAY",
+  "source": {
+    "repository": "Hawkar-usls/janus-lapis",
+    "branch": "LONGEVITY-SURVIVOR",
+    "source_commit": "54edf7b40e2cd8cab2a6866ebb672be04965dbaf",
+    "path": "longevity-survivor/JOINT-CAPSULE-MECHANICAL-CLOCK-STRICT-ROOT-SCHOLP-CRS-2025-v1.0.json",
+    "artifact_id": "JOINT-CAPSULE-MECHANICAL-CLOCK-STRICT-ROOT-SCHOLP-CRS-2025-v1.0",
+    "doi": "10.1002/jor.25967",
+    "evidence_class": "PEER_REVIEWED_ANIMAL_MECHANICAL_TIMING_ROOT"
+  },
+  "causal_route": "POST_TRAUMATIC_ELBOW_ARTHROFIBROSIS -> ESTABLISHED_CONTRACTURE -> DELAYED_ANTERIOR_CAPSULE_RELEASE -> LARGE_EARLY_ROM_RESCUE -> PARTIAL_STIFFNESS_RECURRENCE",
+  "fate_contrast": {
+    "baseline": "PERSISTENT_POST_TRAUMATIC_CONTRACTURE_AFTER_REMOBILIZATION",
+    "intervention": "DELAYED_DIRECT_CAPSULE_RELEASE",
+    "observed_shift": "FUNCTIONAL_MECHANICAL_RESCUE_WITH_PARTIAL_RECURRENCE",
+    "hysteresis": "PRESENT"
+  },
+  "timing_gate": {
+    "state_established": "6_weeks_post_injury_contracture_directly_documented",
+    "pre_intervention_reference": "3W_Remobile_at_9_weeks_post_injury",
+    "intervention_start": "after_3_weeks_remobilization",
+    "post_intervention": ["1_week","3_weeks"],
+    "C1_DELAYED_AFTER_ESTABLISHMENT": "YES",
+    "strict_delayed_mechanical_lock_pass": true
+  },
+  "gate_delta": {
+    "C1":"YES",
+    "C2":"YES",
+    "C3":"YES",
+    "C4":"YES",
+    "C5":"YES",
+    "THIRD_DISTINCT_TISSUE_SEARCH":"PASS_CANDIDATE_PENDING_BICAMERAL_AND_TRUMP_REPLAY",
+    "MECHANICAL_CLOCK_V0_3":"THREE_TISSUE_UPGRADE_CANDIDATE"
+  },
+  "association_targets": [
+    "arthrofibrosis",
+    "joint_capsule",
+    "capsule_release",
+    "torque_angle_mechanics",
+    "synovial_fibrosis",
+    "mechanical_hysteresis",
+    "temporary_rescue",
+    "first_future_break"
+  ],
+  "bicameral": {
+    "left_role": "STRUCTURAL_CONTEXT_C1_C5_ROOT_INTEGRITY",
+    "right_role": "ASSOCIATIVE_CONTEXT_HYSTERESIS_AND_FATE_ROUTING",
+    "agreement_policy": "AGREEMENT_REPLAYS_GATE_BUT_DOES_NOT_CREATE_INDEPENDENT_EVIDENCE",
+    "disagreement_policy": "PRESERVE_AS_FIRST_CLASS_STATE"
+  },
+  "claim_ceiling": [
+    "THREE_TISSUE_STRICT_GATE_NE_UNIVERSAL_MECHANICAL_THRESHOLD",
+    "TEMPORARY_RESCUE_NE_PERMANENT_REVERSAL",
+    "ALPHA_SMA_NE_DECISIVE_C4",
+    "ANIMAL_MECHANICAL_EVIDENCE_NE_HUMAN_THERAPY",
+    "BICAMERAL_AGREEMENT_NE_INDEPENDENT_REPLICATION"
+  ],
+  "authority": {
+    "context_transfer": "READ_ONLY",
+    "source_mutation": false,
+    "scientific_promotion": false,
+    "human_treatment_claim": false,
+    "external_effect_authority": false
+  },
+  "next_gate": "BICAMERAL_C1_C5_REPLAY_THEN_TRUMP_DOMAIN_EVIDENCE_ADMISSION"
+}
