@@ -1,0 +1,127 @@
+{
+  "schema": "janus.genesis.asset_source_registry.r0_5.v1",
+  "version": "0.5.0",
+  "policy": "QUERY_ALL_RELEVANT_CAPABLE_ADAPTERS_WITH_FAIL_CLOSED_RIGHTS",
+  "channels": ["MATERIAL", "MESH", "AUDIO", "MECHANIC_REFERENCE"],
+  "laws": [
+    "SLIME_CONTROL_PLANE_NE_BINARY_DATA_PLANE",
+    "DISCOVERY_NE_LICENSE_CLEARANCE",
+    "REGISTERED_SOURCE_NE_LIVE_ADAPTER",
+    "RIGHTS_GATE_BEFORE_EXTERNAL_REFERENCE",
+    "FOREIGN_MECHANIC_CODE_NE_EXECUTABLE_AUTHORITY",
+    "PROVENANCE_SURVIVES_DISTILLATION",
+    "PROCEDURAL_FALLBACK_REQUIRED"
+  ],
+  "providers": [
+    {
+      "provider_id": "poly_haven",
+      "channels": ["MATERIAL", "MESH"],
+      "runtime_status": "LIVE_ADAPTER",
+      "transport": "OFFICIAL_API_AND_DIRECT_CDN",
+      "rights_mode": "PROVIDER_WIDE_CC0_ASSETS",
+      "auto_derivation": true,
+      "notes": "Existing JANUS HOME adapter; textures/models/hdris."
+    },
+    {
+      "provider_id": "wikimedia_commons",
+      "channels": ["MATERIAL", "AUDIO", "MESH"],
+      "runtime_status": "LIVE_METADATA_ADAPTER_TARGET_R0_5",
+      "transport": "MEDIAWIKI_API",
+      "rights_mode": "PER_ITEM_LICENSE",
+      "auto_derivation": false,
+      "notes": "Each file must pass item-level license/attribution/non-copyright checks."
+    },
+    {
+      "provider_id": "openverse",
+      "channels": ["MATERIAL", "AUDIO"],
+      "runtime_status": "DISCOVERY_ONLY",
+      "transport": "OFFICIAL_API",
+      "rights_mode": "INDEXED_LICENSE_NOT_FINAL_AUTHORITY",
+      "auto_derivation": false,
+      "notes": "Discovery pointer only until original-source rights verification passes."
+    },
+    {
+      "provider_id": "smithsonian_open_access",
+      "channels": ["MESH", "MATERIAL"],
+      "runtime_status": "ADAPTER_PENDING",
+      "transport": "OFFICIAL_API_OR_OPEN_ACCESS_DATASET",
+      "rights_mode": "ITEM_LEVEL_CC0_MEDIA",
+      "auto_derivation": false
+    },
+    {
+      "provider_id": "met_open_access",
+      "channels": ["MATERIAL"],
+      "runtime_status": "ADAPTER_PENDING",
+      "transport": "OFFICIAL_API",
+      "rights_mode": "PUBLIC_DOMAIN_IMAGE_FILTER",
+      "auto_derivation": false
+    },
+    {
+      "provider_id": "europeana",
+      "channels": ["MATERIAL", "AUDIO", "MESH"],
+      "runtime_status": "ADAPTER_PENDING",
+      "transport": "OFFICIAL_API",
+      "rights_mode": "PER_OBJECT_MACHINE_READABLE_RIGHTS",
+      "auto_derivation": false
+    },
+    {
+      "provider_id": "rijksmuseum",
+      "channels": ["MATERIAL"],
+      "runtime_status": "ADAPTER_PENDING",
+      "transport": "OFFICIAL_DATA_SERVICES",
+      "rights_mode": "ITEM_LEVEL_REUSE_PERMISSION",
+      "auto_derivation": false
+    },
+    {
+      "provider_id": "library_of_congress",
+      "channels": ["MATERIAL", "AUDIO"],
+      "runtime_status": "DISCOVERY_ONLY",
+      "transport": "OFFICIAL_JSON_API",
+      "rights_mode": "PER_ITEM_RIGHTS_AND_ACCESS_ADVISORY",
+      "auto_derivation": false
+    },
+    {
+      "provider_id": "nasa_media",
+      "channels": ["MATERIAL", "MESH", "AUDIO"],
+      "runtime_status": "ADAPTER_PENDING_CONDITIONAL",
+      "transport": "OFFICIAL_MEDIA_SERVICES",
+      "rights_mode": "US_GOVERNMENT_MEDIA_WITH_EXCEPTIONS",
+      "auto_derivation": false
+    },
+    {
+      "provider_id": "kenney_cc0",
+      "channels": ["MESH", "MATERIAL", "MECHANIC_REFERENCE"],
+      "runtime_status": "CURATED_CATALOG_ADAPTER_PENDING",
+      "transport": "CURATED_PACK_POINTERS_NOT_SCRAPING",
+      "rights_mode": "PACK_LEVEL_CC0_WHEN_OFFICIAL_PACK_PAGE_SAYS_CC0",
+      "auto_derivation": false,
+      "notes": "Mechanic-reference means metadata/animation/collider ideas only; no foreign code execution."
+    },
+    {
+      "provider_id": "quaternius_cc0",
+      "channels": ["MESH", "MECHANIC_REFERENCE"],
+      "runtime_status": "CURATED_CATALOG_ADAPTER_PENDING",
+      "transport": "CURATED_PACK_POINTERS_NOT_SCRAPING",
+      "rights_mode": "PACK_LEVEL_CC0_WHEN_OFFICIAL_PACK_PAGE_SAYS_CC0",
+      "auto_derivation": false,
+      "notes": "Useful for modular/animated model references; scripts are never executable authority."
+    },
+    {
+      "provider_id": "freesound",
+      "channels": ["AUDIO"],
+      "runtime_status": "DISABLED_CONDITIONAL_REQUIRES_CREDENTIAL_AND_API_TERMS_REVIEW",
+      "transport": "OFFICIAL_API_ONLY",
+      "rights_mode": "PER_ITEM_LICENSE_PLUS_API_TERMS",
+      "auto_derivation": false,
+      "notes": "Not enabled by default."
+    },
+    {
+      "provider_id": "ambientcg",
+      "channels": ["MATERIAL", "MESH"],
+      "runtime_status": "ADAPTER_PENDING_OFFICIAL_INTERFACE_UNCONFIRMED",
+      "transport": "NO_SCRAPING_DEFAULT",
+      "rights_mode": "CC0_CATALOG_EXPECTED_BUT_ADAPTER_MUST_VERIFY",
+      "auto_derivation": false
+    }
+  ]
+}
