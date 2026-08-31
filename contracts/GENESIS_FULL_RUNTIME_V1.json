@@ -1,0 +1,130 @@
+{
+  "schema": "janus.genesis.full_runtime.v1",
+  "version": "1.0.0",
+  "status": "IMPLEMENTED_CANDIDATE_R0_2",
+  "supersedes_active_pages_runtime": [
+    "GENESIS_WORLD_SHELL_R0_ACTIVE_PRESENTATION",
+    "GENESIS_ACTION_FORGE_R0_ACTIVE_ROUTING"
+  ],
+  "preserves_historical_contracts": true,
+  "purpose": "Run the visual Genesis organ as a 3D cause-first world that routes explicit multilingual player intent through JANUS HOME when available, falls back explicitly when unavailable, materializes bounded commands, and resolves open asset references through the federated Asset Trunk before procedural KRR-style distillation.",
+  "world": {
+    "one_shared_canonical_world": true,
+    "personal_mirror_is_presentation_only": true,
+    "cause_first_save": true,
+    "chunk_lifecycle": ["VISIBLE_RENDERED", "PREWARM_PLAN_ONLY", "RECIPE_ONLY_FAR"],
+    "rendered_asset_bytes_are_not_canonical_world_state": true
+  },
+  "presentation": {
+    "dimensions": ["3D"],
+    "camera_modes": ["FIRST_PERSON", "THIRD_PERSON", "ISOMETRIC"],
+    "full_camera_axes": ["YAW", "PITCH", "ROLL"],
+    "third_person_distance_control": "MOUSE_WHEEL",
+    "isometric_distance_control": "MOUSE_WHEEL",
+    "roll_control": "ALT_OR_MIDDLE_DRAG",
+    "roll_reset": "PHYSICAL_KEY_C",
+    "camera_is_authority": false,
+    "mirror_is_authority": false
+  },
+  "input": {
+    "movement": {
+      "layout_independent": true,
+      "browser_basis": "KeyboardEvent.code",
+      "physical_codes": ["KeyW", "KeyA", "KeyS", "KeyD"],
+      "fallback_codes": ["ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"],
+      "text_input_never_leaks_to_world_hotkeys": true
+    },
+    "text": {
+      "encoding": "UTF-8",
+      "normalization": "NFKC",
+      "janus_preferred": true,
+      "local_degraded_lexical_languages_r0": ["en", "ru", "uk", "pl", "de", "es", "fr"],
+      "unknown_language_policy": "JANUS_OR_UNRESOLVED_NOT_GUESSED",
+      "hidden_psychological_inference": false
+    }
+  },
+  "janus_api": {
+    "home_repository": "Hawkar-usls/Hawkar-usls",
+    "endpoint_is_runtime_configurable": true,
+    "health_route": "/v1/health",
+    "intent_route": "/v1/genesis/intent",
+    "public_pages_must_not_claim_online_without_health_pass": true,
+    "janus_response_is_command": false,
+    "janus_response_is_world_authority": false,
+    "genesis_side_validator_required": true,
+    "api_unavailable_policy": "LOCAL_DEGRADED_EXPLICITLY_LABELED"
+  },
+  "command_materialization": {
+    "pipeline": [
+      "PLAYER_TEXT",
+      "JANUS_OR_DEGRADED_COMPILER",
+      "BOUNDED_INTENT",
+      "GENESIS_VALIDATOR",
+      "ASSET_REQUIREMENTS",
+      "ASSET_TRUNK_RIGHTS_GATE",
+      "KRR_RECIPE_DISTILLATION",
+      "PROCEDURAL_GEOMETRY_AND_MATERIAL",
+      "WORLD_MUTATION",
+      "CHRONICLE_RECEIPT"
+    ],
+    "supported_r0": [
+      "MOVE",
+      "RETURN_TO_HEARTH",
+      "PLACE_MARK",
+      "GENERATE_STRUCTURE",
+      "SET_CAMERA",
+      "SET_MIRROR"
+    ],
+    "unknown_command_policy": "VISIBLE_UNRESOLVED_OR_BLOCKED_REASON",
+    "requested_effect_must_not_silently_disappear": true
+  },
+  "asset_trunk": {
+    "registry": "asset_sources/ASSET_SOURCE_REGISTRY_V1.json",
+    "federation_is_open_ended": true,
+    "first_live_runtime_adapter": "poly_haven",
+    "first_live_runtime_rights": "CC0",
+    "live_api_credit": "Powered by Poly Haven",
+    "metadata_and_pointers_through_janus_api": true,
+    "binary_asset_bytes_through_slime": false,
+    "binary_asset_transport": "DIRECT_PROVIDER_CDN",
+    "rights_gate_before_use": true,
+    "fallback_when_no_asset": "PROCEDURAL_RECIPE_ONLY",
+    "krr_distillation": {
+      "meaning": "Use external asset identity/texture only as a bounded material source, retain provenance, and reduce the runtime representation to compact generator parameters plus optional streamed texture rather than storing a duplicated asset pack in canonical world state.",
+      "stores_asset_reference": true,
+      "stores_provider_rights": true,
+      "stores_download_pointer_as_cacheable_noncanonical_reference": true,
+      "stores_binary_asset_in_world_save": false,
+      "same_asset_ref_and_seed_same_material_dna": true
+    }
+  },
+  "audio": {
+    "procedural_primary": "HELIOS_DERIVED_AUDIO_FORGE",
+    "world_to_audio_only": true,
+    "audio_to_world_authority": false,
+    "external_audio_asset_federation": "PLANNED_PROVIDER_ADAPTER_NOT_CLAIMED_IN_R0_2"
+  },
+  "network_authority": {
+    "shared_mmo_authority": "NOT_YET_CONNECTED",
+    "janus_cognition_api": "IMPLEMENTED_CONTRACT_REQUIRES_RUNNING_HTTPS_OR_LOCAL_ENDPOINT",
+    "github_pages_itself_is_not_server_authority": true
+  },
+  "laws": [
+    "GENESIS_IS_ONE_JANUS_ORGAN",
+    "GENESIS_CALLS_JANUS_NOT_PROVIDER_MODEL",
+    "JANUS_RESPONSE_NE_WORLD_AUTHORITY",
+    "PLAYER_TEXT_NE_DIRECT_WORLD_AUTHORITY",
+    "PHYSICAL_KEY_CODE_NE_KEYBOARD_LAYOUT",
+    "TEXT_INPUT_NE_GAMEPLAY_KEY_EVENT",
+    "2D_ACTIVE_RUNTIME_FORBIDDEN",
+    "CAMERA_CHANGE_NE_WORLD_MUTATION",
+    "FULL_CAMERA_ORIENTATION_IS_PRESENTATION_ONLY",
+    "ASSET_DISCOVERY_NE_LICENSE_AUTHORITY",
+    "RIGHTS_GATE_BEFORE_ASSET_USE",
+    "SLIME_POINTERS_NE_BINARY_ASSET_BYTES",
+    "KRR_DISTILLATION_PRESERVES_PROVENANCE",
+    "REQUESTED_COMMAND_MATERIALIZES_OR_RETURNS_VISIBLE_BLOCK_REASON",
+    "API_UNAVAILABLE_NE_WORLD_CORRUPTION",
+    "LOCAL_DEGRADED_NE_JANUS_ONLINE"
+  ]
+}

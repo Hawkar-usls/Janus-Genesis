@@ -1,149 +1,28 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Genesis World Shell R0 — procedural one-world vertical slice with personal mirrors, switchable cameras and a bounded text Action Forge seeded by canonical world state.">
-  <title>GENESIS // WORLD SHELL R0</title>
-  <link rel="stylesheet" href="./world-shell.css">
-  <link rel="stylesheet" href="./world-shell-camera.css">
-  <link rel="stylesheet" href="./action-forge.css">
+  <meta name="description" content="JANUS Genesis — 3D cause-first world runtime with multilingual commands, JANUS HOME routing, streamed open assets and procedural KRR distillation.">
+  <title>GENESIS // FULL WORLD RUNTIME</title>
+  <link rel="stylesheet" href="./world-shell.css"><link rel="stylesheet" href="./world-shell-camera.css"><link rel="stylesheet" href="./action-forge.css"><link rel="stylesheet" href="./runtime-v3.css">
 </head>
 <body>
-  <canvas id="genesis-world" aria-label="Procedurally generated Genesis world"></canvas>
-  <div class="world-vignette" aria-hidden="true"></div>
-
-  <header class="hud top-hud">
-    <div class="brand-block">
-      <span class="eyebrow">JANUS / GENESIS ORGAN / WORLD SHELL R0</span>
-      <strong>GENESIS</strong>
-      <span class="world-subtitle">ONE WORLD // MANY MIRRORS</span>
-    </div>
-    <div class="top-actions">
-      <button id="audio-toggle" type="button">AUDIO: OFF</button>
-      <button id="view-toggle" type="button">VIEW: 3D/ISO</button>
-      <button id="mirror-toggle" type="button">MIRROR</button>
-      <button id="chronicle-toggle" type="button">CHRONICLE</button>
-      <a class="hud-button" href="./kernel-lab.html">KERNEL LAB</a>
-    </div>
-  </header>
-
-  <aside class="hud world-status" aria-label="World streaming state">
-    <div class="status-row"><span>WORLD</span><strong id="world-id">GENESIS_ONE_WORLD_R0</strong></div>
-    <div class="status-row"><span>MODE</span><strong class="safe">LOCAL VERTICAL SLICE</strong></div>
-    <div class="status-row"><span>MMO AUTHORITY</span><strong class="warn">NOT CONNECTED</strong></div>
-    <div class="status-rule"></div>
-    <div class="status-row"><span>CHUNK</span><strong id="chunk-coords">0,0</strong></div>
-    <div class="status-row"><span>FACT HASH</span><strong id="fact-hash">--------</strong></div>
-    <div class="status-row"><span>VISIBLE</span><strong id="visible-count">25</strong></div>
-    <div class="status-row"><span>PREWARM</span><strong id="prewarm-count">81</strong></div>
-    <div class="status-row"><span>RECIPE ONLY</span><strong>∞</strong></div>
-    <div class="status-row"><span>DISCOVERED</span><strong id="discovered-count">0</strong></div>
-    <div class="status-rule"></div>
-    <div class="status-row"><span>MIRROR</span><strong id="mirror-name">ORIGIN</strong></div>
-    <div class="status-row"><span>DIMENSION</span><strong id="dimension-name">3D</strong></div>
-    <div class="status-row"><span>CAMERA</span><strong id="camera-name">ISOMETRIC</strong></div>
-  </aside>
-
-  <aside class="hud minimap-shell" aria-label="Discovered chunk map">
-    <canvas id="minimap" width="180" height="180"></canvas>
-    <div class="minimap-caption">CAUSE MAP / NOT RENDER CACHE</div>
-  </aside>
-
-  <section id="welcome" class="center-message" aria-live="polite">
-    <span class="eyebrow">THE FIRST SHORE</span>
-    <h1>THE WORLD BEGINS<br>WHERE YOU WALK.</h1>
-    <p>The land ahead is generated from causes. Walk it directly or describe an explicit action below. Your current canonical world state becomes part of the action seed.</p>
-    <button id="enter-world" class="enter-button" type="button">ENTER GENESIS</button>
-  </section>
-
-  <section id="mirror-panel" class="drawer mirror-drawer" aria-labelledby="mirror-title" hidden>
-    <div class="drawer-head">
-      <div><span class="eyebrow">PERSONAL MIRROR</span><h2 id="mirror-title">Same facts. Different reality.</h2></div>
-      <button class="close-drawer" data-close="mirror-panel" type="button">×</button>
-    </div>
-    <p>Mirror is the presentation lens. Style, 2D/3D dimension and camera can change freely. Canonical coordinates, object types, Chronicle events and world mutations cannot.</p>
-
-    <div class="mirror-section">
-      <span class="mirror-section-label">STYLE MIRROR</span>
-      <div id="mirror-options" class="mirror-options"></div>
-    </div>
-
-    <div class="mirror-section view-matrix">
-      <span class="mirror-section-label">DIMENSION</span>
-      <div id="dimension-options" class="view-options"></div>
-      <span class="mirror-section-label">CAMERA</span>
-      <div id="camera-options" class="view-options camera-options"></div>
-      <div class="view-note">
-        <strong id="view-combination">3D / ISOMETRIC</strong>
-        <span>FIRST PERSON and THIRD PERSON require 3D. Choosing 2D safely returns the camera to ISOMETRIC.</span>
-      </div>
-    </div>
-
-    <div class="integrity-card">
-      <span>CANONICAL CHUNK FACT HASH</span>
-      <strong id="mirror-fact-hash">--------</strong>
-      <small>This value must remain unchanged when style, dimension or camera changes.</small>
-    </div>
-  </section>
-
-  <section id="chronicle-panel" class="drawer chronicle-drawer" aria-labelledby="chronicle-title" hidden>
-    <div class="drawer-head">
-      <div><span class="eyebrow">HASH-LINKED MEMORY</span><h2 id="chronicle-title">Chronicle</h2></div>
-      <button class="close-drawer" data-close="chronicle-panel" type="button">×</button>
-    </div>
-    <p>The Pages slice stores player position, discovered chunk coordinates, explicit marks/action anchors and event hashes — never rendered terrain pixels, mesh buffers or audio PCM. View settings are personal presentation preferences and do not create Chronicle events.</p>
-    <ol id="chronicle-list" class="chronicle-list"></ol>
-  </section>
-
-  <section class="action-forge" aria-label="Genesis text Action Forge">
-    <div class="action-forge-head">
-      <strong>ACTION FORGE // WORLD STATE → SEED</strong>
-      <span>EXPLICIT TEXT → BOUNDED INTENT IR → VALIDATOR → WORLD</span>
-    </div>
-    <form id="action-form" autocomplete="off">
-      <input id="action-input" type="text" maxlength="280" inputmode="text" placeholder="Напиши действие: иди на север 5 шагов / построй маяк / первое лицо / EMBER" aria-label="Describe an explicit Genesis action">
-      <button id="action-submit" type="submit">GENERATE ACTION</button>
-    </form>
-    <div class="action-forge-meta">
-      <span>WORLD STATE HASH <strong id="action-state-hash">--------</strong></span>
-      <span id="action-plan">WAITING FOR EXPLICIT PLAYER INPUT</span>
-    </div>
-    <div id="action-result" class="action-result" aria-live="polite">Text has no direct authority. Only allowlisted intent plans may execute.</div>
-  </section>
-
-  <div class="hud action-bar" aria-label="Gameplay actions">
-    <button id="leave-mark" type="button"><kbd>E</kbd><span>LEAVE MARK</span></button>
-    <button id="reset-view" type="button"><kbd>R</kbd><span>RETURN TO HEARTH</span></button>
-  </div>
-
-  <div class="hud controls-hint">
-    <span><kbd>WASD</kbd> / <kbd>ARROWS</kbd> WALK</span>
-    <span><kbd>SHIFT</kbd> MOVE FASTER</span>
-    <span><kbd>V</kbd> VIEW / MIRROR</span>
-    <span><kbd>DRAG</kbd> LOOK IN 1P/3P</span>
-    <span><kbd>Q</kbd>/<kbd>F</kbd> TURN</span>
-  </div>
-
-  <div class="mobile-pad" aria-label="Touch movement controls">
-    <button data-move="up" type="button">▲</button>
-    <button data-move="left" type="button">◀</button>
-    <button data-move="down" type="button">▼</button>
-    <button data-move="right" type="button">▶</button>
-  </div>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <footer class="world-footer">
-    <span id="generator-state">BOOTING WORLD GENERATOR</span>
-    <span>PLAYER TEXT ≠ AUTHORITY // WORLD STATE = ACTION SEED // CAMERA ≠ AUTHORITY</span>
-  </footer>
-
-  <noscript>Genesis World Shell requires JavaScript to generate the local procedural world.</noscript>
-  <script src="./genesis-audio-forge.js"></script>
-  <script src="./genesis-world-shell-v2.js"></script>
-  <script src="./genesis-action-input-ru.js"></script>
-  <script src="./genesis-action-forge.js"></script>
+  <canvas id="genesis-world" aria-label="Procedurally generated 3D Genesis world"></canvas><div class="world-vignette" aria-hidden="true"></div>
+  <header class="hud top-hud"><div class="brand-block"><span class="eyebrow">JANUS / GENESIS ORGAN / FULL WORLD RUNTIME R0.2</span><strong>GENESIS</strong><span class="world-subtitle">ONE WORLD // MANY MIRRORS // 3D CAUSE RENDER</span></div><div class="top-actions"><button id="audio-toggle" type="button">AUDIO: OFF</button><button id="view-toggle" type="button">VIEW: ISOMETRIC</button><button id="mirror-toggle" type="button">MIRROR</button><button id="chronicle-toggle" type="button">CHRONICLE</button><a class="hud-button" href="./kernel-lab.html">KERNEL LAB</a></div></header>
+  <aside class="hud world-status" aria-label="World streaming state"><div class="status-row"><span>WORLD</span><strong id="world-id">GENESIS_ONE_WORLD_R0</strong></div><div class="status-row"><span>ROUTING</span><strong id="world-mode" class="warn">LOCAL DEGRADED</strong></div><div class="status-row"><span>MMO AUTHORITY</span><strong class="warn">NOT YET CONNECTED</strong></div><div class="status-rule"></div><div class="status-row"><span>CHUNK</span><strong id="chunk-coords">0,0</strong></div><div class="status-row"><span>FACT HASH</span><strong id="fact-hash">--------</strong></div><div class="status-row"><span>VISIBLE</span><strong id="visible-count">25</strong></div><div class="status-row"><span>PREWARM</span><strong id="prewarm-count">81</strong></div><div class="status-row"><span>RECIPE ONLY</span><strong>∞</strong></div><div class="status-row"><span>DISCOVERED</span><strong id="discovered-count">0</strong></div><div class="status-rule"></div><div class="status-row"><span>MIRROR</span><strong id="mirror-name">ORIGIN</strong></div><div class="status-row"><span>DIMENSION</span><strong id="dimension-name">3D</strong></div><div class="status-row"><span>CAMERA</span><strong id="camera-name">ISOMETRIC</strong></div></aside>
+  <aside class="hud minimap-shell" aria-label="Discovered chunk cause map"><canvas id="minimap" width="180" height="180"></canvas><div class="minimap-caption">CAUSE MAP / NOT RENDER CACHE</div></aside>
+  <aside class="janus-nerve" aria-label="JANUS API and Asset Trunk"><h3>JANUS NERVE // HOME → GENESIS</h3><div class="nerve-row"><span>JANUS API</span><strong id="janus-api-status" class="warn">NO ENDPOINT</strong></div><div class="nerve-row"><span>HOME</span><strong>Hawkar-usls/Hawkar-usls</strong></div><div class="janus-endpoint"><input id="janus-api-endpoint" type="url" inputmode="url" placeholder="https://janus.example base" aria-label="JANUS API base URL"><button id="janus-api-connect" type="button">CONNECT</button></div><div class="asset-trunk-title">ASSET TRUNK // LIVE REFERENCES <strong id="asset-count">0</strong></div><div id="asset-trunk-results">JANUS OFFLINE / PROCEDURAL FALLBACK</div><small>Metadata/pointers travel through JANUS. Binary assets stream directly from the provider CDN after the rights gate. Live Poly Haven adapter: CC0 · Powered by Poly Haven.</small></aside>
+  <section id="welcome" class="center-message" aria-live="polite"><span class="eyebrow">THE FIRST SHORE</span><h1>WRITE IT.<br>WALK IT.<br>LET IT MATERIALIZE.</h1><p>Genesis stores causes, not a prebuilt map. Physical controls are keyboard-layout independent. Explicit text is routed through JANUS HOME when an API endpoint is healthy, validated inside Genesis, resolved against the Asset Trunk when useful, distilled into a compact procedural recipe, and only then materialized.</p><button id="enter-world" class="enter-button" type="button">ENTER GENESIS</button></section>
+  <section id="mirror-panel" class="drawer mirror-drawer" aria-labelledby="mirror-title" hidden><div class="drawer-head"><div><span class="eyebrow">PERSONAL MIRROR</span><h2 id="mirror-title">Same facts. Different 3D reality.</h2></div><button class="close-drawer" data-close="mirror-panel" type="button">×</button></div><p>Mirror changes presentation only. Genesis runs one 3D world through FIRST PERSON, THIRD PERSON or ISOMETRIC cameras. Coordinates, Chronicle, generated structures and world mutations remain canonical facts.</p><div class="mirror-section"><span class="mirror-section-label">STYLE MIRROR</span><div id="mirror-options" class="mirror-options"></div></div><div class="mirror-section view-matrix"><div id="dimension-options" class="view-options" aria-hidden="true"></div><span class="mirror-section-label">3D CAMERA</span><div id="camera-options" class="view-options camera-options"></div><div class="view-note"><strong id="view-combination">3D / ISOMETRIC</strong><span>Drag = yaw/pitch. Alt or middle-drag = roll. C = reset roll. Mouse wheel changes distance in third-person and isometric views.</span></div></div><div class="integrity-card"><span>CANONICAL CHUNK FACT HASH</span><strong id="mirror-fact-hash">--------</strong><small>Camera orientation and Mirror style must never alter this canonical chunk fingerprint.</small></div></section>
+  <section id="chronicle-panel" class="drawer chronicle-drawer" aria-labelledby="chronicle-title" hidden><div class="drawer-head"><div><span class="eyebrow">HASH-LINKED MEMORY</span><h2 id="chronicle-title">Chronicle</h2></div><button class="close-drawer" data-close="chronicle-panel" type="button">×</button></div><p>The browser save keeps causes: position, discovered chunks, bounded mutations, generated-structure recipes, Asset Trunk provenance and event hashes. It does not persist rendered terrain frames, mesh buffers or PCM as canonical world state.</p><ol id="chronicle-list" class="chronicle-list"></ol></section>
+  <section class="action-forge" aria-label="Multilingual Genesis command input"><div class="action-forge-head"><strong>GENESIS COMMAND // WORLD STATE → JANUS → MATERIALIZATION</strong><span>UTF-8 TEXT → JANUS INTENT → VALIDATOR → ASSET TRUNK → KRR RECIPE → WORLD</span></div><form id="action-form" autocomplete="off"><input id="action-input" type="text" maxlength="2000" inputmode="text" placeholder="построй маяк / build a bridge / побудуй вежу / baue einen Turm / construye un portal" aria-label="Describe an explicit Genesis action in your language"><button id="action-submit" type="submit">MATERIALIZE</button></form><div class="action-forge-meta"><span>WORLD STATE HASH <strong id="action-state-hash">--------</strong></span><span id="action-plan">WAITING FOR EXPLICIT PLAYER INPUT</span></div><div id="action-result" class="action-result" aria-live="polite">JANUS output is a proposal, not world authority. The Genesis validator must accept the mechanic before anything changes.</div></section>
+  <div class="hud action-bar" aria-label="Gameplay actions"><button id="leave-mark" type="button"><kbd>E</kbd><span>LEAVE MARK</span></button><button id="reset-view" type="button"><kbd>R</kbd><span>RETURN TO HEARTH</span></button></div>
+  <div class="camera-help"><b>LAYOUT-INDEPENDENT</b> physical WASD / arrows · E mark · R hearth · V Mirror · 1 first person · 3 third person · I isometric · SHIFT sprint · drag yaw/pitch · ALT/middle drag roll · C reset roll · wheel camera distance</div>
+  <div class="hud controls-hint"><span><kbd>WASD</kbd> WALK</span><span><kbd>1/3/I</kbd> CAMERA</span><span><kbd>DRAG</kbd> YAW/PITCH</span><span><kbd>ALT+DRAG</kbd> ROLL</span><span><kbd>WHEEL</kbd> DISTANCE</span></div>
+  <div class="mobile-pad" aria-label="Touch movement controls"><button data-move="up" type="button">▲</button><button data-move="left" type="button">◀</button><button data-move="down" type="button">▼</button><button data-move="right" type="button">▶</button></div><div id="toast" class="toast" role="status" aria-live="polite"></div><footer class="world-footer"><span id="generator-state">BOOTING GENESIS FULL WORLD RUNTIME</span></footer>
+  <noscript>Genesis requires JavaScript to generate and visualize the local procedural world.</noscript>
+  <script src="./genesis-audio-forge.js"></script><script src="./genesis-world-runtime-v3.js"></script><script src="./genesis-asset-materializer-v1.js"></script><script src="./genesis-audio-runtime-v1.js"></script><script src="./genesis-hotkeys-v1.js"></script><script src="./genesis-janus-bridge-v1.js"></script>
 </body>
 </html>

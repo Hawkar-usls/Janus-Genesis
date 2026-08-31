@@ -13,7 +13,10 @@ ROOT_HTML = ROOT / "index.html"
 ROOT_LAB_HTML = ROOT / "kernel-lab.html"
 SITE_LAB_HTML = ROOT / "site" / "kernel-lab.html"
 LAB_JS = ROOT / "site" / "genesis-pages.js"
-WORLD_JS = ROOT / "site" / "genesis-world-shell-v2.js"
+HISTORICAL_WORLD_JS = ROOT / "site" / "genesis-world-shell-v2.js"
+ACTIVE_WORLD_JS = ROOT / "site" / "genesis-world-runtime-v3.js"
+JANUS_BRIDGE_JS = ROOT / "site" / "genesis-janus-bridge-v1.js"
+FULL_RUNTIME_CONTRACT = ROOT / ".janus" / "GENESIS_FULL_RUNTIME_V1.json"
 
 
 class GenesisPagesContractsTests(unittest.TestCase):
@@ -28,7 +31,10 @@ class GenesisPagesContractsTests(unittest.TestCase):
         cls.root_lab_html = ROOT_LAB_HTML.read_text(encoding="utf-8")
         cls.site_lab_html = SITE_LAB_HTML.read_text(encoding="utf-8")
         cls.lab_js = LAB_JS.read_text(encoding="utf-8")
-        cls.world_js = WORLD_JS.read_text(encoding="utf-8")
+        cls.historical_world_js = HISTORICAL_WORLD_JS.read_text(encoding="utf-8")
+        cls.active_world_js = ACTIVE_WORLD_JS.read_text(encoding="utf-8")
+        cls.janus_bridge_js = JANUS_BRIDGE_JS.read_text(encoding="utf-8")
+        cls.full_runtime = json.loads(FULL_RUNTIME_CONTRACT.read_text(encoding="utf-8"))
 
     def test_laws_are_frozen_and_unique(self):
         self.assertEqual(self.laws["schema"], "janus.genesis.laws.v1")
@@ -43,18 +49,11 @@ class GenesisPagesContractsTests(unittest.TestCase):
     def test_required_genesis_laws_are_present(self):
         names = {law["name"] for law in self.laws["laws"]}
         required = {
-            "RECIPE_NE_ARBITRARY_CODE",
-            "RENDERER_NE_AUTHORITY",
-            "WORLD_STATE_TO_PRESENTATION_ALLOWED",
-            "PRESENTATION_TO_WORLD_MUTATION_DEFAULT_DENY",
-            "HIDDEN_HUMAN_TELEMETRY_FORBIDDEN",
-            "EXPLICIT_USER_GESTURE_REQUIRED_FOR_BROWSER_AUDIO",
-            "SAME_RECIPE_SEED_VERSION_EQ_SAME_PLAN",
-            "PROVENANCE_REQUIRED",
-            "RIGHTS_FAIL_CLOSED_FOR_EXTERNAL_ASSETS",
-            "NO_BINARY_BYTES_OVER_SLIME",
-            "CONTENT_HASH_BINDS_DERIVATION",
-            "FREEZE_NE_IMMUTABILITY_WITHOUT_VERSION",
+            "RECIPE_NE_ARBITRARY_CODE", "RENDERER_NE_AUTHORITY", "WORLD_STATE_TO_PRESENTATION_ALLOWED",
+            "PRESENTATION_TO_WORLD_MUTATION_DEFAULT_DENY", "HIDDEN_HUMAN_TELEMETRY_FORBIDDEN",
+            "EXPLICIT_USER_GESTURE_REQUIRED_FOR_BROWSER_AUDIO", "SAME_RECIPE_SEED_VERSION_EQ_SAME_PLAN",
+            "PROVENANCE_REQUIRED", "RIGHTS_FAIL_CLOSED_FOR_EXTERNAL_ASSETS", "NO_BINARY_BYTES_OVER_SLIME",
+            "CONTENT_HASH_BINDS_DERIVATION", "FREEZE_NE_IMMUTABILITY_WITHOUT_VERSION",
         }
         self.assertTrue(required.issubset(names))
 
@@ -82,20 +81,31 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertEqual(self.public_laws, self.laws)
         self.assertEqual(self.public_roadmap, self.roadmap)
 
-    def test_root_and_actions_entrypoints_are_world_shell(self):
+    def test_root_and_actions_entrypoints_use_superseding_full_runtime(self):
         self.assertTrue((ROOT / ".nojekyll").exists())
-        self.assertIn("GENESIS // WORLD SHELL R0", self.root_html)
-        self.assertIn("GENESIS // WORLD SHELL R0", self.site_html)
+        self.assertEqual(self.full_runtime["schema"], "janus.genesis.full_runtime.v1")
+        for html in (self.root_html, self.site_html):
+            self.assertIn("GENESIS // FULL WORLD RUNTIME", html)
+            self.assertIn("genesis-world-runtime-v3.js", html)
+            self.assertIn("genesis-janus-bridge-v1.js", html)
+            self.assertIn("genesis-asset-materializer-v1.js", html)
+            self.assertNotIn("genesis-world-shell-v2.js", html)
+            self.assertNotIn("genesis-action-input-ru.js", html)
         self.assertIn("./site/world-shell.css", self.root_html)
-        self.assertIn("./site/world-shell-camera.css", self.root_html)
-        self.assertIn("./site/genesis-world-shell-v2.js", self.root_html)
         self.assertIn("./world-shell.css", self.site_html)
-        self.assertIn("./world-shell-camera.css", self.site_html)
-        self.assertIn("./genesis-world-shell-v2.js", self.site_html)
         self.assertIn("./genesis-audio-forge.js", self.root_html)
         self.assertIn("./genesis-audio-forge.js", self.site_html)
-        self.assertNotIn("http://", self.root_html + self.site_html)
-        self.assertNotIn("https://", self.root_html + self.site_html)
+        self.assertTrue(HISTORICAL_WORLD_JS.exists())
+
+    def test_network_isolated_to_explicit_janus_bridge_not_world_generator(self):
+        self.assertNotIn("http://", self.active_world_js)
+        self.assertNotIn("https://", self.active_world_js)
+        self.assertNotIn("fetch(", self.active_world_js)
+        self.assertIn("fetch(", self.janus_bridge_js)
+        self.assertIn("/v1/health", self.janus_bridge_js)
+        self.assertIn("/v1/genesis/intent", self.janus_bridge_js)
+        self.assertFalse(self.full_runtime["janus_api"]["janus_response_is_world_authority"])
+        self.assertTrue(self.full_runtime["janus_api"]["genesis_side_validator_required"])
 
     def test_kernel_lab_preserves_original_control_plane(self):
         self.assertIn("GENESIS // KERNEL LAB", self.root_lab_html)
@@ -116,8 +126,8 @@ class GenesisPagesContractsTests(unittest.TestCase):
     def test_pages_runtimes_do_not_introduce_dynamic_code_execution(self):
         forbidden = ("eval(", "new Function(", "WebSocket(", "EventSource(")
         for token in forbidden:
-            self.assertNotIn(token, self.lab_js)
-            self.assertNotIn(token, self.world_js)
+            for surface in (self.lab_js, self.historical_world_js, self.active_world_js, self.janus_bridge_js):
+                self.assertNotIn(token, surface)
 
     def test_kernel_lab_uses_only_explicit_audio_world_fields(self):
         for field in ("entropy", "depth", "portal_energy", "danger", "weather_intensity"):
