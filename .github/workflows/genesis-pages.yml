@@ -5,18 +5,30 @@ on:
     paths:
       - '.janus/GENESIS_LAWS_V1.json'
       - '.janus/GENESIS_KERNEL_ROADMAP_V1.json'
+      - '.janus/GENESIS_WORLD_SHELL_R0.json'
+      - 'contracts/GENESIS_WORLD_SHELL_R0.json'
       - 'genesis-audio-forge.js'
+      - 'index.html'
+      - 'kernel-lab.html'
       - 'site/**'
+      - 'docs/GENESIS_WORLD_SHELL_R0.md'
       - 'tests/test_genesis_pages_contracts.py'
+      - 'tests/test_genesis_world_shell.py'
       - '.github/workflows/genesis-pages.yml'
   push:
     branches: [main]
     paths:
       - '.janus/GENESIS_LAWS_V1.json'
       - '.janus/GENESIS_KERNEL_ROADMAP_V1.json'
+      - '.janus/GENESIS_WORLD_SHELL_R0.json'
+      - 'contracts/GENESIS_WORLD_SHELL_R0.json'
       - 'genesis-audio-forge.js'
+      - 'index.html'
+      - 'kernel-lab.html'
       - 'site/**'
+      - 'docs/GENESIS_WORLD_SHELL_R0.md'
       - 'tests/test_genesis_pages_contracts.py'
+      - 'tests/test_genesis_world_shell.py'
       - '.github/workflows/genesis-pages.yml'
   workflow_dispatch:
 
@@ -37,8 +49,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Validate frozen contracts and control plane
-        run: python -m unittest tests.test_genesis_pages_contracts -v
+      - name: Validate frozen contracts and World Shell
+        run: |
+          python -m unittest tests.test_genesis_pages_contracts -v
+          python -m unittest tests.test_genesis_world_shell -v
 
       - name: Stage static Pages artifact
         shell: bash
@@ -50,13 +64,18 @@ jobs:
           cp genesis-audio-forge.js _site/genesis-audio-forge.js
           cp .janus/GENESIS_LAWS_V1.json _site/contracts/GENESIS_LAWS_V1.json
           cp .janus/GENESIS_KERNEL_ROADMAP_V1.json _site/contracts/GENESIS_KERNEL_ROADMAP_V1.json
+          cp .janus/GENESIS_WORLD_SHELL_R0.json _site/contracts/GENESIS_WORLD_SHELL_R0.json
           touch _site/.nojekyll
           test -s _site/index.html
+          test -s _site/kernel-lab.html
+          test -s _site/genesis-world-shell.js
+          test -s _site/world-shell.css
           test -s _site/genesis-pages.js
           test -s _site/genesis-pages.css
           test -s _site/genesis-audio-forge.js
           test -s _site/contracts/GENESIS_LAWS_V1.json
           test -s _site/contracts/GENESIS_KERNEL_ROADMAP_V1.json
+          test -s _site/contracts/GENESIS_WORLD_SHELL_R0.json
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
