@@ -13,7 +13,7 @@ ROOT_HTML = ROOT / "index.html"
 ROOT_LAB_HTML = ROOT / "kernel-lab.html"
 SITE_LAB_HTML = ROOT / "site" / "kernel-lab.html"
 LAB_JS = ROOT / "site" / "genesis-pages.js"
-WORLD_JS = ROOT / "site" / "genesis-world-shell.js"
+WORLD_JS = ROOT / "site" / "genesis-world-shell-v2.js"
 
 
 class GenesisPagesContractsTests(unittest.TestCase):
@@ -87,9 +87,11 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertIn("GENESIS // WORLD SHELL R0", self.root_html)
         self.assertIn("GENESIS // WORLD SHELL R0", self.site_html)
         self.assertIn("./site/world-shell.css", self.root_html)
-        self.assertIn("./site/genesis-world-shell.js", self.root_html)
+        self.assertIn("./site/world-shell-camera.css", self.root_html)
+        self.assertIn("./site/genesis-world-shell-v2.js", self.root_html)
         self.assertIn("./world-shell.css", self.site_html)
-        self.assertIn("./genesis-world-shell.js", self.site_html)
+        self.assertIn("./world-shell-camera.css", self.site_html)
+        self.assertIn("./genesis-world-shell-v2.js", self.site_html)
         self.assertIn("./genesis-audio-forge.js", self.root_html)
         self.assertIn("./genesis-audio-forge.js", self.site_html)
         self.assertNotIn("http://", self.root_html + self.site_html)
