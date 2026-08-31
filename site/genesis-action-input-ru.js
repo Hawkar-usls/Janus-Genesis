@@ -17,6 +17,16 @@
     return text;
   }
 
+  function isActionInput(target) {
+    return target instanceof HTMLInputElement && target.id === 'action-input';
+  }
+
+  for (const type of ['keydown', 'keyup', 'keypress']) {
+    document.addEventListener(type, event => {
+      if (isActionInput(event.target)) event.stopPropagation();
+    }, true);
+  }
+
   document.addEventListener('submit', event => {
     if (event.target?.id !== 'action-form') return;
     const input = document.getElementById('action-input');
