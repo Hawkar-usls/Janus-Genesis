@@ -2,7 +2,7 @@
   "schema": "janus.genesis.lane3.longevity_survivor.packet.v1",
   "packet_id": "GENESIS-LANE3-THY1-P38-HIGH-TENSION-SKIN-2026-08-31-v1",
   "lane_id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
-  "status": "CAUSAL_FATE_ROUTING_ACCEPTED__STRICT_DELAYED_LOCK_BLOCKED",
+  "status": "CAUSAL_FATE_ROUTING_ACCEPTED__TRUMP_DOMAIN_ADMITTED__STRICT_DELAYED_LOCK_BLOCKED",
   "source": {
     "repository": "Hawkar-usls/janus-lapis",
     "branch": "LONGEVITY-SURVIVOR",
@@ -62,12 +62,22 @@
     "disagreement_policy": "PRESERVE_UNTIL_SEPARATE_RECEIPT_RESOLVES",
     "agreement_policy": "AGREEMENT_INCREASES_CHECK_PRIORITY_NOT_EVIDENCE_STRENGTH"
   },
+  "trump_final": {
+    "stage": "DOMAIN_EVIDENCE_CANDIDATE",
+    "workflow_run": 33359887179,
+    "verdict": "DOMAIN_EVIDENCE_ACCEPTED_NO_PROMOTION",
+    "receipt_sha256": "2a9e86573ac3ac903a82ff30703900dde31e446eb24c4727c0b6d26b9a84c8a8",
+    "next_authority": "JANUS_GENESIS_DOMAIN_LANE_ONLY",
+    "scientific_claim_promoted": false,
+    "human_translation": false
+  },
   "claim_ceiling": [
     "ANIMAL_MECHANISTIC_EVIDENCE_NE_HUMAN_THERAPY",
     "PRECONDITIONING_NE_DELAYED_RESCUE",
     "CAUSAL_FATE_ROUTING_NE_MATURE_SCAR_REVERSAL",
     "BOTH_HEMISPHERES_AGREE_NE_TRUTH",
-    "CROSS_HEMISPHERE_RECURRENCE_NE_INDEPENDENT_REPLICATION"
+    "CROSS_HEMISPHERE_RECURRENCE_NE_INDEPENDENT_REPLICATION",
+    "TRUMP_DOMAIN_ADMISSION_NE_SCIENTIFIC_PROMOTION"
   ],
   "authority": {
     "context_transfer": "READ_ONLY",
