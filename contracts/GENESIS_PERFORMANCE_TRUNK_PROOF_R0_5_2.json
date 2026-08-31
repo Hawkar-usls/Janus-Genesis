@@ -1,0 +1,48 @@
+{
+  "schema": "janus.genesis.performance_trunk_proof.runtime.v1",
+  "version": "0.5.2",
+  "status": "IMPLEMENTED_CANDIDATE_R0_5_2",
+  "supersedes": "GENESIS_PROVIDER_FALLBACK_R0_5_1",
+  "preserves_generator_version": "GENESIS_COMMAND_RUNTIME_R0.3.0",
+  "frame_governor": {
+    "file": "site/genesis-frame-governor-r0-5-2.js",
+    "activation": "DYNAMIC_NONCANONICAL_OVERLAY_FROM_ACTIVE_SCENE_EXECUTOR",
+    "tiers_fps": [60, 45, 30, 4],
+    "cost_signal": "EMA_RENDER_CALLBACK_COST_MS",
+    "hidden_tab_fps": 4,
+    "canonical_world_mutation": false,
+    "changes_generator_version": false,
+    "changes_fact_hash": false
+  },
+  "provider_binary_proof": {
+    "providers": ["poly_haven", "wikimedia_commons"],
+    "proof_path": "RUNTIME_FALLBACK_CODE_TO_REAL_DOWNLOAD_POINTER_TO_BINARY_FETCH",
+    "required_origin": "https://hawkar-usls.github.io",
+    "accepted_cors": ["*", "https://hawkar-usls.github.io"],
+    "material_binary_required": true,
+    "audio_binary_required": true,
+    "rights_gate_before_runtime_reference": true,
+    "binary_bytes_through_slime": false,
+    "provider_binary_is_canonical": false
+  },
+  "authority": {
+    "performance_governor_is_world_authority": false,
+    "provider_binary_is_world_authority": false,
+    "provider_metadata_is_command": false,
+    "genesis_validator_required": true
+  },
+  "known_next_optimization": {
+    "world_transform_spatial_index": "REQUIRED_NEXT_P1_BEFORE_LARGE_MUTATION_COUNTS",
+    "reason": "R0.5 terrainTransformAt still scans explicit mutations per terrain sample",
+    "not_falsely_claimed_implemented": true
+  },
+  "laws": [
+    "FRAME_BUDGET_NE_CANONICAL_FACT",
+    "FRAME_RATE_NE_WORLD_STATE",
+    "PROVIDER_API_CORS_NE_PROVIDER_BINARY_CORS",
+    "PROVE_THE_BINARY_PATH_YOU_RENDER",
+    "SLIME_CONTROL_PLANE_NE_BINARY_BYTES",
+    "PERFORMANCE_DEGRADATION_MUST_PRESERVE_WORLD_CAUSES",
+    "DO_NOT_CLAIM_SPATIAL_INDEX_BEFORE_IMPLEMENTED"
+  ]
+}
