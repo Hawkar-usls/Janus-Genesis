@@ -1,0 +1,143 @@
+{
+  "schema": "janus.genesis.asset_source_registry.v1",
+  "registry_id": "GENESIS_OPEN_ASSET_FEDERATION_V1",
+  "federation_policy": "ALL_RELEVANT_SOURCES_NOT_ONE_PREFERRED_SOURCE",
+  "discovery_scope": "OPEN_ENDED",
+  "unregistered_source_policy": "DISCOVERABLE_BUT_NOT_INGESTIBLE_UNTIL_ADAPTER_AND_RIGHTS_GATE_PASS",
+  "checked_at": "2026-08-31",
+  "source_classes": [
+    "CC0_ASSET_LIBRARY",
+    "MUSEUM_OPEN_ACCESS_API",
+    "CULTURAL_HERITAGE_AGGREGATOR",
+    "OPEN_MEDIA_INDEX",
+    "GOVERNMENT_MEDIA_ARCHIVE",
+    "LIBRARY_ARCHIVE_API",
+    "IIIF_PROVIDER",
+    "OPEN_3D_PROVIDER",
+    "OPEN_TEXTURE_PROVIDER",
+    "FUTURE_PROVIDER_ADAPTER"
+  ],
+  "sources": [
+    {
+      "provider_id": "poly_haven",
+      "name": "Poly Haven",
+      "status": "ENABLED",
+      "classes": ["CC0_ASSET_LIBRARY", "OPEN_3D_PROVIDER", "OPEN_TEXTURE_PROVIDER"],
+      "discovery": "OFFICIAL_API",
+      "api_base": "https://api.polyhaven.com",
+      "rights_mode": "PROVIDER_WIDE_CC0_ASSETS",
+      "rights_gate": "VERIFY_ASSET_RECORD_AND_PROVIDER_POLICY",
+      "policy_url": "https://polyhaven.com/license",
+      "notes": "Use the official API rather than HTML scraping."
+    },
+    {
+      "provider_id": "smithsonian_open_access",
+      "name": "Smithsonian Open Access",
+      "status": "ENABLED",
+      "classes": ["MUSEUM_OPEN_ACCESS_API", "IIIF_PROVIDER", "OPEN_3D_PROVIDER"],
+      "discovery": "OFFICIAL_API_OR_OPEN_ACCESS_DATASET",
+      "api_base": "https://api.si.edu/openaccess/api/v1.0",
+      "rights_mode": "ITEM_LEVEL_CC0_MEDIA",
+      "rights_gate": "REQUIRE_CC0_DESIGNATION_AND_MEDIA_POINTER",
+      "policy_url": "https://www.si.edu/openaccess/faq"
+    },
+    {
+      "provider_id": "met_open_access",
+      "name": "The Metropolitan Museum of Art Open Access",
+      "status": "ENABLED",
+      "classes": ["MUSEUM_OPEN_ACCESS_API"],
+      "discovery": "OFFICIAL_API",
+      "api_base": "https://collectionapi.metmuseum.org/public/collection/v1",
+      "rights_mode": "PUBLIC_DOMAIN_IMAGE_FILTER",
+      "rights_gate": "REQUIRE_OPEN_ACCESS_PUBLIC_DOMAIN_MEDIA",
+      "policy_url": "https://metmuseum.github.io/"
+    },
+    {
+      "provider_id": "openverse",
+      "name": "Openverse",
+      "status": "ENABLED_DISCOVERY",
+      "classes": ["OPEN_MEDIA_INDEX", "CULTURAL_HERITAGE_AGGREGATOR"],
+      "discovery": "OFFICIAL_API",
+      "api_base": "https://api.openverse.org/v1",
+      "rights_mode": "INDEXED_PER_ITEM_LICENSE",
+      "rights_gate": "VERIFY_LICENSE_AT_ORIGINAL_SOURCE_BEFORE_DERIVATION",
+      "policy_url": "https://docs.openverse.org/",
+      "notes": "Discovery result is never sufficient license authority by itself."
+    },
+    {
+      "provider_id": "wikimedia_commons",
+      "name": "Wikimedia Commons",
+      "status": "ENABLED",
+      "classes": ["OPEN_MEDIA_INDEX", "CULTURAL_HERITAGE_AGGREGATOR"],
+      "discovery": "MEDIAWIKI_API",
+      "api_base": "https://commons.wikimedia.org/w/api.php",
+      "rights_mode": "PER_ITEM_FREE_LICENSE_OR_PUBLIC_DOMAIN",
+      "rights_gate": "VERIFY_FILE_DESCRIPTION_LICENSE_ATTRIBUTION_SHAREALIKE_AND_NONCOPYRIGHT_RESTRICTIONS",
+      "policy_url": "https://commons.wikimedia.org/wiki/Commons:Reusing_content_outside_Wikimedia"
+    },
+    {
+      "provider_id": "europeana",
+      "name": "Europeana",
+      "status": "ENABLED",
+      "classes": ["CULTURAL_HERITAGE_AGGREGATOR"],
+      "discovery": "OFFICIAL_API",
+      "api_base": "https://api.europeana.eu",
+      "rights_mode": "PER_OBJECT_MACHINE_READABLE_RIGHTS_STATEMENT",
+      "rights_gate": "PARSE_EDM_RIGHTS_AND_ALLOW_ONLY_DERIVATIVE_COMPATIBLE_ITEMS",
+      "policy_url": "https://pro.europeana.eu/page/available-rights-statements"
+    },
+    {
+      "provider_id": "rijksmuseum",
+      "name": "Rijksmuseum Data Services",
+      "status": "ENABLED",
+      "classes": ["MUSEUM_OPEN_ACCESS_API", "IIIF_PROVIDER"],
+      "discovery": "OFFICIAL_DATA_SERVICES",
+      "api_base": "https://data.rijksmuseum.nl",
+      "rights_mode": "MOSTLY_OPEN_WITH_ITEM_RESTRICTIONS",
+      "rights_gate": "REQUIRE_ITEM_REUSE_PERMISSION_AND_PRESERVE_RESTRICTIONS",
+      "policy_url": "https://data.rijksmuseum.nl/policy/"
+    },
+    {
+      "provider_id": "library_of_congress",
+      "name": "Library of Congress",
+      "status": "ENABLED_DISCOVERY",
+      "classes": ["LIBRARY_ARCHIVE_API", "IIIF_PROVIDER"],
+      "discovery": "OFFICIAL_JSON_YAML_API",
+      "api_base": "https://www.loc.gov",
+      "rights_mode": "PER_ITEM_RIGHTS_AND_ACCESS_ADVISORY",
+      "rights_gate": "REQUIRE_ITEM_LEVEL_REUSE_CLEARANCE",
+      "policy_url": "https://guides.loc.gov/digital-scholarship/faq",
+      "notes": "Online availability alone is not reuse permission."
+    },
+    {
+      "provider_id": "nasa_media",
+      "name": "NASA Images and Media",
+      "status": "ENABLED_CONDITIONAL",
+      "classes": ["GOVERNMENT_MEDIA_ARCHIVE", "OPEN_3D_PROVIDER"],
+      "discovery": "OFFICIAL_MEDIA_SERVICES",
+      "api_base": "https://images-api.nasa.gov",
+      "rights_mode": "GENERALLY_US_COPYRIGHT_FREE_WITH_EXCEPTIONS",
+      "rights_gate": "CHECK_LOGOS_IDENTIFIERS_THIRD_PARTY_PERSONALITY_AND_USAGE_RESTRICTIONS",
+      "policy_url": "https://www.nasa.gov/nasa-brand-center/images-and-media/"
+    }
+  ],
+  "adapter_contract": {
+    "required_fields": [
+      "provider_id",
+      "query_capability",
+      "canonical_source_url",
+      "asset_identity",
+      "rights_expression",
+      "rights_source_url",
+      "download_pointer",
+      "retrieval_limits"
+    ],
+    "must_not": [
+      "BYPASS_PROVIDER_TERMS",
+      "SCRAPE_WHEN_PROVIDER_FORBIDS_SCRAPING",
+      "TREAT_DISCOVERY_INDEX_AS_LICENSE_AUTHORITY",
+      "DOWNLOAD_UNKNOWN_RIGHTS_FOR_DERIVATION",
+      "SEND_BINARY_ASSET_BYTES_THROUGH_SLIME"
+    ]
+  }
+}
