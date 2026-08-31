@@ -1,0 +1,52 @@
+{
+  "schema": "janus.genesis.mechanic_source_registry.r0_5.v1",
+  "version": "0.5.0",
+  "purpose": "Distill rights-cleared mechanic metadata and design references into bounded Genesis mechanic recipes without executing foreign code.",
+  "allowed_recipe_kinds": [
+    "HINGE",
+    "DOOR",
+    "ELEVATOR",
+    "ROTATOR",
+    "OSCILLATOR",
+    "PARTICLE_EMITTER",
+    "BREAKABLE",
+    "BUOYANT",
+    "VEHICLE_WHEEL",
+    "NPC_PATH",
+    "TRIGGER_ZONE",
+    "ANIMATION_CLIP",
+    "COLLIDER_PROFILE"
+  ],
+  "source_classes": [
+    "LOCAL_GENESIS_RECIPE",
+    "RIGHTS_CLEARED_ASSET_METADATA",
+    "RIGHTS_CLEARED_ANIMATION_METADATA",
+    "RIGHTS_CLEARED_COLLIDER_METADATA",
+    "STATIC_REFERENCE_ONLY"
+  ],
+  "forbidden": [
+    "REMOTE_SCRIPT_EXECUTION",
+    "EVAL",
+    "DYNAMIC_MODULE_IMPORT_FROM_ASSET_PROVIDER",
+    "SHELL_COMMAND_FROM_ASSET_METADATA",
+    "PLUGIN_BINARY_EXECUTION",
+    "FOREIGN_CODE_WORLD_AUTHORITY"
+  ],
+  "distillation_receipt_required": [
+    "source_provider",
+    "source_asset_id",
+    "source_rights",
+    "source_pointer",
+    "recipe_kind",
+    "normalized_parameters",
+    "distiller_version",
+    "provenance_hash"
+  ],
+  "laws": [
+    "FOREIGN_MECHANIC_CODE_NE_EXECUTABLE_AUTHORITY",
+    "MECHANIC_REFERENCE_NE_WORLD_PERMISSION",
+    "MECHANIC_RECIPE_MUST_BE_ALLOWLISTED",
+    "SOURCE_PROVENANCE_SURVIVES_RECIPE",
+    "UNKNOWN_RIGHTS_FAIL_CLOSED"
+  ]
+}
