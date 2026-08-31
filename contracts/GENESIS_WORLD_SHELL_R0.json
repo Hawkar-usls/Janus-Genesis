@@ -1,0 +1,184 @@
+{
+  "schema": "janus.genesis.world_shell.v1",
+  "version": "1.0.0",
+  "status": "IMPLEMENTED_LOCAL_VERTICAL_SLICE_R0",
+  "title": "Genesis World Shell R0",
+  "purpose": "Make the Genesis Pages root a playable procedural-world vertical slice while preserving one shared canonical world, personal presentation mirrors, cause-first storage, and strict renderer/authority separation.",
+  "execution_overlay": {
+    "kind": "VERTICAL_SLICE_OVERLAY",
+    "preserves_frozen_kernel_roadmap": true,
+    "current_front": "WORLD_SHELL_R0",
+    "reason": "Material, mesh, architecture, effects, audio, persistence and mirror rendering must prove interoperability inside a lived world before isolated forge promotion."
+  },
+  "world_model": {
+    "world_id": "GENESIS_ONE_WORLD_R0",
+    "world_seed": "genesis-one-world-r0",
+    "shared_world_invariant": true,
+    "personal_mirror_changes_canonical_facts": false,
+    "personal_mirror_changes_presentation": true,
+    "browser_demo_authority": "LOCAL_PROTOTYPE_ONLY",
+    "networked_mmo_authority": "NOT_IMPLEMENTED",
+    "claim_boundary": "GitHub Pages demonstrates deterministic world generation, local cause persistence and mirror rendering. It does not claim a shared multiplayer server is online."
+  },
+  "chunk_lifecycle": {
+    "chunk_size_tiles": 10,
+    "visible_radius_chunks": 2,
+    "prewarm_radius_chunks": 4,
+    "states": [
+      "VISIBLE_RENDERED",
+      "PREWARM_PLAN_ONLY",
+      "RECIPE_ONLY_FAR"
+    ],
+    "far_world_materialization": false
+  },
+  "generation": {
+    "deterministic": true,
+    "canonical_inputs": [
+      "generator_version",
+      "world_seed",
+      "chunk_coordinates",
+      "explicit_world_mutations"
+    ],
+    "presentation_inputs": [
+      "mirror_profile",
+      "viewport",
+      "presentation_time"
+    ],
+    "canonical_outputs": [
+      "terrain_recipe",
+      "biome",
+      "object_plans",
+      "landmark_plans",
+      "chunk_fingerprint"
+    ],
+    "forges_in_vertical_slice": {
+      "MATERIAL_FORGE": "R0_BROWSER_RECIPE_RENDERER",
+      "MESH_FORGE": "R0_PROCEDURAL_VECTOR_OBJECT_PLANS",
+      "ARCHITECTURE_GRAMMAR": "R0_LANDMARK_PRIMITIVES",
+      "EFFECT_FORGE": "R0_PRESENTATION_WEATHER_AND_LIGHT",
+      "AUDIO_FORGE": "HELIOS_DERIVED_R0_EXISTING"
+    }
+  },
+  "personal_mirror": {
+    "profiles": [
+      "ORIGIN",
+      "NOCTURNE",
+      "AETHER",
+      "EMBER"
+    ],
+    "may_change": [
+      "palette",
+      "fog",
+      "lighting",
+      "material_shading",
+      "procedural_object_styling",
+      "audio_presentation_bias"
+    ],
+    "may_not_change": [
+      "world_id",
+      "world_seed",
+      "chunk_coordinates",
+      "canonical_object_positions",
+      "canonical_object_types",
+      "chronicle_events",
+      "world_mutations"
+    ]
+  },
+  "chronicle": {
+    "event_chain": true,
+    "preferred_hash": "SHA-256",
+    "event_sequence_is_canonical_in_local_slice": true,
+    "wall_clock_required": false,
+    "events": [
+      "CHUNK_DISCOVERED",
+      "PLAYER_MARK_PLACED"
+    ]
+  },
+  "save_contract": {
+    "storage": "browser_localStorage_for_R0_only",
+    "stores_causes": true,
+    "stored_fields": [
+      "schema",
+      "generator_version",
+      "world_id",
+      "world_seed",
+      "player_position",
+      "mirror_profile",
+      "discovered_chunk_coordinates",
+      "explicit_world_mutations",
+      "chronicle_hash_chain"
+    ],
+    "rendered_pixels_persisted": false,
+    "generated_textures_persisted": false,
+    "generated_mesh_buffers_persisted": false,
+    "audio_pcm_persisted": false
+  },
+  "authority_boundary": {
+    "renderer_is_authority": false,
+    "mirror_is_authority": false,
+    "audio_is_authority": false,
+    "player_intent_reducer_may_create_local_demo_mutation": true,
+    "local_demo_mutation_is_network_canonical": false,
+    "hidden_human_telemetry": false,
+    "arbitrary_code_execution": false,
+    "runtime_cross_repo_network_dependency": false
+  },
+  "design_lineage": [
+    {
+      "name": "PAROGRAD_STREAMING_PATTERN",
+      "kind": "CONCEPTUAL_LINEAGE",
+      "adopted": "visible / prewarm / recipe-only world rings",
+      "code_imported": false
+    },
+    {
+      "name": "KKRIEGER_PROCEDURAL_CONTENT_PATTERN",
+      "kind": "CONCEPTUAL_LINEAGE",
+      "adopted": "store generator + recipe + parameters + seed instead of only rendered assets",
+      "code_imported": false
+    }
+  ],
+  "janus_organs": [
+    {
+      "repo": "Hawkar-usls/Janus_Genesis",
+      "role": "game/world organ and one-world Chronicle domain",
+      "source": "docs/GENESIS_V18_ONE_WORLD.md",
+      "runtime_dependency": true
+    },
+    {
+      "repo": "Hawkar-usls/Janus-HELIOS",
+      "source_commit": "f04fd291835998491f244ac4bee2fa708e2f7705",
+      "role": "procedural WebAudio design lineage already adapted into genesis-audio-forge.js",
+      "runtime_dependency": false
+    },
+    {
+      "repo": "Hawkar-usls/janus-lapis",
+      "source_commit": "62d20d7a5c08f8a733b2b755b31ef7404d71803c",
+      "role": "fail-closed deterministic JSON-to-IR design lineage for future recipe distillation",
+      "runtime_dependency": false
+    },
+    {
+      "repo": "Hawkar-usls/Janus-Demiurge",
+      "source_commit": "bf0597a39d6bd92536c6077a76f1d53261c842f0",
+      "role": "reserved future external authority/reconciliation integration surface; not required by Pages R0",
+      "runtime_dependency": false
+    },
+    {
+      "repo": "Hawkar-usls/Janus_Genesis",
+      "source_commit": "eee773befa94183e02d2b09927bac413f72bff57",
+      "role": "PHYSARIUS Asset Trunk fallback for rights-safe external assets when procedural generation is insufficient",
+      "runtime_dependency": false
+    }
+  ],
+  "laws": [
+    "ONE_WORLD_MANY_MIRRORS",
+    "CANONICAL_FACTS_NE_PERSONAL_PRESENTATION",
+    "VISIBLE_PREWARM_RECIPE_ONLY",
+    "STORE_CAUSES_NOT_RENDERED_CONSEQUENCES",
+    "SAME_CAUSES_EQ_SAME_CANONICAL_CHUNK_PLAN",
+    "MIRROR_CHANGE_NE_WORLD_MUTATION",
+    "PLAYER_ACTION_NE_RENDERER_ACTION",
+    "LOCAL_PAGES_SLICE_NE_ONLINE_MMO_AUTHORITY",
+    "JANUS_ORGANS_CONNECT_BY_CONTRACT_NOT_HIDDEN_COUPLING",
+    "PROVENANCE_SURVIVES_GENERATION"
+  ]
+}

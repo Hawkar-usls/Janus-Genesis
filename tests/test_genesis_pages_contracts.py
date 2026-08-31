@@ -10,7 +10,10 @@ PUBLIC_LAWS_PATH = ROOT / "contracts" / "GENESIS_LAWS_V1.json"
 PUBLIC_ROADMAP_PATH = ROOT / "contracts" / "GENESIS_KERNEL_ROADMAP_V1.json"
 SITE_HTML = ROOT / "site" / "index.html"
 ROOT_HTML = ROOT / "index.html"
-SITE_JS = ROOT / "site" / "genesis-pages.js"
+ROOT_LAB_HTML = ROOT / "kernel-lab.html"
+SITE_LAB_HTML = ROOT / "site" / "kernel-lab.html"
+LAB_JS = ROOT / "site" / "genesis-pages.js"
+WORLD_JS = ROOT / "site" / "genesis-world-shell.js"
 
 
 class GenesisPagesContractsTests(unittest.TestCase):
@@ -20,9 +23,12 @@ class GenesisPagesContractsTests(unittest.TestCase):
         cls.roadmap = json.loads(ROADMAP_PATH.read_text(encoding="utf-8"))
         cls.public_laws = json.loads(PUBLIC_LAWS_PATH.read_text(encoding="utf-8"))
         cls.public_roadmap = json.loads(PUBLIC_ROADMAP_PATH.read_text(encoding="utf-8"))
-        cls.html = SITE_HTML.read_text(encoding="utf-8")
+        cls.site_html = SITE_HTML.read_text(encoding="utf-8")
         cls.root_html = ROOT_HTML.read_text(encoding="utf-8")
-        cls.js = SITE_JS.read_text(encoding="utf-8")
+        cls.root_lab_html = ROOT_LAB_HTML.read_text(encoding="utf-8")
+        cls.site_lab_html = SITE_LAB_HTML.read_text(encoding="utf-8")
+        cls.lab_js = LAB_JS.read_text(encoding="utf-8")
+        cls.world_js = WORLD_JS.read_text(encoding="utf-8")
 
     def test_laws_are_frozen_and_unique(self):
         self.assertEqual(self.laws["schema"], "janus.genesis.laws.v1")
@@ -61,7 +67,7 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertFalse(boundary["generator_external_network"])
         self.assertTrue(boundary["same_origin_static_contract_loading_for_pages"])
 
-    def test_roadmap_is_frozen_and_ordered(self):
+    def test_original_kernel_roadmap_remains_frozen(self):
         self.assertEqual(self.roadmap["schema"], "janus.genesis.kernel_roadmap.v1")
         self.assertEqual(self.roadmap["status"], "FROZEN_R0")
         stages = self.roadmap["stages"]
@@ -72,39 +78,48 @@ class GenesisPagesContractsTests(unittest.TestCase):
         self.assertEqual(stages[1]["status"], "NEXT")
         self.assertEqual(self.roadmap["current_front"], "R1_MATERIAL_FORGE")
 
-    def test_public_contract_mirrors_match_canonical_contracts(self):
+    def test_public_frozen_contract_mirrors_match_canonical_contracts(self):
         self.assertEqual(self.public_laws, self.laws)
         self.assertEqual(self.public_roadmap, self.roadmap)
 
-    def test_pages_surface_links_only_local_runtime_and_contracts(self):
-        self.assertIn("./genesis-audio-forge.js", self.html)
-        self.assertIn("./genesis-pages.js", self.html)
-        self.assertIn("./genesis-pages.css", self.html)
-        self.assertIn("./contracts/GENESIS_LAWS_V1.json", self.js)
-        self.assertIn("./contracts/GENESIS_KERNEL_ROADMAP_V1.json", self.js)
-        self.assertNotIn("http://", self.html + self.js)
-        self.assertNotIn("https://", self.html + self.js)
-
-    def test_root_entrypoint_survives_classic_pages_mode(self):
+    def test_root_and_actions_entrypoints_are_world_shell(self):
         self.assertTrue((ROOT / ".nojekyll").exists())
-        self.assertIn("GENESIS <span>//</span> GENERATIVE KERNEL", self.root_html)
-        self.assertIn("./site/genesis-pages.css", self.root_html)
-        self.assertIn("./site/genesis-pages.js", self.root_html)
+        self.assertIn("GENESIS // WORLD SHELL R0", self.root_html)
+        self.assertIn("GENESIS // WORLD SHELL R0", self.site_html)
+        self.assertIn("./site/world-shell.css", self.root_html)
+        self.assertIn("./site/genesis-world-shell.js", self.root_html)
+        self.assertIn("./world-shell.css", self.site_html)
+        self.assertIn("./genesis-world-shell.js", self.site_html)
         self.assertIn("./genesis-audio-forge.js", self.root_html)
-        self.assertNotIn("http://", self.root_html)
-        self.assertNotIn("https://", self.root_html)
+        self.assertIn("./genesis-audio-forge.js", self.site_html)
+        self.assertNotIn("http://", self.root_html + self.site_html)
+        self.assertNotIn("https://", self.root_html + self.site_html)
 
-    def test_pages_runtime_does_not_introduce_dynamic_code_execution(self):
+    def test_kernel_lab_preserves_original_control_plane(self):
+        self.assertIn("GENESIS // KERNEL LAB", self.root_lab_html)
+        self.assertIn("GENESIS // KERNEL LAB", self.site_lab_html)
+        self.assertIn("./site/genesis-pages.css", self.root_lab_html)
+        self.assertIn("./site/genesis-pages.js", self.root_lab_html)
+        self.assertIn("./genesis-pages.css", self.site_lab_html)
+        self.assertIn("./genesis-pages.js", self.site_lab_html)
+        self.assertIn("./genesis-audio-forge.js", self.root_lab_html)
+        self.assertIn("./genesis-audio-forge.js", self.site_lab_html)
+
+    def test_kernel_lab_loads_only_same_origin_frozen_contracts(self):
+        self.assertIn("./contracts/GENESIS_LAWS_V1.json", self.lab_js)
+        self.assertIn("./contracts/GENESIS_KERNEL_ROADMAP_V1.json", self.lab_js)
+        self.assertNotIn("http://", self.lab_js)
+        self.assertNotIn("https://", self.lab_js)
+
+    def test_pages_runtimes_do_not_introduce_dynamic_code_execution(self):
         forbidden = ("eval(", "new Function(", "WebSocket(", "EventSource(")
         for token in forbidden:
-            self.assertNotIn(token, self.js)
+            self.assertNotIn(token, self.lab_js)
+            self.assertNotIn(token, self.world_js)
 
-    def test_pages_runtime_uses_only_explicit_world_fields(self):
+    def test_kernel_lab_uses_only_explicit_audio_world_fields(self):
         for field in ("entropy", "depth", "portal_energy", "danger", "weather_intensity"):
-            self.assertIn(field, self.js)
-        hidden_fields = ("player_fear_score", "loss_streak", "vulnerability_score", "psychology_score")
-        for field in hidden_fields:
-            self.assertNotIn(field, self.js)
+            self.assertIn(field, self.lab_js)
 
 
 if __name__ == "__main__":

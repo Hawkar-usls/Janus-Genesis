@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Genesis Generative Kernel Lab R0: frozen laws, kernel roadmap, deterministic world-state preview, and HELIOS-derived Audio Forge.">
+  <title>GENESIS // KERNEL LAB R0</title>
+  <link rel="stylesheet" href="./site/genesis-pages.css">
+</head>
+<body>
+  <canvas id="world-field" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+
+  <header class="hero shell">
+    <div class="eyebrow">JANUS GENESIS / KERNEL LAB / R0</div>
+    <h1>GENESIS <span>//</span> KERNEL LAB</h1>
+    <p class="axiom">STORE CAUSES, NOT ONLY RENDERED CONSEQUENCES</p>
+    <div class="formula-row" aria-label="core formulas">
+      <code>CONTENT ≠ STORED BYTES</code>
+      <code>CONTENT = GENERATOR + RECIPE + PARAMETERS + SEED</code>
+      <code>STREAM WHEN NECESSARY ∥ GENERATE WHEN CHEAPER</code>
+    </div>
+    <div class="status-line">
+      <span class="beacon"></span>
+      <strong id="page-status">BOOTING CONTROL PLANE</strong>
+      <span id="contract-version">contracts: loading</span>
+    </div>
+    <p><a href="./index.html" style="color:#70e6ff">← RETURN TO WORLD SHELL</a></p>
+  </header>
+
+  <main class="shell">
+    <section class="panel" aria-labelledby="kernel-heading">
+      <div class="section-head"><div><span class="kicker">01 / KERNEL MAP</span><h2 id="kernel-heading">Generation cores</h2></div><span class="tag">ROADMAP FROZEN R0</span></div>
+      <div id="kernel-grid" class="kernel-grid" aria-live="polite"></div>
+    </section>
+
+    <section class="two-col">
+      <article class="panel control-panel" aria-labelledby="world-heading">
+        <div class="section-head"><div><span class="kicker">02 / LIVE INPUT</span><h2 id="world-heading">World → presentation</h2></div><span class="tag safe">PRESENTATION ONLY</span></div>
+        <label class="seed-control"><span>Seed</span><input id="seed" value="genesis-pages-r0" maxlength="96" autocomplete="off" spellcheck="false"><output id="seed-hash">0</output></label>
+        <div id="world-controls" class="sliders"></div>
+        <div class="audio-controls"><button id="enable-audio" class="primary">ENABLE AUDIO FORGE</button><button id="disable-audio">MUTE</button></div>
+        <p id="audio-note" class="note">Browser audio remains OFF until you explicitly enable it.</p>
+        <div class="cue-row" aria-label="Audio Forge cues"><button data-cue="portal_open">PORTAL</button><button data-cue="discovery">DISCOVERY</button><button data-cue="danger">DANGER</button><button data-cue="resolve">RESOLVE</button></div>
+      </article>
+
+      <article class="panel" aria-labelledby="boundary-heading">
+        <div class="section-head"><div><span class="kicker">03 / AUTHORITY</span><h2 id="boundary-heading">Frozen boundary</h2></div><span class="tag deny">FAIL CLOSED</span></div>
+        <dl class="boundary-list">
+          <div><dt>WORLD → AUDIO</dt><dd class="yes">ALLOWED / BOUNDED</dd></div><div><dt>AUDIO → WORLD</dt><dd class="no">DENIED</dd></div><div><dt>HIDDEN HUMAN TELEMETRY</dt><dd class="no">FORBIDDEN</dd></div><div><dt>ARBITRARY CODE / EVAL</dt><dd class="no">FORBIDDEN</dd></div><div><dt>GENERATOR EXTERNAL NETWORK</dt><dd class="no">DEFAULT DENY</dd></div><div><dt>PROVENANCE</dt><dd class="yes">REQUIRED</dd></div>
+        </dl>
+        <div class="state-box"><div class="state-title">AUDIO FORGE STATE</div><pre id="audio-state">waiting for runtime…</pre></div>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="panel" aria-labelledby="laws-heading">
+        <div class="section-head"><div><span class="kicker">04 / CONSTITUTION</span><h2 id="laws-heading">Frozen laws</h2></div><span id="laws-count" class="tag">— LAWS</span></div>
+        <ol id="laws-list" class="laws-list"></ol>
+      </article>
+      <article class="panel" aria-labelledby="receipt-heading">
+        <div class="section-head"><div><span class="kicker">05 / RECEIPT</span><h2 id="receipt-heading">Live deterministic preview</h2></div><span class="tag">NON-CANONICAL</span></div>
+        <p class="note">This lab field is a deterministic presentation test. The playable World Shell is the root experience; this surface remains an inspection tool.</p>
+        <div class="receipt-grid"><div><span>seed_u32</span><strong id="receipt-seed">—</strong></div><div><span>world_hash</span><strong id="world-hash">—</strong></div><div><span>audio</span><strong id="receipt-audio">OFF</strong></div><div><span>next kernel</span><strong id="receipt-next">MATERIAL_FORGE</strong></div></div>
+        <div class="law-banner"><span>G-LAW-003</span><strong>RENDERER ≠ AUTHORITY</strong></div>
+      </article>
+    </section>
+  </main>
+
+  <footer class="shell footer"><span>JANUS GENESIS / KERNEL LAB R0</span><span>Inspection surface only. World Shell is the playable presentation.</span></footer>
+  <script src="./genesis-audio-forge.js"></script>
+  <script src="./site/genesis-pages.js"></script>
+</body>
+</html>
