@@ -2,60 +2,33 @@ name: Genesis R0.5.1 Provider Smoke
 
 on:
   pull_request:
-    paths:
-      - 'site/genesis-public-provider-fallback-r0-5-1.js'
-      - 'site/genesis-asset-trunk-r0-5-1.js'
-      - 'site/genesis-asset-materializer-v3.js'
-      - 'site/genesis-audio-asset-runtime-r0-5-1.js'
-      - 'site/genesis-scene-graph-executor-r0-5-1.js'
-      - 'tests/test_genesis_provider_fallback_r0_5_1.py'
-      - '.github/workflows/genesis-r051-provider-smoke.yml'
+    paths: ['site/**','tests/test_genesis_provider_fallback_r0_5_1.py','.github/workflows/genesis-r051-provider-smoke.yml']
   push:
     branches: [main]
-    paths:
-      - 'site/genesis-public-provider-fallback-r0-5-1.js'
-      - 'site/genesis-asset-trunk-r0-5-1.js'
-      - 'site/genesis-asset-materializer-v3.js'
-      - 'site/genesis-audio-asset-runtime-r0-5-1.js'
-      - 'site/genesis-scene-graph-executor-r0-5-1.js'
-      - 'tests/test_genesis_provider_fallback_r0_5_1.py'
-      - '.github/workflows/genesis-r051-provider-smoke.yml'
-
-permissions:
-  contents: read
-
+    paths: ['site/**','tests/test_genesis_provider_fallback_r0_5_1.py','.github/workflows/genesis-r051-provider-smoke.yml']
+permissions: {contents: read}
 jobs:
   provider-smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: JavaScript syntax
-        run: |
-          node --check site/genesis-public-provider-fallback-r0-5-1.js
-          node --check site/genesis-asset-trunk-r0-5-1.js
-          node --check site/genesis-asset-materializer-v3.js
-          node --check site/genesis-audio-asset-runtime-r0-5-1.js
-          node --check site/genesis-scene-graph-executor-r0-5-1.js
+        with: {python-version: '3.12'}
+      - name: Syntax public provider fallback
+        run: node --check site/genesis-public-provider-fallback-r0-5-1.js
+      - name: Syntax asset trunk
+        run: node --check site/genesis-asset-trunk-r0-5-1.js
+      - name: Syntax materializer
+        run: node --check site/genesis-asset-materializer-v3.js
+      - name: Syntax external audio
+        run: node --check site/genesis-audio-asset-runtime-r0-5-1.js
+      - name: Syntax executor overlay
+        run: node --check site/genesis-scene-graph-executor-r0-5-1.js
       - name: Provider contract tests
         run: python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
       - name: Live browser-CORS capability proof
         run: |
           node <<'NODE'
-          const targets=[
-            ['poly_haven','https://api.polyhaven.com/assets?type=textures'],
-            ['wikimedia','https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&list=allimages&ailimit=1']
-          ];
-          (async()=>{
-            for(const [name,url] of targets){
-              const r=await fetch(url,{headers:{'User-Agent':'JANUS-Genesis-R0.5.1-CI'}});
-              if(!r.ok)throw new Error(`${name} HTTP ${r.status}`);
-              const acao=r.headers.get('access-control-allow-origin');
-              if(acao!=='*')throw new Error(`${name} browser CORS not proven: ${acao}`);
-              const body=await r.text();if(!body.length)throw new Error(`${name} empty response`);
-              console.log(`${name.toUpperCase()}_CORS_PASS`,acao,body.length);
-            }
-          })().catch(e=>{console.error(e);process.exit(1)});
+          const targets=[['poly_haven','https://api.polyhaven.com/assets?type=textures'],['wikimedia','https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&list=allimages&ailimit=1']];
+          (async()=>{for(const [name,url] of targets){const r=await fetch(url,{headers:{'User-Agent':'JANUS-Genesis-R0.5.1-CI'}});if(!r.ok)throw new Error(`${name} HTTP ${r.status}`);const acao=r.headers.get('access-control-allow-origin');if(acao!=='*')throw new Error(`${name} browser CORS not proven: ${acao}`);const body=await r.text();if(!body.length)throw new Error(`${name} empty response`);console.log(`${name.toUpperCase()}_CORS_PASS`,acao,body.length);}})().catch(e=>{console.error(e);process.exit(1)});
           NODE
