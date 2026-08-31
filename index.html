@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="color-scheme" content="dark">
-  <meta name="description" content="Genesis World Shell R0 — procedural one-world vertical slice with personal mirrors, switchable 2D/3D presentation and first-person, third-person or isometric cameras.">
+  <meta name="description" content="Genesis World Shell R0 — procedural one-world vertical slice with personal mirrors, switchable cameras and a bounded text Action Forge seeded by canonical world state.">
   <title>GENESIS // WORLD SHELL R0</title>
   <link rel="stylesheet" href="./site/world-shell.css">
   <link rel="stylesheet" href="./site/world-shell-camera.css">
+  <link rel="stylesheet" href="./site/action-forge.css">
 </head>
 <body>
   <canvas id="genesis-world" aria-label="Procedurally generated Genesis world"></canvas>
@@ -53,7 +54,7 @@
   <section id="welcome" class="center-message" aria-live="polite">
     <span class="eyebrow">THE FIRST SHORE</span>
     <h1>THE WORLD BEGINS<br>WHERE YOU WALK.</h1>
-    <p>The land ahead is generated from causes. Your Mirror decides how that one world is presented — including dimension and camera.</p>
+    <p>The land ahead is generated from causes. Walk it directly or describe an explicit action below. Your current canonical world state becomes part of the action seed.</p>
     <button id="enter-world" class="enter-button" type="button">ENTER GENESIS</button>
   </section>
 
@@ -92,8 +93,24 @@
       <div><span class="eyebrow">HASH-LINKED MEMORY</span><h2 id="chronicle-title">Chronicle</h2></div>
       <button class="close-drawer" data-close="chronicle-panel" type="button">×</button>
     </div>
-    <p>The Pages slice stores player position, discovered chunk coordinates, explicit marks and event hashes — never rendered terrain pixels, mesh buffers or audio PCM. View settings are personal presentation preferences and do not create Chronicle events.</p>
+    <p>The Pages slice stores player position, discovered chunk coordinates, explicit marks/action anchors and event hashes — never rendered terrain pixels, mesh buffers or audio PCM. View settings are personal presentation preferences and do not create Chronicle events.</p>
     <ol id="chronicle-list" class="chronicle-list"></ol>
+  </section>
+
+  <section class="action-forge" aria-label="Genesis text Action Forge">
+    <div class="action-forge-head">
+      <strong>ACTION FORGE // WORLD STATE → SEED</strong>
+      <span>EXPLICIT TEXT → BOUNDED INTENT IR → VALIDATOR → WORLD</span>
+    </div>
+    <form id="action-form" autocomplete="off">
+      <input id="action-input" type="text" maxlength="280" inputmode="text" placeholder="Напиши действие: иди на север 5 шагов / построй маяк / первое лицо / EMBER" aria-label="Describe an explicit Genesis action">
+      <button id="action-submit" type="submit">GENERATE ACTION</button>
+    </form>
+    <div class="action-forge-meta">
+      <span>WORLD STATE HASH <strong id="action-state-hash">--------</strong></span>
+      <span id="action-plan">WAITING FOR EXPLICIT PLAYER INPUT</span>
+    </div>
+    <div id="action-result" class="action-result" aria-live="polite">Text has no direct authority. Only allowlisted intent plans may execute.</div>
   </section>
 
   <div class="hud action-bar" aria-label="Gameplay actions">
@@ -120,11 +137,13 @@
 
   <footer class="world-footer">
     <span id="generator-state">BOOTING WORLD GENERATOR</span>
-    <span>CAMERA ≠ AUTHORITY // CANONICAL FACTS ≠ PERSONAL PRESENTATION</span>
+    <span>PLAYER TEXT ≠ AUTHORITY // WORLD STATE = ACTION SEED // CAMERA ≠ AUTHORITY</span>
   </footer>
 
   <noscript>Genesis World Shell requires JavaScript to generate the local procedural world.</noscript>
   <script src="./genesis-audio-forge.js"></script>
   <script src="./site/genesis-world-shell-v2.js"></script>
+  <script src="./site/genesis-action-input-ru.js"></script>
+  <script src="./site/genesis-action-forge.js"></script>
 </body>
 </html>

@@ -1,0 +1,132 @@
+.action-forge {
+  position: fixed;
+  left: 50%;
+  bottom: 96px;
+  transform: translateX(-50%);
+  z-index: 26;
+  width: min(760px, calc(100vw - 28px));
+  padding: 12px 14px 10px;
+  border: 1px solid rgba(115, 236, 255, .22);
+  background: linear-gradient(180deg, rgba(4, 10, 14, .92), rgba(2, 6, 9, .86));
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .34), inset 0 0 34px rgba(115, 236, 255, .025);
+  backdrop-filter: blur(14px);
+  border-radius: 14px;
+  color: #dcecf3;
+}
+
+.action-forge-head,
+.action-forge-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.action-forge-head strong {
+  font: 700 11px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .13em;
+  color: #73ecff;
+}
+
+.action-forge-head span,
+.action-forge-meta span,
+.action-result {
+  font: 600 9px/1.35 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .06em;
+  color: rgba(204, 226, 235, .72);
+}
+
+.action-forge form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  margin: 9px 0 8px;
+}
+
+.action-forge input {
+  min-width: 0;
+  border: 1px solid rgba(115, 236, 255, .18);
+  border-radius: 9px;
+  background: rgba(0, 0, 0, .42);
+  color: #f4fbff;
+  padding: 11px 12px;
+  outline: none;
+  font: 500 13px/1.25 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.action-forge input:focus {
+  border-color: rgba(115, 236, 255, .58);
+  box-shadow: 0 0 0 2px rgba(115, 236, 255, .08);
+}
+
+.action-forge button {
+  border: 1px solid rgba(115, 236, 255, .4);
+  border-radius: 9px;
+  background: rgba(115, 236, 255, .09);
+  color: #aef5ff;
+  padding: 0 15px;
+  font: 800 10px/1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: .1em;
+  cursor: pointer;
+}
+
+.action-forge button:hover:not(:disabled) {
+  background: rgba(115, 236, 255, .16);
+}
+
+.action-forge button:disabled {
+  opacity: .45;
+  cursor: wait;
+}
+
+.action-forge-meta {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.action-forge-meta strong {
+  color: #8ef7b8;
+}
+
+#action-plan {
+  max-width: 62%;
+  text-align: right;
+  color: #8ef7b8;
+}
+
+#action-plan.rejected {
+  color: #ff8f8f;
+}
+
+.action-result {
+  margin-top: 6px;
+  min-height: 1.2em;
+  color: #b8d6df;
+}
+
+@media (max-width: 760px) {
+  .action-forge {
+    bottom: 108px;
+    width: calc(100vw - 18px);
+    padding: 10px;
+  }
+
+  .action-forge form {
+    grid-template-columns: 1fr;
+  }
+
+  .action-forge button {
+    min-height: 38px;
+  }
+
+  .action-forge-head,
+  .action-forge-meta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  #action-plan {
+    max-width: 100%;
+    text-align: left;
+  }
+}
