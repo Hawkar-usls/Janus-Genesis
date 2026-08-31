@@ -54,6 +54,12 @@ jobs:
           python -m unittest tests.test_genesis_pages_contracts -v
           python -m unittest tests.test_genesis_world_shell -v
 
+      - name: Validate browser JavaScript syntax
+        run: |
+          node --check site/genesis-world-shell.js
+          node --check site/genesis-pages.js
+          node --check genesis-audio-forge.js
+
       - name: Stage static Pages artifact
         shell: bash
         run: |
