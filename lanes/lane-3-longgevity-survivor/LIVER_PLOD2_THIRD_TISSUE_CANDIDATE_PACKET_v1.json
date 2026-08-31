@@ -1,0 +1,67 @@
+{
+  "schema": "janus.genesis.lane3.longevity_survivor.packet.v1",
+  "packet_id": "GENESIS-LANE3-LIVER-PLOD2-THIRD-TISSUE-CANDIDATE-2026-08-31-v1",
+  "lane_id": "GENESIS_LANE_3_LONGEVITY_SURVIVOR",
+  "status": "THIRD_TISSUE_CANDIDATE_ACCEPTED_FOR_BICAMERAL_AUDIT__STRICT_ADMISSION_BLOCKED_C1_UNKNOWN",
+  "source": {
+    "repository": "Hawkar-usls/janus-lapis",
+    "branch": "LONGEVITY-SURVIVOR",
+    "source_commit": "aa87834d92807dbc68d8a13a13e24380167b70fc",
+    "path": "longevity-survivor/LIVER-PLOD2-DELAYED-MECHANICAL-LOCK-CANDIDATE-YUE-2024-v1.0.json",
+    "artifact_id": "LIVER-PLOD2-DELAYED-MECHANICAL-LOCK-CANDIDATE-YUE-2024-v1.0",
+    "doi": "10.1016/j.bbadis.2024.167205",
+    "evidence_class": "PEER_REVIEWED_ANIMAL_MECHANISTIC_THIRD_TISSUE_CANDIDATE"
+  },
+  "causal_route": "CCl4_FIBROSIS -> PLOD2_MEDIATED_COLLAGEN_CROSSLINKING -> ECM_STIFFENING; DELAYED_PLOD2_SILENCING_AT_DAY7 -> LOWER_CROSSLINKS + LOWER_AFM_STIFFNESS + LOWER_FIBROSIS",
+  "fate_contrast": {
+    "baseline": "CONTINUED_CCl4_WITH_SCRAMBLE_SIRNA",
+    "intervention": "PLOD2_SIRNA_FROM_DAY7_WITH_CONTINUED_CCl4",
+    "observed_shift": "LOWER_CROSSLINK_DENSITY_AND_STIFFNESS_WITH_ATTENUATED_FIBROSIS",
+    "strict_admission": "BLOCKED_BY_PREINTERVENTION_STATE_PROOF"
+  },
+  "timing_gate": {
+    "intervention_start": "day_7_CCl4_before_third_injection",
+    "post_intervention_window": "14_additional_days_CCl4",
+    "C1_DELAYED_AFTER_ESTABLISHMENT": "UNKNOWN",
+    "reason": "Day-7 PLOD2 upregulation is reported, but direct qualifying fibrotic/mechanical-state establishment at the exact pre-intervention boundary is not demonstrated in the accessible same root.",
+    "strict_delayed_mechanical_lock_pass": false
+  },
+  "gate_delta": {
+    "THIRD_DISTINCT_TISSUE_SEARCH": "HIGH_PRIORITY_CANDIDATE",
+    "LIVER_ECM_CROSSLINK_MECHANICS": "CAUSAL_SUPPORT_UP",
+    "STRICT_MECHANICAL_CLOCK_ADMISSION": "NO_UPGRADE_C1_UNKNOWN",
+    "MECHANICAL_CLOCK_V0_2": "PRESERVE_EXISTING_TWO_TISSUE_PASS"
+  },
+  "association_targets": [
+    "PLOD2",
+    "collagen_crosslinking",
+    "ECM_stiffness",
+    "AFM",
+    "hepatic_fibrosis",
+    "mechanical_memory",
+    "third_tissue_search",
+    "preintervention_state_proof",
+    "C1_killer_gate"
+  ],
+  "bicameral": {
+    "left_role": "STRUCTURAL_CONTEXT_C1_C5_ROOT_INTEGRITY",
+    "right_role": "ASSOCIATIVE_CONTEXT_CROSSLINK_MECHANICS_AND_REGENERATION",
+    "agreement_policy": "AGREEMENT_INCREASES_AUDIT_PRIORITY_NOT_EVIDENCE_STRENGTH",
+    "disagreement_policy": "PRESERVE_AS_FIRST_CLASS_STATE"
+  },
+  "claim_ceiling": [
+    "FOUR_OF_FIVE_NE_ADMITTED",
+    "PLOD2_UPREGULATION_NE_ESTABLISHED_FIBROTIC_MECHANICAL_STATE",
+    "NEW_ROOT_IN_EXISTING_TISSUE_NE_NEW_TISSUE",
+    "THIRD_DISTINCT_STRICT_TISSUE_NOT_ESTABLISHED",
+    "ANIMAL_MECHANISTIC_EVIDENCE_NE_HUMAN_THERAPY"
+  ],
+  "authority": {
+    "context_transfer": "READ_ONLY",
+    "source_mutation": false,
+    "scientific_promotion": false,
+    "human_treatment_claim": false,
+    "external_effect_authority": false
+  },
+  "next_gate": "YUE_2024_DAY7_PREINTERVENTION_MECHANICAL_STATE_KILLER_AUDIT"
+}
