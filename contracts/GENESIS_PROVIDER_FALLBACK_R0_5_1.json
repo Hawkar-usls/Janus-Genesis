@@ -1,0 +1,48 @@
+{
+  "schema": "janus.genesis.provider_fallback.runtime.v1",
+  "version": "0.5.1",
+  "status": "IMPLEMENTED_CANDIDATE_R0_5_1",
+  "janus_home_is_preferred_control_plane": true,
+  "fallback": {
+    "trigger": "JANUS_HOME_UNAVAILABLE_OR_NO_RIGHTS_GATED_MATCH",
+    "browser_read_only": true,
+    "providers": ["poly_haven", "wikimedia_commons"],
+    "channels": ["material", "mesh", "audio"],
+    "mechanic_channel": "LOCAL_ALLOWLISTED_RECIPE_FORGE_ONLY",
+    "rights_allowlist": ["CC0", "PUBLIC_DOMAIN", "CC-BY", "CC-BY-SA"],
+    "wikimedia_anonymous_cors": "origin=*",
+    "binary_bytes_through_slime": false,
+    "canonical_world_contains_provider_binary": false
+  },
+  "attribution": {
+    "local_ledger": "janus.genesis.asset_attribution_r0_5_1",
+    "cc_by_and_cc_by_sa_recorded": true,
+    "source_url_recorded": true,
+    "license_url_recorded_when_available": true,
+    "author_recorded_when_available": true,
+    "provider_binary_is_not_canonical": true
+  },
+  "audio": {
+    "external_audio_requires_existing_user_audio_enable": true,
+    "max_external_clip_seconds": 20,
+    "default_external_clip_seconds": 10,
+    "helios_fallback_preserved": true,
+    "autoplay_without_user_gesture": false
+  },
+  "authority": {
+    "provider_result_is_world_authority": false,
+    "provider_metadata_is_command": false,
+    "foreign_code_execution": false,
+    "genesis_validator_required": true
+  },
+  "laws": [
+    "JANUS_FIRST_PUBLIC_PROVIDER_FALLBACK_SECOND",
+    "PUBLIC_PROVIDER_FALLBACK_IS_READ_ONLY_DATA_PLANE",
+    "RIGHTS_GATE_BEFORE_PROVIDER_BINARY",
+    "ATTRIBUTION_SURVIVES_DISTILLATION",
+    "SLIME_CONTROL_PLANE_NE_BINARY_BYTES",
+    "PROVIDER_BINARY_NE_CANONICAL_WORLD",
+    "FOREIGN_CODE_EXECUTION_FORBIDDEN",
+    "PROCEDURAL_FALLBACK_SURVIVES_PROVIDER_FAILURE"
+  ]
+}
