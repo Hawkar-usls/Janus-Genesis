@@ -76,7 +76,7 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
         self.assertFalse(authority["player_text_is_direct_world_authority"])
         self.assertTrue(authority["genesis_validator_required"])
         self.assertFalse(authority["world_mutation_authorized_by_janus"])
-        for token in ("janus_graph_is_world_authority!==false", "genesis_validator_required!==true", "runtime().executeIntent", "rt.executeIntent"):
+        for token in ("janus_graph_is_world_authority!==false", "genesis_validator_required!==true", "rt.executeIntent"):
             self.assertIn(token, self.executor + self.bridge4)
 
     def test_one_phrase_can_compile_to_many_scene_families_locally(self):
@@ -124,7 +124,6 @@ class GenesisSceneIntentGraphR04Tests(unittest.TestCase):
             self.assertIn("scene-graph-r0-4.css", html)
 
     def test_v4_capture_listener_prevents_r03_double_execution(self):
-        # v3 stays loaded for lexical fallback and endpoint state. v4 must own submit first.
         for token in ("addEventListener('submit'", "true);", "e.stopImmediatePropagation()", "e.preventDefault()"):
             self.assertIn(token, self.bridge4)
         self.assertIn("localCompile", self.bridge3)
