@@ -1,0 +1,64 @@
+{
+  "schema": "janus.genesis.topa.edge_pass.v1",
+  "artifact_id": "JANUS-GENESIS-TOPA-EDGE-PASS-2026-09-01-v1.0",
+  "recorded_date": "2026-09-01",
+  "parent_atlas": "TOPA_HUMAN_INVENTION_ATLAS-v1.0.json",
+  "purpose": "Second-pass capture of rare mechanisms outside the obvious procedural-world lineage.",
+  "entries": [
+    {
+      "id": "BABA_IS_YOU",
+      "priority": "P0",
+      "mechanism": "Rules of the local world are represented as physical manipulable objects; rearranging a sentence rewrites the active rule table immediately.",
+      "genesis_use": "Create explicitly bounded Rule Chambers where Players can discover and manipulate local laws without receiving authority over Genesis infrastructure. Useful for magic, laboratories, puzzles and Player-created micro-realities.",
+      "firewall": "MOVABLE_LOCAL_RULE != CANONICAL_INFRASTRUCTURE_LAW",
+      "sources": ["https://www.gamedeveloper.com/design/designing-i-baba-is-you-i-s-delightfully-innovative-rule-writing-system", "https://gdcvault.com/play/1026590/Reading-the-Rules-of-Baba"]
+    },
+    {
+      "id": "DREAMS_MEDIA_MOLECULE",
+      "priority": "P1",
+      "mechanism": "One accessible creation environment spans games, music, painting, animation, sculpture and movies, then makes those creations shareable inside the same community universe.",
+      "genesis_use": "Genesis creation language should converge rather than fragment into separate editors: the same primitives should be reusable across geometry, behavior, animation, sound and narrative.",
+      "sources": ["https://www.mediamolecule.com/games"]
+    },
+    {
+      "id": "MINECRAFT_REDSTONE",
+      "priority": "P1",
+      "mechanism": "Ordinary world materials compose into switches, circuits and Boolean logic gates, so inhabitants can build functioning machines inside the same world they inhabit.",
+      "genesis_use": "Give some Genesis materials lawful signal semantics so Players can construct behavior rather than only scenery. Machines should arise from world rules instead of a detached scripting UI when possible.",
+      "sources": ["https://education.minecraft.net/en-us/lessons/minecraft-boolean-logic", "https://education.minecraft.net/sv-se/challenges/redstone-vault"]
+    },
+    {
+      "id": "ULTIMA_ONLINE_DYNAMIC_ECOLOGY",
+      "priority": "P0_NEGATIVE_LESSON",
+      "mechanism": "An ambitious simulated resource/ecology system met real Player pressure and exposed how a plausible closed simulation can fail once humans aggressively exploit it; the original lead designer later corrected simplified folklore about the exact failure modes.",
+      "genesis_use": "Never validate ecology only in zero-player simulation. Every living subsystem needs adversarial Player-pressure tests, carrying-capacity bounds, regeneration accounting and graceful degradation.",
+      "law": "SIMULATION_STABLE_WITHOUT_PLAYERS != SIMULATION_STABLE_WITH_PLAYERS",
+      "sources": ["https://www.gdcvault.com/play/1024930/Classic-Game-Postmortem-Ultima-Online", "https://www.raphkoster.com/games/snippets/did-players-destroy-the-uo-ecology/"]
+    },
+    {
+      "id": "SPACEENGINE_REAL_PLUS_PROCEDURAL",
+      "priority": "P0",
+      "mechanism": "Known astronomical objects from catalogs coexist seamlessly with procedurally generated objects filling uncharted regions, using scientific knowledge as the grammar for generation.",
+      "genesis_use": "Do not force a choice between authored/observed truth and generative infinity. Preserve verified anchors exactly and procedurally fill only unresolved space, with provenance marking which is observed, authored, inferred or generated.",
+      "law": "KNOWN_TRUTH_ANCHOR + PROCEDURAL_UNKNOWN != PROCEDURAL_REWRITE_OF_KNOWN_TRUTH",
+      "sources": ["https://spaceengine.org/", "https://spaceengine.org/universe/real-celestial-object"]
+    },
+    {
+      "id": "PATRICKS_PARABOX",
+      "priority": "P1",
+      "mechanism": "World containers can contain other world containers, including recursively/self-referentially, while remaining interactable as objects in their parent world.",
+      "genesis_use": "Treat rooms/worldlets/mirrors as nestable addressable domains. A Player Mirror may itself contain lawful subworlds, simulations or memories without confusing them with the parent canonical domain.",
+      "firewall": "NESTED_WORLD_CONTEXT != PARENT_WORLD_AUTHORITY",
+      "sources": ["https://www.patricksparabox.com/"]
+    }
+  ],
+  "new_derived_laws": [
+    "PLAYER_CAN_EDIT_LOCAL_LAWS while INFRASTRUCTURE_LAWS_REMAIN_PROTECTED",
+    "WORLD_MATERIAL_CAN_BE_COMPUTATION",
+    "VERIFIED_ANCHORS_SHOULD_SURVIVE_PROCEDURAL_FILL",
+    "EVERY_LIVING_SYSTEM_REQUIRES_PLAYER_PRESSURE_TESTS",
+    "CREATION_TOOLS_SHOULD_SHARE_ONE_COMPOSABLE_LANGUAGE",
+    "NESTED_REALITIES_REQUIRE_EXPLICIT_DOMAIN_BOUNDARIES"
+  ],
+  "seal": "THE RAREST IDEAS ARE NOT SKINS TO COPY; THEY ARE NEW KINDS OF LEVER. GENESIS COLLECTS THE LEVERS."
+}
