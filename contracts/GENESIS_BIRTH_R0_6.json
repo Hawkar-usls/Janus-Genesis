@@ -1,0 +1,75 @@
+{
+  "schema": "janus.genesis.birth_contract.v1",
+  "contract_id": "GENESIS_BIRTH_R0_6",
+  "version": "0.6.0",
+  "status": "FROZEN_RUNTIME_OVERLAY",
+  "world_id": "GENESIS_ONE_WORLD_R0",
+  "world_seed": "genesis-one-world-r0",
+  "purpose": "A fresh Player must begin before materialized reality. The first accepted Player intent creates the canonical birth event; only then may the first chunk be discovered and the Player Mirror reveal the world.",
+  "state_machine": {
+    "fresh": "UNBORN",
+    "birth_transition": "UNBORN -> GENESIS_BIRTH_ACCEPTED -> BORN_R0_6",
+    "legacy_transition": "R0_5_SAVE -> BORN_LEGACY_R0_5",
+    "terminal_for_session": [
+      "BORN_R0_6",
+      "BORN_LEGACY_R0_5"
+    ]
+  },
+  "birth_event": {
+    "type": "GENESIS_BIRTH",
+    "exactly_once": true,
+    "previous_hash_for_first_event": "GENESIS",
+    "seed_formula": "SHA256('GENESIS_BIRTH_R0_6|' + world_seed + '|' + normalized_first_intent)",
+    "intent_hash_formula": "SHA256(normalized_first_intent)",
+    "normalization": "trim + collapse Unicode whitespace",
+    "chronicle_order": [
+      "GENESIS_BIRTH",
+      "CHUNK_DISCOVERED",
+      "FIRST_INTENT_MATERIALIZATION"
+    ]
+  },
+  "boot_gate": {
+    "reason": "R0.5 world runtime discovers the origin chunk at boot. R0.6 must prevent that discovery from becoming canonical before birth without rewriting the frozen R0.5 generator.",
+    "mechanism": "A local UNBORN_BOOT_SENTINEL temporarily marks origin chunk 0,0 as already seen before the R0.5 runtime boots. It carries no chronicle event and is removed before GENESIS_BIRTH is committed. The page then reloads from the born save, allowing the unchanged runtime to chronicle CHUNK_DISCOVERED after GENESIS_BIRTH.",
+    "canonical_fact": false,
+    "must_be_removed_before_birth_event": true,
+    "must_never_survive_born_state": true
+  },
+  "player_mirror": {
+    "unborn_projection": "VOID",
+    "born_projection": "ACTIVE_PLAYER_MIRROR",
+    "law": "MIRROR_REVEAL_MAY_CHANGE_PRESENTATION_BUT_MUST_NOT_PRECEDE_CANONICAL_BIRTH"
+  },
+  "legacy_migration": {
+    "destructive_reset": false,
+    "retroactive_birth_claim": false,
+    "preserve": [
+      "player_position",
+      "mirror_profile",
+      "camera",
+      "world_settings",
+      "discovered_chunk_coordinates",
+      "explicit_world_mutations",
+      "chronicle_hash_chain"
+    ]
+  },
+  "firewalls": [
+    "BIRTH_INTENT != CANONICAL_FACT_UNTIL_ACCEPTED",
+    "UNBORN_BOOT_SENTINEL != CANONICAL_WORLD_FACT",
+    "PLAYER_MIRROR != CANONICAL_WORLD",
+    "FIRST_RENDER_AFTER_BIRTH_EVENT",
+    "LEGACY_MIGRATION != WORLD_RESET",
+    "ONE_FRESH_SAVE -> AT_MOST_ONE_GENESIS_BIRTH"
+  ],
+  "acceptance_gates": [
+    "fresh browser storage presents the unborn veil",
+    "fresh boot writes no CHUNK_DISCOVERED chronicle event before Player birth intent",
+    "blank first intent is rejected",
+    "accepted first intent creates GENESIS_BIRTH with deterministic seed and hash-linked event",
+    "boot sentinel is removed before the birth save is committed",
+    "reload causes CHUNK_DISCOVERED only after GENESIS_BIRTH",
+    "pending first intent is replayed into the existing command/materialization pipeline after first discovery",
+    "legacy R0.5 save opens without reset and without synthetic GENESIS_BIRTH"
+  ],
+  "seal": "FIRST THERE IS NO WORLD FOR THE PLAYER TO SEE. THEN A CAUSE IS ACCEPTED. ONLY AFTER THE CAUSE MAY GENESIS BECOME VISIBLE."
+}
