@@ -11,6 +11,7 @@ on:
       - '.janus/GENESIS_COMMAND_RUNTIME_R0_3.json'
       - '.janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
       - '.janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json'
+      - '.janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json'
       - 'contracts/**'
       - 'genesis-audio-forge.js'
       - 'index.html'
@@ -24,6 +25,7 @@ on:
       - 'tests/test_genesis_command_runtime_r0_3.py'
       - 'tests/test_genesis_scene_intent_graph_r0_4.py'
       - 'tests/test_genesis_parograd_krieger_r0_5.py'
+      - 'tests/test_genesis_provider_fallback_r0_5_1.py'
       - '.github/workflows/genesis-pages.yml'
   push:
     branches: [main]
@@ -36,6 +38,7 @@ on:
       - '.janus/GENESIS_COMMAND_RUNTIME_R0_3.json'
       - '.janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
       - '.janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json'
+      - '.janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json'
       - 'contracts/**'
       - 'genesis-audio-forge.js'
       - 'index.html'
@@ -49,6 +52,7 @@ on:
       - 'tests/test_genesis_command_runtime_r0_3.py'
       - 'tests/test_genesis_scene_intent_graph_r0_4.py'
       - 'tests/test_genesis_parograd_krieger_r0_5.py'
+      - 'tests/test_genesis_provider_fallback_r0_5_1.py'
       - '.github/workflows/genesis-pages.yml'
   workflow_dispatch:
 
@@ -71,6 +75,7 @@ jobs:
 
       - name: Validate frozen contracts and active runtime overlays
         run: |
+          set -euo pipefail
           python -m unittest tests.test_genesis_pages_contracts -v
           python -m unittest tests.test_genesis_world_shell -v
           python -m unittest tests.test_genesis_action_forge -v
@@ -78,44 +83,74 @@ jobs:
           python -m unittest tests.test_genesis_command_runtime_r0_3 -v
           python -m unittest tests.test_genesis_scene_intent_graph_r0_4 -v
           python -m unittest tests.test_genesis_parograd_krieger_r0_5 -v
+          python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
           python -m json.tool .janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json >/dev/null
+          python -m json.tool .janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json >/dev/null
           python -m json.tool asset_sources/ASSET_SOURCE_REGISTRY_R0_5.json >/dev/null
           python -m json.tool asset_sources/MECHANIC_RECIPE_SOURCE_REGISTRY_R0_5.json >/dev/null
           python - <<'PY'
           import json
           from pathlib import Path
-          for name in ('GENESIS_COMMAND_RUNTIME_R0_3.json','GENESIS_SCENE_INTENT_GRAPH_R0_4.json','GENESIS_PAROGRAD_KRIEGER_R0_5.json'):
-              a=json.loads((Path('.janus')/name).read_text())
-              b=json.loads((Path('contracts')/name).read_text())
-              assert a == b, name
+          names=(
+              'GENESIS_COMMAND_RUNTIME_R0_3.json',
+              'GENESIS_SCENE_INTENT_GRAPH_R0_4.json',
+              'GENESIS_PAROGRAD_KRIEGER_R0_5.json',
+              'GENESIS_PROVIDER_FALLBACK_R0_5_1.json',
+          )
+          for name in names:
+              canonical=json.loads((Path('.janus')/name).read_text(encoding='utf-8'))
+              public=json.loads((Path('contracts')/name).read_text(encoding='utf-8'))
+              assert canonical == public, f'contract mirror drift: {name}'
           PY
 
-      - name: Validate browser JavaScript syntax
+      - name: Validate active browser runtime lineage
         run: |
-          node --check site/genesis-world-shell.js
-          node --check site/genesis-world-shell-v2.js
-          node --check site/genesis-action-input-ru.js
-          node --check site/genesis-action-forge.js
-          node --check site/genesis-world-runtime-v3.js
-          node --check site/genesis-world-runtime-v4.js
-          node --check site/genesis-world-runtime-v5.js
-          node --check site/genesis-janus-bridge-v1.js
-          node --check site/genesis-command-bridge-v2.js
-          node --check site/genesis-command-bridge-v3.js
-          node --check site/genesis-command-lexicon-r0-5.js
-          node --check site/genesis-asset-materializer-v1.js
-          node --check site/genesis-asset-materializer-v2.js
-          node --check site/genesis-asset-trunk-r0-5.js
-          node --check site/genesis-audio-runtime-v1.js
-          node --check site/genesis-hotkeys-v1.js
-          node --check site/genesis-hotkeys-v2.js
-          node --check site/genesis-hotkeys-v3.js
-          node --check site/genesis-mechanic-forge-r0-5.js
-          node --check site/genesis-scene-graph-executor-r0-4.js
-          node --check site/genesis-scene-graph-executor-r0-5.js
-          node --check site/genesis-command-bridge-v4.js
-          node --check site/genesis-command-bridge-v5.js
-          node --check site/genesis-pages.js
+          set -euo pipefail
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path, PurePosixPath
+
+          class Refs(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.scripts=[]; self.styles=[]
+              def handle_starttag(self, tag, attrs):
+                  a=dict(attrs)
+                  if tag=='script' and a.get('src'): self.scripts.append(a['src'])
+                  if tag=='link' and a.get('href') and a.get('rel','').lower()=='stylesheet': self.styles.append(a['href'])
+
+          def parse(path):
+              p=Refs(); p.feed(Path(path).read_text(encoding='utf-8')); return p
+          def local(ref):
+              return ref and not ref.startswith(('http://','https://','//','data:','#'))
+          def basename(ref):
+              clean=ref.split('?',1)[0].split('#',1)[0]
+              return PurePosixPath(clean).name
+
+          site=parse('site/index.html')
+          root=parse('index.html')
+          site_scripts=[basename(x) for x in site.scripts if local(x)]
+          root_scripts=[basename(x) for x in root.scripts if local(x)]
+          site_styles=[basename(x) for x in site.styles if local(x)]
+          root_styles=[basename(x) for x in root.styles if local(x)]
+          assert site_scripts, 'site/index.html has no local runtime scripts'
+          assert site_scripts == root_scripts, f'root/site script lineage drift: {root_scripts} != {site_scripts}'
+          assert site_styles == root_styles, f'root/site stylesheet lineage drift: {root_styles} != {site_styles}'
+          for ref in site.scripts + site.styles:
+              if not local(ref): continue
+              clean=ref.split('?',1)[0].split('#',1)[0]
+              target=(Path('site')/clean).resolve()
+              site_root=Path('site').resolve()
+              try: target.relative_to(site_root)
+              except ValueError: raise AssertionError(f'path escapes site/: {ref}')
+              assert target.is_file() and target.stat().st_size > 0, f'missing active dependency: {target}'
+          Path('/tmp/genesis-active-js.txt').write_text('\n'.join(str((Path('site')/x.split('?',1)[0].split('#',1)[0]).resolve()) for x in site.scripts if local(x) and basename(x).endswith('.js'))+'\n',encoding='utf-8')
+          print('ACTIVE_RUNTIME_SCRIPTS', *site_scripts, sep='\n- ')
+          print('ACTIVE_RUNTIME_STYLES', *site_styles, sep='\n- ')
+          PY
+          while IFS= read -r js; do
+            test -n "$js" || continue
+            node --check "$js"
+          done < /tmp/genesis-active-js.txt
           node --check genesis-audio-forge.js
 
       - name: Stage static Pages artifact
@@ -134,9 +169,39 @@ jobs:
           cp .janus/GENESIS_COMMAND_RUNTIME_R0_3.json _site/contracts/GENESIS_COMMAND_RUNTIME_R0_3.json
           cp .janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json _site/contracts/GENESIS_SCENE_INTENT_GRAPH_R0_4.json
           cp .janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json _site/contracts/GENESIS_PAROGRAD_KRIEGER_R0_5.json
+          cp .janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json _site/contracts/GENESIS_PROVIDER_FALLBACK_R0_5_1.json
+          printf '%s\n' "${GITHUB_SHA}" > _site/GENESIS_DEPLOY_COMMIT.txt
           touch _site/.nojekyll
-          for f in index.html kernel-lab.html genesis-world-runtime-v5.js genesis-command-lexicon-r0-5.js genesis-asset-trunk-r0-5.js genesis-hotkeys-v3.js genesis-mechanic-forge-r0-5.js genesis-scene-graph-executor-r0-5.js genesis-command-bridge-v5.js genesis-audio-runtime-v1.js genesis-asset-materializer-v2.js scene-graph-r0-4.css; do test -s "_site/$f"; done
-          for f in GENESIS_LAWS_V1.json GENESIS_KERNEL_ROADMAP_V1.json GENESIS_WORLD_SHELL_R0.json GENESIS_ACTION_FORGE_R0.json GENESIS_FULL_RUNTIME_V1.json GENESIS_COMMAND_RUNTIME_R0_3.json GENESIS_SCENE_INTENT_GRAPH_R0_4.json GENESIS_PAROGRAD_KRIEGER_R0_5.json; do test -s "_site/contracts/$f"; done
+          for f in index.html kernel-lab.html genesis-world-runtime-v5.js genesis-command-bridge-v5.js genesis-asset-materializer-v3.js genesis-public-provider-fallback-r0-5-1.js genesis-asset-trunk-r0-5-1.js genesis-audio-asset-runtime-r0-5-1.js genesis-scene-graph-executor-r0-5-1.js; do test -s "_site/$f"; done
+          for f in GENESIS_LAWS_V1.json GENESIS_KERNEL_ROADMAP_V1.json GENESIS_WORLD_SHELL_R0.json GENESIS_ACTION_FORGE_R0.json GENESIS_FULL_RUNTIME_V1.json GENESIS_COMMAND_RUNTIME_R0_3.json GENESIS_SCENE_INTENT_GRAPH_R0_4.json GENESIS_PAROGRAD_KRIEGER_R0_5.json GENESIS_PROVIDER_FALLBACK_R0_5_1.json; do test -s "_site/contracts/$f"; done
+
+      - name: Audit staged artifact dependencies
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from html.parser import HTMLParser
+          from pathlib import Path
+          import subprocess
+
+          class Refs(HTMLParser):
+              def __init__(self):
+                  super().__init__(); self.refs=[]
+              def handle_starttag(self, tag, attrs):
+                  a=dict(attrs)
+                  if tag=='script' and a.get('src'): self.refs.append(a['src'])
+                  if tag=='link' and a.get('href') and a.get('rel','').lower()=='stylesheet': self.refs.append(a['href'])
+
+          root=Path('_site').resolve(); p=Refs(); p.feed((root/'index.html').read_text(encoding='utf-8'))
+          for ref in p.refs:
+              if ref.startswith(('http://','https://','//','data:','#')): continue
+              clean=ref.split('?',1)[0].split('#',1)[0]
+              target=(root/clean).resolve()
+              try: target.relative_to(root)
+              except ValueError: raise AssertionError(f'artifact path escape: {ref}')
+              assert target.is_file() and target.stat().st_size > 0, f'artifact missing dependency: {ref}'
+              if target.suffix=='.js': subprocess.run(['node','--check',str(target)],check=True)
+          print(f'ARTIFACT_DEPENDENCY_AUDIT_PASS refs={len(p.refs)}')
+          PY
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
@@ -151,9 +216,39 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Deploy artifact
         id: deployment
         uses: actions/deploy-pages@v4
+
+  verify:
+    name: Verify deployed Genesis
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Smoke live Pages
+        env:
+          PAGE_URL: ${{ needs.deploy.outputs.page_url }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          test -n "$PAGE_URL"
+          base="${PAGE_URL%/}"
+          curl -fL --retry 8 --retry-delay 3 --retry-all-errors "$PAGE_URL" -o /tmp/genesis-live.html
+          grep -F 'GENESIS' /tmp/genesis-live.html >/dev/null
+          grep -F 'genesis-world-runtime-v5.js' /tmp/genesis-live.html >/dev/null
+          grep -F 'genesis-public-provider-fallback-r0-5-1.js' /tmp/genesis-live.html >/dev/null
+          curl -fL --retry 8 --retry-delay 3 --retry-all-errors "$base/genesis-world-runtime-v5.js" -o /tmp/genesis-runtime.js
+          curl -fL --retry 8 --retry-delay 3 --retry-all-errors "$base/genesis-public-provider-fallback-r0-5-1.js" -o /tmp/genesis-provider.js
+          curl -fL --retry 8 --retry-delay 3 --retry-all-errors "$base/contracts/GENESIS_PROVIDER_FALLBACK_R0_5_1.json" -o /tmp/genesis-provider-contract.json
+          curl -fL --retry 8 --retry-delay 3 --retry-all-errors "$base/GENESIS_DEPLOY_COMMIT.txt" -o /tmp/genesis-deploy-commit.txt
+          test -s /tmp/genesis-runtime.js
+          test -s /tmp/genesis-provider.js
+          python -m json.tool /tmp/genesis-provider-contract.json >/dev/null
+          test "$(tr -d '\r\n' < /tmp/genesis-deploy-commit.txt)" = "$EXPECTED_SHA"
+          echo "GENESIS_PAGES_LIVE_PASS $PAGE_URL $EXPECTED_SHA"
