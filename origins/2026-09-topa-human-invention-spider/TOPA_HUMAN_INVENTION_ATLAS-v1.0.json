@@ -1,0 +1,333 @@
+{
+  "schema": "janus.genesis.topa.human_invention_atlas.v1",
+  "artifact_id": "JANUS-GENESIS-TOPA-HUMAN-INVENTION-ATLAS-2026-09-01-v1.0",
+  "recorded_date": "2026-09-01",
+  "language": "ru",
+  "status": "ACTIVE_RESEARCH_SEED",
+  "scope": {
+    "goal": "Collect unusually original human-created mechanisms that can materially improve Janus Genesis: procedural world birth, browser-native worlds, shared reality, per-player mirrors, emergent simulation, player-created world growth, adaptive presentation, persistent traces and verifiable distributed state.",
+    "exhaustiveness_claim": false,
+    "note": "No finite pass can prove it contains every unique mechanism ever created by humans. This atlas is a high-signal seed for continued TOPA Spider expansion.",
+    "selection_rule": "Prefer mechanisms with a distinct generative or architectural idea, not merely successful games in the same genre.",
+    "ip_firewall": "Extract mechanisms and design laws only. Do not copy protected art, text, level layouts, characters, proprietary assets or source code unless an applicable license explicitly permits it. Independent Genesis implementation required."
+  },
+  "genesis_target": {
+    "shared_reality": "One canonical underlying world exists for all Players.",
+    "player_mirror": "Each Player receives a personal projection/visualization/sonification/semantic emphasis of that same underlying world.",
+    "empty_birth": "Genesis begins sparse or nearly empty and materializes as Players act, discover and create.",
+    "pages_goal": "The GitHub Pages build should be a real browser-native Genesis entrypoint, not a static promotional shell."
+  },
+  "canonical_synthesis": {
+    "world_equation": "CANONICAL_WORLD = REDUCE(EVENT_LOG, DETERMINISTIC_LAWS)",
+    "asset_equation": "WORLD_ASSET = GENERATOR + RECIPE + SEED + GENERATOR_VERSION",
+    "mirror_equation": "PLAYER_MIRROR(p) = PROJECT(CANONICAL_WORLD, PERCEPTION_MODEL[p], EXPERIENCE_STATE[p])",
+    "story_equation": "STORY = NARRATIVE_PROJECTION(TRACE(WORLD_SIMULATION))",
+    "chunk_identity": "CHUNK_ID = HASH(parent_state, recipe, seed, generator_version, accepted_events)",
+    "multiplayer_equation": "PLAYER_INTENTS -> VALIDATED_EVENTS -> CONVERGENT_SHARED_STATE -> PERSONAL_PROJECTIONS",
+    "core_firewalls": [
+      "PERSONAL_PROJECTION != PRIVATE_CANONICAL_REALITY",
+      "PLAYER_CREATION != INFRASTRUCTURE_AUTHORITY",
+      "ADAPTIVE_PRESENTATION != FACT_MUTATION",
+      "PROCEDURAL_RECIPE != COPIED_ASSET",
+      "EMERGENT_HISTORY != PREWRITTEN_BRANCH_TREE"
+    ]
+  },
+  "inheritance_atlas": [
+    {
+      "id": "PAROGRAD_CITY_OF_STEAM",
+      "year": "2012-2013",
+      "class": "browser_native_world",
+      "priority": "P0",
+      "unique_mechanism": "A visually substantial 3D MMORPG delivered directly in the browser under severe client and rendering budgets. Developers described open public scenes targeted below roughly 400 static-object draw calls, dynamic mesh combining for armor and very small downloaded world content; contemporary coverage reported four large zones plus about 80 instanced dungeons at roughly 70 MB.",
+      "genesis_inheritance": ["Pages must launch the actual world", "hard byte/draw-call budgets are architecture, not late optimization", "stream and synthesize instead of shipping a giant asset pack", "scale visual quality to client capability"],
+      "sources": ["https://discussions.unity.com/t/indie-browser-mmo-city-of-steam/478108", "https://www.engadget.com/2012-06-27-massively-exclusive-seeing-the-sights-in-city-of-steam.html", "https://www.gamer.ru/ru/games/city-of-steam/info"]
+    },
+    {
+      "id": "KKRIEGER_FARBRAUSCH",
+      "year": "2000-2004",
+      "class": "procedural_representation",
+      "priority": "P0",
+      "unique_mechanism": "Store construction history and generator operations instead of finished textures/models/audio. The tiny executable expands its world at runtime; bespoke authoring tools made generator-first content creation practical.",
+      "genesis_inheritance": ["recipe/provenance instead of heavy assets", "procedural geometry + materials + audio", "generator-first editor tooling", "treat size limits as a creative design constraint"],
+      "sources": ["https://github.com/farbrausch/fr_public", "https://github.com/jaromil/kkrieger-werkkzeug3", "https://newsroom.activisionblizzard.com/p/a-brief-history-of-the-worlds-smallest"]
+    },
+    {
+      "id": "TOWNSCAPER_WFC",
+      "year": "2020",
+      "class": "intent_to_form",
+      "priority": "P0",
+      "unique_mechanism": "The Player places a minimal intent while local constraints choose compatible architecture, decorations and special recipes. Irregular grids, Wave Function Collapse and marching-cube-like fitting let a tiny action bloom into coherent form.",
+      "genesis_inheritance": ["Player draws intent; Genesis completes form", "local edits may re-evaluate connected context", "hidden discoverable construction recipes", "hand-authored primitives + procedural assembly"],
+      "sources": ["https://www.gamedeveloper.com/game-platforms/how-townscaper-works-a-story-four-games-in-the-making", "https://oskarstalberg.com/Townscaper/"]
+    },
+    {
+      "id": "DWARF_FORTRESS",
+      "year": "2006-present",
+      "class": "simulated_history",
+      "priority": "P0",
+      "unique_mechanism": "World generation continues into a large zero-player strategy simulation; civilizations, sites, agents and events generate a history whose record becomes lore rather than lore being the sole cause of events.",
+      "genesis_inheritance": ["simulate first, narrate second", "chronicle is a projection of event history", "ruins/artifacts should have causal provenance", "world can acquire history before/without a Player watching"],
+      "sources": ["https://dwarffortresswiki.org/index.php/World", "https://dwarffortresswiki.org/index.php/World_generation"]
+    },
+    {
+      "id": "EVERYTHING_DAVID_OREILLY",
+      "year": "2017",
+      "class": "observer_embodiment",
+      "priority": "P0",
+      "unique_mechanism": "Anything visible can become the Player's embodiment; the same universe is experienced from radically different entities and scales, erasing the usual hard boundary between character and level.",
+      "genesis_inheritance": ["Player Mirror may depend on embodiment/scale", "one world can support radically different valid experiences", "viewpoint changes semantics without cloning canonical reality"],
+      "sources": ["https://blog.playstation.com/2016/03/08/everything-is-coming-to-ps4/", "https://store.playstation.com/en-gb/concept/222838"]
+    },
+    {
+      "id": "LUCASFILM_HABITAT",
+      "year": "1986-1990",
+      "class": "player_driven_shared_world",
+      "priority": "P0",
+      "unique_mechanism": "Early large-scale graphical shared cyberspace taught its builders that detailed central planning fails with interacting humans. They shifted from controlling outcomes to facilitating player activity and explicitly separated the infrastructure level, where reality laws live, from the percipient level users experience.",
+      "genesis_inheritance": ["Genesis facilitates rather than centrally scripts society", "Players expand the percipient world", "canonical laws remain server/authority validated", "shared world complexity should be produced largely by inhabitants"],
+      "sources": ["https://www.crockford.com/ec/lessons.html"]
+    },
+    {
+      "id": "LAMBDAMOO",
+      "year": "1990",
+      "class": "world_extensible_from_inside",
+      "priority": "P1",
+      "unique_mechanism": "A persistent multi-user world whose participants could create and program spaces, objects and characters from within the world itself rather than relying exclusively on an external editor.",
+      "genesis_inheritance": ["creation should be an in-world verb", "world authoring need not break immersion", "permissions/capabilities can govern programmable objects"],
+      "sources": ["https://onlinelibrary.wiley.com/doi/full/10.1111/j.1083-6101.1995.tb00324.x"]
+    },
+    {
+      "id": "ONE_HOUR_ONE_LIFE",
+      "year": "2018",
+      "class": "intergenerational_persistence",
+      "priority": "P1",
+      "unique_mechanism": "One Player life is deliberately tiny compared with civilization time; knowledge, construction, family lines and monuments can outlive any individual and acquire meaning across many generations.",
+      "genesis_inheritance": ["Player is a contributor to a longer world story", "inherit traces instead of resetting experience around each Player", "lineage and monuments can transmit context across sessions"],
+      "sources": ["https://www.onehouronelife.com/", "https://onehouronelife.com/forums/viewtopic.php?id=1564"]
+    },
+    {
+      "id": "ECO_STRANGE_LOOP",
+      "year": "2018",
+      "class": "society_affects_simulation",
+      "priority": "P1",
+      "unique_mechanism": "Player economy, governance and programmable laws operate inside a simulated ecosystem, making collective institutions part of the mechanics governing a shared world.",
+      "genesis_inheritance": ["social rules can become executable world rules", "world health should respond to collective behavior", "Player-created contracts/tasks/laws can be validated capabilities"],
+      "sources": ["https://store.steampowered.com/app/382310/ECO/", "https://wiki.play.eco/en/Laws"]
+    },
+    {
+      "id": "FACADE_INTERACTIVE_DRAMA",
+      "year": "2005",
+      "class": "generative_narrative",
+      "priority": "P0",
+      "unique_mechanism": "Narrative is decomposed into reactive behavior pieces and dramatic beats, then reconstructed in real time by a drama manager around moment-to-moment Player interaction rather than selected from a simple branch tree.",
+      "genesis_inheritance": ["World Director sequences beats over simulation events", "dialogue reacts locally while preserving higher-level coherence", "story content should be composable atoms"],
+      "sources": ["https://ojs.aaai.org/index.php/AIIDE/article/view/18722"]
+    },
+    {
+      "id": "LEFT4DEAD_DIRECTOR",
+      "year": "2008",
+      "class": "adaptive_experience_director",
+      "priority": "P0",
+      "unique_mechanism": "A Director adapts pacing, encounter composition and mood to Player state; a separate client-side music director can generate a different mix for each Player during the same shared session.",
+      "genesis_inheritance": ["personal pacing without forking reality", "per-Player audio/visual semantic mix", "experience-state vector drives reveal intensity", "Director may change presentation but must not falsify canonical facts"],
+      "sources": ["https://left4dead.fandom.com/wiki/The_Director"]
+    },
+    {
+      "id": "SILENT_HILL_SHATTERED_MEMORIES",
+      "year": "2009",
+      "class": "behavior_observed_personalization",
+      "priority": "P1",
+      "unique_mechanism": "The game observes ordinary Player behavior rather than only explicit menu choices and uses the evolving psychological profile to alter aspects of the experience.",
+      "genesis_inheritance": ["Mirror learns from behavior, not only settings", "personalization can be continuous and implicit", "make adaptation inspectable/consensual in Genesis rather than covertly manipulative"],
+      "sources": ["https://www.silenthillmemories.net/creators/interviews/2009.05.04_hulett_destructoid_en.htm"]
+    },
+    {
+      "id": "CREATURES_NORNS",
+      "year": "1996",
+      "class": "artificial_life_agents",
+      "priority": "P0",
+      "unique_mechanism": "Autonomous virtual organisms combine recurrent neural networks, Hebbian learning, hormonal/biochemical modulation and genetically specified traits that can mutate and recombine through reproduction.",
+      "genesis_inheritance": ["inhabitants can have internal dynamics rather than dialogue-only AI", "genes may encode development tendencies", "learning + physiology + heredity produce long-lived individuality"],
+      "sources": ["https://direct.mit.edu/artl/article/5/1/77/2314/The-Creatures-Global-Digital-Ecosystem"]
+    },
+    {
+      "id": "TIERRA_THOMAS_RAY",
+      "year": "1991",
+      "class": "digital_evolution",
+      "priority": "P1",
+      "unique_mechanism": "Self-replicating programs compete for computational resources; mutation and selection produced unplanned ecological strategies including parasites that reused replication code belonging to other organisms.",
+      "genesis_inheritance": ["allow bounded rule systems to discover behavior designers did not enumerate", "ecology can emerge from resource constraints", "evolution sandbox must be isolated from canonical infrastructure"],
+      "sources": ["https://pmc.ncbi.nlm.nih.gov/articles/PMC3605903/"]
+    },
+    {
+      "id": "KARL_SIMS_EVOLVED_VIRTUAL_CREATURES",
+      "year": "1994",
+      "class": "coevolved_body_and_mind",
+      "priority": "P0",
+      "unique_mechanism": "Genetic algorithms jointly generate creature morphology and neural control systems in a simulated 3D physical world, yielding locomotion and competitive strategies difficult to invent manually.",
+      "genesis_inheritance": ["body and behavior may emerge together", "genotype stores growth instructions rather than final mesh", "physics acts as verifier/constraint on generated organisms"],
+      "sources": ["https://dl.acm.org/doi/10.1145/192161.192167", "https://www.karlsims.com/evolved-virtual-creatures.html"]
+    },
+    {
+      "id": "CONWAY_GAME_OF_LIFE",
+      "year": "1970",
+      "class": "emergence_from_local_laws",
+      "priority": "P0",
+      "unique_mechanism": "Extremely small local state-transition rules produce unexpectedly complex persistent, moving and growing global structures without a central controller.",
+      "genesis_inheritance": ["prefer small composable laws over giant scripted behavior tables", "complexity is permitted to emerge rather than authored exhaustively", "laws should be testable independently of outcomes"],
+      "sources": ["https://www.scientificamerican.com/article/for-math-fans-some-puzzles-from-game-of-life-creator-john-conway/"]
+    },
+    {
+      "id": "NO_MANS_SKY",
+      "year": "2016",
+      "class": "continuous_procedural_universe",
+      "priority": "P0",
+      "unique_mechanism": "A small team uses continuous real-time procedural generation to create a vast traversable universe, generating terrain, texturing, population and simulation as needed while preserving a coherent shared universe.",
+      "genesis_inheritance": ["generate only what must become observable", "hierarchical deterministic seeds", "stream generation continuously around perception", "separate art grammar from individual generated assets"],
+      "sources": ["https://www.nomanssky.com/about/", "https://www.gdcvault.com/play/1024265/Continuous_World_Generation_in__No_Man_s_Sky_", "https://www.nomanssky.com/2015/02/no-mans-sky-at-gdc/"]
+    },
+    {
+      "id": "SPORE",
+      "year": "2008",
+      "class": "user_shape_to_runtime_system",
+      "priority": "P1",
+      "unique_mechanism": "Arbitrary Player-built creature shapes are converted into mesh, skeleton, procedural appearance and animation at runtime, requiring animation logic based on structure rather than a fixed humanoid rig.",
+      "genesis_inheritance": ["Player sketches can compile into functional entities", "derive skeleton/behavior from topology", "share compact parameters instead of baked assets"],
+      "sources": ["https://www.gamespot.com/articles/spore-qanda-the-creator-speaks/1100-6155540/"]
+    },
+    {
+      "id": "VIEWFINDER",
+      "year": "2023",
+      "class": "representation_becomes_geometry",
+      "priority": "P1",
+      "unique_mechanism": "A 2D image placed from a viewpoint is converted into traversable 3D reality, making representation itself an operation that edits world geometry.",
+      "genesis_inheritance": ["Player expression can materialize into world structure", "projection can be reversible and provenance-carrying", "Mirror artifacts may become proposals for canonical geometry after validation"],
+      "sources": ["https://blog.playstation.com/2023/07/18/reshape-reality-with-your-perspective-in-viewfinder-out-today/"]
+    },
+    {
+      "id": "MIEGAKURE",
+      "year": "in-development",
+      "class": "higher_dimensional_world",
+      "priority": "P2",
+      "unique_mechanism": "A consistent four-dimensional spatial world is exposed through comprehensible lower-dimensional slices, letting apparently impossible transitions remain lawful in the underlying geometry.",
+      "genesis_inheritance": ["Mirror may expose only a slice of a higher-dimensional canonical model", "apparent impossibility can be lawful under a richer substrate", "different Players may receive different valid slices"],
+      "sources": ["https://miegakure.com/"]
+    },
+    {
+      "id": "MANIFOLD_GARDEN",
+      "year": "2019",
+      "class": "alternative_physics_and_recursive_space",
+      "priority": "P2",
+      "unique_mechanism": "Space repeats infinitely and gravity orientation can be manipulated while the world remains governed by a coherent alternative rule set.",
+      "genesis_inheritance": ["world laws can be unusual yet internally invariant", "perception and gravity frames may be transformable", "barren-to-living restoration can be systemic rather than cosmetic"],
+      "sources": ["https://manifold.garden/presskit/"]
+    },
+    {
+      "id": "HYPERBOLICA",
+      "year": "2022",
+      "class": "non_euclidean_geometry",
+      "priority": "P2",
+      "unique_mechanism": "Gameplay is built inside true non-Euclidean spaces where navigation, volume and mapping obey unfamiliar but consistent geometry.",
+      "genesis_inheritance": ["Player Mirrors need not use identical spatial metric", "canonical topology may have multiple projections", "geometry itself can be a worldview parameter"],
+      "sources": ["https://store.steampowered.com/app/1256230/Hyperbolica/"]
+    },
+    {
+      "id": "EVENT_SOURCING_PARALLEL_MODELS",
+      "year": "2005",
+      "class": "canonical_state_architecture",
+      "priority": "P0",
+      "unique_mechanism": "Application state is derived from an immutable sequence of domain events; the same event history can construct alternate projections or parallel models without duplicating the source of truth.",
+      "genesis_inheritance": ["canonical reality should be reconstructible from accepted events", "Player Mirror is a projection, not a fork of truth", "past world states and counterfactual sandboxes become cheap conceptual operations", "audit/provenance is native"],
+      "sources": ["https://www.martinfowler.com/eaaDev/EventSourcing.html", "https://martinfowler.com/eaaDev/EventNarrative.html", "https://martinfowler.com/eaaDev/ParallelModel.html"]
+    },
+    {
+      "id": "CRDT_STRONG_EVENTUAL_CONSISTENCY",
+      "year": "2011",
+      "class": "convergent_multiplayer_state",
+      "priority": "P0",
+      "unique_mechanism": "Conflict-free Replicated Data Types permit unsynchronised updates while giving mathematical conditions under which replicas converge to a common correct state despite latency, faults or disconnection.",
+      "genesis_inheritance": ["multiple Players may create concurrently", "offline/local actions can merge where operation semantics permit", "use specific convergent data types rather than naive last-write-wins for world creation"],
+      "sources": ["https://www.microsoft.com/en-us/research/video/strong-eventual-consistency-and-conflict-free-replicated-data-types/"]
+    },
+    {
+      "id": "MERKLE_DAG_CONTENT_ADDRESSING",
+      "year": "modern distributed systems",
+      "class": "verifiable_world_identity",
+      "priority": "P0",
+      "unique_mechanism": "Content-addressed immutable DAG nodes derive identity from their payload and child identities; changes create new identities and the graph becomes self-verifying.",
+      "genesis_inheritance": ["hash-address generated regions and recipes", "deduplicate identical generated content", "prove ancestry/provenance of world chunks", "cache and distribute immutable building blocks"],
+      "sources": ["https://docs.ipfs.tech/concepts/merkle-dag/", "https://docs.ipfs.tech/concepts/content-addressing/"]
+    },
+    {
+      "id": "NETHACK_BONES",
+      "year": "1980s-present",
+      "class": "asynchronous_player_echo",
+      "priority": "P1",
+      "unique_mechanism": "A later adventurer may encounter a level carrying the remains, ghost, possessions and even surviving danger associated with an earlier failed run.",
+      "genesis_inheritance": ["Players leave causal echoes rather than disposable save files", "ruins can preserve both gifts and hazards", "asynchronous multiplayer can feel inhabited without simultaneous presence"],
+      "sources": ["https://nethack.org/v500/Guidebook.html"]
+    }
+  ],
+  "derived_genesis_modules": [
+    {
+      "module": "GENESIS_EVENT_CORE",
+      "inherits": ["EVENT_SOURCING_PARALLEL_MODELS", "MERKLE_DAG_CONTENT_ADDRESSING"],
+      "role": "Single canonical causal history and reproducible world state."
+    },
+    {
+      "module": "GENESIS_PLAYER_MIRROR",
+      "inherits": ["EVERYTHING_DAVID_OREILLY", "LEFT4DEAD_DIRECTOR", "SILENT_HILL_SHATTERED_MEMORIES", "MIEGAKURE"],
+      "role": "Personal projection of shared facts: visual language, audio, scale, salience, pacing and lawful viewpoint."
+    },
+    {
+      "module": "GENESIS_MATERIALIZER",
+      "inherits": ["KKRIEGER_FARBRAUSCH", "TOWNSCAPER_WFC", "NO_MANS_SKY", "SPORE"],
+      "role": "Compile Player intent + recipes + seeds into geometry, materials, organisms and sound only when needed."
+    },
+    {
+      "module": "GENESIS_LIVING_HISTORY",
+      "inherits": ["DWARF_FORTRESS", "FACADE_INTERACTIVE_DRAMA", "NETHACK_BONES", "ONE_HOUR_ONE_LIFE"],
+      "role": "Simulation emits events; chronicles, legends, ruins and dramatic beats are projections of causal history."
+    },
+    {
+      "module": "GENESIS_LIFE_LAB",
+      "inherits": ["CONWAY_GAME_OF_LIFE", "CREATURES_NORNS", "TIERRA_THOMAS_RAY", "KARL_SIMS_EVOLVED_VIRTUAL_CREATURES"],
+      "role": "Bounded artificial-life substrate where complex inhabitants can emerge from explicit testable laws."
+    },
+    {
+      "module": "GENESIS_SHARED_CREATION",
+      "inherits": ["LUCASFILM_HABITAT", "LAMBDAMOO", "ECO_STRANGE_LOOP", "CRDT_STRONG_EVENTUAL_CONSISTENCY"],
+      "role": "Players expand the lived world together while validated infrastructure laws remain protected."
+    },
+    {
+      "module": "GENESIS_BROWSER_BODY",
+      "inherits": ["PAROGRAD_CITY_OF_STEAM", "KKRIEGER_FARBRAUSCH", "NO_MANS_SKY"],
+      "role": "GitHub Pages is treated as a constrained executable world runtime with streaming, synthesis and explicit performance budgets."
+    }
+  ],
+  "implementation_order": [
+    "P0-1: Make canonical world state event-sourced and deterministically replayable.",
+    "P0-2: Define Player Mirror as a pure/controlled projection over canonical state; prohibit canonical fact mutation by personalization.",
+    "P0-3: Introduce recipe+seed+generator_version asset contracts and content hashes.",
+    "P0-4: Make first Player gesture materialize contextually coherent world structure via constrained procedural grammar.",
+    "P0-5: Add browser performance constitution: JS/WASM bytes, first-interaction latency, draw calls, active entities, memory and network budgets.",
+    "P0-6: Add World Director for per-Player pacing/audio/salience while keeping shared causal events invariant.",
+    "P1-1: Persist asynchronous traces: ruins, artifacts, monuments, echoes and inherited knowledge.",
+    "P1-2: Add convergent multi-Player creation operations with capability validation.",
+    "P1-3: Add bounded autonomous inhabitants with causal internal state and long-term history.",
+    "P2: Experiment with alternative lawful spatial projections only after shared-reality and Mirror invariants are test-covered."
+  ],
+  "topa_next_frontiers": [
+    "demoscene sizecoding lineage beyond farbrausch",
+    "Nomic and executable constitutions",
+    "MUD/MOO object capability security",
+    "artificial chemistry and open-ended evolution",
+    "procedural language/music systems",
+    "massively collaborative canvases and persistent player archaeology",
+    "deterministic lockstep and rollback multiplayer",
+    "subjective rendering, accessibility transforms and perception models",
+    "generative architecture/shape grammars",
+    "digital organisms and ecosystem carrying-capacity models"
+  ],
+  "seal": "GENESIS DOES NOT STORE EVERY WORLD. IT STORES LAWS, MEMORY, RECIPES AND WITNESSES FROM WHICH A SHARED WORLD CAN CONTINUE TO BECOME."
+}
