@@ -1,0 +1,88 @@
+{
+  "schema": "janus.genesis.free_intent_overlay.v1",
+  "contract_id": "GENESIS_FREE_INTENT_R0_8",
+  "version": "0.8.0",
+  "status": "FROZEN_RUNTIME_OVERLAY",
+  "purpose": "Allow bounded natural existential creation phrases to materialize locally when the frozen R0.3 compiler returns UNRESOLVED, so a fresh Genesis Birth does not require JANUS HOME to realize the Player's first cause.",
+  "placement": {
+    "loads_after": "genesis-command-bridge-v3.js",
+    "loads_before": "genesis-command-bridge-v5.js",
+    "wraps": "GENESIS_COMMAND_BRIDGE_V3.localCompile",
+    "base_compiler_first": true,
+    "fallback_only_on": "UNRESOLVED"
+  },
+  "grammar": {
+    "families": [
+      "RU: пусть <world proposition>",
+      "RU: пускай <world proposition>",
+      "UK: нехай <world proposition>",
+      "UK: хай <world proposition>",
+      "EN: let there be <world proposition>",
+      "EN: let there appear <world proposition>"
+    ],
+    "max_text": 4000,
+    "output_allowlist": [
+      "GENERATE_STRUCTURE",
+      "SPAWN_ENTITY",
+      "SET_ATMOSPHERE"
+    ],
+    "unknown_existential_default": "SPAWN_ENTITY:semantic_entity",
+    "known_structure_kinds": [
+      "lighthouse",
+      "castle",
+      "bridge",
+      "tower",
+      "house",
+      "wall",
+      "portal",
+      "tree",
+      "statue",
+      "road"
+    ],
+    "known_semantic_entity_kinds": [
+      "light_source",
+      "living_entity",
+      "artifact",
+      "semantic_entity"
+    ]
+  },
+  "determinism": {
+    "action_seed": "reuse action_seed emitted by frozen R0.3 UNRESOLVED result",
+    "normalization": "NFKC + lowercase + ё->е + whitespace collapse",
+    "no_randomness": true,
+    "no_model_call": true,
+    "no_network": true
+  },
+  "birth_example": {
+    "player_text": "пусть в темноте появится один тёплый огонь",
+    "expected_kind": "SPAWN_ENTITY",
+    "expected_entity_kind": "light_source",
+    "must_not_be": "UNRESOLVED"
+  },
+  "authority": {
+    "overlay_is_world_authority": false,
+    "overlay_output_is_command": false,
+    "scene_graph_validator_required": true,
+    "world_runtime_validator_required": true,
+    "arbitrary_code_allowed": false
+  },
+  "firewalls": [
+    "BASE_COMPILER_RESULT != UNRESOLVED -> R0_8_MUST_NOT_OVERRIDE",
+    "FREE_LANGUAGE != FREE_AUTHORITY",
+    "EXISTENTIAL_FALLBACK -> ALLOWLISTED_INTENT_ONLY",
+    "R0_8_COMPILER != WORLD_MUTATOR",
+    "NO_NETWORK_NO_MODEL_NO_EVAL",
+    "SAME_TEXT_AND_CANONICAL_STATE -> SAME_ACTION_SEED"
+  ],
+  "acceptance_gates": [
+    "all pre-existing R0.3 commands compile identically before and after wrapping",
+    "the frozen Birth example compiles locally while JANUS HOME is absent",
+    "non-existential unresolved text remains UNRESOLVED",
+    "fallback output is limited to the explicit intent allowlist",
+    "R0.8 performs no direct world mutation and no Chronicle write",
+    "R0.8 runtime is syntax-checked and executed in a Node sandbox",
+    "root and site Pages load R0.8 after command bridge v3 and before command bridge v5",
+    "live Pages publishes R0.8 runtime and public contract"
+  ],
+  "seal": "THE FIRST CAUSE MAY BE SPOKEN AS A WISH. GENESIS MAY INTERPRET THE WISH, BUT ONLY ITS EXISTING VALIDATORS MAY MAKE IT REAL."
+}
