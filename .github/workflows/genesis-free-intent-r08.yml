@@ -1,0 +1,135 @@
+name: Genesis Free Intent R0.8 Gate
+
+on:
+  pull_request:
+    paths:
+      - '.janus/GENESIS_FREE_INTENT_R0_8.json'
+      - 'contracts/GENESIS_FREE_INTENT_R0_8.json'
+      - 'site/genesis-free-intent-r0-8.js'
+      - 'site/genesis-command-lexicon-r0-5.js'
+      - 'tests/genesis_free_intent_r0_8_harness.js'
+      - 'GENESIS_PAGES_RELEASE.json'
+      - '.github/workflows/genesis-free-intent-r08.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.janus/GENESIS_FREE_INTENT_R0_8.json'
+      - 'contracts/GENESIS_FREE_INTENT_R0_8.json'
+      - 'site/genesis-free-intent-r0-8.js'
+      - 'site/genesis-command-lexicon-r0-5.js'
+      - 'tests/genesis_free_intent_r0_8_harness.js'
+      - 'GENESIS_PAGES_RELEASE.json'
+      - '.github/workflows/genesis-free-intent-r08.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: genesis-free-intent-r08-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  executable_contract:
+    name: Execute Free Intent R0.8 harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate frozen R0.8 contract and syntax
+        run: |
+          set -euo pipefail
+          python -m json.tool .janus/GENESIS_FREE_INTENT_R0_8.json >/dev/null
+          python -m json.tool contracts/GENESIS_FREE_INTENT_R0_8.json >/dev/null
+          python -m json.tool GENESIS_PAGES_RELEASE.json >/dev/null
+          cmp .janus/GENESIS_FREE_INTENT_R0_8.json contracts/GENESIS_FREE_INTENT_R0_8.json
+          node --check site/genesis-free-intent-r0-8.js
+          node --check site/genesis-command-lexicon-r0-5.js
+          node --check tests/genesis_free_intent_r0_8_harness.js
+
+      - name: Execute bounded existential compiler harness
+        run: |
+          set -euo pipefail
+          output="$(node tests/genesis_free_intent_r0_8_harness.js)"
+          printf '%s\n' "$output"
+          grep -F 'GENESIS_FREE_INTENT_R0_8_EXECUTABLE_HARNESS_PASS' <<<"$output" >/dev/null
+
+      - name: Prove parser overlay authority boundary
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const overlay=fs.readFileSync('site/genesis-free-intent-r0-8.js','utf8');
+          const loader=fs.readFileSync('site/genesis-command-lexicon-r0-5.js','utf8');
+          const forbidden=['fetch(','XMLHttpRequest','WebSocket(','EventSource(','eval(','new Function','chronicle(','janus.genesis.world_shell_r0.save.v1'];
+          for(const token of forbidden){if(overlay.includes(token))throw new Error(`R0.8 forbidden authority token: ${token}`);}
+          if(!overlay.includes("if(baseResult?.kind!=='UNRESOLVED')return baseResult"))throw new Error('base compiler is not first authority');
+          if(!overlay.includes("compileExistential(raw,baseResult.action_seed)||baseResult"))throw new Error('R0.8 does not preserve base seed/fallback');
+          if(!loader.includes("new URL('./genesis-free-intent-r0-8.js',current.src)"))throw new Error('R0.8 loader path missing');
+          if(!loader.includes("overlay.origin!==location.origin"))throw new Error('R0.8 loader same-origin gate missing');
+          if(!loader.includes('document.write'))throw new Error('R0.8 overlay is not synchronous before bridge v5');
+          const witness=JSON.parse(fs.readFileSync('GENESIS_PAGES_RELEASE.json','utf8'));
+          if(witness.free_intent_contract!=='contracts/GENESIS_FREE_INTENT_R0_8.json')throw new Error('release witness missing R0.8 contract');
+          if(witness.release_id!=='GENESIS-PAGES-R0.7-PLAYER-MIRROR-R0.8-FREE-INTENT-2026-09-01')throw new Error('unexpected R0.8 release id');
+          console.log('GENESIS_FREE_INTENT_R0_8_AUTHORITY_BOUNDARY_PASS');
+          NODE
+
+  verify_live:
+    name: Verify live Free Intent R0.8
+    needs: executable_contract
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout release witness
+        uses: actions/checkout@v6
+
+      - name: Wait for branch Pages and prove R0.8 chain
+        env:
+          PAGE_URL: https://hawkar-usls.github.io/Janus_Genesis/
+        run: |
+          set -euo pipefail
+          base="${PAGE_URL%/}"
+          expected='GENESIS-PAGES-R0.7-PLAYER-MIRROR-R0.8-FREE-INTENT-2026-09-01'
+          matched=0
+          for attempt in $(seq 1 24); do
+            if curl -fsSL --retry 2 --retry-delay 1 "$base/GENESIS_PAGES_RELEASE.json?release=${GITHUB_SHA}&attempt=${attempt}" -o /tmp/live-release.json; then
+              actual="$(python - <<'PY'
+          import json
+          try:
+              print(json.load(open('/tmp/live-release.json',encoding='utf-8')).get('release_id',''))
+          except Exception:
+              print('')
+          PY
+          )"
+              if [ "$actual" = "$expected" ]; then matched=1; break; fi
+            fi
+            sleep 5
+          done
+          test "$matched" = 1
+
+          curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$PAGE_URL?release=${GITHUB_SHA}" -o /tmp/genesis-live.html
+          grep -F './site/genesis-command-lexicon-r0-5.js' /tmp/genesis-live.html >/dev/null
+          curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/site/genesis-command-lexicon-r0-5.js?release=${GITHUB_SHA}" -o /tmp/genesis-lexicon.js
+          curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/site/genesis-free-intent-r0-8.js?release=${GITHUB_SHA}" -o /tmp/genesis-free-intent.js
+          curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/contracts/GENESIS_FREE_INTENT_R0_8.json?release=${GITHUB_SHA}" -o /tmp/genesis-free-intent-contract.json
+          grep -F "genesis-free-intent-r0-8.js" /tmp/genesis-lexicon.js >/dev/null
+          grep -F 'document.write' /tmp/genesis-lexicon.js >/dev/null
+          node --check /tmp/genesis-lexicon.js
+          node --check /tmp/genesis-free-intent.js
+          python -m json.tool /tmp/genesis-free-intent-contract.json >/dev/null
+          python - <<'PY'
+          import json
+          c=json.load(open('/tmp/genesis-free-intent-contract.json',encoding='utf-8'))
+          assert c['contract_id']=='GENESIS_FREE_INTENT_R0_8'
+          assert c['placement']['fallback_only_on']=='UNRESOLVED'
+          assert c['birth_example']['expected_kind']=='SPAWN_ENTITY'
+          assert c['birth_example']['expected_entity_kind']=='light_source'
+          assert c['authority']['overlay_is_world_authority'] is False
+          assert c['authority']['scene_graph_validator_required'] is True
+          assert c['authority']['world_runtime_validator_required'] is True
+          assert c['determinism']['no_network'] is True
+          assert c['determinism']['no_model_call'] is True
+          assert c['determinism']['no_randomness'] is True
+          PY
+          echo "GENESIS_FREE_INTENT_R0_8_LIVE_PASS $PAGE_URL $expected"
