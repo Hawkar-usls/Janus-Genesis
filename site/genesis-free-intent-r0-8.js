@@ -38,7 +38,18 @@
   }
 
   function localCompile(raw){const baseResult=base.localCompile(raw);if(baseResult?.kind!=='UNRESOLVED')return baseResult;return compileExistential(raw,baseResult.action_seed)||baseResult;}
-  const wrapped=new Proxy(base,{get(target,property){if(property==='localCompile')return localCompile;return Reflect.get(target,property,target);},set(){return false;},defineProperty(){return false;},deleteProperty(){return false;}});
+  const wrapped=Object.freeze({
+    version:`${base.version||'3'}+r0.8`,
+    healthCheck:base.healthCheck,
+    executeText:base.executeText,
+    configureEndpoint:base.configureEndpoint,
+    localCompile,
+    focusConsole:base.focusConsole,
+    get online(){return base.online;},
+    get endpoint(){return base.endpoint;},
+    get health(){return base.health;}
+  });
   globalThis.GENESIS_COMMAND_BRIDGE_V3=wrapped;
+  globalThis.GENESIS_COMMAND_BRIDGE_V2=wrapped;
   globalThis.GENESIS_FREE_INTENT_R0_8=Object.freeze({version:VERSION,contract:CONTRACT,compileExistential:(raw,seed='test-seed')=>compileExistential(raw,seed),localCompile});
 })();
