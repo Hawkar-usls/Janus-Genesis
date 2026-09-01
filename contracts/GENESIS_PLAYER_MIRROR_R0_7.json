@@ -31,7 +31,8 @@
     "key": "janus.genesis.player_mirror_r0_7.v1",
     "scope": "PLAYER_LOCAL_PRESENTATION",
     "allowed_in_canonical_world_state": false,
-    "allowed_in_chronicle": false
+    "allowed_in_chronicle": false,
+    "r0_5_compatibility": "runtime_mirror may update the historical mirror_profile view-preference field in the R0.5 save, but getCanonicalState excludes that field and R0.7 selection remains independently stored"
   },
   "profiles": {
     "ORIGIN": {
@@ -106,7 +107,7 @@
   ],
   "acceptance_gates": [
     "R0.7 loads only after R0.6 Birth gate and R0.5 world runtime",
-    "profile selection is stored outside canonical world save",
+    "R0.7 profile selection uses a dedicated Player-local key and is excluded from getCanonicalState() and Chronicle",
     "JANUS_16 has exactly sixteen independently chosen colors",
     "JANUS_16 uses a low-resolution presentation surface with nearest-palette remapping",
     "switching profile cannot change canonical state or fact hash",
