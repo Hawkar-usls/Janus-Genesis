@@ -1,16 +1,19 @@
 {
   "schema": "janus.genesis.pages.release_witness.v1",
-  "release_id": "GENESIS-PAGES-R0.5.1-BRANCH-CANONICAL-2026-09-01",
-  "runtime_lineage": "PAROGRAD_KRIEGER_R0.5.1",
+  "release_id": "GENESIS-PAGES-R0.6-BIRTH-2026-09-01",
+  "runtime_lineage": "PAROGRAD_KRIEGER_R0.5.1+BIRTH_R0.6",
   "deployment_authority": "GITHUB_PAGES_BRANCH_SOURCE",
   "custom_workflow_role": "VALIDATE_PACKAGE_AND_VERIFY_ONLY",
   "canonical_entrypoint": "index.html",
   "site_runtime_root": "site/",
+  "birth_contract": "contracts/GENESIS_BIRTH_R0_6.json",
   "laws": [
     "ONE_PAGES_DEPLOYMENT_AUTHORITY",
     "LIVE_RELEASE_MUST_MATCH_COMMITTED_RELEASE_WITNESS",
     "ROOT_AND_SITE_RUNTIME_LINEAGE_MUST_MATCH",
-    "ACTIVE_RUNTIME_DEPENDENCIES_MUST_VALIDATE_BEFORE_LIVE_ACCEPTANCE"
+    "ACTIVE_RUNTIME_DEPENDENCIES_MUST_VALIDATE_BEFORE_LIVE_ACCEPTANCE",
+    "FRESH_PLAYER_SEES_UNBORN_BEFORE_CANONICAL_BIRTH",
+    "GENESIS_BIRTH_PRECEDES_FIRST_CHUNK_DISCOVERY"
   ],
   "note": "Bump release_id whenever the browser-visible Genesis Pages runtime or its canonical runtime contracts change."
 }
