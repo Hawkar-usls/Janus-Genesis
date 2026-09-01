@@ -1,0 +1,72 @@
+name: Genesis Mirror R0.7 Executable Gate
+
+on:
+  pull_request:
+    paths:
+      - '.janus/GENESIS_PLAYER_MIRROR_R0_7.json'
+      - 'contracts/GENESIS_PLAYER_MIRROR_R0_7.json'
+      - 'site/genesis-player-mirror-r0-7.js'
+      - 'site/genesis-world-runtime-v5.js'
+      - 'site/genesis-birth-r0-6.js'
+      - 'tests/test_genesis_player_mirror_r0_7.py'
+      - 'tests/genesis_player_mirror_r0_7_harness.js'
+      - '.github/workflows/genesis-mirror-r07-executable.yml'
+  push:
+    branches: [main]
+    paths:
+      - '.janus/GENESIS_PLAYER_MIRROR_R0_7.json'
+      - 'contracts/GENESIS_PLAYER_MIRROR_R0_7.json'
+      - 'site/genesis-player-mirror-r0-7.js'
+      - 'site/genesis-world-runtime-v5.js'
+      - 'site/genesis-birth-r0-6.js'
+      - 'tests/test_genesis_player_mirror_r0_7.py'
+      - 'tests/genesis_player_mirror_r0_7_harness.js'
+      - '.github/workflows/genesis-mirror-r07-executable.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: genesis-mirror-r07-executable-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  executable_invariance:
+    name: Execute Player Mirror invariance harness
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate contract and source syntax
+        run: |
+          set -euo pipefail
+          python -m json.tool .janus/GENESIS_PLAYER_MIRROR_R0_7.json >/dev/null
+          python -m json.tool contracts/GENESIS_PLAYER_MIRROR_R0_7.json >/dev/null
+          cmp .janus/GENESIS_PLAYER_MIRROR_R0_7.json contracts/GENESIS_PLAYER_MIRROR_R0_7.json
+          node --check site/genesis-player-mirror-r0-7.js
+          node --check tests/genesis_player_mirror_r0_7_harness.js
+          python -m unittest tests.test_genesis_player_mirror_r0_7 -v
+
+      - name: Execute adversarial Player Mirror sandbox
+        run: |
+          set -euo pipefail
+          output="$(node tests/genesis_player_mirror_r0_7_harness.js)"
+          printf '%s\n' "$output"
+          grep -F 'GENESIS_PLAYER_MIRROR_R0_7_EXECUTABLE_HARNESS_PASS' <<<"$output" >/dev/null
+
+      - name: Prove mirror remains presentation-only in active runtime
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs=require('fs');
+          const mirror=fs.readFileSync('site/genesis-player-mirror-r0-7.js','utf8');
+          const world=fs.readFileSync('site/genesis-world-runtime-v5.js','utf8');
+          if(!mirror.includes('canonicalEqual(before,after)')) throw new Error('missing runtime invariance proof');
+          if(!mirror.includes('CANONICAL_INVARIANCE_BREACH')) throw new Error('missing fail-closed breach path');
+          if(mirror.includes('janus.genesis.world_shell_r0.save.v1')) throw new Error('Mirror gained direct world-save key authority');
+          const canonical=world.split('getCanonicalState(){',2)[1]?.split('getPresentationState(){',1)[0] || '';
+          if(!canonical || canonical.includes('mirror_profile')) throw new Error('mirror_profile leaked into canonical state');
+          console.log('GENESIS_PLAYER_MIRROR_R0_7_PRESENTATION_BOUNDARY_PASS');
+          NODE
