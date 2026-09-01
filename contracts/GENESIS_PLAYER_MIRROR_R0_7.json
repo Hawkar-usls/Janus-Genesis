@@ -1,0 +1,119 @@
+{
+  "schema": "janus.genesis.player_mirror_constitution.v1",
+  "contract_id": "GENESIS_PLAYER_MIRROR_R0_7",
+  "version": "0.7.0",
+  "status": "FROZEN_RUNTIME_OVERLAY",
+  "world_id": "GENESIS_ONE_WORLD_R0",
+  "purpose": "Render one canonical Genesis reality through different Player-local perceptual hardware constitutions without forking facts, history, causality, or authority.",
+  "inspiration_provenance": [
+    {
+      "source": "Bad Pixels",
+      "mechanisms_only": [
+        "constraint-defined visual identity",
+        "palette-oriented remapping",
+        "different effective resolutions inside one presentation system"
+      ],
+      "inheritance_policy": "INDEPENDENT_IMPLEMENTATION_ONLY",
+      "copied_assets": false,
+      "copied_source_code": false,
+      "copied_palette": false
+    },
+    {
+      "source": "JANUS TOPA Human Invention Atlas",
+      "mechanisms_only": [
+        "PLAYER_MIRROR_IS_PROJECTION",
+        "SHARED_CAUSE_NE_SHARED_PIXELS"
+      ],
+      "inheritance_policy": "CANONICAL_PROJECT_RESEARCH"
+    }
+  ],
+  "storage": {
+    "key": "janus.genesis.player_mirror_r0_7.v1",
+    "scope": "PLAYER_LOCAL_PRESENTATION",
+    "allowed_in_canonical_world_state": false,
+    "allowed_in_chronicle": false
+  },
+  "profiles": {
+    "ORIGIN": {
+      "runtime_mirror": "ORIGIN",
+      "postprocess": "NONE",
+      "logical_pixel_css": 1,
+      "frame_cap": 0,
+      "palette_budget": "NATIVE"
+    },
+    "JANUS_16": {
+      "runtime_mirror": "ORIGIN",
+      "postprocess": "LOW_RESOLUTION_PALETTE_QUANTIZATION",
+      "logical_pixel_css": 4,
+      "frame_cap": 20,
+      "palette_budget": 16,
+      "palette_identity": "JANUS_16_INDEPENDENT"
+    },
+    "NOCTURNE": {
+      "runtime_mirror": "NOCTURNE",
+      "postprocess": "NONE",
+      "logical_pixel_css": 1,
+      "frame_cap": 0,
+      "palette_budget": "NATIVE"
+    },
+    "AETHER": {
+      "runtime_mirror": "AETHER",
+      "postprocess": "NONE",
+      "logical_pixel_css": 1,
+      "frame_cap": 0,
+      "palette_budget": "NATIVE"
+    },
+    "EMBER": {
+      "runtime_mirror": "EMBER",
+      "postprocess": "NONE",
+      "logical_pixel_css": 1,
+      "frame_cap": 0,
+      "palette_budget": "NATIVE"
+    }
+  },
+  "canonical_invariance_proof": {
+    "before": [
+      "GENESIS_WORLD_RUNTIME_V5.getFactHash()",
+      "GENESIS_WORLD_RUNTIME_V5.getCanonicalState()"
+    ],
+    "operation": "APPLY_PLAYER_MIRROR_PROFILE",
+    "after": [
+      "GENESIS_WORLD_RUNTIME_V5.getFactHash()",
+      "GENESIS_WORLD_RUNTIME_V5.getCanonicalState()"
+    ],
+    "required": "BEFORE == AFTER",
+    "on_mismatch": "FAIL_CLOSED_AND_RESTORE_PREVIOUS_PROFILE"
+  },
+  "rendering": {
+    "source": "GENESIS_WORLD_CANVAS",
+    "native_profiles": "DIRECT_CANONICAL_RENDERER_OUTPUT",
+    "constrained_profiles": "PLAYER_LOCAL_POSTPROCESS_ONLY",
+    "janus_16_algorithm": "downsample canonical frame -> independent 16-color nearest-palette quantization -> pixelated presentation canvas",
+    "changes_geometry": false,
+    "changes_world_state": false,
+    "changes_chronicle": false,
+    "changes_fact_hash": false
+  },
+  "firewalls": [
+    "PLAYER_MIRROR != CANONICAL_WORLD",
+    "MIRROR_SELECTION != CANONICAL_EVENT",
+    "MIRROR_OUTPUT != CANONICAL_STATE",
+    "PERCEPTUAL_HARDWARE_CONSTRAINT != WORLD_DEGRADATION",
+    "DIFFERENT_PIXELS != DIFFERENT_FACTS",
+    "MIRROR_PROFILE_LOCAL_TO_PLAYER",
+    "FACT_HASH_BEFORE_MIRROR == FACT_HASH_AFTER_MIRROR",
+    "CHRONICLE_TIP_BEFORE_MIRROR == CHRONICLE_TIP_AFTER_MIRROR"
+  ],
+  "acceptance_gates": [
+    "R0.7 loads only after R0.6 Birth gate and R0.5 world runtime",
+    "profile selection is stored outside canonical world save",
+    "JANUS_16 has exactly sixteen independently chosen colors",
+    "JANUS_16 uses a low-resolution presentation surface with nearest-palette remapping",
+    "switching profile cannot change canonical state or fact hash",
+    "switching profile creates no Chronicle event",
+    "fresh unborn state remains visually authoritative over all Mirror outputs",
+    "root and site Pages entrypoints load identical Mirror lineage",
+    "live Pages publishes the R0.7 runtime and public contract"
+  ],
+  "seal": "GENESIS SYNCHRONIZES CAUSES, NOT PIXELS. EVERY PLAYER MAY RECEIVE A DIFFERENT LAWFUL IMAGE OF THE SAME WORLD."
+}
