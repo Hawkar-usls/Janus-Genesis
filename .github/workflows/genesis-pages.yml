@@ -12,6 +12,7 @@ on:
       - '.janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
       - '.janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json'
       - '.janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json'
+      - '.janus/GENESIS_BIRTH_R0_6.json'
       - 'contracts/**'
       - 'GENESIS_PAGES_RELEASE.json'
       - 'genesis-audio-forge.js'
@@ -27,6 +28,7 @@ on:
       - 'tests/test_genesis_scene_intent_graph_r0_4.py'
       - 'tests/test_genesis_parograd_krieger_r0_5.py'
       - 'tests/test_genesis_provider_fallback_r0_5_1.py'
+      - 'tests/test_genesis_birth_r0_6.py'
       - '.github/workflows/genesis-pages.yml'
   push:
     branches: [main]
@@ -40,6 +42,7 @@ on:
       - '.janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json'
       - '.janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json'
       - '.janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json'
+      - '.janus/GENESIS_BIRTH_R0_6.json'
       - 'contracts/**'
       - 'GENESIS_PAGES_RELEASE.json'
       - 'genesis-audio-forge.js'
@@ -55,6 +58,7 @@ on:
       - 'tests/test_genesis_scene_intent_graph_r0_4.py'
       - 'tests/test_genesis_parograd_krieger_r0_5.py'
       - 'tests/test_genesis_provider_fallback_r0_5_1.py'
+      - 'tests/test_genesis_birth_r0_6.py'
       - '.github/workflows/genesis-pages.yml'
   workflow_dispatch:
 
@@ -84,9 +88,12 @@ jobs:
           python -m unittest tests.test_genesis_scene_intent_graph_r0_4 -v
           python -m unittest tests.test_genesis_parograd_krieger_r0_5 -v
           python -m unittest tests.test_genesis_provider_fallback_r0_5_1 -v
+          python -m unittest tests.test_genesis_birth_r0_6 -v
           python -m json.tool GENESIS_PAGES_RELEASE.json >/dev/null
           python -m json.tool .janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json >/dev/null
           python -m json.tool .janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json >/dev/null
+          python -m json.tool .janus/GENESIS_BIRTH_R0_6.json >/dev/null
+          python -m json.tool contracts/GENESIS_BIRTH_R0_6.json >/dev/null
           python -m json.tool asset_sources/ASSET_SOURCE_REGISTRY_R0_5.json >/dev/null
           python -m json.tool asset_sources/MECHANIC_RECIPE_SOURCE_REGISTRY_R0_5.json >/dev/null
           python - <<'PY'
@@ -95,12 +102,14 @@ jobs:
           witness=json.loads(Path('GENESIS_PAGES_RELEASE.json').read_text(encoding='utf-8'))
           assert witness['deployment_authority']=='GITHUB_PAGES_BRANCH_SOURCE'
           assert witness['custom_workflow_role']=='VALIDATE_PACKAGE_AND_VERIFY_ONLY'
-          assert witness['release_id'].startswith('GENESIS-PAGES-')
+          assert witness['release_id'].startswith('GENESIS-PAGES-R0.6-BIRTH-')
+          assert witness['birth_contract']=='contracts/GENESIS_BIRTH_R0_6.json'
           names=(
               'GENESIS_COMMAND_RUNTIME_R0_3.json',
               'GENESIS_SCENE_INTENT_GRAPH_R0_4.json',
               'GENESIS_PAROGRAD_KRIEGER_R0_5.json',
               'GENESIS_PROVIDER_FALLBACK_R0_5_1.json',
+              'GENESIS_BIRTH_R0_6.json',
           )
           for name in names:
               canonical=json.loads((Path('.janus')/name).read_text(encoding='utf-8'))
@@ -140,6 +149,8 @@ jobs:
           assert site_scripts, 'site/index.html has no local runtime scripts'
           assert site_scripts == root_scripts, f'root/site script lineage drift: {root_scripts} != {site_scripts}'
           assert site_styles == root_styles, f'root/site stylesheet lineage drift: {root_styles} != {site_styles}'
+          assert 'genesis-birth-r0-6.js' in site_scripts
+          assert site_scripts.index('genesis-birth-r0-6.js') < site_scripts.index('genesis-world-runtime-v5.js')
 
           site_root=Path('site').resolve()
           for ref in site.scripts + site.styles:
@@ -191,8 +202,10 @@ jobs:
           cp .janus/GENESIS_SCENE_INTENT_GRAPH_R0_4.json _site/contracts/GENESIS_SCENE_INTENT_GRAPH_R0_4.json
           cp .janus/GENESIS_PAROGRAD_KRIEGER_R0_5.json _site/contracts/GENESIS_PAROGRAD_KRIEGER_R0_5.json
           cp .janus/GENESIS_PROVIDER_FALLBACK_R0_5_1.json _site/contracts/GENESIS_PROVIDER_FALLBACK_R0_5_1.json
+          cp .janus/GENESIS_BIRTH_R0_6.json _site/contracts/GENESIS_BIRTH_R0_6.json
           touch _site/.nojekyll
-          for f in index.html kernel-lab.html genesis-world-runtime-v5.js genesis-command-bridge-v5.js genesis-asset-materializer-v3.js genesis-public-provider-fallback-r0-5-1.js genesis-asset-trunk-r0-5-1.js genesis-audio-asset-runtime-r0-5-1.js genesis-scene-graph-executor-r0-5-1.js GENESIS_PAGES_RELEASE.json; do test -s "_site/$f"; done
+          for f in index.html kernel-lab.html genesis-birth-r0-6.js genesis-world-runtime-v5.js genesis-command-bridge-v5.js genesis-asset-materializer-v3.js genesis-public-provider-fallback-r0-5-1.js genesis-asset-trunk-r0-5-1.js genesis-audio-asset-runtime-r0-5-1.js genesis-scene-graph-executor-r0-5-1.js GENESIS_PAGES_RELEASE.json; do test -s "_site/$f"; done
+          for f in GENESIS_BIRTH_R0_6.json GENESIS_PROVIDER_FALLBACK_R0_5_1.json; do test -s "_site/contracts/$f"; done
 
       - name: Audit compatibility artifact dependencies
         run: |
@@ -263,18 +276,31 @@ jobs:
           test "$matched" = 1
 
           curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$PAGE_URL?release=${GITHUB_SHA}" -o /tmp/genesis-live.html
-          grep -F 'GENESIS' /tmp/genesis-live.html >/dev/null
+          grep -F 'GENESIS // BIRTH R0.6' /tmp/genesis-live.html >/dev/null
+          grep -F './site/genesis-birth-r0-6.js' /tmp/genesis-live.html >/dev/null
           grep -F './site/genesis-world-runtime-v5.js' /tmp/genesis-live.html >/dev/null
           grep -F './site/genesis-public-provider-fallback-r0-5-1.js' /tmp/genesis-live.html >/dev/null
+          curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/site/genesis-birth-r0-6.js?release=${GITHUB_SHA}" -o /tmp/genesis-birth.js
           curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/site/genesis-world-runtime-v5.js?release=${GITHUB_SHA}" -o /tmp/genesis-runtime.js
           curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/site/genesis-public-provider-fallback-r0-5-1.js?release=${GITHUB_SHA}" -o /tmp/genesis-provider.js
           curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/site/genesis-audio-forge.js?release=${GITHUB_SHA}" -o /tmp/genesis-audio-bridge.js
+          curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/contracts/GENESIS_BIRTH_R0_6.json?release=${GITHUB_SHA}" -o /tmp/genesis-birth-contract.json
           curl -fL --retry 8 --retry-delay 2 --retry-all-errors "$base/contracts/GENESIS_PROVIDER_FALLBACK_R0_5_1.json?release=${GITHUB_SHA}" -o /tmp/genesis-provider-contract.json
+          test -s /tmp/genesis-birth.js
           test -s /tmp/genesis-runtime.js
           test -s /tmp/genesis-provider.js
           test -s /tmp/genesis-audio-bridge.js
+          node --check /tmp/genesis-birth.js
           node --check /tmp/genesis-runtime.js
           node --check /tmp/genesis-provider.js
           node --check /tmp/genesis-audio-bridge.js
+          python -m json.tool /tmp/genesis-birth-contract.json >/dev/null
           python -m json.tool /tmp/genesis-provider-contract.json >/dev/null
-          echo "GENESIS_BRANCH_PAGES_LIVE_PASS $PAGE_URL $expected"
+          python - <<'PY'
+          import json
+          birth=json.load(open('/tmp/genesis-birth-contract.json',encoding='utf-8'))
+          assert birth['contract_id']=='GENESIS_BIRTH_R0_6'
+          assert birth['birth_event']['chronicle_order'][0]=='GENESIS_BIRTH'
+          assert birth['birth_event']['chronicle_order'][1]=='CHUNK_DISCOVERED'
+          PY
+          echo "GENESIS_BIRTH_R0_6_LIVE_PASS $PAGE_URL $expected"
