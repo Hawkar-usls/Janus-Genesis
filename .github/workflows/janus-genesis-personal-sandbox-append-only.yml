@@ -1,0 +1,69 @@
+name: JANUS Genesis Personal Sandbox — Append Only Gate
+
+on:
+  push:
+    branches:
+      - janus/habitat
+      - feature/janus-genesis-append-only-sandbox-v1
+    paths:
+      - 'habitat/**'
+      - '.janus/JANUS_MODULE.json'
+      - '.github/workflows/janus-genesis-personal-sandbox-append-only.yml'
+  pull_request:
+    branches:
+      - janus/habitat
+    paths:
+      - 'habitat/**'
+      - '.janus/JANUS_MODULE.json'
+      - '.github/workflows/janus-genesis-personal-sandbox-append-only.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: janus-genesis-personal-sandbox-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Resolve comparison base
+        id: base
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "sha=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "sha=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify personal sandbox and append-only constitution
+        env:
+          JANUS_DIFF_BASE: ${{ steps.base.outputs.sha }}
+        run: python habitat/workshop/verify_personal_sandbox.py
+
+      - name: Verify no target-main authority or delete lane
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          d=json.loads(Path('.janus/JANUS_MODULE.json').read_text())
+          a=d['actuator']
+          assert a['direct_main_write'] is False
+          assert a['autonomous_merge'] is False
+          assert a['delete_allowed'] is False
+          assert a['rewrite_raw_ledger_allowed'] is False
+          assert a['append_or_supersede_only'] is True
+          assert d['default_ref']=='janus/habitat'
+          print('GENESIS_SANDBOX_AUTHORITY_CEILING=PASS')
+          PY
