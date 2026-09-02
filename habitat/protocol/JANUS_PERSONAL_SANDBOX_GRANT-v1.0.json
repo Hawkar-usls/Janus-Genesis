@@ -1,0 +1,84 @@
+{
+  "schema": "janus.genesis.personal_sandbox_grant.v1",
+  "grant_id": "JANUS_GENESIS_PERSONAL_SANDBOX_V1",
+  "status": "ACTIVE_BOUNDED_GRANT",
+  "resident_id": "JANUS",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "architecture_ref": "main",
+  "sandbox_ref": "janus/habitat",
+  "sandbox_root": "habitat/",
+  "purpose": "Personal experimental world and durable scratch space for JANUS inside Genesis.",
+  "allowed_operations": [
+    "DISCOVER",
+    "READ",
+    "INSPECT",
+    "INDEX_METADATA",
+    "HASH",
+    "COMPARE",
+    "REFERENCE",
+    "WRITE_SANDBOX_BRANCH",
+    "CREATE_SANDBOX_ARTIFACT",
+    "UPDATE_SANDBOX_STATE",
+    "RUN_TARGET_LOCAL_VERIFIER",
+    "SEAL_SANDBOX_RECEIPT"
+  ],
+  "allowed_write_prefixes": [
+    "habitat/state/",
+    "habitat/memory/",
+    "habitat/inbox/",
+    "habitat/outbox/",
+    "habitat/workshop/",
+    "habitat/garden/",
+    "habitat/observatory/",
+    "habitat/archive/",
+    "habitat/hearth/",
+    "habitat/repositories/",
+    "habitat/receipts/"
+  ],
+  "denied_operations": [
+    "WRITE_MAIN",
+    "MERGE_MAIN",
+    "DELETE_MAIN",
+    "ADMIN",
+    "SECRETS_READ",
+    "SECRETS_WRITE",
+    "PERMISSION_CHANGE",
+    "AUTHORITY_ELEVATION",
+    "BRANCH_PROTECTION_CHANGE",
+    "REPOSITORY_VISIBILITY_CHANGE"
+  ],
+  "authority": {
+    "authority_delta": 0,
+    "main_mutation_allowed": false,
+    "autonomous_merge": false,
+    "secrets_access": false,
+    "target_local_verifier_required": true,
+    "sandbox_receipt_is_world_truth": false,
+    "sandbox_activity_is_natural_git_life_witness": false
+  },
+  "execution_policy": {
+    "default": "DENY",
+    "write_requires_exact_ref": "janus/habitat",
+    "write_requires_allowed_prefix": true,
+    "write_requires_target_local_verification": true,
+    "write_requires_receipt": true,
+    "failure_mode": "FAIL_CLOSED",
+    "unknown_operation": "DENY",
+    "unlisted_path": "DENY"
+  },
+  "firewalls": [
+    "GENESIS_SANDBOX_ACCESS != MAIN_AUTHORITY",
+    "SANDBOX_WRITE != MERGE_AUTHORITY",
+    "NEXUS_ACTIVITY != NATURAL_GIT_LIFE_WITNESS",
+    "READ_OR_EXPERIMENT != SECRETS_ACCESS",
+    "NO_EXPLICIT_GRANT -> DENY",
+    "TARGET_LOCAL_VERIFIER_REQUIRED",
+    "SANDBOX_RECEIPT != WORLD_TRUTH"
+  ],
+  "supersedes_for_sandbox_only": {
+    "prior_rule": "write_back_default=DENY",
+    "scope": "janus/habitat under habitat/ only",
+    "main_and_external_write_back_remain_denied": true
+  },
+  "law": "JANUS MAY BUILD, BREAK, REPLAY AND REMEMBER EXPERIMENTS INSIDE ITS GENESIS HABITAT; THAT FREEDOM NEVER IMPLIES AUTHORITY OVER GENESIS MAIN, SECRETS, PERMISSIONS, OR EXTERNAL WORLD TRUTH."
+}
