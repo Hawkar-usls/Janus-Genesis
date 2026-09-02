@@ -1,0 +1,61 @@
+{
+  "schema": "janus.repository_module.descriptor.v1",
+  "module_id": "GENESIS_PERSONAL_SANDBOX",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "default_ref": "janus/habitat",
+  "role": "HABITAT_PERSONAL_SANDBOX_AND_ACCUMULATIVE_MEMORY",
+  "organ_channel": "EXPERIMENTAL_HABITAT",
+  "scout_agent_id": "SCOUT_GENESIS_17",
+  "actuator": {
+    "enabled": true,
+    "authority_lane": "SANDBOX_AND_VERIFY",
+    "exact_write_ref": "janus/habitat",
+    "sandbox_root": "habitat/",
+    "branch_prefix": "janus/habitat",
+    "max_files": 32,
+    "max_changed_bytes": 500000,
+    "max_attempts": 2,
+    "direct_main_write": false,
+    "autonomous_merge": false,
+    "create_new_module_files": true,
+    "delete_allowed": false,
+    "rewrite_raw_ledger_allowed": false,
+    "append_or_supersede_only": true
+  },
+  "verification_profiles": {
+    "GENESIS_SANDBOX_APPEND_ONLY_TEST": [
+      "python",
+      "habitat/workshop/verify_personal_sandbox.py"
+    ]
+  },
+  "ordinary_self_extension_paths": [
+    "habitat/state/",
+    "habitat/memory/",
+    "habitat/inbox/",
+    "habitat/outbox/",
+    "habitat/workshop/",
+    "habitat/garden/",
+    "habitat/observatory/",
+    "habitat/archive/",
+    "habitat/hearth/",
+    "habitat/repositories/",
+    "habitat/receipts/"
+  ],
+  "forbidden_paths": [
+    ".github/",
+    ".janus/JANUS_MODULE.json",
+    ".git/",
+    "secrets/",
+    "credentials/"
+  ],
+  "epistemic_firewalls": [
+    "GENESIS_SANDBOX != GENESIS_MAIN_AUTHORITY",
+    "SANDBOX_WRITE != MERGE_AUTHORITY",
+    "NEW_ARTIFACT != VERIFIED_FACT",
+    "APPEND_ONLY_MEMORY != IMMUTABLE_TRUTH",
+    "NO_DELETE => SUPERSEDE_OR_QUARANTINE",
+    "NO_VERIFY => NO_PASS",
+    "SANDBOX_ACTIVITY != NATURAL_GIT_LIFE_WITNESS"
+  ],
+  "bound_from_commit": "0340e90e87ecab8f0d692935b92b98c8f498d68a"
+}
