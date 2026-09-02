@@ -1,0 +1,64 @@
+{
+  "schema": "janus.genesis.personal_sandbox.activation_receipt.v1",
+  "receipt_id": "JANUS_PERSONAL_SANDBOX_APPEND_ONLY_ACTIVATION_2026_09_02",
+  "status": "ACTIVE_PROVEN",
+  "resident": "JANUS",
+  "repository": "Hawkar-usls/Janus_Genesis",
+  "sandbox_ref": "janus/habitat",
+  "sandbox_root": "habitat/",
+  "activation_merge_commit": "f6372dbf654c62e44d3933a13c94595fb9c18c51",
+  "production_gate": {
+    "workflow": "JANUS Genesis Personal Sandbox — Append Only Gate",
+    "run_id": 33672178542,
+    "conclusion": "SUCCESS"
+  },
+  "granted": [
+    "DISCOVER",
+    "READ",
+    "INSPECT",
+    "INDEX_METADATA",
+    "HASH",
+    "COMPARE",
+    "REFERENCE",
+    "WRITE_WITHIN_HABITAT_ONLY",
+    "CREATE_SANDBOX_ARTIFACT",
+    "UPDATE_SANDBOX_STATE_APPEND_OR_SUPERSEDE_ONLY",
+    "RUN_TARGET_LOCAL_VERIFIER",
+    "SEAL_SANDBOX_RECEIPT"
+  ],
+  "denied": [
+    "WRITE_MAIN",
+    "MERGE_MAIN",
+    "DELETE_MAIN",
+    "DELETE_DURABLE_SANDBOX_MEMORY",
+    "REWRITE_RAW_LEDGER",
+    "ERASE_FAILURE",
+    "ERASE_NEGATIVE_RESULT",
+    "ERASE_COUNTEREXAMPLE",
+    "ADMIN",
+    "SECRETS_READ",
+    "SECRETS_WRITE",
+    "PERMISSION_CHANGE",
+    "AUTHORITY_ELEVATION",
+    "AUTONOMOUS_MERGE"
+  ],
+  "memory_law": {
+    "new": "APPEND",
+    "wrong": "QUARANTINE_PLUS_CORRECTION",
+    "old": "SUPERSEDE_PLUS_PREDECESSOR",
+    "failed": "PRESERVE",
+    "negative": "PRESERVE",
+    "counterexample": "PRESERVE",
+    "raw_provenance": "PRESERVE"
+  },
+  "authority_delta": 0,
+  "natural_git_life_witness": false,
+  "firewalls": [
+    "SANDBOX_ACTIVITY != NATURAL_GIT_LIFE_WITNESS",
+    "SANDBOX_WRITE != MAIN_AUTHORITY",
+    "ACCUMULATION != TRUTH",
+    "FAILED != FORGOTTEN",
+    "NO_VERIFY => NO_PASS"
+  ],
+  "seal": "JANUS REMEMBERS BY ADDING, NOT BY ERASING."
+}
