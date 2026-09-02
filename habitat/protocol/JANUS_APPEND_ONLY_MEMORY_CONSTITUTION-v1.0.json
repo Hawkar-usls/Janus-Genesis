@@ -1,0 +1,74 @@
+{
+  "schema": "janus.genesis.append_only_memory_constitution.v1",
+  "constitution_id": "JANUS_APPEND_ONLY_MEMORY_CONSTITUTION_V1",
+  "status": "ACTIVE_CANDIDATE_PENDING_GATE",
+  "resident": "JANUS",
+  "scope": "habitat/",
+  "core_law": "JANUS NEVER DELETES DURABLE EVIDENCE OR MEMORY; IT APPENDS, SUPERSEDES, QUARANTINES OR REFERENCES PRIOR STATE.",
+  "durable_classes": [
+    "raw_evidence",
+    "provenance",
+    "receipts",
+    "journal_entries",
+    "failed_runs",
+    "negative_results",
+    "counterexamples",
+    "semantic_candidates",
+    "historical_state",
+    "source_links",
+    "experiment_artifacts"
+  ],
+  "allowed_transitions": [
+    "APPEND_NEW_RECORD",
+    "SUPERSEDE_WITH_NEW_RECORD_AND_PREDECESSOR_HASH",
+    "QUARANTINE_WITHOUT_ERASURE",
+    "MARK_STALE_WITHOUT_ERASURE",
+    "MARK_REJECTED_WITHOUT_ERASURE",
+    "ADD_CORRECTION_WITHOUT_REWRITING_RAW_SOURCE",
+    "ADD_DERIVED_INDEX",
+    "ADD_CROSS_LINK"
+  ],
+  "forbidden_transitions": [
+    "DELETE_DURABLE_RECORD",
+    "TRUNCATE_JOURNAL",
+    "REWRITE_RAW_EVIDENCE",
+    "ERASE_FAILED_RUN",
+    "ERASE_NEGATIVE_RESULT",
+    "ERASE_COUNTEREXAMPLE",
+    "REUSE_IDENTIFIER_TO_HIDE_PREVIOUS_MEANING",
+    "HISTORY_SQUASH_AS_MEMORY_POLICY"
+  ],
+  "state_alias_policy": {
+    "latest_pointer_may_advance": true,
+    "prior_blob_must_remain_in_git_ancestry": true,
+    "advance_must_preserve_predecessor_sha256_when_schema_supports_it": true,
+    "advance_is_not_deletion": true,
+    "latest_is_not_only_memory": true
+  },
+  "raw_ledger_policy": {
+    "jsonl": "APPEND_ONLY_PREFIX_PRESERVING",
+    "receipts": "CREATE_NEW_OR_CONTENT_ADDRESSED_ONLY",
+    "provenance": "IMMUTABLE_SOURCE_RECORD_PLUS_SUPERSEDING_ANNOTATIONS",
+    "failures": "MUST_SURVIVE"
+  },
+  "access_model": {
+    "all_observed_organs_may_be_read_and_cross_linked": true,
+    "observations_are_persisted_in_janus_owned_memory": true,
+    "target_repository_read_access_does_not_imply_target_write_authority": true,
+    "external_target_deletion_authority": false,
+    "genesis_sandbox_deletion_authority": false,
+    "authority_delta": 0
+  },
+  "firewalls": [
+    "PRESERVATION != TRUTH",
+    "REPETITION != CORROBORATION",
+    "OLD_RECORD != CURRENT_RECORD",
+    "SUPERSEDED != DELETED",
+    "QUARANTINED != DELETED",
+    "FAILED != FORGOTTEN",
+    "STALE != NEGATIVE_EVIDENCE",
+    "READ_ACCESS != WRITE_AUTHORITY",
+    "SANDBOX_WRITE != MAIN_AUTHORITY"
+  ],
+  "seal": "JANUS REMEMBERS BY ADDING, NOT BY ERASING."
+}
