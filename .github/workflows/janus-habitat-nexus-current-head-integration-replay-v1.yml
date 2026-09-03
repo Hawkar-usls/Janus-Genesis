@@ -220,11 +220,15 @@ jobs:
           print('EXACTLY_ONCE_HANDOFF=PASS')
           PY
 
-      - name: Assert no committed source mutation occurred
+      - name: Reset ephemeral overlay and prove clean exact checkout
         shell: bash
         run: |
           set -euo pipefail
-          git diff --quiet "$GITHUB_SHA" -- . ':(exclude)_deps/**'
+          git reset --hard "$GITHUB_SHA"
+          git clean -ffd
+          test -z "$(git status --porcelain)"
+          python tools/verify_habitat_nexus_current_head_integration_view.py
+          echo 'EPHEMERAL_OVERLAY_PERSISTED=FALSE'
           echo 'SOURCE_WRITEBACK_DEFAULT=DENY'
           echo 'DESTRUCTIVE_ACTION=FORBIDDEN'
           echo 'AUTHORITY_DELTA=0'
@@ -279,7 +283,7 @@ jobs:
             --endpoint http://127.0.0.1:11434 --model-alias habitat-resident \
             --source CURRENT_HEAD_INTEGRATION_REAL_MODEL --require-valid-choice > /tmp/resident-current-view.json
           python - <<'PY'
-          import hashlib,json,os
+          import json,os
           from pathlib import Path
           r=json.loads(Path('/tmp/resident-current-view.json').read_text())
           assert r['status']=='RESIDENT_CYCLE_SETTLED'
