@@ -2,8 +2,8 @@
   "architecture_branch": "main",
   "architecture_sha": "89a97b73603dec70100e691c88016f9ab686998b",
   "observation_is_external_authority": false,
-  "observed_at": "2026-09-02T07:58:47+00:00",
+  "observed_at": "2026-09-03T08:08:04+00:00",
   "schema": "janus.genesis.git_habitat.architecture_observation.v1",
   "workflow_run_attempt": "1",
-  "workflow_run_id": "33606255348"
+  "workflow_run_id": "33731683642"
 }
