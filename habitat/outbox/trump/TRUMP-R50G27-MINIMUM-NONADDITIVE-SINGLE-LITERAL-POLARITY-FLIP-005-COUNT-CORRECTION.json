@@ -1,0 +1,25 @@
+{
+  "schema": "janus.genesis.trump_research_semantic_correction.v1",
+  "correction_id": "TRUMP-R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP-005-COUNT-CORRECTION",
+  "original_receipt": "habitat/outbox/trump/TRUMP-R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP-005.json",
+  "correction_scope": "COUNT_PROJECTION_ONLY",
+  "reason": "The original receipt field same_pivot_door_closed_count_recorded is capped by MAX_WITNESSES=20 and therefore reports stored witness samples, not the exhaustive number of pivot-1 macro-candidate-missing mutants.",
+  "sealed_counts": {
+    "unique_mutant_formula_count": 59486,
+    "successful_same_pivot_r47j_replay_count": 58759,
+    "successful_count_derivation": "39601 BCE + 8972 PURE + 9985 BVE + 201 UNIT = 58759",
+    "same_pivot_r47j_door_closed_actual_count": 727,
+    "door_closed_derivation": "59486 - 58759 = 727",
+    "stored_witness_sample_count": 20,
+    "replay_failure_count": 0
+  },
+  "corrected_interpretation": "R50G27 found 727 unique single-polarity-flip mutant formulas for which the frozen same-pivot R47J pivot-1 macro candidate is absent. The original 20 entries are a bounded witness sample only. This does not imply SAT hardness or closure of alternate pivots/operators.",
+  "recommended_next_gate": "R50G28_SINGLE_FLIP_DOOR_CLOSED_ALTERNATE_PIVOT_AUDIT",
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "same_pivot_door_closed_is_global_solver_failure": false,
+    "finite_search_is_universal_proof": false
+  },
+  "authority": "SEMANTIC_COUNT_CORRECTION_NOT_PROOF_PROMOTION"
+}
