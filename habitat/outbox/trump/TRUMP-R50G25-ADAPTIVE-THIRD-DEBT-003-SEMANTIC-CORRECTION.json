@@ -1,0 +1,40 @@
+{
+  "schema": "janus.genesis.trump_research_semantic_correction.v1",
+  "correction_id": "TRUMP-R50G25-ADAPTIVE-THIRD-DEBT-003-SEMANTIC-CORRECTION",
+  "supersedes_field_only": "TRUMP-R50G25-ADAPTIVE-THIRD-DEBT-003.report.full_R47J_nonempty_candidate_count",
+  "original_receipt": "habitat/outbox/trump/TRUMP-R50G25-ADAPTIVE-THIRD-DEBT-003.json",
+  "original_receipt_blob_sha": "9db67cd6f0ca11606dc051464169e11c5f524bff",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "observed_parent_seal_replay_pass": true,
+  "observed_parent_pair_trial_count": 1774,
+  "observed_triple_trial_count": 29099,
+  "observed_first_pass_strong_count": 0,
+  "observed_triple_R33_terminal_partition": {
+    "EMPTY_CNF_SAT": 28810,
+    "EMPTY_CLAUSE_UNSAT": 289
+  },
+  "bug": {
+    "expression": "full_nonempty = bool(full_final3)",
+    "failure_mode": "A canonical CNF containing the empty clause is a non-empty Python container, so bool([[]]) is true even though the formula is an explicit UNSAT terminal, not an unresolved residual core.",
+    "example_terminal": "DIRECT_EMPTY_CLAUSE",
+    "example_final_formula": [[]]
+  },
+  "corrected_semantics": {
+    "full_R47J_unresolved_survivor_requires": [
+      "normalization.terminal == null",
+      "final_formula contains at least one clause",
+      "final_formula contains no empty clause"
+    ],
+    "corrected_full_R47J_unresolved_survivor_count": 0,
+    "reason": "All 29099 tested triples already terminate in the first R33 pass as either EMPTY_CNF_SAT or EMPTY_CLAUSE_UNSAT; no STALLED_STACK_LEAN_CORE exists in the tested population, so full R47J cannot be unresolved for any tested triple."
+  },
+  "corrected_gate_verdict": "FINITE_NEGATIVE_FOR_ADAPTIVE_BINARY_ADDITIVE_DEPTH3_ON_SEALED_PARENT_SPACE",
+  "recommended_next_gate": "R50G26_UNIQUE_PAIR_STATE_WIDTH3_STRUCTURAL_SUPPORT_OR_ADDITIVE_OBSTRUCTION",
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "original_receipt_other_fields_remain_evidence": true
+  },
+  "authority": "SEMANTIC_CORRECTION_NOT_PROOF_PROMOTION"
+}
