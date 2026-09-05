@@ -7,7 +7,6 @@ on:
       - '.github/workflows/janus-trump-habitat-research.yml'
       - 'tools/trump_habitat_research_agent.py'
       - 'tools/trump_r50g24_pairwise_research_agent.py'
-      - 'tools/trump_fundamentum_module_replay_agent.py'
   workflow_dispatch:
   schedule:
     - cron: '37 * * * *'
@@ -39,7 +38,7 @@ jobs:
           token: ${{ github.token }}
           fetch-depth: 0
 
-      - name: Discover one queued TRUMP research request
+      - name: Discover one queued TRUMP code-research request
         id: discover
         shell: bash
         run: |
@@ -52,10 +51,6 @@ jobs:
           outbox = Path('habitat-repo/habitat/outbox/trump')
           inbox.mkdir(parents=True, exist_ok=True)
           outbox.mkdir(parents=True, exist_ok=True)
-          allowed_purposes = {
-              'PARALLEL_TRUMP_CODE_RESEARCH',
-              'PARALLEL_TRUMP_MODULE_REPLAY',
-          }
 
           chosen = None
           for path in sorted(inbox.glob('*.json')):
@@ -65,8 +60,7 @@ jobs:
                   continue
               if obj.get('status') != 'QUEUED':
                   continue
-              purpose = str(obj.get('purpose') or '')
-              if purpose not in allowed_purposes:
+              if obj.get('purpose') != 'PARALLEL_TRUMP_CODE_RESEARCH':
                   continue
               rid = re.sub(r'[^A-Za-z0-9._-]+', '_', str(obj.get('request_id') or path.stem))[:120]
               if (outbox / f'{rid}.json').exists():
@@ -76,7 +70,7 @@ jobs:
               branch = str(obj.get('source_branch') or '').strip()
               if not branch:
                   continue
-              chosen = (path, branch, rid, purpose)
+              chosen = (path, branch, rid)
               break
 
           output = Path('runtime')
@@ -87,14 +81,13 @@ jobs:
                   gh.write('count=0\n')
               print('TRUMP_QUEUED_REQUESTS=0')
           else:
-              path, branch, rid, purpose = chosen
+              path, branch, rid = chosen
               (output / 'request.txt').write_text(str(path) + '\n', encoding='utf-8')
               with open(__import__('os').environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as gh:
                   gh.write('count=1\n')
                   gh.write(f'source_branch={branch}\n')
                   gh.write(f'request_id={rid}\n')
-                  gh.write(f'purpose={purpose}\n')
-              print(f'TRUMP_QUEUED_REQUESTS=1 request_id={rid} purpose={purpose} branch={branch}')
+              print(f'TRUMP_QUEUED_REQUESTS=1 request_id={rid} branch={branch}')
           PY
 
       - name: Checkout frozen TRUMP source read-only
@@ -113,14 +106,14 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Set up Node for Copilot-backed lane only
-        if: steps.discover.outputs.count == '1' && steps.discover.outputs.purpose == 'PARALLEL_TRUMP_CODE_RESEARCH' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE')
+      - name: Set up Node
+        if: steps.discover.outputs.count == '1'
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Install GitHub Copilot CLI for Copilot-backed lane only
-        if: steps.discover.outputs.count == '1' && steps.discover.outputs.purpose == 'PARALLEL_TRUMP_CODE_RESEARCH' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE')
+      - name: Install GitHub Copilot CLI
+        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE')
         run: |
           npm install -g @github/copilot
           copilot --version
@@ -135,14 +128,7 @@ jobs:
           export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
           REQUEST="$(cat runtime/request.txt)"
           RID="${{ steps.discover.outputs.request_id }}"
-          PURPOSE="${{ steps.discover.outputs.purpose }}"
-          if [[ "$PURPOSE" == "PARALLEL_TRUMP_MODULE_REPLAY" ]]; then
-            echo "TRUMP_ENGINE=DETERMINISTIC_FUNDAMENTUM_MODULE_REPLAY"
-            python control/tools/trump_fundamentum_module_replay_agent.py \
-              --request "$REQUEST" \
-              --workspace trump-source \
-              --habitat-root habitat-repo/habitat
-          elif [[ "$RID" == *"PAIRWISE-COUNTERPOLARITY-CLOSURE"* ]]; then
+          if [[ "$RID" == *"PAIRWISE-COUNTERPOLARITY-CLOSURE"* ]]; then
             echo "TRUMP_ENGINE=DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY"
             python control/tools/trump_r50g24_pairwise_research_agent.py \
               --request "$REQUEST" \
@@ -196,6 +182,6 @@ jobs:
           git push origin HEAD:janus/habitat
           echo "TRUMP_HABITAT_PERSIST=PASS"
 
-      - name: No queued TRUMP research requests
+      - name: No queued TRUMP code-research requests
         if: steps.discover.outputs.count == '0'
         run: echo "TRUMP_HABITAT_IDLE=TRUE"

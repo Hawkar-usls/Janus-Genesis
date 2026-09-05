@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
-"""Deterministic JANUS R50G24 pairwise counterpolarity closure lane.
+"""Deterministic pairwise R50G24 research lane for JANUS Git Habitat.
 
-This lane is intentionally narrower than the generic TRUMP research agent:
+This lane is intentionally narrow:
 - exactly the frozen 30 R50G22/R50G23 skeletons;
 - same R47J pivot 1;
 - no new variables;
-- two additive binary clauses only;
-- no writes to the checked-out TRUMP source;
+- exactly two added binary clauses around the first-transition debt variable;
+- no write authority over TRUMP;
 - finite search is never promoted to a theorem.
-
-It is the successor to the finite-negative single-clause search. The first
-clause must actually change the original R33 first transition. The second clause
-is generated from the direct additive debt of that replacement transition. A
-strong candidate must leave the first R33 pass at a nonempty bipolar stalled
-core while the independent R47J macro replay still passes.
 """
 
 from __future__ import annotations
@@ -27,123 +21,65 @@ import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
-LANE_ID = "JANUS_TRUMP_R50G24_PAIRWISE_COUNTERPOLARITY_LANE"
+LANE_ID = "JANUS_TRUMP_GIT_RESEARCH_LANE"
+ENGINE = "DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY_LAB"
 MAX_PAIR_TRIALS = 12000
-MAX_STRONG = 8
-MAX_NEAR = 20
+MAX_STRONG_CANDIDATES = 8
+MAX_NEAR_MISSES = 20
 
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
-def write_json(path: Path, obj: dict[str, Any]) -> None:
+def write_json(path: Path, obj: Dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-
-
-def normalize(report: dict[str, Any]) -> dict[str, Any]:
-    out = dict(report)
-    out["lane"] = "TRUMP_FALSIFICATION_RESEARCH"
-    out["status"] = "HYPOTHESIS"
-    out["proof_claim"] = False
-    out["p_vs_np"] = "OPEN"
-    out["sat_in_p"] = "NOT_PROVED"
-    return out
 
 
 def formula_variables(formula) -> list[int]:
     return sorted({abs(int(lit)) for clause in formula for lit in clause})
 
 
-def bipolar(formula) -> bool:
+def canon_clause(*lits: int) -> tuple[int, ...] | None:
+    values = sorted({int(x) for x in lits})
+    if len(values) != len(lits):
+        return None
+    if any(-x in values for x in values):
+        return None
+    return tuple(values)
+
+
+def clause_json(clause) -> list[int]:
+    return [int(x) for x in clause]
+
+
+def formula_json(formula) -> list[list[int]]:
+    return [clause_json(clause) for clause in formula]
+
+
+def is_bipolar_formula(formula) -> bool:
     signs: dict[int, set[int]] = {}
     for clause in formula:
         for raw in clause:
             lit = int(raw)
             signs.setdefault(abs(lit), set()).add(1 if lit > 0 else -1)
-    return bool(signs) and all(v == {-1, 1} for v in signs.values())
+    return bool(signs) and all(s == {-1, 1} for s in signs.values())
 
 
-def json_formula(formula) -> list[list[int]]:
-    return [[int(x) for x in clause] for clause in formula]
+def normalize_report(report: Dict[str, Any]) -> Dict[str, Any]:
+    report = dict(report)
+    report["lane"] = "TRUMP_FALSIFICATION_RESEARCH"
+    report["status"] = "HYPOTHESIS"
+    report["proof_claim"] = False
+    report["p_vs_np"] = "OPEN"
+    report["sat_in_p"] = "NOT_PROVED"
+    return report
 
 
-def first_label(reduced: dict[str, Any]) -> str:
-    history = reduced.get("history", [])
-    if history:
-        return "R33:" + str(history[0]["rule"])
-    return "R33_TERMINAL:" + str(reduced.get("terminal"))
-
-
-def debt_from_first_record(r50g23, reduced: dict[str, Any]) -> dict[str, Any] | None:
-    history = reduced.get("history", [])
-    if not history:
-        return None
-    compact = r50g23.compact_r33_record(history[0])
-    step = {"phase": "R33", "record": compact}
-    try:
-        return r50g23.direct_blocking_debt(step)
-    except Exception:
-        return None
-
-
-def required_literals(debt: dict[str, Any] | None) -> list[int]:
-    if not debt:
-        return []
-    if debt.get("required_literal") is not None:
-        return [int(debt["required_literal"])]
-    vals = debt.get("allowed_required_literals")
-    if isinstance(vals, list):
-        return [int(x) for x in vals]
-    return []
-
-
-def binary_clauses(req_lits: list[int], variables: list[int]) -> list[tuple[int, int]]:
-    out: set[tuple[int, int]] = set()
-    for req in req_lits:
-        for v in variables:
-            if v == abs(req):
-                continue
-            for partner in (v, -v):
-                if partner == -req:
-                    continue
-                clause = tuple(sorted((int(req), int(partner))))
-                if clause[0] == -clause[1]:
-                    continue
-                out.add(clause)
-    return sorted(out)
-
-
-def replay_state(r50g23, source, added: list[tuple[int, ...]]) -> dict[str, Any]:
-    r33 = r50g23.r33
-    r47j = r50g23.r47j
-    pivot = int(r50g23.PIVOT)
-    mutated = r50g23.canon(list(source) + list(added))
-    candidate = r47j.macro_candidate_fixpoint(mutated, pivot)
-    if candidate is None:
-        return {"ok": False, "reason": "R47J_CANDIDATE_MISSING"}
-    replay = r47j.independent_fixpoint_macro_replay(mutated, candidate)
-    if not replay.get("pass"):
-        return {"ok": False, "reason": "R47J_REPLAY_FAIL", "replay": replay}
-    forced = r50g23.canon(candidate["DP"]["transformed"])
-    reduced = r33.simplify(forced)
-    final_formula = r50g23.canon(reduced["final_formula"])
-    return {
-        "ok": True,
-        "mutated": mutated,
-        "candidate": candidate,
-        "forced": forced,
-        "reduced": reduced,
-        "final": final_formula,
-        "first_label": first_label(reduced),
-        "debt": debt_from_first_record(r50g23, reduced),
-    }
-
-
-def run_pairwise(request: dict[str, Any], workspace: Path) -> dict[str, Any]:
+def run_pairwise(request: Dict[str, Any], workspace: Path) -> Dict[str, Any]:
     exp = workspace / "experiments"
     if not exp.is_dir():
         raise RuntimeError(f"TRUMP_EXPERIMENTS_MISSING:{exp}")
@@ -155,141 +91,204 @@ def run_pairwise(request: dict[str, Any], workspace: Path) -> dict[str, Any]:
         "janus_trump_r50g23_direct5_skeleton_r47j_collapse_cascade_anti_collapse_debt"
     )
     r33 = r50g23.r33
+    r47j = r50g23.r47j
+    pivot = int(r50g23.PIVOT)
     skeletons = r50g23.clean_skeletons_from_frozen_r50g22()
     if len(skeletons) != 30:
-        raise AssertionError(("R50G24_PAIRWISE_FROZEN_COUNT_DRIFT", len(skeletons)))
+        raise AssertionError(("R50G24_PAIRWISE_FROZEN_SKELETON_COUNT_DRIFT", len(skeletons)))
 
-    pair_trials = 0
-    first_clause_candidates = 0
-    first_transition_breaks = 0
-    second_debt_available = 0
+    trials = 0
     strong: list[dict[str, Any]] = []
     near: list[dict[str, Any]] = []
-    failure_partition: Counter[str] = Counter()
-    first_replacement_partition: Counter[str] = Counter()
-    second_debt_partition: Counter[str] = Counter()
+    first_rule_partition: Counter[str] = Counter()
+    terminal_partition: Counter[str] = Counter()
+    rejected = Counter()
+
+    def evaluate(
+        item: Dict[str, Any],
+        audit: Dict[str, Any],
+        clause1: tuple[int, ...],
+        clause2: tuple[int, ...],
+    ) -> None:
+        nonlocal trials
+        if trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG_CANDIDATES:
+            return
+        source = r50g23.canon(item["source"])
+        if clause1 == clause2 or clause1 in source or clause2 in source:
+            rejected["duplicate_or_existing_clause"] += 1
+            return
+        trials += 1
+        mutated = r50g23.canon(list(source) + [clause1, clause2])
+        candidate = r47j.macro_candidate_fixpoint(mutated, pivot)
+        if candidate is None:
+            rejected["r47j_candidate_missing"] += 1
+            return
+        replay = r47j.independent_fixpoint_macro_replay(mutated, candidate)
+        if not replay.get("pass"):
+            rejected["r47j_replay_fail"] += 1
+            return
+
+        forced = r50g23.canon(candidate["DP"]["transformed"])
+        reduced = r33.simplify(forced)
+        final_formula = r50g23.canon(reduced["final_formula"])
+        labels = ["R33:" + str(rec.get("rule")) for rec in reduced.get("history", [])]
+        first_label = labels[0] if labels else str(reduced.get("terminal"))
+        base_first = str(audit["transition_labels"][0])
+        first_changed = first_label != base_first
+        terminal = str(reduced.get("terminal"))
+        stalled_nonempty = terminal == "STALLED_STACK_LEAN_CORE" and bool(final_formula)
+        bipolar = is_bipolar_formula(final_formula) if final_formula else False
+        first_rule_partition[first_label] += 1
+        terminal_partition[terminal] += 1
+
+        row = {
+            "spec": item["spec"],
+            "source_hash": item["source_hash"],
+            "base_first_transition": base_first,
+            "base_debt": audit["first_transition_direct_blocking_debt"],
+            "added_clauses": [clause_json(clause1), clause_json(clause2)],
+            "mutated_source_CLV": list(r33.measure(mutated)),
+            "forced_DP_CLV": list(r33.measure(forced)),
+            "R33_terminal": terminal,
+            "R33_transition_labels": labels,
+            "R33_final_CLV": list(r33.measure(final_formula)),
+            "first_transition_changed": first_changed,
+            "nonempty_stalled_residual": stalled_nonempty,
+            "bipolar_residual": bipolar,
+            "r47j_replay_pass": True,
+            "R47J_terminal": candidate["normalization"].get("terminal"),
+            "R47J_round_count": candidate["normalization"].get("round_count"),
+            "R47J_restart_count": candidate["normalization"].get("restart_count"),
+        }
+
+        if stalled_nonempty and bipolar:
+            row["classification"] = "STRONG_R33_NONEMPTY_BIPOLAR_RESIDUAL_CANDIDATE"
+            row["residual_cnf"] = formula_json(final_formula)
+            strong.append(row)
+            return
+
+        if not first_changed:
+            rejected["same_first_transition"] += 1
+        elif not final_formula or terminal != "STALLED_STACK_LEAN_CORE":
+            rejected["first_changed_but_solved_or_empty"] += 1
+        elif not bipolar:
+            rejected["nonbipolar_residual"] += 1
+
+        if first_changed and len(near) < MAX_NEAR_MISSES:
+            row["classification"] = "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+            near.append(row)
 
     for item in skeletons:
-        if pair_trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG:
+        if trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG_CANDIDATES:
             break
-        source = r50g23.canon(item["source"])
-        source_vars = formula_variables(source)
-        base = r50g23.audit_one_skeleton(item)
-        base_label = str(base["transition_labels"][0])
-        base_debt = base["first_transition_direct_blocking_debt"]
-        first_clauses = binary_clauses(required_literals(base_debt), source_vars)
+        audit = r50g23.audit_one_skeleton(item)
+        debt = audit["first_transition_direct_blocking_debt"]
+        req_raw = debt.get("required_literal")
+        if req_raw is None:
+            rejected["no_required_literal_debt"] += 1
+            continue
+        req = int(req_raw)
+        vars_ = [v for v in formula_variables(item["source"]) if v != abs(req)]
 
+        first_clauses: list[tuple[int, ...]] = []
+        second_clauses: list[tuple[int, ...]] = []
+        for v in vars_:
+            for partner in (v, -v):
+                c1 = canon_clause(req, partner)
+                if c1 is not None:
+                    first_clauses.append(c1)
+                for debt_sign in (req, -req):
+                    c2 = canon_clause(debt_sign, partner)
+                    if c2 is not None:
+                        second_clauses.append(c2)
+        first_clauses = sorted(set(first_clauses))
+        second_clauses = sorted(set(second_clauses))
+
+        # Minimal pairwise closure: C1 must pay the known first-transition debt.
+        # C2 must still touch the same debt variable, but may use either polarity,
+        # allowing complementary, crossed, and fork closures without new variables.
         for c1 in first_clauses:
-            if pair_trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG:
+            if trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG_CANDIDATES:
                 break
-            if c1 in source:
-                continue
-            first_clause_candidates += 1
-            s1 = replay_state(r50g23, source, [c1])
-            if not s1["ok"]:
-                failure_partition[str(s1["reason"])] += 1
-                continue
-            if s1["first_label"] == base_label:
-                continue
-
-            first_transition_breaks += 1
-            first_replacement_partition[s1["first_label"]] += 1
-            debt2 = s1.get("debt")
-            req2 = required_literals(debt2)
-            if not req2:
-                second_debt_partition["NO_DIRECT_ADDITIVE_DEBT"] += 1
-                continue
-            second_debt_available += 1
-            second_debt_partition[str(debt2.get("debt_class", "UNKNOWN"))] += 1
-            second_clauses = binary_clauses(req2, source_vars)
-
             for c2 in second_clauses:
-                if pair_trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG:
+                if trials >= MAX_PAIR_TRIALS or len(strong) >= MAX_STRONG_CANDIDATES:
                     break
-                if c2 == c1 or c2 in source:
+                if c1 == c2:
                     continue
-                pair_trials += 1
-                s2 = replay_state(r50g23, source, [c1, c2])
-                if not s2["ok"]:
-                    failure_partition[str(s2["reason"])] += 1
+                # Require actual coordination: either the debt-variable polarity
+                # flips in C2 or C2 contains the opposite sign of C1's partner.
+                partner1 = next(l for l in c1 if abs(l) != abs(req))
+                coordinated = (-req in c2) or (-partner1 in c2)
+                if not coordinated:
                     continue
+                evaluate(item, audit, c1, c2)
 
-                reduced = s2["reduced"]
-                final_formula = s2["final"]
-                stalled = reduced.get("terminal") == "STALLED_STACK_LEAN_CORE" and bool(final_formula)
-                is_bipolar = bipolar(final_formula) if final_formula else False
-                row = {
-                    "spec": item["spec"],
-                    "source_hash": item["source_hash"],
-                    "base_first_transition": base_label,
-                    "first_clause": [int(x) for x in c1],
-                    "first_clause_replacement_transition": s1["first_label"],
-                    "first_clause_replacement_debt": debt2,
-                    "second_clause": [int(x) for x in c2],
-                    "pair_first_transition": s2["first_label"],
-                    "mutated_source_CLV": list(r33.measure(s2["mutated"])),
-                    "forced_DP_CLV": list(r33.measure(s2["forced"])),
-                    "R33_terminal": reduced.get("terminal"),
-                    "R33_transition_labels": ["R33:" + str(x["rule"]) for x in reduced.get("history", [])],
-                    "R33_final_CLV": list(r33.measure(final_formula)),
-                    "R33_final_formula": json_formula(final_formula),
-                    "nonempty_stalled_residual": stalled,
-                    "bipolar_residual": is_bipolar,
-                    "r47j_replay_pass": True,
-                    "full_R47J_terminal": s2["candidate"]["normalization"].get("terminal"),
-                    "full_R47J_round_count": int(s2["candidate"]["normalization"].get("round_count", 0)),
-                    "full_R47J_restart_count": int(s2["candidate"]["normalization"].get("restart_count", 0)),
-                }
-
-                if stalled and is_bipolar:
-                    row["classification"] = "STRONG_PAIRWISE_NONEMPTY_BIPOLAR_RESIDUAL"
-                    strong.append(row)
-                    continue
-
-                failure_partition["PAIR_COLLAPSED_OR_NONBIPOLAR"] += 1
-                failure_partition["FINAL_FIRST:" + s2["first_label"]] += 1
-                if len(near) < MAX_NEAR and s2["first_label"] != s1["first_label"]:
-                    row["classification"] = "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
-                    near.append(row)
+    mechanisms: list[dict[str, Any]] = []
+    for idx, row in enumerate(strong[:5], 1):
+        mechanisms.append({
+            "name": f"R50G24_PAIRWISE_SURVIVOR_{idx}",
+            "targets_transition": "PAIRWISE_FIRST_COLLAPSE_CLOSURE",
+            "construction": (
+                f"On frozen skeleton {row['spec']}, add exactly the two recorded clauses "
+                f"{row['added_clauses']} before same-pivot R47J."
+            ),
+            "why_it_might_work": (
+                "Repository replay changed/absorbed the local collapse and the first R33 pass "
+                "stalled on a nonempty bipolar residual while independent R47J replay passed."
+            ),
+            "accidental_simplification_risk": (
+                "Candidate only: full downstream R47J/RUP/restart behavior may still solve the formula; "
+                "the receipt records the full R47J terminal for exactly this reason."
+            ),
+            "minimal_replay_test": (
+                "Rebuild the exact frozen skeleton, add only the two recorded binary clauses, run R47J "
+                "pivot 1 and its independent replay, then assert first-pass R33 terminal "
+                "STALLED_STACK_LEAN_CORE, residual CNF nonempty, and both polarities for every residual variable."
+            ),
+            "receipt": row,
+        })
 
     if strong:
-        recommended = "R50G24_PAIRWISE_SURVIVOR_INDEPENDENT_REPLAY_AND_DOWNSTREAM_RUP_RESTART_AUDIT"
+        recommended = "R50G25_STRONG_PAIRWISE_SURVIVOR_FULL_FIXPOINT_AND_MINIMIZATION"
         answer = (
-            f"Pairwise lane проверил {pair_trials} координированных пар и нашёл {len(strong)} strong candidates: "
-            "same-pivot R47J replay проходит, а первый R33 pass оставляет непустое биполярное stalled-ядро. "
-            "Следующий шаг — независимый replay и проверка, что именно делает полный R47J после этого ядра."
+            f"Pairwise gate проверил {trials} координированных двухклаузных мутаций и нашёл "
+            f"{len(strong)} кандидатов с непустым bipolar stalled-core после первого R33. "
+            "Следующий удар — независимый полный fixpoint replay и delta-minimization каждого survivor."
         )
     else:
-        dominant = failure_partition.most_common(5)
-        recommended = "R50G25_DOMINANT_REPLACEMENT_ESCAPE_STRUCTURAL_DEBT"
+        dominant = first_rule_partition.most_common(1)[0][0] if first_rule_partition else "NONE"
+        recommended = "R50G25_MINIMUM_STRUCTURAL_DEBT_AGAINST_DOMINANT_REPLACEMENT_ESCAPE"
         answer = (
-            f"Pairwise lane проверил {pair_trials} координированных binary-clause pairs и strong survivor не нашёл. "
-            f"Это finite-negative только для этого bounded pairwise space. Доминирующие исходы: {dominant}. "
-            "Следующий gate должен атаковать фактический доминирующий replacement escape, а не расширять family."
+            f"Pairwise gate проверил {trials} координированных двухклаузных мутаций и сильного "
+            f"bipolar residual-core не нашёл. Доминирующий первый replacement escape: {dominant}. "
+            "Следующий gate должен атаковать именно его, не расширяя frozen 30."
         )
 
-    return normalize({
-        "engine": "DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY",
-        "frozen_skeleton_count": len(skeletons),
-        "pair_trial_count": pair_trials,
-        "first_clause_candidate_count": first_clause_candidates,
-        "first_transition_break_count": first_transition_breaks,
-        "second_direct_debt_available_count": second_debt_available,
-        "first_replacement_partition": dict(first_replacement_partition),
-        "second_debt_partition": dict(second_debt_partition),
-        "failure_partition": dict(failure_partition),
+    return normalize_report({
+        "engine": ENGINE,
+        "repo_observations": [
+            {
+                "claim": "Exactly the canonical frozen R50G23 selector/audit/R47J/R33 machinery was imported from the read-only TRUMP checkout.",
+                "path": "experiments/janus_trump_r50g23_direct5_skeleton_r47j_collapse_cascade_anti_collapse_debt.py",
+                "why_relevant": "The pairwise lane does not reimplement the frozen skeleton family or solver semantics."
+            },
+            {
+                "claim": f"Pairwise bounded trials executed: {trials}; strong candidates: {len(strong)}.",
+                "path": "runtime-only",
+                "why_relevant": "Every trial adds exactly two binary clauses over already-existing variables to one of the same frozen 30 sources."
+            }
+        ],
+        "candidate_mechanisms": mechanisms,
+        "near_misses": near,
+        "rejected_summary": dict(sorted(rejected.items())),
+        "first_replacement_rule_partition": dict(first_rule_partition.most_common()),
+        "R33_terminal_partition": dict(terminal_partition.most_common()),
+        "deterministic_pair_trial_count": trials,
         "strong_candidate_count": len(strong),
         "strong_candidates": strong,
-        "near_misses": near,
         "recommended_next_gate": recommended,
         "answer": answer,
-        "scope_firewall": {
-            "family_expanded": False,
-            "new_variables_added": False,
-            "r47j_changed": False,
-            "pair_width": "BINARY_PLUS_BINARY_ONLY",
-            "finite_search_is_universal_proof": False,
-        },
+        "finite_search_is_universal_proof": False,
     })
 
 
@@ -310,8 +309,9 @@ def main() -> int:
         raise ValueError("TRUMP_REQUEST_NOT_QUEUED")
     if request.get("purpose") != "PARALLEL_TRUMP_CODE_RESEARCH":
         raise ValueError("TRUMP_REQUEST_WRONG_PURPOSE")
-    if "PAIRWISE-COUNTERPOLARITY-CLOSURE" not in request_id:
-        raise ValueError("R50G24_PAIRWISE_REQUEST_ID_REQUIRED")
+    gate = str((request.get("frontier") or {}).get("gate") or request_id)
+    if "PAIRWISE_COUNTERPOLARITY" not in gate:
+        raise ValueError(f"TRUMP_PAIRWISE_WRONG_GATE:{gate}")
 
     report = run_pairwise(request, workspace)
     receipt = {
@@ -323,7 +323,7 @@ def main() -> int:
         "source_branch": request.get("source_branch"),
         "source_commit": os.environ.get("TRUMP_SOURCE_SHA"),
         "github_run_id": os.environ.get("GITHUB_RUN_ID"),
-        "engine": "DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY",
+        "engine": ENGINE,
         "provider_error_observed": False,
         "authority": "RESEARCH_HYPOTHESIS_ONLY",
         "truth_boundary": {
@@ -340,7 +340,7 @@ def main() -> int:
     memory = habitat / "memory" / "trump" / f"{utc_now().replace(':', '-')}_{request_id}.json"
     write_json(outbox, receipt)
     write_json(memory, receipt)
-    print(f"TRUMP_PAIRWISE_RECEIPT={outbox}")
+    print(f"TRUMP_PAIRWISE_RESEARCH_RECEIPT={outbox}")
     return 0
 
 
