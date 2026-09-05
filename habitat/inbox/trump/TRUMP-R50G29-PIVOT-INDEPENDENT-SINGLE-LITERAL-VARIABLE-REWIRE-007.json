@@ -1,0 +1,63 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE-007",
+  "created_at_local": "2026-09-06T02:32:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "parent_request": "TRUMP-R50G28-SINGLE-FLIP-DOOR-CLOSED-ALTERNATE-PIVOT-AUDIT-006",
+  "accepted_parent_result": {
+    "pivot1_door_closed_mutant_count": 727,
+    "mutant_with_any_alternate_r47j_pivot_count": 727,
+    "mutant_all_r47j_pivots_closed_count": 0,
+    "alternate_candidate_edge_count": 4362,
+    "alternate_missing_edge_count": 0,
+    "alternate_terminal_partition": {"DIRECT_EMPTY_CNF": 4362},
+    "alternate_unresolved_edge_count": 0,
+    "open_pivot_count_per_mutant": {"6": 727},
+    "search_exhaustive": true,
+    "verdict": "PIVOT1_CLOSURE_IS_LOCAL_FINITE_NEGATIVE_GLOBAL_OBSTRUCTION"
+  },
+  "frontier": {
+    "gate": "R50G29_PIVOT_INDEPENDENT_SINGLE_LITERAL_VARIABLE_REWIRE",
+    "parent_seal_required": true,
+    "expected_pair_path_count": 1774,
+    "expected_unique_pair_state_count": 1424,
+    "expected_unique_pair_rule_partition": {
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 589,
+      "R33:PURE_LITERAL_AUTARKY": 94,
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 736,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 5
+    },
+    "mutation_policy": "ONE_EXISTING_LITERAL_OCCURRENCE_VARIABLE_IDENTITY_REWIRE_SIGN_PRESERVED",
+    "pivot_policy": "PIVOT_INDEPENDENT_ANY_EXISTING_VARIABLE",
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY"
+  },
+  "research_task": "Reproduce the exact 1774-path / 1424-unique pair-state parent and exact unique-state first-rule partition. Then exhaustively generate every valid one-occurrence variable-identity rewire sign*x -> sign*y where x != y, y already exists in the same formula, x remains elsewhere after the edit, clause count and width are unchanged, the complete variable universe is preserved, and no tautology or canonical duplicate-clause collapse is introduced. Deduplicate rewired formulas by canonical hash. For every unique mutant, audit existing variables in deterministic order until a replay-verified R47J macro candidate is found. If no pivot has a candidate, classify the formula as ALL_R47J_PIVOTS_CLOSED_SINGLE_VARIABLE_REWIRE and record an exact replayable sample. If an open pivot exists, record its terminal and round count. This gate asks only for existence of any R47J pivot door; do not treat the first missing pivot as failure. Fail closed on parent drift or replay failure. Finite exhaustion is not a universal theorem.",
+  "success_condition": "Either at least one replayable all-R47J-pivots-closed rewire mutant, or an exhaustive finite-negative classification showing every valid rewire mutant retains a replay-verified R47J pivot door.",
+  "forbidden": [
+    "EXPAND_FROZEN_FAMILY",
+    "ADD_OR_DELETE_CLAUSES",
+    "ADD_NEW_VARIABLES",
+    "REMOVE_VARIABLE_FROM_UNIVERSE",
+    "CHANGE_LITERAL_SIGN",
+    "CHANGE_CLAUSE_WIDTH",
+    "PREFER_PIVOT1",
+    "WRITE_TRUMP_SOURCE",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_FINITE_SEARCH_TO_UNIVERSAL_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "model_output_is_proof": false
+  },
+  "status": "QUEUED"
+}
