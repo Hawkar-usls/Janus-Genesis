@@ -1,0 +1,111 @@
+{
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "engine": "DETERMINISTIC_FUNDAMENTUM_MODULE_REPLAY",
+  "github_run_id": "33995874319",
+  "lane_id": "JANUS_TRUMP_FUNDAMENTUM_MODULE_REPLAY",
+  "processed_at_utc": "2026-09-05T22:30:08Z",
+  "projection": {
+    "full_report_key_count": 21,
+    "persisted_report_key_count_before_truth_fields": 19,
+    "projection_applied": true,
+    "requested_report_fields": [
+      "gate",
+      "parent_gate",
+      "parent_unique_post_DP_states",
+      "parent_ge3_unique_states",
+      "parent_ge3_weighted_occurrences",
+      "exact_minimum_cover_unique_histogram",
+      "exact_minimum_cover_weighted_histogram",
+      "source_realizability_unique_partition",
+      "source_realizability_weighted_partition",
+      "exact_minimum_source_realizable_unique_count",
+      "exact_minimum_source_realizable_weighted_count",
+      "all_ge3_minimum_covers_source_realizable",
+      "first_R33_rule_after_realized_minimum_cover_unique_partition",
+      "first_R33_rule_after_realized_minimum_cover_weighted_partition",
+      "full_R47J_terminal_after_realized_minimum_cover_unique_partition",
+      "full_R47J_terminal_after_realized_minimum_cover_weighted_partition",
+      "next_gate",
+      "interpretation_contract",
+      "firewall"
+    ]
+  },
+  "report": {
+    "all_ge3_minimum_covers_source_realizable": false,
+    "exact_minimum_cover_unique_histogram": {
+      "2": 221,
+      "3": 980,
+      "4": 11
+    },
+    "exact_minimum_cover_weighted_histogram": {
+      "2": 356,
+      "3": 1306,
+      "4": 11
+    },
+    "exact_minimum_source_realizable_unique_count": 312,
+    "exact_minimum_source_realizable_weighted_count": 425,
+    "firewall": {
+      "ALL_DIRECT5_V7_HUB_CYCLE_ELIMINATED": false,
+      "P_VS_NP": "OPEN",
+      "SAT_IN_P": "NOT_PROVED",
+      "TRUMP_finished": false,
+      "U_MU": "OPEN"
+    },
+    "first_R33_rule_after_realized_minimum_cover_unique_partition": {
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 290,
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 21,
+      "R33_TERMINAL:STALLED_STACK_LEAN_CORE": 1
+    },
+    "first_R33_rule_after_realized_minimum_cover_weighted_partition": {
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 402,
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 22,
+      "R33_TERMINAL:STALLED_STACK_LEAN_CORE": 1
+    },
+    "full_R47J_terminal_after_realized_minimum_cover_unique_partition": {
+      "DIRECT_EMPTY_CLAUSE": 16,
+      "DIRECT_EMPTY_CNF": 296
+    },
+    "full_R47J_terminal_after_realized_minimum_cover_weighted_partition": {
+      "DIRECT_EMPTY_CLAUSE": 23,
+      "DIRECT_EMPTY_CNF": 402
+    },
+    "gate": "JANUS_TRUMP_R50G25B_SOURCE_REALIZABILITY_OF_MINIMUM_JOINT_DEBT",
+    "interpretation_contract": {
+      "exact_minimum_is_static_incidence_cover_only": true,
+      "minimum_generalizes_outside_sealed_states": false,
+      "recorded_post_cover_R33_behavior_is_next_gate_evidence_only": true,
+      "source_realized_cover_is_dynamic_BCE_BVE_closure_proof": false,
+      "source_realized_cover_is_hard_core_proof": false
+    },
+    "module_replay_status": "EXECUTED",
+    "next_gate": "R50G25C_SOURCE_PREIMAGE_OBSTRUCTION_FORENSICS",
+    "p_vs_np": "OPEN",
+    "parent_gate": "JANUS_TRUMP_R50G24_PAIRWISE_COUNTERPOLARITY_CLOSURE_REPLAY",
+    "parent_ge3_unique_states": 991,
+    "parent_ge3_weighted_occurrences": 1317,
+    "parent_unique_post_DP_states": 1212,
+    "proof_claim": false,
+    "sat_in_p": "NOT_PROVED",
+    "source_realizability_unique_partition": {
+      "DP_INTERACTION_MISMATCH": 679,
+      "EXACT_MINIMUM_COVER_SOURCE_REALIZED": 312
+    },
+    "source_realizability_weighted_partition": {
+      "DP_INTERACTION_MISMATCH": 892,
+      "EXACT_MINIMUM_COVER_SOURCE_REALIZED": 425
+    }
+  },
+  "request_id": "TRUMP-R50G25B-SOURCE-REALIZABILITY-MODULE-REPLAY-001",
+  "schema": "janus.genesis.trump_module_replay_receipt.v1_1",
+  "source_branch": "research/r50g25b-source-realizability-minimum-joint-debt-2026-09-06",
+  "source_commit": "0c1312a8ac588bd8f5d32148862451b41b8eb5a3",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "target_module": "janus_trump_r50g25b_source_realizability_minimum_joint_debt",
+  "truth_boundary": {
+    "deterministic_finite_search_is_universal_proof": false,
+    "model_output_is_independent_confirmation": false,
+    "model_output_is_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  }
+}
