@@ -1,0 +1,22 @@
+{
+  "schema": "janus.genesis.trump_module_replay_request.v1",
+  "request_id": "TRUMP-R50G25A-COMPACT-SUMMARY-MODULE-REPLAY-002",
+  "created_at_local": "2026-09-06T01:22:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_MODULE_REPLAY",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g25a-bce-bve-joint-debt-hypergraph-2026-09-06",
+  "source_head_sha_at_queue": "95f586036a5c4ff1e1f1f8f563cb12c5fad0f64c",
+  "target_module": "janus_trump_r50g25a_bce_bve_joint_debt_compact_summary",
+  "parent_request": "TRUMP-R50G25A-BCE-BVE-JOINT-DEBT-MODULE-REPLAY-001",
+  "purpose_detail": "Recompute the exact R50G25A gate but return only the preregistered aggregate fields, omitting state_profiles, so the R50G25B branch decision is auditable and compact.",
+  "forbidden": [
+    "CHANGE_R50G25A_SEMANTICS",
+    "SKIP_R50G24_PARENT_REPLAY",
+    "PROMOTE_STATIC_COVER_TO_SUFFICIENCY",
+    "CLAIM_SAT_IN_P",
+    "CLAIM_P_EQUALS_NP"
+  ],
+  "status": "QUEUED"
+}
