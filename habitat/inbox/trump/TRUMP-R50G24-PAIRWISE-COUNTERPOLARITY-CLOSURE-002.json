@@ -1,0 +1,52 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G24-PAIRWISE-COUNTERPOLARITY-CLOSURE-002",
+  "created_at_local": "2026-09-06T00:18:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_pr": 439,
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "parent_request": "TRUMP-R50G24-CODE-READONLY-001",
+  "accepted_parent_result": {
+    "engine": "DETERMINISTIC_R50G24_MUTATION_LAB",
+    "deterministic_trial_count": 2154,
+    "strong_candidate_count": 0,
+    "same_first_transition": 1425,
+    "first_transition_broken_but_solved_or_empty": 729,
+    "r47j_candidate_missing": 0,
+    "r47j_replay_fail": 0,
+    "interpretation": "Single-clause counterpolarity debt is often sufficient to move the first certified transition but was insufficient to produce a nonempty bipolar stalled core in the bounded search. Treat this as finite evidence only, not a universal theorem."
+  },
+  "frontier": {
+    "gate": "R50G24_PAIRWISE_COUNTERPOLARITY_CLOSURE_AFTER_SINGLE_CLAUSE_NEGATIVE",
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY",
+    "sealed_population": 30,
+    "same_pivot": "R47J pivot 1",
+    "target": "NONEMPTY_BIPOLAR_RESIDUAL_CORE",
+    "reason_for_transition": "729 single-clause trials changed the first transition but still collapsed to solved/empty R33 outcomes, so the next minimal debt is coordinated closure rather than generic added complexity."
+  },
+  "research_task": "Continue from the accepted parent receipt without repeating the 2154 single-clause search. Work only on the same frozen 30 R50G22 skeletons and same R47J pivot 1. Search the smallest PAIR of additive clauses that jointly closes the counterpolarity leak responsible for the first transition while preventing the second clause from simply creating a new BCE/PURE/BVE/subsumption escape. Prioritize pairs sharing existing variables and no new variables. A candidate is strong only if independent R47J replay passes and R33 ends STALLED_STACK_LEAN_CORE with a nonempty CNF in which every residual variable has both polarities. Record exact skeleton spec, both added clauses, before/after first-transition labels, residual CNF/CLV, and the smallest replay assertion. If every bounded pair still collapses, partition the failures by the first replacement rule and identify the next minimum structural debt. Do not count merely changing the first transition as success.",
+  "forbidden": [
+    "REPEAT_SINGLE_CLAUSE_SEARCH_AS_THE_MAIN_RESULT",
+    "EXPAND_FROZEN_30_FAMILY",
+    "ADD_NEW_VARIABLES",
+    "CHANGE_R47J",
+    "WRITE_TRUMP_SOURCE",
+    "MERGE_MAIN",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_FINITE_SEARCH_TO_UNIVERSAL_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "model_output_is_proof": false
+  },
+  "status": "QUEUED"
+}
