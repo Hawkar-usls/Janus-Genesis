@@ -1,0 +1,65 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G28-SINGLE-FLIP-DOOR-CLOSED-ALTERNATE-PIVOT-AUDIT-006",
+  "created_at_local": "2026-09-06T02:25:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "parent_request": "TRUMP-R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP-005",
+  "parent_count_correction": "TRUMP-R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP-005-COUNT-CORRECTION",
+  "accepted_parent_result": {
+    "pair_path_count": 1774,
+    "unique_pair_state_count": 1424,
+    "raw_valid_flip_path_count": 61112,
+    "unique_mutant_formula_count": 59486,
+    "pivot1_successful_r47j_count": 58759,
+    "pivot1_door_closed_actual_count": 727,
+    "pivot1_success_first_partition": {
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 39601,
+      "R33:PURE_LITERAL_AUTARKY": 8972,
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 9985,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 201
+    },
+    "pivot1_terminal_partition": {
+      "EMPTY_CNF_SAT": 58758,
+      "EMPTY_CLAUSE_UNSAT": 1
+    },
+    "full_unresolved": 0,
+    "first_pass_stalled": 0,
+    "search_exhaustive": true
+  },
+  "frontier": {
+    "gate": "R50G28_SINGLE_FLIP_DOOR_CLOSED_ALTERNATE_PIVOT_AUDIT",
+    "parent_seal_required": true,
+    "expected_pivot1_door_closed_count": 727,
+    "mutation_policy": "NO_NEW_MUTATION_AUDIT_EXISTING_R50G27_MUTANTS_ONLY",
+    "pivot_policy": "AUDIT_EVERY_EXISTING_VARIABLE_AS_R47J_PIVOT",
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY"
+  },
+  "research_task": "Reconstruct the exact sealed R50G27 search space and fail closed unless all parent counts match, including exactly 727 unique mutant formulas with no R47J pivot-1 macro candidate. For each of those 727 formulas, test every variable still present in that formula as an R47J pivot. Independently replay every available macro candidate. Record whether each mutant regains at least one alternate pivot door or closes every R47J pivot door. Classify every alternate candidate by normalization terminal (DIRECT_EMPTY_CNF, DIRECT_EMPTY_CLAUSE, unresolved/null, or other), record pivot frequencies and open-pivot-count-per-mutant. Do not introduce any additional mutation. If any mutant closes all R47J pivots, return replayable samples and route them to a direct R33/RUP/affine/other frozen-operator audit. If all regain alternate pivots, classify pivot-1 closure as a local finite-negative obstruction only. Finite results do not imply P=NP or SAT in P.",
+  "success_condition": "An exhaustive 727-mutant alternate-pivot classification with exact counts and replayable samples, including all-R47J-pivots-closed candidates if any.",
+  "forbidden": [
+    "INTRODUCE_NEW_MUTATION",
+    "EXPAND_FROZEN_FAMILY",
+    "ADD_NEW_VARIABLES",
+    "CHANGE_R47J_DEFINITION",
+    "WRITE_TRUMP_SOURCE",
+    "TREAT_PIVOT1_CLOSURE_AS_GLOBAL_SOLVER_FAILURE",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_FINITE_SEARCH_TO_UNIVERSAL_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "pivot1_door_closed_is_global_obstruction": false,
+    "model_output_is_proof": false
+  },
+  "status": "QUEUED"
+}
