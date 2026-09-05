@@ -1,0 +1,64 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G30-MINIMUM-TWO-OCCURRENCE-COUPLED-REWIRE-008",
+  "created_at_local": "2026-09-06T02:49:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "parent_request": "TRUMP-R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE-007",
+  "accepted_parent_result": {
+    "raw_valid_rewire_path_count": 218484,
+    "unique_rewire_mutant_formula_count": 203395,
+    "audited_pivot_edge_count_until_first_open": 206126,
+    "missing_pivot_edge_count_before_first_open": 2731,
+    "mutant_with_replay_verified_open_r47j_pivot_count": 203395,
+    "mutant_all_r47j_pivots_closed_count": 0,
+    "first_open_pivot_frequency": {"1": 200664, "2": 2731},
+    "first_open_terminal_partition": {"DIRECT_EMPTY_CNF": 203394, "DIRECT_EMPTY_CLAUSE": 1},
+    "search_exhaustive_within_declared_single_variable_rewire_grammar": true,
+    "verdict": "FINITE_NEGATIVE_FOR_SINGLE_OCCURRENCE_VARIABLE_REWIRE_AS_ALL_PIVOT_OBSTRUCTION"
+  },
+  "frontier": {
+    "gate": "R50G30_MINIMUM_TWO_OCCURRENCE_COUPLED_REWIRE",
+    "parent_seal_required": true,
+    "expected_pair_path_count": 1774,
+    "expected_unique_pair_state_count": 1424,
+    "expected_unique_pair_rule_partition": {
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 589,
+      "R33:PURE_LITERAL_AUTARKY": 94,
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 736,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 5
+    },
+    "mutation_policy": "TWO_DISTINCT_OCCURRENCES_VARIABLE_IDENTITY_SWAP_SIGNS_PRESERVED",
+    "pivot_policy": "PIVOT_INDEPENDENT_ANY_EXISTING_VARIABLE",
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY"
+  },
+  "research_task": "Reproduce the exact frozen 1774-path / 1424-unique pair-state parent and exact unique-state first-rule partition. Then exhaustively generate every canonical valid two-occurrence coupled variable-identity swap: at occurrence A sign_a*x becomes sign_a*y and at distinct occurrence B sign_b*y becomes sign_b*x, with x != y. Preserve each occurrence sign, clause count, all clause widths, complete variable universe, and the global occurrence histogram of every variable. Reject duplicate literals, tautological clauses, canonical duplicate-clause collapse, unchanged formulas, or any structural drift outside this grammar. Deduplicate mutants by canonical hash. For each unique mutant, audit every existing variable pivot in deterministic order until a replay-verified R47J macro candidate is found. If no pivot has a candidate, classify ALL_R47J_PIVOTS_CLOSED_COUPLED_TWO_OCCURRENCE_REWIRE and store a fully replayable sample. If all mutants retain a door, return an exhaustive finite-negative and the minimum justified next grammar. Fail closed on parent drift or any replay failure. Do not promote finite exhaustion to a universal theorem.",
+  "success_condition": "Either at least one replayable all-R47J-pivots-closed coupled-swap mutant, or an exhaustive finite-negative showing every valid coupled-swap mutant retains a replay-verified R47J pivot door.",
+  "forbidden": [
+    "EXPAND_FROZEN_FAMILY",
+    "ADD_OR_DELETE_CLAUSES",
+    "ADD_NEW_VARIABLES",
+    "REMOVE_VARIABLE_FROM_UNIVERSE",
+    "CHANGE_LITERAL_SIGN",
+    "CHANGE_CLAUSE_WIDTH",
+    "CHANGE_VARIABLE_OCCURRENCE_HISTOGRAM",
+    "PREFER_PIVOT1",
+    "WRITE_TRUMP_SOURCE",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_FINITE_SEARCH_TO_UNIVERSAL_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "model_output_is_proof": false
+  },
+  "status": "QUEUED"
+}
