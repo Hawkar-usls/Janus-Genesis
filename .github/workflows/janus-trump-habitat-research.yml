@@ -8,6 +8,7 @@ on:
       - 'tools/trump_habitat_research_agent.py'
       - 'tools/trump_r50g24_pairwise_research_agent.py'
       - 'tools/trump_r50g25_adaptive_third_debt_agent.py'
+      - 'tools/trump_r50g26_width3_unique_pair_state_agent.py'
   workflow_dispatch:
   schedule:
     - cron: '37 * * * *'
@@ -114,7 +115,7 @@ jobs:
           node-version: '22'
 
       - name: Install GitHub Copilot CLI
-        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE') && !contains(steps.discover.outputs.request_id, 'R50G25-ADAPTIVE-THIRD-DEBT')
+        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE') && !contains(steps.discover.outputs.request_id, 'R50G25-ADAPTIVE-THIRD-DEBT') && !contains(steps.discover.outputs.request_id, 'R50G26-UNIQUE-PAIR-STATE-WIDTH3')
         run: |
           npm install -g @github/copilot
           copilot --version
@@ -129,7 +130,13 @@ jobs:
           export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
           REQUEST="$(cat runtime/request.txt)"
           RID="${{ steps.discover.outputs.request_id }}"
-          if [[ "$RID" == *"R50G25-ADAPTIVE-THIRD-DEBT"* ]]; then
+          if [[ "$RID" == *"R50G26-UNIQUE-PAIR-STATE-WIDTH3"* ]]; then
+            echo "TRUMP_ENGINE=DETERMINISTIC_R50G26_UNIQUE_PAIR_STATE_WIDTH3_STRUCTURAL_SUPPORT"
+            python control/tools/trump_r50g26_width3_unique_pair_state_agent.py \
+              --request "$REQUEST" \
+              --workspace trump-source \
+              --habitat-root habitat-repo/habitat
+          elif [[ "$RID" == *"R50G25-ADAPTIVE-THIRD-DEBT"* ]]; then
             echo "TRUMP_ENGINE=DETERMINISTIC_R50G25_ADAPTIVE_THIRD_DEBT"
             python control/tools/trump_r50g25_adaptive_third_debt_agent.py \
               --request "$REQUEST" \
