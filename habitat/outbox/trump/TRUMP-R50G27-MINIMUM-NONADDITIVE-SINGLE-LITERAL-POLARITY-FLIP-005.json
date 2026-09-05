@@ -1,0 +1,1767 @@
+{
+  "schema": "janus.genesis.trump_research_receipt.v1_5",
+  "lane_id": "JANUS_TRUMP_R50G27_SINGLE_POLARITY_FLIP_LANE",
+  "request_id": "TRUMP-R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP-005",
+  "processed_at_utc": "2026-09-05T23:20:42Z",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "github_run_id": "33998249423",
+  "engine": "DETERMINISTIC_R50G27_MINIMUM_NONADDITIVE_SINGLE_LITERAL_POLARITY_FLIP",
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "truth_boundary": {
+    "model_output_is_proof": false,
+    "model_output_is_independent_confirmation": false,
+    "deterministic_finite_search_is_universal_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  },
+  "report": {
+    "engine": "DETERMINISTIC_R50G27_MINIMUM_NONADDITIVE_SINGLE_LITERAL_POLARITY_FLIP",
+    "parent_seal": {
+      "pair_path_count": 1774,
+      "pair_partition": {
+        "R33:BOUNDED_VARIABLE_ELIMINATION": 786,
+        "R33:BLOCKED_CLAUSE_ELIMINATION": 887,
+        "R33:PURE_LITERAL_AUTARKY": 94,
+        "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 7
+      },
+      "unique_pair_state_count": 1424,
+      "unique_pair_rule_partition": {
+        "R33:BOUNDED_VARIABLE_ELIMINATION": 589,
+        "R33:BLOCKED_CLAUSE_ELIMINATION": 736,
+        "R33:PURE_LITERAL_AUTARKY": 94,
+        "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 5
+      },
+      "seal_replay_pass": true
+    },
+    "raw_valid_flip_path_count": 61112,
+    "unique_mutant_formula_count": 59486,
+    "compression_ratio_flip_paths_per_unique_mutant": 1.0273341626601218,
+    "mutant_first_transition_partition": {
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 39601,
+      "R33:PURE_LITERAL_AUTARKY": 8972,
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 9985,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 201
+    },
+    "mutant_R33_terminal_partition": {
+      "EMPTY_CNF_SAT": 58758,
+      "EMPTY_CLAUSE_UNSAT": 1
+    },
+    "same_pivot_door_closed_count_recorded": 20,
+    "same_pivot_door_closed_candidates": [
+      {
+        "pair_hash": "91a175ef25b11a427864bfed972d71a7b15fe919b1be8c5981e8c7c61ea57298",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 109,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+          "first_clause": [
+            2,
+            7
+          ],
+          "second_clause": [
+            -5,
+            -2
+          ]
+        },
+        "clause_index": 6,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "000582844390c742cdce93883e872fd20e3efe5a3e424a110c4d596873693de6",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "6ee5838709278b15fb9c3f9604204bdf85b6b760246ede4be8f7a1347eb1b443",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 6,
+            "sign_mask": 25,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "329283af4fc06c787198cfa95b5cec2879d72e4da6c97b831a512747c16a0a95",
+          "first_clause": [
+            2,
+            3
+          ],
+          "second_clause": [
+            -4,
+            2
+          ]
+        },
+        "clause_index": 6,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "00cbd0f1c8cf4f902f7831657b1bae8eb1d65fbd5be801b5a49b2cfde5e0f6b9",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "38c8bf72d3ca191d7045ffd81ee06d1e35c0aa136c2722203effa9ade2d7e815",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -2,
+            7
+          ]
+        },
+        "clause_index": 9,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "0123d1e3924df4cc38d7df5ccaccb034eb99efa46c9309726c1ec9d86d3e4747",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "ae0ef26cac5c1844c2b7a5334a79da36f0971e96362641dc376f9c4316b99208",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            2,
+            3
+          ],
+          "second_clause": [
+            2,
+            5
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "01de548103201e4723a5073d6eab3fb9525408877d9a07d8d7e0f06eec0fd86d",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "d28f3e1ffeae57e51c79f47f5a19be4c3a88132544c7a1951e590a8f6590a53e",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -4,
+            -2
+          ],
+          "second_clause": [
+            3,
+            4
+          ]
+        },
+        "clause_index": 7,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "0211a56e2993adee7c005c05a0e56a7ae95c0e047d5fa12ef5f7c8090722345c",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "399b62bf1e70b7f353bfe45d60c1be6484c41f04f0c92d65a4f0468bc9b5d282",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -7,
+            -2
+          ],
+          "second_clause": [
+            -6,
+            -2
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "023653ce8c01903261f9f6db69747fa7fc4015f7e7ac5b5c1fe413bdfb91bc5f",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "36c638d5408d8bf76e4a6e7b5629a67973771639a489bdd61e393f924c563455",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 109,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "4b27a8e264d059cd3d365e3096efd0a8582e854324e9d6f061b4d55ac394a4fd",
+          "first_clause": [
+            2,
+            6
+          ],
+          "second_clause": [
+            -6,
+            -2
+          ]
+        },
+        "clause_index": 6,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "0291df96eea6c8fc6552415519ac9c4f4394cdc0bf78fd97cb096781c816c9f5",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "c6105596cb48ac9a13794ce8a4858dd5cbbf82fdd647b60b181eaac21ae64514",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+          "first_clause": [
+            -6,
+            -5
+          ],
+          "second_clause": [
+            -1,
+            2
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "039be40adecf414e49bf41912e9d74e81db3fe747cc41aa069670c58b8dbdb68",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "4dd1a94a2218340b282e29655d45082dc2f647aa732a93747f1c093878504db0",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 109,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -2,
+            7
+          ]
+        },
+        "clause_index": 6,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "04364c00c33a8e586f8ec88e9a9b845db05821369f81fc3a9dfb00082ed5747d",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "6204f60b34230193276d6fe7bad1f726b452b083f2055c81aa279cf53a7a4fe8",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -2,
+            4
+          ],
+          "second_clause": [
+            -3,
+            -2
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "043f78b34f781b930c09803a1617b38b5c3b59f8e1c28cd82d59cbedd8c08d44",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "0fd358a94145c1d63919e012df5ff7824bc33dd48337b44f015ab8f10ba333d6",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            -4,
+            2
+          ],
+          "second_clause": [
+            2,
+            5
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "04b076815b2921ff5aaa9020460518d3c361a3f2d9aa4166b34700e7f941ea58",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "f4c460f8038ec435a2dce89da76d3d58cf5e64881f0c2d770e35e0f501bcab90",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 8,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -7,
+            2
+          ]
+        },
+        "clause_index": 10,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "04cae237f7a2b29f73ad5d7f7456202b3772d0eddebd29704686c65808bf86ea",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "277a90371af5b8088de3508e41647e290b0a841722c9eba3074690987af6d957",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -2,
+            4
+          ]
+        },
+        "clause_index": 9,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "04e5db97eb4803f0b80756cf02c66149f406f19241f71ad9528ea43b2224634c",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "b775db0d3672a05909a9dfe45cf1cfec985fcee33a30dd965f0417df9e05e888",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -7,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            4
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "06378ad855141cc4f4e615de690fe1ef12be34c52f6ab4664586d19d36296e2e",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "b2f178332bedcea5e36e248083ca6679d8e3f3cb5a4b96807bb0474edce9357a",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 118,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 2
+          },
+          "source_hash": "c867cc40d5ce7d39012bd73fa89fe3be0101ee1f3d8e1a83a3348e36be56f1b8",
+          "first_clause": [
+            -3,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            7
+          ]
+        },
+        "clause_index": 7,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "06d28d61ef6a6835c1a9afa12339d1dfafc7663718ba93bd8bb514a4c48cde94",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "a53fdbcc4f9ed67f634688a181e07f990e76d2fd5de12ca2db2404f20b7c8bbc",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 8,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -6,
+            -2
+          ]
+        },
+        "clause_index": 11,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "07abad5c115af578e5d7abfea12f38c4d10cb8e3c1d27f6de2264567b25f3c73",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "5555128ac9a8c467a6c7807d46430483f05e33afd9c735cf9f3b6d1a31c93af4",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+          "first_clause": [
+            -7,
+            -5
+          ],
+          "second_clause": [
+            -2,
+            3
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "07ce1cef644119856f59476726c8b4c981da61b653321e71846f62a955bfc088",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "817e92466a3de114e31259ebeaf806430fc84e5a0820867fcd7a89cb668e115c",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -2,
+            -1
+          ],
+          "second_clause": [
+            -1,
+            4
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "07f61b0b0689b23ec957bca53f2cce4dedfdcd50c36757f72af9890565208b8e",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "5d1de7852461767f2c9eec2c1d97b6662f4ca56cb47f9be9f7a978ba0b215343",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            -5,
+            2
+          ],
+          "second_clause": [
+            -3,
+            2
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "087621a9640f03bb18a491809297218d5cefe2e09e1df1034cd0056230151fc1",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      },
+      {
+        "pair_hash": "7b2cff70cb846ebc0357140302ccda8674fbd3c7df5a1a382d8d016f0138a513",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -2,
+            6
+          ]
+        },
+        "clause_index": 9,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "08e7226182a95bab8313cb218a8a9c1e4fd4b594c2a102498d8593b9b7d8e6e3",
+        "mutant_path_multiplicity": 1,
+        "classification": "SAME_PIVOT_R47J_DOOR_CLOSED_SINGLE_POLARITY_FLIP"
+      }
+    ],
+    "full_R47J_unresolved_survivor_count_recorded": 0,
+    "full_R47J_unresolved_survivors": [],
+    "first_pass_strong_count_recorded": 0,
+    "first_pass_strong_candidates": [],
+    "near_misses": [
+      {
+        "pair_hash": "a39dfbc63b16a8855ba32730297fed04d850f860f2496aef9e13cadf6be85a76",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 19,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+          "first_clause": [
+            -7,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            1
+          ]
+        },
+        "clause_index": 10,
+        "old_literal": -6,
+        "new_literal": 6,
+        "mutant_hash": "00022cbd69cb0fbe611d27dd8e51896c9aa36b08f2a3de40710ebaaf9638e289",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "337be67417adf27d1a151e623bd9561a9571856b4836a07371d7d88821d91a70",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 108,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "41e1f6ce7b85393a12b818aa90ff8a703bee78956b11c1ddf9d9529387512b53",
+          "first_clause": [
+            2,
+            7
+          ],
+          "second_clause": [
+            -4,
+            -2
+          ]
+        },
+        "clause_index": 10,
+        "old_literal": 2,
+        "new_literal": -2,
+        "mutant_hash": "000724d5312d4e6b176f318719d8d3ebb8b865a06603f22b47b08f78153c017f",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "bc4d944d02d37e380667aa44c2f4773b6153e63170eb3a40068fe957c87f2b44",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+          "first_clause": [
+            -7,
+            -5
+          ],
+          "second_clause": [
+            -6,
+            -2
+          ]
+        },
+        "clause_index": 10,
+        "old_literal": -4,
+        "new_literal": 4,
+        "mutant_hash": "000ea2bfab2cf036a0976734f9737de6b7683fdc3a0d3ffa0925f68722bf22cf",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "19a39c1beadd0f8c9556694fbc1cf41a55ad2c67e6d64e2802340358c221c930",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+          "first_clause": [
+            -7,
+            -5
+          ],
+          "second_clause": [
+            2,
+            6
+          ]
+        },
+        "clause_index": 11,
+        "old_literal": 2,
+        "new_literal": -2,
+        "mutant_hash": "000ecffedf55c4076a847396be5574400d1be43ca89a17016ac74215e71d237c",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "8f961d13ef8203480206e6466b6038f0548c21aad4911aeda56a00f9483c7eba",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 119,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 2
+          },
+          "source_hash": "aaba4977d135ef0f8f307756f3965fb9041f29d8847fe385e26294bc39aa73b2",
+          "first_clause": [
+            -4,
+            -3
+          ],
+          "second_clause": [
+            -5,
+            -2
+          ]
+        },
+        "clause_index": 0,
+        "old_literal": 6,
+        "new_literal": -6,
+        "mutant_hash": "000fb813d2a0ca40f519b71ad56e3abdfb7c361fb6079cc2ceb1f699af8e8e8f",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "209b0ed7bd50e3f9433b7515ee4d5a340726c20730a2bf8435ea67b1f063266e",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -3,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            3
+          ]
+        },
+        "clause_index": 11,
+        "old_literal": 4,
+        "new_literal": -4,
+        "mutant_hash": "0012faa523f43052425f31f064e6f377f502cca1424f35e335767c7abb8de9a1",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "5acf9d69b00efbb59c96e1cdf6be1daf5faa7428073dec884c9163fe6d8dc4a8",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 109,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "4b27a8e264d059cd3d365e3096efd0a8582e854324e9d6f061b4d55ac394a4fd",
+          "first_clause": [
+            1,
+            2
+          ],
+          "second_clause": [
+            2,
+            6
+          ]
+        },
+        "clause_index": 6,
+        "old_literal": 2,
+        "new_literal": -2,
+        "mutant_hash": "0018b8576c9e4d51d928cde92015c9a283bfffcb8301dbe1d9d8f9aef650c80c",
+        "mutant_path_multiplicity": 2,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "ad82e3d1b75693762d61920046fe92a0cbe46995709d9182e47f43b9c73e9ea9",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 108,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "b2c55036b7e17185720849d32d019c648b0451045fd9508a44675753e0c37b75",
+          "first_clause": [
+            2,
+            5
+          ],
+          "second_clause": [
+            2,
+            7
+          ]
+        },
+        "clause_index": 0,
+        "old_literal": 7,
+        "new_literal": -7,
+        "mutant_hash": "001c8a01f82d3f0e9b78a94bec49a192b13bf9a21680f264c04c66981d603921",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "9592c06e7da4d636d3c82da06db2e0dc89c16d177453b34b826cc6dc0f10fafa",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 118,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 2
+          },
+          "source_hash": "55dab1cfa8fdc705eb93d52ada0088c34a8a215a2957026678e84046dbc115e9",
+          "first_clause": [
+            -4,
+            -2
+          ],
+          "second_clause": [
+            2,
+            4
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": -5,
+        "new_literal": 5,
+        "mutant_hash": "001cae7f0d0cea13e1c1b8e1aeb17b916f66d552456dd61f7985b4312203ffa7",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "8cb7902e303e93318a6f86a3c4d2896b27c0d26226ba5e38dd148a7da73ff79b",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 19,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+          "first_clause": [
+            -2,
+            -1
+          ],
+          "second_clause": [
+            -7,
+            -5
+          ]
+        },
+        "clause_index": 6,
+        "old_literal": -1,
+        "new_literal": 1,
+        "mutant_hash": "0020bafd265d8d624afb7f6de16ab65f3a2dcf39afe0442e199fbc428d8e8053",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "22d0c21d502125c45cb91e294bbae127463c6b3668e7856a76b232dae636441e",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 19,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+          "first_clause": [
+            -4,
+            -2
+          ],
+          "second_clause": [
+            2,
+            7
+          ]
+        },
+        "clause_index": 7,
+        "old_literal": -6,
+        "new_literal": 6,
+        "mutant_hash": "00220a72d846f28fbeab0c2dedaa727faba20e6164351588290395c95e7e0d8a",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "b47cdfd645d38f3bbb587d074153b80b55421eacedde697a83992144b7b63915",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -5,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            5
+          ]
+        },
+        "clause_index": 9,
+        "old_literal": -7,
+        "new_literal": 7,
+        "mutant_hash": "00221613a747d798d925e8426004982cd8f11843ee4a6dc4d16c6ba6d7a2219d",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "2ae37f3e883df81bbccc6f644accd60f62b432b705d2fe2bc5e38e4e7de601b9",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 108,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "b2c55036b7e17185720849d32d019c648b0451045fd9508a44675753e0c37b75",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            2,
+            6
+          ]
+        },
+        "clause_index": 2,
+        "old_literal": -4,
+        "new_literal": 4,
+        "mutant_hash": "002221d29aea239f0c9b44db27dd08bd455a500f74cd2ae4ecb888ab0f9aa511",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "a13bf39e47364e94329e5d16a8a95a65adc37300bad53e4869f765712fd730e9",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 109,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "4b27a8e264d059cd3d365e3096efd0a8582e854324e9d6f061b4d55ac394a4fd",
+          "first_clause": [
+            -1,
+            2
+          ],
+          "second_clause": [
+            2,
+            5
+          ]
+        },
+        "clause_index": 12,
+        "old_literal": -6,
+        "new_literal": 6,
+        "mutant_hash": "00237c073ee729c30b39044dd6e3df648f5a31a1e8669b5ce3e926e2c63b9bac",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "7713e417132a69f62583557736e790e258a7840245388adf904a9135949091cd",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 108,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "41e1f6ce7b85393a12b818aa90ff8a703bee78956b11c1ddf9d9529387512b53",
+          "first_clause": [
+            -6,
+            2
+          ],
+          "second_clause": [
+            2,
+            4
+          ]
+        },
+        "clause_index": 14,
+        "old_literal": 3,
+        "new_literal": -3,
+        "mutant_hash": "0023e320bab148f2ced76664a21673660f3b86daf9e0a981618a8b88bb5753a4",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "ac640acfe2dfa4d94bc603f2b325a19693337979490d781b1f8d87197c04791b",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 118,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 2
+          },
+          "source_hash": "55dab1cfa8fdc705eb93d52ada0088c34a8a215a2957026678e84046dbc115e9",
+          "first_clause": [
+            -7,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            7
+          ]
+        },
+        "clause_index": 8,
+        "old_literal": 3,
+        "new_literal": -3,
+        "mutant_hash": "002537372fd6c6463bbdd14af7690b197d967612e64b09d992a3c953cafd94f0",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "c4a943019e659eb022da5bbc901572f8bc2d7f7abfbaa628b21c03ce321df999",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 19,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "aba2000c3dc7ced7200ec2537e067fbce4fee57948c70bc47daa5947335eb920",
+          "first_clause": [
+            -2,
+            7
+          ],
+          "second_clause": [
+            -2,
+            1
+          ]
+        },
+        "clause_index": 9,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "002889d8df290394a4ca1c036ab0c10d34190781fca14ad9cee502223069a605",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "e62deb990e888fa1f26d3560d666d07191f69c40e75441c426f99ca6de2b7d3d",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 9,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 0
+          },
+          "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+          "first_clause": [
+            -4,
+            2
+          ],
+          "second_clause": [
+            2,
+            6
+          ]
+        },
+        "clause_index": 9,
+        "old_literal": 1,
+        "new_literal": -1,
+        "mutant_hash": "002b8794108f90c379685b3760014b0eeba76d5296ff3d1f762c62b88c492c9a",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "f34c84933f078171491845624cbe3c8bc48d2c1ce899ba5a03f266f9abecda4e",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 109,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+          "first_clause": [
+            2,
+            4
+          ],
+          "second_clause": [
+            -4,
+            2
+          ]
+        },
+        "clause_index": 5,
+        "old_literal": -5,
+        "new_literal": 5,
+        "mutant_hash": "002c27c012bdd6c260cfe006ce186c5ff0b893344de95d40d12a2b421f8df84d",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "9a3ff5fbe84faf93aa32f21d732b11224369a2aca6ec68c0ca8f78f7e6688b5c",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 108,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 3
+          },
+          "source_hash": "41e1f6ce7b85393a12b818aa90ff8a703bee78956b11c1ddf9d9529387512b53",
+          "first_clause": [
+            -7,
+            2
+          ],
+          "second_clause": [
+            -3,
+            2
+          ]
+        },
+        "clause_index": 0,
+        "old_literal": -2,
+        "new_literal": 2,
+        "mutant_hash": "0034b34c122e0fcc361a2b9722cc37c7083689543b993c1e11fa42808897ed13",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "5efd1a3f787d30f90448d25f78b4efc613a3694bdb3fba6f3054d3c34a7ce03b",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 3,
+            "sign_mask": 118,
+            "geometry": "4x3_DISJOINT",
+            "split_rotation": 2
+          },
+          "source_hash": "55dab1cfa8fdc705eb93d52ada0088c34a8a215a2957026678e84046dbc115e9",
+          "first_clause": [
+            -2,
+            1
+          ],
+          "second_clause": [
+            2,
+            6
+          ]
+        },
+        "clause_index": 4,
+        "old_literal": 5,
+        "new_literal": -5,
+        "mutant_hash": "00393f6fe75668ce88c6d61d08febc32a627a908804b41a01c87ca3f1b338047",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "70f2fdd761b4f6c955b4b06e351f65219af1e78c90f9e51a9cdafaaca6c2f0c1",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 5,
+            "sign_mask": 18,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+          "first_clause": [
+            -5,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            1
+          ]
+        },
+        "clause_index": 5,
+        "old_literal": -7,
+        "new_literal": 7,
+        "mutant_hash": "003d958b79cf94ec9fcbcab1d35771f7e48982f324653fd01b3849b497be0067",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "eac5af61ec33ac56d4000b02b86884814465eb50d79b1c242c6d72edbe9d82db",
+        "pair_multiplicity": 1,
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 19,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+          "first_clause": [
+            -6,
+            -2
+          ],
+          "second_clause": [
+            2,
+            6
+          ]
+        },
+        "clause_index": 14,
+        "old_literal": 2,
+        "new_literal": -2,
+        "mutant_hash": "0043f22eb73455289e5063f35e54114a9fb6637a58e8c92e0db3745a0b0f980b",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      },
+      {
+        "pair_hash": "0dcbfc9fc6cbc1e9ac1227a9c57f48542d223e8d081c8338820d4f38bdf47e17",
+        "pair_multiplicity": 2,
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "representative_parent_path": {
+          "spec": {
+            "cycle_length": 4,
+            "sign_mask": 19,
+            "geometry": "3x4_DISJOINT",
+            "split_rotation": 1
+          },
+          "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+          "first_clause": [
+            -7,
+            -2
+          ],
+          "second_clause": [
+            -2,
+            3
+          ]
+        },
+        "clause_index": 10,
+        "old_literal": 2,
+        "new_literal": -2,
+        "mutant_hash": "0044f5a6516487b1d237ed8386e140fc37b960d3474b3f0d8fa05db68c588641",
+        "mutant_path_multiplicity": 1,
+        "width_preserved": true,
+        "clause_count_preserved": true,
+        "variable_universe_preserved": true,
+        "R33_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "full_R47J_final_formula": [],
+        "r47j_replay_pass": true,
+        "classification": "SINGLE_POLARITY_FLIP_CHANGED_ESCAPE_BUT_SOLVED"
+      }
+    ],
+    "search_exhaustive_within_declared_single_flip_grammar": true,
+    "recommended_next_gate": "R50G28_SINGLE_FLIP_DOOR_CLOSED_ALTERNATE_PIVOT_AUDIT",
+    "answer": "R50G27 reproduced the sealed 1774-path / 1424-unique pair-state parent and exhaustively tested 61112 valid one-occurrence polarity-flip paths, compressed to 59486 unique mutant formulas. Recorded door-closed=20, full-unresolved=0, first-pass-stalled=0. Next gate: R50G28_SINGLE_FLIP_DOOR_CLOSED_ALTERNATE_PIVOT_AUDIT.",
+    "scope_firewall": {
+      "family_expanded": false,
+      "clauses_added": false,
+      "clauses_deleted": false,
+      "new_variables_added": false,
+      "clause_width_changed": false,
+      "r47j_pivot_changed": false,
+      "mutation": "ONE_EXISTING_LITERAL_OCCURRENCE_SIGN_FLIP",
+      "finite_search_is_universal_proof": false
+    },
+    "lane": "TRUMP_FALSIFICATION_RESEARCH",
+    "status": "HYPOTHESIS",
+    "proof_claim": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  }
+}
