@@ -1,0 +1,32 @@
+{
+  "schema": "janus.genesis.trump_module_replay_request.v1",
+  "request_id": "TRUMP-R50G25A-BCE-BVE-JOINT-DEBT-MODULE-REPLAY-001",
+  "created_at_local": "2026-09-06T01:16:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_MODULE_REPLAY",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g25a-bce-bve-joint-debt-hypergraph-2026-09-06",
+  "source_head_sha_at_queue": "625f8b1bc3c8e93d6944886d7050dbb10e1e07ba",
+  "target_module": "janus_trump_r50g25a_bce_bve_joint_debt_hypergraph",
+  "parent_receipt": "TRUMP-R50G24-PAIRWISE-COUNTERPOLARITY-CLOSURE-002",
+  "research_contract": {
+    "must_execute_r50g24_parent_replay_first": true,
+    "expected_parent_pair_trials": 1774,
+    "expected_bce_bve_target_occurrences": 1673,
+    "analyze_unique_post_dp_states": true,
+    "question": "For post-DP states whose immediate R33 door is BCE or BVE, can all already-existing necessary BCE-support and BVE-pivot-touch debts be paid by 1 or 2 binary additions over current variables, or does the snapshot require at least 3?",
+    "snapshot_cover_is_only_necessary": true,
+    "source_realizability_is_not_part_of_this_gate": true
+  },
+  "forbidden": [
+    "EXPAND_FROZEN_30_FAMILY",
+    "CHANGE_R47J",
+    "PROMOTE_STATIC_COVER_TO_DYNAMIC_SUFFICIENCY",
+    "PROMOTE_POST_DP_COVER_TO_SOURCE_REACHABILITY",
+    "CLAIM_SAT_IN_P",
+    "CLAIM_P_EQUALS_NP",
+    "WRITE_TRUMP_SOURCE"
+  ],
+  "status": "QUEUED"
+}
