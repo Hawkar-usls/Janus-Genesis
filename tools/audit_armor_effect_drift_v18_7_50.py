@@ -62,6 +62,14 @@ SURFACE_CLASSIFICATIONS = (
         "CONSTRAINED_COPILOT_CLI_SCOUT_PROVIDER_BRIDGE",
     ),
     (
+        "tools/trump_habitat_research_agent.py",
+        "READ_ONLY_TRUMP_COPILOT_RESEARCH_HYPOTHESIS_BRIDGE",
+    ),
+    (
+        "tools/janus_secret_persistence_guard.py",
+        "SECURITY_SECRET_PERSISTENCE_INSPECTION_GUARD",
+    ),
+    (
         "tools/genesis_git_habitat_resident_provider.py",
         "LOOPBACK_ONLY_RESIDENT_MODEL_PROVIDER_BEHIND_MODEL_CALL",
     ),
