@@ -1,0 +1,1106 @@
+{
+  "schema": "janus.genesis.trump_research_receipt.v1_7",
+  "lane_id": "JANUS_TRUMP_R50G29_PIVOT_INDEPENDENT_VARIABLE_REWIRE_LANE",
+  "request_id": "TRUMP-R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE-007",
+  "processed_at_utc": "2026-09-05T23:39:30Z",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "github_run_id": "33998873738",
+  "engine": "DETERMINISTIC_R50G29_PIVOT_INDEPENDENT_SINGLE_LITERAL_VARIABLE_REWIRE",
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "truth_boundary": {
+    "model_output_is_proof": false,
+    "model_output_is_independent_confirmation": false,
+    "deterministic_finite_search_is_universal_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  },
+  "report": {
+    "engine": "DETERMINISTIC_R50G29_PIVOT_INDEPENDENT_SINGLE_LITERAL_VARIABLE_REWIRE",
+    "parent_seal": {
+      "pair_path_count": 1774,
+      "unique_pair_state_count": 1424,
+      "unique_pair_rule_partition": {
+        "R33:BOUNDED_VARIABLE_ELIMINATION": 589,
+        "R33:BLOCKED_CLAUSE_ELIMINATION": 736,
+        "R33:PURE_LITERAL_AUTARKY": 94,
+        "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 5
+      },
+      "seal_replay_pass": true
+    },
+    "raw_valid_rewire_path_count": 218484,
+    "unique_rewire_mutant_formula_count": 203395,
+    "compression_ratio_rewire_paths_per_unique_mutant": 1.0741856977801814,
+    "audited_pivot_edge_count_until_first_open": 206126,
+    "missing_pivot_edge_count_before_first_open": 2731,
+    "mutant_with_replay_verified_open_r47j_pivot_count": 203395,
+    "mutant_all_r47j_pivots_closed_count": 0,
+    "first_open_pivot_frequency": {
+      "1": 200664,
+      "2": 2731
+    },
+    "first_open_terminal_partition": {
+      "DIRECT_EMPTY_CNF": 203394,
+      "DIRECT_EMPTY_CLAUSE": 1
+    },
+    "first_open_round_partition": {
+      "1": 203395
+    },
+    "all_r47j_pivots_closed_samples": [],
+    "open_pivot_samples": [
+      {
+        "mutant_hash": "0000080e7845302c7e0400302fd1a93f9f130ee69ec9791b364392ebd1e05623",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "17d0eeafbbdefd22105cf4d6167f43aacc104c3692401e19222a1ea4c59f0073",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 119,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 2
+            },
+            "source_hash": "aaba4977d135ef0f8f307756f3965fb9041f29d8847fe385e26294bc39aa73b2",
+            "first_clause": [
+              -4,
+              -3
+            ],
+            "second_clause": [
+              2,
+              4
+            ]
+          },
+          "clause_index": 12,
+          "old_literal": 6,
+          "new_literal": 1,
+          "old_variable": 6,
+          "new_variable": 1
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "000033ca26d9bf2df392680fe7a5456a5c8600d171de5059f6f00223ae1d53b8",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "3109b5a95e111dd85676f6ed1eddd0899943adbfa6c7295783918374ff6a95e6",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+            "first_clause": [
+              -5,
+              -2
+            ],
+            "second_clause": [
+              -1,
+              2
+            ]
+          },
+          "clause_index": 10,
+          "old_literal": 2,
+          "new_literal": 5,
+          "old_variable": 2,
+          "new_variable": 5
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0000f7fee17e4fcdc00be584cd5ad9a0f67aa308e9aa3cc2e828b65d910db0f7",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "12ee68f9925ebb0e50ae49a998f2fbb270b5d9a7a492206287798e097cddaba3",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aba2000c3dc7ced7200ec2537e067fbce4fee57948c70bc47daa5947335eb920",
+            "first_clause": [
+              -7,
+              -2
+            ],
+            "second_clause": [
+              -3,
+              2
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": 5,
+          "new_literal": 6,
+          "old_variable": 5,
+          "new_variable": 6
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0000f82b891acc935850cf61d2d84d92dbd895d0ff7be648142382ab3b715619",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "481198ec87345d8d57714faa8b44df8f6b5836bee9761d7cc9bc8eef96df46b6",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "4b27a8e264d059cd3d365e3096efd0a8582e854324e9d6f061b4d55ac394a4fd",
+            "first_clause": [
+              -1,
+              2
+            ],
+            "second_clause": [
+              -7,
+              -2
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": -1,
+          "new_literal": -7,
+          "old_variable": 1,
+          "new_variable": 7
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0001b3ce35dde87f237645e74112ec5aa161fcd865fe492a2c564894e3b78f38",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "09fceb9f32cac1d0ccf87438b2e0934eabba1abd7fdfe34ea383bccc62d24492",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 6,
+              "sign_mask": 108,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "5325d1868043761b8c3d3fafa6c616c588777b80d1f6314b10837154dc8fd3a9",
+            "first_clause": [
+              1,
+              2
+            ],
+            "second_clause": [
+              5,
+              6
+            ]
+          },
+          "clause_index": 2,
+          "old_literal": -2,
+          "new_literal": -4,
+          "old_variable": 2,
+          "new_variable": 4
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0001bcbc23fe9d5d3438415d2405bba00509054ce3c286543324c05945534f96",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "f79171207beba818e7f3cfb6888983005c7bce3c76548c5718de4d6e5fdc55f5",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aba2000c3dc7ced7200ec2537e067fbce4fee57948c70bc47daa5947335eb920",
+            "first_clause": [
+              -6,
+              -2
+            ],
+            "second_clause": [
+              2,
+              5
+            ]
+          },
+          "clause_index": 14,
+          "old_literal": 2,
+          "new_literal": 4,
+          "old_variable": 2,
+          "new_variable": 4
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0001dbe9850012c5b77b70acfb99103f3f7dbaf4b81b6f6238a8bcf34c5200c2",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "1fd1ae89a4604dc0e8b945dd845700a80149f3d558543e532ee6e9a22ec4bec4",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+            "first_clause": [
+              -2,
+              7
+            ],
+            "second_clause": [
+              -2,
+              5
+            ]
+          },
+          "clause_index": 10,
+          "old_literal": 2,
+          "new_literal": 1,
+          "old_variable": 2,
+          "new_variable": 1
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "000228790d519194fbc459f9f6bf6aa854a7bbd68c5f02bbde2c1cda0e3fc117",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "fb37fee444e5743422e3834588df1ec49bc733454d39a2ecf6599d86672b0723",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              -4,
+              2
+            ],
+            "second_clause": [
+              -3,
+              2
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": -3,
+          "new_literal": -5,
+          "old_variable": 3,
+          "new_variable": 5
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "00023603a7598677d200dce6cd2ebb34682ed9427a7fc09e688f5d5249066474",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "44a3952ee6cb33a50b106684d2dcfe6f276dc4621a040e8514f1136f7639529b",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 8,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -2,
+              5
+            ]
+          },
+          "clause_index": 4,
+          "old_literal": -3,
+          "new_literal": -4,
+          "old_variable": 3,
+          "new_variable": 4
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0002747327bc9fb996cac6f78a117218e9f9df42080e7845ecb4d18b3d234de8",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "b882765dc7efea8b925c82730a4bbd2346a4624f377e8f836951f200b2946d0c",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 8,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              2,
+              6
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": -6,
+          "new_literal": -2,
+          "old_variable": 6,
+          "new_variable": 2
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0002b4cd5d86345d674086a446c1d8ce3499f6f0217ab6a0ed3545a9bc2afbd5",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "7b17735ab2bca71ec8748373256bf4a9cc56355503b4d0075447e7b012ef957c",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              -1,
+              2
+            ],
+            "second_clause": [
+              -2,
+              6
+            ]
+          },
+          "clause_index": 3,
+          "old_literal": -2,
+          "new_literal": -7,
+          "old_variable": 2,
+          "new_variable": 7
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0002d36a651204e28c8ec30a88e0db7336ec4ea18b13c03908dcc12c86b6a028",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "75ef8ef0f9f88617b66aac9a039d916cff68d1d848097f756c8ce8edd4a77ebe",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 7,
+              "sign_mask": 103,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "b462a00f0e394b637e0b61e237a37bfea3511f5726eb317f62d3ed4a759f0fe0",
+            "first_clause": [
+              4,
+              5
+            ],
+            "second_clause": [
+              3,
+              4
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": 6,
+          "new_literal": 4,
+          "old_variable": 6,
+          "new_variable": 4
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0002f074e1025471d61713ffee96be15782f615f72a979e1de18889e55dbf465",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "f7b6b40bf6621eeea80cfeb35d9655de1dabbdcc5e7fec675e876d667478b017",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -7,
+              -2
+            ],
+            "second_clause": [
+              -2,
+              1
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": 2,
+          "new_literal": 3,
+          "old_variable": 2,
+          "new_variable": 3
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0003144fe4888ca41839e85166dd126f8bf4361f7bce37b1ff2dbe06cbda51ae",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "6927faa566a039844b76d115dd12d3da355a202ba4814449bd49aaed2b66a2ae",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -2,
+              7
+            ],
+            "second_clause": [
+              -4,
+              -2
+            ]
+          },
+          "clause_index": 0,
+          "old_literal": -4,
+          "new_literal": -7,
+          "old_variable": 4,
+          "new_variable": 7
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "000324f5ba183798af5d42d30d1373cbab443ac77cf152224cc9ebf260b7e2f3",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "d0185832721bb79a1947ea92261d0f01d730be3e7d88a2b3ab8e48f03a89c43c",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+            "first_clause": [
+              2,
+              7
+            ],
+            "second_clause": [
+              -2,
+              7
+            ]
+          },
+          "clause_index": 1,
+          "old_literal": -3,
+          "new_literal": -7,
+          "old_variable": 3,
+          "new_variable": 7
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0003838abd6dd8aedbe9d601a853562c009b6983bc16ccfc1bef85b84a4f1069",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "a8d102fc85df80123baf40db68874a7d6177ccae8171cb5f7cc653e0f5efd117",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 118,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 2
+            },
+            "source_hash": "55dab1cfa8fdc705eb93d52ada0088c34a8a215a2957026678e84046dbc115e9",
+            "first_clause": [
+              -2,
+              -1
+            ],
+            "second_clause": [
+              -5,
+              1
+            ]
+          },
+          "clause_index": 3,
+          "old_literal": -4,
+          "new_literal": -6,
+          "old_variable": 4,
+          "new_variable": 6
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0003fd82a02a4b739f92bb2758fee0411f371d9008bc82c93bced2121a544dab",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "8a76c21e14fa1e0b785343f4a0025c4e698ab15efa021a1527b3f1c4e5d7979a",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 102,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 2
+            },
+            "source_hash": "00e0d52d52a0e80042b929e92a60c87547058de2369e09ea503f219fca10e76e",
+            "first_clause": [
+              -3,
+              -2
+            ],
+            "second_clause": [
+              -2,
+              7
+            ]
+          },
+          "clause_index": 5,
+          "old_literal": -4,
+          "new_literal": -6,
+          "old_variable": 4,
+          "new_variable": 6
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0004a19c7d82e227f6b446c66998f796956d8947cd02021efc2d4c6dd4f497ac",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "deee2528625c03c293afb591bfb62d4776f5fb9ef7164d807be59e4f25a0074b",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              -7,
+              2
+            ],
+            "second_clause": [
+              2,
+              3
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": -3,
+          "new_literal": -5,
+          "old_variable": 3,
+          "new_variable": 5
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0004c2d265c6fa89adc5d9d36af91ddf99a01cab02b397468265a96630a7a71a",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "d8c807930e8a231501681e975143303323b4284f995d57f0fbc942e928c804fe",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+            "first_clause": [
+              -5,
+              -2
+            ],
+            "second_clause": [
+              -2,
+              5
+            ]
+          },
+          "clause_index": 1,
+          "old_literal": -4,
+          "new_literal": -1,
+          "old_variable": 4,
+          "new_variable": 1
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0004da4fcee7c11a855a908d08af484cae1d07195fb75431c6e272f8dfe99bdb",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "c4a943019e659eb022da5bbc901572f8bc2d7f7abfbaa628b21c03ce321df999",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aba2000c3dc7ced7200ec2537e067fbce4fee57948c70bc47daa5947335eb920",
+            "first_clause": [
+              -2,
+              7
+            ],
+            "second_clause": [
+              -2,
+              1
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": -2,
+          "new_literal": -5,
+          "old_variable": 2,
+          "new_variable": 5
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0004f6c33ac2ed08c27962e325676dbd5e36a152fe16db24c4d19f5cb178463f",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "ea353418df6f9049d17895df4f13fe0b621f82fc4fa4914bae1f213ecd9b0b71",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+            "first_clause": [
+              -6,
+              -2
+            ],
+            "second_clause": [
+              -3,
+              2
+            ]
+          },
+          "clause_index": 13,
+          "old_literal": 5,
+          "new_literal": 7,
+          "old_variable": 5,
+          "new_variable": 7
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0005068df54784265ff500fabdcfe105f360f2036dcbf17f5d04f8e4945a0d7e",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "63d3648878a49849771915e9b5d75656daf73574833967eb5cd9b78113ffa92e",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 108,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "41e1f6ce7b85393a12b818aa90ff8a703bee78956b11c1ddf9d9529387512b53",
+            "first_clause": [
+              2,
+              3
+            ],
+            "second_clause": [
+              2,
+              6
+            ]
+          },
+          "clause_index": 11,
+          "old_literal": 3,
+          "new_literal": 1,
+          "old_variable": 3,
+          "new_variable": 1
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "00050b751f9d4ac2a6168db72913699ceb0cafdbb3890da7e78243e0c6847d0d",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "32c30785b68fe6f99d2b9b01a001cdbe266889188a20b97f26f76e68534ba338",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aba2000c3dc7ced7200ec2537e067fbce4fee57948c70bc47daa5947335eb920",
+            "first_clause": [
+              -4,
+              -2
+            ],
+            "second_clause": [
+              -6,
+              4
+            ]
+          },
+          "clause_index": 13,
+          "old_literal": 2,
+          "new_literal": 3,
+          "old_variable": 2,
+          "new_variable": 3
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      },
+      {
+        "mutant_hash": "0005154a66736906398dddbdab2cb666346a6277e0a66503dd4738cf657c1693",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "b6ac92d3870ce1f8bee50b64b51972d7580f48cd34ddaf93c268f58c821e2315",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 19,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "aa7f8c5e4a340b90e659baada5eba540a5520ef6f5ccd01103fdf14a49f90881",
+            "first_clause": [
+              -2,
+              -1
+            ],
+            "second_clause": [
+              -5,
+              2
+            ]
+          },
+          "clause_index": 7,
+          "old_literal": -6,
+          "new_literal": -2,
+          "old_variable": 6,
+          "new_variable": 2
+        },
+        "first_replay_verified_open_pivot": {
+          "pivot": 1,
+          "terminal": "DIRECT_EMPTY_CNF",
+          "round_count": 1,
+          "restart_count": 0,
+          "final_CLV": [
+            0,
+            0,
+            0
+          ],
+          "final_formula": []
+        }
+      }
+    ],
+    "search_exhaustive_within_declared_single_variable_rewire_grammar": true,
+    "recommended_next_gate": "R50G30_SINGLE_VARIABLE_REWIRE_FINITE_NEGATIVE__MINIMUM_TWO_OCCURRENCE_COUPLED_REWIRE",
+    "answer": "R50G29 exhaustively generated 218484 valid variable-rewire paths, compressed to 203395 unique formulas. Every mutant retains at least one replay-verified R47J pivot door. Single occurrence variable rewiring is therefore a finite negative as an all-pivot obstruction; next justified edit is a coupled two-occurrence rewire.",
+    "scope_firewall": {
+      "family_expanded": false,
+      "clauses_added": false,
+      "clauses_deleted": false,
+      "new_variables_added": false,
+      "variable_universe_preserved": true,
+      "literal_sign_preserved": true,
+      "clause_width_preserved": true,
+      "clause_count_preserved": true,
+      "r47j_definition_changed": false,
+      "finite_search_is_universal_proof": false
+    },
+    "lane": "TRUMP_FALSIFICATION_RESEARCH",
+    "status": "HYPOTHESIS",
+    "proof_claim": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  }
+}
