@@ -1,0 +1,1300 @@
+{
+  "schema": "janus.genesis.trump_research_receipt.v1_2",
+  "lane_id": "JANUS_TRUMP_R50G24_PAIRWISE_COUNTERPOLARITY_LANE",
+  "request_id": "TRUMP-R50G24-PAIRWISE-COUNTERPOLARITY-CLOSURE-002",
+  "processed_at_utc": "2026-09-05T22:10:02Z",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "github_run_id": "33995097540",
+  "engine": "DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY",
+  "provider_error_observed": false,
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "truth_boundary": {
+    "model_output_is_proof": false,
+    "model_output_is_independent_confirmation": false,
+    "deterministic_finite_search_is_universal_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  },
+  "report": {
+    "engine": "DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY",
+    "frozen_skeleton_count": 30,
+    "pair_trial_count": 1774,
+    "first_clause_candidate_count": 360,
+    "first_transition_break_count": 122,
+    "second_direct_debt_available_count": 122,
+    "first_replacement_partition": {
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 34,
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 88
+    },
+    "second_debt_partition": {
+      "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK": 34,
+      "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT": 88
+    },
+    "failure_partition": {
+      "PAIR_COLLAPSED_OR_NONBIPOLAR": 1774,
+      "FINAL_FIRST:R33:BOUNDED_VARIABLE_ELIMINATION": 786,
+      "FINAL_FIRST:R33:BLOCKED_CLAUSE_ELIMINATION": 887,
+      "FINAL_FIRST:R33:PURE_LITERAL_AUTARKY": 94,
+      "FINAL_FIRST:R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 7
+    },
+    "strong_candidate_count": 0,
+    "strong_candidates": [],
+    "near_misses": [
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          3
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -7,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          12,
+          38,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          3
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -6,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          12,
+          38,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          3
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -5,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          12,
+          38,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          3
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -3,
+          -2
+        ],
+        "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          8,
+          26,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          3
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -2,
+          4
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          32,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          3
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          1,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          12,
+          39,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -7,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -6,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -5,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -4,
+          -2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -3,
+          -2
+        ],
+        "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          7,
+          23,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -3,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -2,
+          4
+        ],
+        "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          9,
+          29,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause": [
+          2,
+          4
+        ],
+        "first_clause_replacement_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "PIVOT_TOUCH_REQUIRED_FOR_DIRECT_ADDITIVE_BVE_BLOCK",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_variable": 2,
+          "allowed_required_literals": [
+            2,
+            -2
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          1,
+          2
+        ],
+        "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          37,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "first_clause": [
+          -7,
+          2
+        ],
+        "first_clause_replacement_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            -3,
+            7
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          2,
+          7
+        ],
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "first_clause": [
+          -6,
+          2
+        ],
+        "first_clause_replacement_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            -3,
+            6
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          2,
+          6
+        ],
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "first_clause": [
+          -5,
+          2
+        ],
+        "first_clause_replacement_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            -3,
+            5
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          2,
+          5
+        ],
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "first_clause": [
+          -4,
+          2
+        ],
+        "first_clause_replacement_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            -3,
+            4
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          -1,
+          2
+        ],
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "first_clause": [
+          -4,
+          2
+        ],
+        "first_clause_replacement_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            -3,
+            4
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          2,
+          4
+        ],
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "first_clause": [
+          -4,
+          2
+        ],
+        "first_clause_replacement_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "first_clause_replacement_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            -3,
+            4
+          ],
+          "necessary_not_sufficient": true
+        },
+        "second_clause": [
+          2,
+          5
+        ],
+        "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+        "mutated_source_CLV": [
+          14,
+          45,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "R33_final_formula": [],
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "full_R47J_terminal": "DIRECT_EMPTY_CNF",
+        "full_R47J_round_count": 1,
+        "full_R47J_restart_count": 0,
+        "classification": "SECOND_CLAUSE_CHANGED_REPLACEMENT_BUT_STRONG_GATE_NOT_MET"
+      }
+    ],
+    "recommended_next_gate": "R50G25_DOMINANT_REPLACEMENT_ESCAPE_STRUCTURAL_DEBT",
+    "answer": "Pairwise lane проверил 1774 координированных binary-clause pairs и strong survivor не нашёл. Это finite-negative только для этого bounded pairwise space. Доминирующие исходы: [('PAIR_COLLAPSED_OR_NONBIPOLAR', 1774), ('FINAL_FIRST:R33:BLOCKED_CLAUSE_ELIMINATION', 887), ('FINAL_FIRST:R33:BOUNDED_VARIABLE_ELIMINATION', 786), ('FINAL_FIRST:R33:PURE_LITERAL_AUTARKY', 94), ('FINAL_FIRST:R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE', 7)]. Следующий gate должен атаковать фактический доминирующий replacement escape, а не расширять family.",
+    "scope_firewall": {
+      "family_expanded": false,
+      "new_variables_added": false,
+      "r47j_changed": false,
+      "pair_width": "BINARY_PLUS_BINARY_ONLY",
+      "finite_search_is_universal_proof": false
+    },
+    "lane": "TRUMP_FALSIFICATION_RESEARCH",
+    "status": "HYPOTHESIS",
+    "proof_claim": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  }
+}
