@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/janus-trump-habitat-research.yml'
       - 'tools/trump_habitat_research_agent.py'
+      - 'tools/trump_r50g24_pairwise_research_agent.py'
   workflow_dispatch:
   schedule:
     - cron: '37 * * * *'
@@ -112,7 +113,7 @@ jobs:
           node-version: '22'
 
       - name: Install GitHub Copilot CLI
-        if: steps.discover.outputs.count == '1'
+        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE')
         run: |
           npm install -g @github/copilot
           copilot --version
@@ -126,10 +127,20 @@ jobs:
         run: |
           export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
           REQUEST="$(cat runtime/request.txt)"
-          python control/tools/trump_habitat_research_agent.py \
-            --request "$REQUEST" \
-            --workspace trump-source \
-            --habitat-root habitat-repo/habitat
+          RID="${{ steps.discover.outputs.request_id }}"
+          if [[ "$RID" == *"PAIRWISE-COUNTERPOLARITY-CLOSURE"* ]]; then
+            echo "TRUMP_ENGINE=DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY"
+            python control/tools/trump_r50g24_pairwise_research_agent.py \
+              --request "$REQUEST" \
+              --workspace trump-source \
+              --habitat-root habitat-repo/habitat
+          else
+            echo "TRUMP_ENGINE=GENERIC_OR_SINGLE_CLAUSE"
+            python control/tools/trump_habitat_research_agent.py \
+              --request "$REQUEST" \
+              --workspace trump-source \
+              --habitat-root habitat-repo/habitat
+          fi
 
       - name: Verify fail-closed TRUMP receipt
         if: steps.discover.outputs.count == '1'
