@@ -1,0 +1,43 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G24-CODE-READONLY-001",
+  "created_at_local": "2026-09-06T00:06:44+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_pr": 439,
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "relevant_paths": [
+    "experiments/janus_trump_r50g23_direct5_skeleton_r47j_collapse_cascade_anti_collapse_debt.py",
+    "research/JANUS_TRUMP_R50G23_DIRECT5_SKELETON_COLLAPSE_AND_ANTI_COLLAPSE_DEBT_NOTE_2026-09-05.md",
+    "research/JANUS_TRUMP_R50G23_DIRECT5_SKELETON_R47J_COLLAPSE_CASCADE_PREREGISTRATION_2026-09-05.json",
+    "tests/test_janus_trump_r50g23_direct5_skeleton_r47j_collapse_cascade_anti_collapse_debt.py"
+  ],
+  "frontier": {
+    "previous_gate": "R50G23",
+    "next_gate": "R50G24_FIRST_COLLAPSE_TRANSITION_BREAK",
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY",
+    "sealed_population": 30,
+    "observed_common_grammar": "(BCE)^(0,1) -> (PURE)^(2,3) -> EMPTY_CNF",
+    "r33_rounds": 1,
+    "rup": 0,
+    "restart": 0,
+    "same_pivot": "R47J pivot 1"
+  },
+  "research_task": "Inspect the actual R50G23 generator/audit/tests and derive the smallest controlled mutation family that can falsify the common collapse grammar without changing R47J or expanding beyond the sealed 30 skeletons. Identify the exact source-level place where the mutation should be injected, which first transition it targets, and the minimum replay assertion needed to distinguish a genuine NONEMPTY BIPOLAR RESIDUAL CORE from merely moving BCE/PURE elsewhere. Prefer a proof-carrying testable construction over generic advice. Explicitly reject candidate ideas that create a new pure literal, a new blocked clause, a trivial unit/subsumption escape, or an equivalent collapse under renaming.",
+  "success_condition": "At least one concrete replayable candidate design for R50G24 with exact target transition and source/test insertion points; not a proof claim.",
+  "forbidden": [
+    "EXPAND_FROZEN_30_FAMILY",
+    "CHANGE_R47J",
+    "WRITE_TRUMP_SOURCE",
+    "MERGE_MAIN",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_MODEL_OUTPUT_TO_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "status": "QUEUED"
+}
