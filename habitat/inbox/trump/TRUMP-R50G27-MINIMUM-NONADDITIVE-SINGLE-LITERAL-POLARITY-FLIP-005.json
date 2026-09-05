@@ -1,0 +1,66 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP-005",
+  "created_at_local": "2026-09-06T02:17:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "parent_request": "TRUMP-R50G26-UNIQUE-PAIR-STATE-WIDTH3-004",
+  "accepted_parent_result": {
+    "pair_path_count": 1774,
+    "unique_pair_state_count": 1424,
+    "unique_pair_rule_partition": {
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 589,
+      "R33:PURE_LITERAL_AUTARKY": 94,
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 736,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 5
+    },
+    "width3_trial_count": 107444,
+    "width3_R33_terminal_partition": {
+      "EMPTY_CNF_SAT": 107373,
+      "EMPTY_CLAUSE_UNSAT": 71
+    },
+    "same_pivot_door_closed": 0,
+    "full_unresolved": 0,
+    "first_pass_strong": 0,
+    "search_exhaustive": true
+  },
+  "frontier": {
+    "gate": "R50G27_MINIMUM_NONADDITIVE_SINGLE_LITERAL_POLARITY_FLIP",
+    "parent_seal_required": true,
+    "expected_pair_path_count": 1774,
+    "expected_unique_pair_state_count": 1424,
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY",
+    "same_pivot": "R47J pivot 1",
+    "mutation_policy": "EXACTLY_ONE_EXISTING_LITERAL_OCCURRENCE_SIGN_FLIP",
+    "preserve_clause_count": true,
+    "preserve_clause_width": true,
+    "preserve_variable_universe": true
+  },
+  "research_task": "Reproduce the exact 1774 parent pair paths, exact 887 BCE / 786 BVE / 94 PURE / 7 UNIT path partition, exact 1424 unique pair formulas, and exact unique-state partition 736 BCE / 589 BVE / 94 PURE / 5 UNIT. Fail closed on drift. Then exhaustively enumerate every valid edit-distance-1 polarity flip over the unique pair formulas: select one existing literal occurrence l inside one existing clause and replace it by -l. Do not add/delete clauses, variables, or change width. Reject any flip that creates a tautology or causes canonical duplicate-clause collapse. Deduplicate resulting mutated formulas by canonical hash and replay each through the same R47J pivot 1 with independent replay. Classify same-pivot macro candidate missing as a door-closed witness candidate; distinguish full unresolved residual, first-pass bipolar stalled core, SAT-empty, UNSAT-empty-clause, and other terminals. Record exact parent pair hash, representative path, clause index, old/new literal and replay output for witnesses. Finite exhaustion of this grammar must not be promoted to a universal theorem.",
+  "success_condition": "A replayable same-pivot door-closed or unresolved residual witness, or an exhaustive finite-negative classification of the entire valid single-polarity-flip grammar with exact counts.",
+  "forbidden": [
+    "EXPAND_FROZEN_30_FAMILY",
+    "ADD_OR_DELETE_CLAUSES",
+    "ADD_NEW_VARIABLES",
+    "CHANGE_CLAUSE_WIDTH",
+    "CHANGE_R47J_PIVOT",
+    "WRITE_TRUMP_SOURCE",
+    "TREAT_EMPTY_CLAUSE_AS_SURVIVOR",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_FINITE_SEARCH_TO_UNIVERSAL_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "model_output_is_proof": false
+  },
+  "status": "QUEUED"
+}
