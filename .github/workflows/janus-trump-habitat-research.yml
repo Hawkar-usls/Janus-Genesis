@@ -1,0 +1,176 @@
+name: JANUS TRUMP Habitat Research
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/janus-trump-habitat-research.yml'
+      - 'tools/trump_habitat_research_agent.py'
+  workflow_dispatch:
+  schedule:
+    - cron: '37 * * * *'
+
+concurrency:
+  group: janus-trump-habitat-research
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  copilot-requests: write
+
+jobs:
+  trump-research-cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout control plane
+        uses: actions/checkout@v4
+        with:
+          path: control
+
+      - name: Checkout Git Habitat
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Janus_Genesis
+          ref: janus/habitat
+          path: habitat-repo
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Discover one queued TRUMP code-research request
+        id: discover
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import re
+          from pathlib import Path
+
+          inbox = Path('habitat-repo/habitat/inbox/trump')
+          outbox = Path('habitat-repo/habitat/outbox/trump')
+          inbox.mkdir(parents=True, exist_ok=True)
+          outbox.mkdir(parents=True, exist_ok=True)
+
+          chosen = None
+          for path in sorted(inbox.glob('*.json')):
+              try:
+                  obj = json.loads(path.read_text(encoding='utf-8'))
+              except Exception:
+                  continue
+              if obj.get('status') != 'QUEUED':
+                  continue
+              if obj.get('purpose') != 'PARALLEL_TRUMP_CODE_RESEARCH':
+                  continue
+              rid = re.sub(r'[^A-Za-z0-9._-]+', '_', str(obj.get('request_id') or path.stem))[:120]
+              if (outbox / f'{rid}.json').exists():
+                  continue
+              if obj.get('source_repo') != 'Hawkar-usls/Janus-Fundamentum':
+                  continue
+              branch = str(obj.get('source_branch') or '').strip()
+              if not branch:
+                  continue
+              chosen = (path, branch, rid)
+              break
+
+          output = Path('runtime')
+          output.mkdir(exist_ok=True)
+          if chosen is None:
+              (output / 'request.txt').write_text('', encoding='utf-8')
+              with open(__import__('os').environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as gh:
+                  gh.write('count=0\n')
+              print('TRUMP_QUEUED_REQUESTS=0')
+          else:
+              path, branch, rid = chosen
+              (output / 'request.txt').write_text(str(path) + '\n', encoding='utf-8')
+              with open(__import__('os').environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as gh:
+                  gh.write('count=1\n')
+                  gh.write(f'source_branch={branch}\n')
+                  gh.write(f'request_id={rid}\n')
+              print(f'TRUMP_QUEUED_REQUESTS=1 request_id={rid} branch={branch}')
+          PY
+
+      - name: Checkout frozen TRUMP source read-only
+        if: steps.discover.outputs.count == '1'
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Janus-Fundamentum
+          ref: ${{ steps.discover.outputs.source_branch }}
+          path: trump-source
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        if: steps.discover.outputs.count == '1'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Set up Node
+        if: steps.discover.outputs.count == '1'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install GitHub Copilot CLI
+        if: steps.discover.outputs.count == '1'
+        run: |
+          npm install -g @github/copilot
+          copilot --version
+
+      - name: Run read-only JANUS TRUMP research lane
+        if: steps.discover.outputs.count == '1'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          COPILOT_AUTO_UPDATE: 'false'
+        shell: bash
+        run: |
+          export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
+          REQUEST="$(cat runtime/request.txt)"
+          python control/tools/trump_habitat_research_agent.py \
+            --request "$REQUEST" \
+            --workspace trump-source \
+            --habitat-root habitat-repo/habitat
+
+      - name: Verify fail-closed TRUMP receipt
+        if: steps.discover.outputs.count == '1'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+          rid = os.environ['RID']
+          path = Path('habitat-repo/habitat/outbox/trump') / f'{rid}.json'
+          obj = json.loads(path.read_text(encoding='utf-8'))
+          assert obj['authority'] == 'RESEARCH_HYPOTHESIS_ONLY', obj
+          tb = obj['truth_boundary']
+          assert tb['model_output_is_proof'] is False, obj
+          assert tb['model_output_is_independent_confirmation'] is False, obj
+          assert tb['p_vs_np'] == 'OPEN', obj
+          assert tb['sat_in_p'] == 'NOT_PROVED', obj
+          assert obj['report']['proof_claim'] is False, obj
+          print('TRUMP_FAIL_CLOSED_RECEIPT=PASS')
+          PY
+        env:
+          RID: ${{ steps.discover.outputs.request_id }}
+
+      - name: Persist TRUMP research packet in janus/habitat only
+        if: steps.discover.outputs.count == '1'
+        working-directory: habitat-repo
+        shell: bash
+        run: |
+          git config user.name "janus-trump-research-bot"
+          git config user.email "janus-trump-research-bot@users.noreply.github.com"
+          git add habitat/outbox/trump habitat/memory/trump
+          if git diff --cached --quiet; then
+            echo "TRUMP_HABITAT_NO_CHANGES"
+            exit 0
+          fi
+          git commit -m "TRUMP: persist bounded JANUS parallel research receipt"
+          git pull --rebase origin janus/habitat
+          git push origin HEAD:janus/habitat
+          echo "TRUMP_HABITAT_PERSIST=PASS"
+
+      - name: No queued TRUMP code-research requests
+        if: steps.discover.outputs.count == '0'
+        run: echo "TRUMP_HABITAT_IDLE=TRUE"
