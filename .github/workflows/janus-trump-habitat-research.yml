@@ -7,6 +7,7 @@ on:
       - '.github/workflows/janus-trump-habitat-research.yml'
       - 'tools/trump_habitat_research_agent.py'
       - 'tools/trump_r50g24_pairwise_research_agent.py'
+      - 'tools/trump_r50g25_adaptive_third_debt_agent.py'
   workflow_dispatch:
   schedule:
     - cron: '37 * * * *'
@@ -113,7 +114,7 @@ jobs:
           node-version: '22'
 
       - name: Install GitHub Copilot CLI
-        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE')
+        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE') && !contains(steps.discover.outputs.request_id, 'R50G25-ADAPTIVE-THIRD-DEBT')
         run: |
           npm install -g @github/copilot
           copilot --version
@@ -128,7 +129,13 @@ jobs:
           export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
           REQUEST="$(cat runtime/request.txt)"
           RID="${{ steps.discover.outputs.request_id }}"
-          if [[ "$RID" == *"PAIRWISE-COUNTERPOLARITY-CLOSURE"* ]]; then
+          if [[ "$RID" == *"R50G25-ADAPTIVE-THIRD-DEBT"* ]]; then
+            echo "TRUMP_ENGINE=DETERMINISTIC_R50G25_ADAPTIVE_THIRD_DEBT"
+            python control/tools/trump_r50g25_adaptive_third_debt_agent.py \
+              --request "$REQUEST" \
+              --workspace trump-source \
+              --habitat-root habitat-repo/habitat
+          elif [[ "$RID" == *"PAIRWISE-COUNTERPOLARITY-CLOSURE"* ]]; then
             echo "TRUMP_ENGINE=DETERMINISTIC_R50G24_PAIRWISE_COUNTERPOLARITY"
             python control/tools/trump_r50g24_pairwise_research_agent.py \
               --request "$REQUEST" \
