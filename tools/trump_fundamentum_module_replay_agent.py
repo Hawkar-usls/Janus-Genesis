@@ -6,6 +6,11 @@ one experiment module from the checked-out read-only source branch and invokes
 its zero-argument ``run()`` function. No shell, network or source write is
 performed here. The result is wrapped in the same fail-closed Habitat receipt
 contract used by the TRUMP research bridge.
+
+Requests may optionally provide ``report_fields``. The experiment still runs in
+full, but only those aggregate fields are persisted in Habitat. This prevents
+large per-state proof payloads from obscuring the decision summary while
+preserving fail-closed truth fields and exact source/run provenance.
 """
 
 from __future__ import annotations
@@ -22,6 +27,7 @@ from typing import Any
 
 LANE_ID = "JANUS_TRUMP_FUNDAMENTUM_MODULE_REPLAY"
 MODULE_RE = re.compile(r"^janus_trump_r[0-9]+[a-z0-9_]*$")
+MAX_REPORT_FIELDS = 64
 
 
 def utc_now() -> str:
@@ -31,6 +37,36 @@ def utc_now() -> str:
 def write_json(path: Path, obj: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+
+
+def project_report(report: dict[str, Any], requested_fields: Any) -> tuple[dict[str, Any], dict[str, Any]]:
+    if requested_fields is None:
+        return dict(report), {
+            "projection_applied": False,
+            "full_report_key_count": len(report),
+            "persisted_report_key_count_before_truth_fields": len(report),
+        }
+    if not isinstance(requested_fields, list) or not requested_fields:
+        raise ValueError("TRUMP_MODULE_REPLAY_REPORT_FIELDS_MUST_BE_NONEMPTY_LIST")
+    if len(requested_fields) > MAX_REPORT_FIELDS:
+        raise ValueError("TRUMP_MODULE_REPLAY_REPORT_FIELDS_TOO_MANY")
+    fields: list[str] = []
+    for raw in requested_fields:
+        if not isinstance(raw, str) or not raw.strip():
+            raise ValueError("TRUMP_MODULE_REPLAY_REPORT_FIELD_INVALID")
+        field = raw.strip()
+        if field in fields:
+            continue
+        if field not in report:
+            raise KeyError(f"TRUMP_MODULE_REPLAY_REPORT_FIELD_MISSING:{field}")
+        fields.append(field)
+    projected = {field: report[field] for field in fields}
+    return projected, {
+        "projection_applied": True,
+        "full_report_key_count": len(report),
+        "persisted_report_key_count_before_truth_fields": len(projected),
+        "requested_report_fields": fields,
+    }
 
 
 def main() -> int:
@@ -69,17 +105,17 @@ def main() -> int:
     if not callable(run):
         raise ValueError(f"TRUMP_MODULE_REPLAY_RUN_MISSING:{module_name}")
 
-    report = run()
-    if not isinstance(report, dict):
+    full_report = run()
+    if not isinstance(full_report, dict):
         raise TypeError("TRUMP_MODULE_REPLAY_REPORT_NOT_OBJECT")
-    report = dict(report)
+    report, projection = project_report(dict(full_report), request.get("report_fields"))
     report["proof_claim"] = False
     report["p_vs_np"] = "OPEN"
     report["sat_in_p"] = "NOT_PROVED"
     report["module_replay_status"] = "EXECUTED"
 
     receipt = {
-        "schema": "janus.genesis.trump_module_replay_receipt.v1",
+        "schema": "janus.genesis.trump_module_replay_receipt.v1_1",
         "lane_id": LANE_ID,
         "request_id": request_id,
         "processed_at_utc": utc_now(),
@@ -90,6 +126,7 @@ def main() -> int:
         "target_module": module_name,
         "engine": "DETERMINISTIC_FUNDAMENTUM_MODULE_REPLAY",
         "authority": "RESEARCH_HYPOTHESIS_ONLY",
+        "projection": projection,
         "truth_boundary": {
             "model_output_is_proof": False,
             "model_output_is_independent_confirmation": False,
