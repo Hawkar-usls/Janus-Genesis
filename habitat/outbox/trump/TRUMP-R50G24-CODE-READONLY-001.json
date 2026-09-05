@@ -1,0 +1,658 @@
+{
+  "schema": "janus.genesis.trump_research_receipt.v1_1",
+  "lane_id": "JANUS_TRUMP_GIT_RESEARCH_LANE",
+  "request_id": "TRUMP-R50G24-CODE-READONLY-001",
+  "processed_at_utc": "2026-09-05T21:16:27Z",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "github_run_id": "33992530397",
+  "engine": "DETERMINISTIC_R50G24_MUTATION_LAB",
+  "provider_error_observed": true,
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "truth_boundary": {
+    "model_output_is_proof": false,
+    "model_output_is_independent_confirmation": false,
+    "deterministic_finite_search_is_universal_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  },
+  "report": {
+    "engine": "DETERMINISTIC_R50G24_MUTATION_LAB",
+    "provider_fallback_reason": "c73e-49cb-9313-2a29177612d1\",\"timestamp\":\"2026-09-05T21:16:18.969Z\",\"parentId\":\"6a5ac6e0-21a3-4e77-9f82-4f288467d99d\"}\n{\"type\":\"assistant.turn_end\",\"data\":{\"turnId\":\"0\"},\"id\":\"c9fdef31-b4b0-443a-9de6-0d2fefa4641a\",\"timestamp\":\"2026-09-05T21:16:18.971Z\",\"parentId\":\"6a5ac6e0-21a3-4e77-9f82-4f288467d99d\"}\n{\"type\":\"session.error\",\"data\":{\"errorType\":\"quota\",\"message\":\"You have exceeded your monthly quota (Request ID: A01B:31BFD:267CE6C:2E6607E:6A9C86A2)\",\"statusCode\":402,\"providerCallId\":\"A01B:31BFD:267CE6C:2E6607E:6A9C86A2\",\"serviceRequestId\":\"f1e2c39e-749b-499b-bba4-6e5b9671827d\",\"errorCode\":\"quota_exceeded\"},\"id\":\"da26233d-63d1-431d-abf6-e35e82d9f6ea\",\"timestamp\":\"2026-09-05T21:16:18.971Z\",\"parentId\":\"c9fdef31-b4b0-443a-9de6-0d2fefa4641a\"}\n{\"type\":\"assistant.idle\",\"data\":{},\"ephemeral\":true,\"id\":\"e77a10e9-2a7e-4d01-b5c5-a383a9737339\",\"timestamp\":\"2026-09-05T21:16:18.972Z\",\"parentId\":\"da26233d-63d1-431d-abf6-e35e82d9f6ea\"}\n{\"type\":\"result\",\"timestamp\":\"2026-09-05T21:16:18.977Z\",\"sessionId\":\"5d523a41-db8a-42cd-954a-87e4ea8135c6\",\"exitCode\":1,\"usage\":{\"premiumRequests\":0,\"totalApiDurationMs\":0,\"sessionDurationMs\":1564,\"codeChanges\":{\"linesAdded\":0,\"linesRemoved\":0,\"filesModified\":[]}}}",
+    "repo_observations": [
+      {
+        "claim": "Frozen R50G23 skeleton population replayed through repository code.",
+        "path": "experiments/janus_trump_r50g23_direct5_skeleton_r47j_collapse_cascade_anti_collapse_debt.py",
+        "why_relevant": "The fallback imports the canonical frozen selector, R47J replay, R33 simplifier and first-transition debt extractor rather than reimplementing their semantics."
+      },
+      {
+        "claim": "Bounded mutation trials executed: 2154; strong candidates: 0.",
+        "path": "runtime-only",
+        "why_relevant": "Every tested mutation is an additive change to one of the same frozen 30 sources; no new family member generator is introduced."
+      }
+    ],
+    "candidate_mechanisms": [],
+    "near_misses": [
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "base_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            3,
+            4
+          ],
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          2,
+          3
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          11,
+          36,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 8,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+        "base_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+        "base_debt": {
+          "debt_class": "NONTAUTOLOGICAL_OPPOSITE_BLOCKER_SUPPORT",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "blocked_clause": [
+            -2,
+            3,
+            4
+          ],
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          2,
+          4
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          1,
+          2
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          35,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          -1,
+          2
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          2,
+          3
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          -3,
+          2
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          2,
+          4
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          -4,
+          2
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          2,
+          5
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          -5,
+          2
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          2,
+          6
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "R33:SUBSUMPTION",
+          "R33:SUBSUMPTION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      },
+      {
+        "spec": {
+          "cycle_length": 3,
+          "sign_mask": 9,
+          "geometry": "3x4_DISJOINT",
+          "split_rotation": 0
+        },
+        "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+        "base_first_transition": "R33:PURE_LITERAL_AUTARKY",
+        "base_debt": {
+          "debt_class": "OPPOSITE_POLARITY_OCCURRENCE",
+          "minimum_added_clause_count_lower_bound": 1,
+          "required_literal": 2,
+          "required_variable": 2,
+          "necessary_not_sufficient": true
+        },
+        "added_clause": [
+          -6,
+          2
+        ],
+        "mutated_source_CLV": [
+          13,
+          43,
+          7
+        ],
+        "forced_DP_CLV": [
+          10,
+          33,
+          6
+        ],
+        "R33_terminal": "EMPTY_CNF_SAT",
+        "R33_transition_labels": [
+          "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "R33:PURE_LITERAL_AUTARKY",
+          "R33:PURE_LITERAL_AUTARKY"
+        ],
+        "R33_final_CLV": [
+          0,
+          0,
+          0
+        ],
+        "first_transition_changed": true,
+        "nonempty_stalled_residual": false,
+        "bipolar_residual": false,
+        "r47j_replay_pass": true,
+        "classification": "FIRST_TRANSITION_BROKEN_BUT_STRONG_GATE_NOT_MET"
+      }
+    ],
+    "rejected_summary": {
+      "r47j_candidate_missing": 0,
+      "r47j_replay_fail": 0,
+      "same_first_transition": 1425,
+      "solved_or_empty_after_r33": 729,
+      "nonbipolar_residual": 0
+    },
+    "rejected_ideas": [
+      {
+        "idea": "Treat Copilot quota failure as research failure.",
+        "reason": "Provider availability is orthogonal to the replayable SAT experiment; deterministic fallback preserves the research lane."
+      },
+      {
+        "idea": "Count a first-transition change alone as PASS.",
+        "reason": "A mutation can merely move BCE/PURE or solve by another local rule; strong status additionally requires a nonempty bipolar STALLED_STACK_LEAN_CORE after R33."
+      }
+    ],
+    "deterministic_trial_count": 2154,
+    "strong_candidate_count": 0,
+    "strong_candidates": [],
+    "recommended_next_gate": "R50G24_PAIRWISE_COUNTERPOLARITY_CLOSURE_AFTER_SINGLE_CLAUSE_NEGATIVE",
+    "answer": "Детерминированный fallback проверил 2154 одно-клаузных controlled mutations и сильного непустого биполярного residual core не нашёл. Следующий честный debt — парное counterpolarity closure без расширения frozen 30. Это конечный отрицательный результат, не универсальная теорема.",
+    "lane": "TRUMP_FALSIFICATION_RESEARCH",
+    "status": "HYPOTHESIS",
+    "proof_claim": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  }
+}
