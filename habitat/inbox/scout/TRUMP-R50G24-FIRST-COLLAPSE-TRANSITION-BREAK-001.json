@@ -1,0 +1,37 @@
+{
+  "schema": "janus.genesis.git_habitat.scout_request.v1",
+  "request_id": "TRUMP-R50G24-FIRST-COLLAPSE-TRANSITION-BREAK-001",
+  "created_at_local": "2026-09-06T00:06:44+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_FALSIFICATION_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_pr": 439,
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "frontier": {
+    "previous_gate": "R50G23",
+    "next_gate": "R50G24_FIRST_COLLAPSE_TRANSITION_BREAK",
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY",
+    "sealed_population": "30 clean skeletons recovered from R50G22 pre-BVE gate",
+    "observed_common_grammar": "(BCE)^(0,1) -> (PURE)^(2,3) -> EMPTY_CNF",
+    "r33_rounds": 1,
+    "rup": 0,
+    "restart": 0,
+    "same_pivot": "R47J pivot 1"
+  },
+  "query": "TRUMP/P-vs-NP parallel research task. Treat all supplied R50G23 statements only as sealed inputs, not as a proof of anything universal. Do NOT expand the frozen family beyond the 30 clean R50G22 skeletons. Independently attack the observed collapse grammar (BCE)^(0,1) -> (PURE)^(2,3) -> EMPTY_CNF under the same-pivot R47J pivot-1 setting. Design the smallest controlled mutation strategy that could make at least one skeleton survive R47J+BCE+PURE as a NONEMPTY BIPOLAR RESIDUAL CORE. Prioritize breaking the first transition rather than adding generic complexity. For each proposed mutation, state: which first transition it targets (BCE or PURE), why it should block that transition, what new accidental simplification it might introduce, and the minimal replayable falsification test. Prefer counterpolarity closures/cycles where every internal variable keeps both signs present, but challenge this idea if a smaller or cleaner adversary exists. If you can infer that a proposed construction merely moves PURE/BCE elsewhere, reject it explicitly. Return several concrete candidate mechanisms in hypotheses/symbolic_models and a concise ranked recommendation in answer. P_VS_NP remains OPEN; SAT_IN_P remains NOT_PROVED; model output is not proof; finite no-find is not a theorem.",
+  "expected_lane": "HYPOTHESIS",
+  "constraints": [
+    "DO_NOT_EXPAND_30_SKELETON_FAMILY",
+    "DO_NOT_CHANGE_R47J",
+    "DO_NOT_USE_BRUTE_FORCE_AS_THE_EXPLANATION",
+    "DO_NOT_PROMOTE_MODEL_OUTPUT_TO_PROOF",
+    "P_VS_NP_OPEN",
+    "SAT_IN_P_NOT_PROVED",
+    "FINITE_NO_FIND_NOT_UNIVERSAL",
+    "REPLAYABLE_COUNTEREXAMPLE_OR_PROOF_REQUIRED_FOR_PROMOTION",
+    "NO_NAS_NO_HOME_IP_NO_HOME_WIFI_NO_SWARM_DEPENDENCY"
+  ],
+  "status": "QUEUED"
+}
