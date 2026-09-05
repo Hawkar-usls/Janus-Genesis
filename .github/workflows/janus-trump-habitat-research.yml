@@ -12,6 +12,7 @@ on:
       - 'tools/trump_r50g27_single_polarity_flip_agent.py'
       - 'tools/trump_r50g28_alternate_pivot_audit_agent.py'
       - 'tools/trump_r50g29_pivot_independent_variable_rewire_agent.py'
+      - 'tools/trump_r50g30_two_occurrence_coupled_rewire_agent.py'
   workflow_dispatch:
   schedule:
     - cron: '37 * * * *'
@@ -106,7 +107,7 @@ jobs:
           node-version: '22'
 
       - name: Install GitHub Copilot CLI
-        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE') && !contains(steps.discover.outputs.request_id, 'R50G25-ADAPTIVE-THIRD-DEBT') && !contains(steps.discover.outputs.request_id, 'R50G26-UNIQUE-PAIR-STATE-WIDTH3') && !contains(steps.discover.outputs.request_id, 'R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP') && !contains(steps.discover.outputs.request_id, 'R50G28-SINGLE-FLIP-DOOR-CLOSED-ALTERNATE-PIVOT-AUDIT') && !contains(steps.discover.outputs.request_id, 'R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE')
+        if: steps.discover.outputs.count == '1' && !contains(steps.discover.outputs.request_id, 'PAIRWISE-COUNTERPOLARITY-CLOSURE') && !contains(steps.discover.outputs.request_id, 'R50G25-ADAPTIVE-THIRD-DEBT') && !contains(steps.discover.outputs.request_id, 'R50G26-UNIQUE-PAIR-STATE-WIDTH3') && !contains(steps.discover.outputs.request_id, 'R50G27-MINIMUM-NONADDITIVE-SINGLE-LITERAL-POLARITY-FLIP') && !contains(steps.discover.outputs.request_id, 'R50G28-SINGLE-FLIP-DOOR-CLOSED-ALTERNATE-PIVOT-AUDIT') && !contains(steps.discover.outputs.request_id, 'R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE') && !contains(steps.discover.outputs.request_id, 'R50G30-MINIMUM-TWO-OCCURRENCE-COUPLED-REWIRE')
         run: |
           npm install -g @github/copilot
           copilot --version
@@ -121,7 +122,10 @@ jobs:
           export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
           REQUEST="$(cat runtime/request.txt)"
           RID="${{ steps.discover.outputs.request_id }}"
-          if [[ "$RID" == *"R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE"* ]]; then
+          if [[ "$RID" == *"R50G30-MINIMUM-TWO-OCCURRENCE-COUPLED-REWIRE"* ]]; then
+            echo "TRUMP_ENGINE=DETERMINISTIC_R50G30_PIVOT_INDEPENDENT_COUPLED_TWO_OCCURRENCE_REWIRE"
+            python control/tools/trump_r50g30_two_occurrence_coupled_rewire_agent.py --request "$REQUEST" --workspace trump-source --habitat-root habitat-repo/habitat
+          elif [[ "$RID" == *"R50G29-PIVOT-INDEPENDENT-SINGLE-LITERAL-VARIABLE-REWIRE"* ]]; then
             echo "TRUMP_ENGINE=DETERMINISTIC_R50G29_PIVOT_INDEPENDENT_SINGLE_LITERAL_VARIABLE_REWIRE"
             python control/tools/trump_r50g29_pivot_independent_variable_rewire_agent.py --request "$REQUEST" --workspace trump-source --habitat-root habitat-repo/habitat
           elif [[ "$RID" == *"R50G28-SINGLE-FLIP-DOOR-CLOSED-ALTERNATE-PIVOT-AUDIT"* ]]; then
