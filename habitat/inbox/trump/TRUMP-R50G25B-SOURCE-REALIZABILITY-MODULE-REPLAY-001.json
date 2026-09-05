@@ -1,0 +1,51 @@
+{
+  "schema": "janus.genesis.trump_module_replay_request.v1",
+  "request_id": "TRUMP-R50G25B-SOURCE-REALIZABILITY-MODULE-REPLAY-001",
+  "created_at_local": "2026-09-06T01:29:00+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_MODULE_REPLAY",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g25b-source-realizability-minimum-joint-debt-2026-09-06",
+  "source_head_sha_at_queue": "0c1312a8ac588bd8f5d32148862451b41b8eb5a3",
+  "target_module": "janus_trump_r50g25b_source_realizability_minimum_joint_debt",
+  "parent_request": "TRUMP-R50G25A-COMPACT-SUMMARY-MODULE-REPLAY-002",
+  "report_fields": [
+    "gate",
+    "parent_gate",
+    "parent_unique_post_DP_states",
+    "parent_ge3_unique_states",
+    "parent_ge3_weighted_occurrences",
+    "exact_minimum_cover_unique_histogram",
+    "exact_minimum_cover_weighted_histogram",
+    "source_realizability_unique_partition",
+    "source_realizability_weighted_partition",
+    "exact_minimum_source_realizable_unique_count",
+    "exact_minimum_source_realizable_weighted_count",
+    "all_ge3_minimum_covers_source_realizable",
+    "first_R33_rule_after_realized_minimum_cover_unique_partition",
+    "first_R33_rule_after_realized_minimum_cover_weighted_partition",
+    "full_R47J_terminal_after_realized_minimum_cover_unique_partition",
+    "full_R47J_terminal_after_realized_minimum_cover_weighted_partition",
+    "next_gate",
+    "interpretation_contract",
+    "firewall"
+  ],
+  "contract": {
+    "do_not_assume_minimum_equals_three": true,
+    "same_R47J_pivot": 1,
+    "frozen_family_expansion": false,
+    "new_variables": false,
+    "exact_DP_source_lift_required": true,
+    "independent_R47J_replay_required": true
+  },
+  "forbidden": [
+    "PROMOTE_STATIC_MINIMUM_TO_DYNAMIC_SUFFICIENCY",
+    "PROMOTE_SOURCE_REALIZATION_TO_HARD_CORE",
+    "EXPAND_FROZEN_30_FAMILY",
+    "CHANGE_R47J",
+    "CLAIM_SAT_IN_P",
+    "CLAIM_P_EQUALS_NP"
+  ],
+  "status": "QUEUED"
+}
