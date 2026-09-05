@@ -1,0 +1,71 @@
+{
+  "schema": "janus.genesis.trump_code_research_request.v1",
+  "request_id": "TRUMP-R50G26-UNIQUE-PAIR-STATE-WIDTH3-004",
+  "created_at_local": "2026-09-06T02:06:32+03:00",
+  "requested_by": "Hawkar-usls+ChatGPT",
+  "authority": "QUERY_ONLY",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "research_bridge": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_pr": 439,
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_head_sha": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "parent_request": "TRUMP-R50G25-ADAPTIVE-THIRD-DEBT-003",
+  "parent_semantic_correction": "TRUMP-R50G25-ADAPTIVE-THIRD-DEBT-003-SEMANTIC-CORRECTION",
+  "accepted_corrected_parent_result": {
+    "parent_pair_trial_count": 1774,
+    "parent_final_first_transition_partition": {
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 887,
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 786,
+      "R33:PURE_LITERAL_AUTARKY": 94,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 7
+    },
+    "adaptive_binary_depth3_trial_count": 29099,
+    "first_pass_strong_count": 0,
+    "R33_terminal_partition": {
+      "EMPTY_CNF_SAT": 28810,
+      "EMPTY_CLAUSE_UNSAT": 289
+    },
+    "corrected_full_R47J_unresolved_survivor_count": 0,
+    "corrected_gate_verdict": "FINITE_NEGATIVE_FOR_ADAPTIVE_BINARY_ADDITIVE_DEPTH3_ON_SEALED_PARENT_SPACE"
+  },
+  "frontier": {
+    "gate": "R50G26_UNIQUE_PAIR_STATE_WIDTH3_STRUCTURAL_SUPPORT_OR_ADDITIVE_OBSTRUCTION",
+    "parent_seal_required": true,
+    "expected_parent_pair_path_count": 1774,
+    "expected_parent_partition": {
+      "R33:BLOCKED_CLAUSE_ELIMINATION": 887,
+      "R33:BOUNDED_VARIABLE_ELIMINATION": 786,
+      "R33:PURE_LITERAL_AUTARKY": 94,
+      "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 7
+    },
+    "frozen_family_policy": "DO_NOT_EXPAND_FAMILY",
+    "sealed_population": 30,
+    "same_pivot": "R47J pivot 1",
+    "compression": "CANONICAL_PAIR_FORMULA_HASH_DEDUPLICATION",
+    "mutation_policy": "ONE_WIDTH3_DIRECT_DEBT_CLAUSE_OVER_EXISTING_VARIABLES_ONLY",
+    "unit_policy": "DIRECT_ADDITIVE_OBSTRUCTION"
+  },
+  "research_task": "Reproduce the exact sealed 1774 R50G24 pair paths and exact 887 BCE / 786 BVE / 94 PURE / 7 UNIT first-transition partition with parent strong count 0. Fail closed on any drift. Canonically deduplicate semantically identical pair formulas by formula hash. For each unique pair state with direct additive debt, test exactly one width-3 clause formed from the required debt literal plus two distinct existing support variables; add no new variables and do not change R47J pivot 1. For BCE require that the added clause supplies opposite blocker support with a non-tautological resolvent. For UNIT or any state with no direct additive debt, record an explicit additive obstruction rather than inventing an arbitrary clause. Classify R47J macro_candidate_fixpoint missing as SAME_PIVOT_R47J_DOOR_CLOSED_WIDTH3_CANDIDATE, not generic failure. Distinguish first-pass bipolar STALLED_STACK_LEAN_CORE from a stronger full R47J unresolved survivor, where unresolved requires normalization.terminal == null, final CNF nonempty, and no empty clause. Record exact pair hash, multiplicity, representative parent path, width-3 clause, replay result, residual formula and next gate. If the declared width-3 budget is exhausted, return a resource ceiling, not a negative scientific conclusion.",
+  "success_condition": "Either a replayable same-pivot R47J door-closed width3 witness, a replayable unresolved residual witness, or an exhaustive finite-negative/obstruction classification within the declared width3 grammar with exact counts.",
+  "forbidden": [
+    "EXPAND_FROZEN_30_FAMILY",
+    "ADD_NEW_VARIABLES",
+    "CHANGE_R47J_PIVOT",
+    "WRITE_TRUMP_SOURCE",
+    "MERGE_MAIN",
+    "BLIND_FOURTH_BINARY_CLAUSE",
+    "TREAT_EMPTY_CLAUSE_AS_NONEMPTY_SURVIVOR",
+    "CLAIM_P_EQUALS_NP",
+    "CLAIM_SAT_IN_P",
+    "PROMOTE_FINITE_SEARCH_TO_UNIVERSAL_PROOF",
+    "DEPEND_ON_NAS_HOME_IP_WIFI_OR_SWARM"
+  ],
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "finite_search_is_universal_proof": false,
+    "model_output_is_proof": false
+  },
+  "status": "QUEUED"
+}
