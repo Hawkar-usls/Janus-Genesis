@@ -1,0 +1,2629 @@
+{
+  "schema": "janus.genesis.trump_research_receipt.v1_6",
+  "lane_id": "JANUS_TRUMP_R50G28_ALTERNATE_PIVOT_AUDIT_LANE",
+  "request_id": "TRUMP-R50G28-SINGLE-FLIP-DOOR-CLOSED-ALTERNATE-PIVOT-AUDIT-006",
+  "processed_at_utc": "2026-09-05T23:27:53Z",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "github_run_id": "33998593262",
+  "engine": "DETERMINISTIC_R50G28_SINGLE_FLIP_DOOR_CLOSED_ALTERNATE_PIVOT_AUDIT",
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "truth_boundary": {
+    "model_output_is_proof": false,
+    "model_output_is_independent_confirmation": false,
+    "deterministic_finite_search_is_universal_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  },
+  "report": {
+    "engine": "DETERMINISTIC_R50G28_SINGLE_FLIP_DOOR_CLOSED_ALTERNATE_PIVOT_AUDIT",
+    "parent_seal": {
+      "pair_path_count": 1774,
+      "unique_pair_state_count": 1424,
+      "raw_valid_flip_path_count": 61112,
+      "unique_mutant_formula_count": 59486,
+      "pivot1_success_first_partition": {
+        "R33:BLOCKED_CLAUSE_ELIMINATION": 39601,
+        "R33:PURE_LITERAL_AUTARKY": 8972,
+        "R33:BOUNDED_VARIABLE_ELIMINATION": 9985,
+        "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 201
+      },
+      "pivot1_terminal_partition": {
+        "EMPTY_CNF_SAT": 58758,
+        "EMPTY_CLAUSE_UNSAT": 1
+      },
+      "pivot1_door_closed_actual_count": 727,
+      "seal_replay_pass": true
+    },
+    "pivot1_door_closed_mutant_count": 727,
+    "mutant_with_any_alternate_r47j_pivot_count": 727,
+    "mutant_all_r47j_pivots_closed_count": 0,
+    "alternate_candidate_edge_count": 4362,
+    "alternate_missing_edge_count": 0,
+    "alternate_terminal_partition": {
+      "DIRECT_EMPTY_CNF": 4362
+    },
+    "alternate_unresolved_edge_count": 0,
+    "alternate_direct_sat_edge_count": 4362,
+    "alternate_direct_unsat_edge_count": 0,
+    "pivot_open_frequency": {
+      "2": 727,
+      "3": 727,
+      "4": 727,
+      "5": 727,
+      "6": 727,
+      "7": 727
+    },
+    "pivot_missing_frequency": {
+      "1": 727
+    },
+    "open_pivot_count_per_mutant": {
+      "6": 727
+    },
+    "all_r47j_pivots_closed_samples": [],
+    "alternate_open_samples": [
+      {
+        "mutant_hash": "000582844390c742cdce93883e872fd20e3efe5a3e424a110c4d596873693de6",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "91a175ef25b11a427864bfed972d71a7b15fe919b1be8c5981e8c7c61ea57298",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+            "first_clause": [
+              2,
+              7
+            ],
+            "second_clause": [
+              -5,
+              -2
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "00cbd0f1c8cf4f902f7831657b1bae8eb1d65fbd5be801b5a49b2cfde5e0f6b9",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "6ee5838709278b15fb9c3f9604204bdf85b6b760246ede4be8f7a1347eb1b443",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 6,
+              "sign_mask": 25,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "329283af4fc06c787198cfa95b5cec2879d72e4da6c97b831a512747c16a0a95",
+            "first_clause": [
+              2,
+              3
+            ],
+            "second_clause": [
+              -4,
+              2
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "0123d1e3924df4cc38d7df5ccaccb034eb99efa46c9309726c1ec9d86d3e4747",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "38c8bf72d3ca191d7045ffd81ee06d1e35c0aa136c2722203effa9ade2d7e815",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -2,
+              7
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "01de548103201e4723a5073d6eab3fb9525408877d9a07d8d7e0f06eec0fd86d",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "ae0ef26cac5c1844c2b7a5334a79da36f0971e96362641dc376f9c4316b99208",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              2,
+              3
+            ],
+            "second_clause": [
+              2,
+              5
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "0211a56e2993adee7c005c05a0e56a7ae95c0e047d5fa12ef5f7c8090722345c",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "d28f3e1ffeae57e51c79f47f5a19be4c3a88132544c7a1951e590a8f6590a53e",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -4,
+              -2
+            ],
+            "second_clause": [
+              3,
+              4
+            ]
+          },
+          "clause_index": 7,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "023653ce8c01903261f9f6db69747fa7fc4015f7e7ac5b5c1fe413bdfb91bc5f",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "399b62bf1e70b7f353bfe45d60c1be6484c41f04f0c92d65a4f0468bc9b5d282",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -7,
+              -2
+            ],
+            "second_clause": [
+              -6,
+              -2
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "0291df96eea6c8fc6552415519ac9c4f4394cdc0bf78fd97cb096781c816c9f5",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "36c638d5408d8bf76e4a6e7b5629a67973771639a489bdd61e393f924c563455",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "4b27a8e264d059cd3d365e3096efd0a8582e854324e9d6f061b4d55ac394a4fd",
+            "first_clause": [
+              2,
+              6
+            ],
+            "second_clause": [
+              -6,
+              -2
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "039be40adecf414e49bf41912e9d74e81db3fe747cc41aa069670c58b8dbdb68",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "c6105596cb48ac9a13794ce8a4858dd5cbbf82fdd647b60b181eaac21ae64514",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+            "first_clause": [
+              -6,
+              -5
+            ],
+            "second_clause": [
+              -1,
+              2
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "04364c00c33a8e586f8ec88e9a9b845db05821369f81fc3a9dfb00082ed5747d",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "4dd1a94a2218340b282e29655d45082dc2f647aa732a93747f1c093878504db0",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -2,
+              7
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "043f78b34f781b930c09803a1617b38b5c3b59f8e1c28cd82d59cbedd8c08d44",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "6204f60b34230193276d6fe7bad1f726b452b083f2055c81aa279cf53a7a4fe8",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -2,
+              4
+            ],
+            "second_clause": [
+              -3,
+              -2
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "04b076815b2921ff5aaa9020460518d3c361a3f2d9aa4166b34700e7f941ea58",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "0fd358a94145c1d63919e012df5ff7824bc33dd48337b44f015ab8f10ba333d6",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              -4,
+              2
+            ],
+            "second_clause": [
+              2,
+              5
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "04cae237f7a2b29f73ad5d7f7456202b3772d0eddebd29704686c65808bf86ea",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "f4c460f8038ec435a2dce89da76d3d58cf5e64881f0c2d770e35e0f501bcab90",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 8,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -7,
+              2
+            ]
+          },
+          "clause_index": 10,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "04e5db97eb4803f0b80756cf02c66149f406f19241f71ad9528ea43b2224634c",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "277a90371af5b8088de3508e41647e290b0a841722c9eba3074690987af6d957",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -2,
+              4
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "06378ad855141cc4f4e615de690fe1ef12be34c52f6ab4664586d19d36296e2e",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "b775db0d3672a05909a9dfe45cf1cfec985fcee33a30dd965f0417df9e05e888",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -7,
+              -2
+            ],
+            "second_clause": [
+              -2,
+              4
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "06d28d61ef6a6835c1a9afa12339d1dfafc7663718ba93bd8bb514a4c48cde94",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "b2f178332bedcea5e36e248083ca6679d8e3f3cb5a4b96807bb0474edce9357a",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 118,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 2
+            },
+            "source_hash": "c867cc40d5ce7d39012bd73fa89fe3be0101ee1f3d8e1a83a3348e36be56f1b8",
+            "first_clause": [
+              -3,
+              -2
+            ],
+            "second_clause": [
+              -2,
+              7
+            ]
+          },
+          "clause_index": 7,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "07abad5c115af578e5d7abfea12f38c4d10cb8e3c1d27f6de2264567b25f3c73",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "a53fdbcc4f9ed67f634688a181e07f990e76d2fd5de12ca2db2404f20b7c8bbc",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 8,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "93f21357e5152e002b6e6b29183c1725603db0e92df564bc9cf242d632e5741a",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -6,
+              -2
+            ]
+          },
+          "clause_index": 11,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "07ce1cef644119856f59476726c8b4c981da61b653321e71846f62a955bfc088",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "5555128ac9a8c467a6c7807d46430483f05e33afd9c735cf9f3b6d1a31c93af4",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "e46dd343732a51dd3e6df2dd13c4c103e4db03ebe29f8e63d65c01583f23b6bb",
+            "first_clause": [
+              -7,
+              -5
+            ],
+            "second_clause": [
+              -2,
+              3
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "07f61b0b0689b23ec957bca53f2cce4dedfdcd50c36757f72af9890565208b8e",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "817e92466a3de114e31259ebeaf806430fc84e5a0820867fcd7a89cb668e115c",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -2,
+              -1
+            ],
+            "second_clause": [
+              -1,
+              4
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "087621a9640f03bb18a491809297218d5cefe2e09e1df1034cd0056230151fc1",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "5d1de7852461767f2c9eec2c1d97b6662f4ca56cb47f9be9f7a978ba0b215343",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              -5,
+              2
+            ],
+            "second_clause": [
+              -3,
+              2
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "08e7226182a95bab8313cb218a8a9c1e4fd4b594c2a102498d8593b9b7d8e6e3",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "7b2cff70cb846ebc0357140302ccda8674fbd3c7df5a1a382d8d016f0138a513",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              -2,
+              6
+            ]
+          },
+          "clause_index": 9,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "097b6ebdf26c4fbf45e7134fb3c74202a89d1a95b6cd0dd22f2d31c6e314feb8",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "56fb46ae4dd95a50cadd9aedb6a8c957f4649da355be177beeb64abd4202a70d",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 3,
+              "sign_mask": 9,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 0
+            },
+            "source_hash": "09d7fa715c2e69ff9f2eb4d1bccd0579e93b21abc03281063250533eddd8edc8",
+            "first_clause": [
+              -7,
+              2
+            ],
+            "second_clause": [
+              2,
+              7
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "09fe6b42bd3b5c47475e3a4198081b075765409795b755682bc942e62897bf7e",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "389545b110affc3072d6acd29174cb10d6a967a945711956144cf19acdaf619c",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:BLOCKED_CLAUSE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 5,
+              "sign_mask": 18,
+              "geometry": "3x4_DISJOINT",
+              "split_rotation": 1
+            },
+            "source_hash": "6b59ce38ed17abd7de2e2d2ad9d4d655f9b6bcde8923129ea0b195fd253eaba5",
+            "first_clause": [
+              -2,
+              6
+            ],
+            "second_clause": [
+              -2,
+              -1
+            ]
+          },
+          "clause_index": 8,
+          "old_literal": 1,
+          "new_literal": -1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "0a3d286b1316ec06779b3f2931075823c9d609aaf9aadbefcc38804cc9207d2c",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "fa0009175253c797e38086ce2caa7e4f4b68dec6ca67f79c11f56646c6853fdc",
+          "pair_multiplicity": 2,
+          "pair_first_transition": "R33:BOUNDED_VARIABLE_ELIMINATION",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+            "first_clause": [
+              2,
+              4
+            ],
+            "second_clause": [
+              2,
+              6
+            ]
+          },
+          "clause_index": 5,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      },
+      {
+        "mutant_hash": "0a79dcc8bdb30d0b986f9689f0da8bf716efb89b75b060b8e52369bb6626abeb",
+        "path_multiplicity": 1,
+        "representative": {
+          "pair_hash": "5d3a3c5607164017c462d9aa45a0f0cf9346ea35826fdaf37edc5c6c8c41587c",
+          "pair_multiplicity": 1,
+          "pair_first_transition": "R33:PURE_LITERAL_AUTARKY",
+          "representative_parent_path": {
+            "spec": {
+              "cycle_length": 4,
+              "sign_mask": 109,
+              "geometry": "4x3_DISJOINT",
+              "split_rotation": 3
+            },
+            "source_hash": "ec45ca7047721626daf1910d319faf3295785107a495f76ab65c74116f3037a1",
+            "first_clause": [
+              2,
+              6
+            ],
+            "second_clause": [
+              -5,
+              -2
+            ]
+          },
+          "clause_index": 6,
+          "old_literal": -1,
+          "new_literal": 1
+        },
+        "pivot1_present": true,
+        "variable_count": 7,
+        "open_edges": [
+          {
+            "pivot": 2,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 3,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 4,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 5,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 6,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          },
+          {
+            "pivot": 7,
+            "terminal": "DIRECT_EMPTY_CNF",
+            "final_CLV": [
+              0,
+              0,
+              0
+            ],
+            "final_formula": [],
+            "round_count": 1,
+            "restart_count": 0
+          }
+        ],
+        "open_edge_count": 6
+      }
+    ],
+    "unresolved_alternate_samples": [],
+    "search_exhaustive_within_declared_alternate_pivot_grammar": true,
+    "recommended_next_gate": "R50G29_PIVOT1_CLOSURE_FINITE_NEGATIVE__ALL_HAVE_SOLVING_ALTERNATE_R47J_DOOR",
+    "answer": "All 727 pivot-1 door-closed mutants regain at least one alternate R47J pivot and every alternate candidate normalizes terminally. Thus pivot-1 closure alone is a finite negative as a global obstruction; next search must target pivot-independent structure.",
+    "scope_firewall": {
+      "new_mutations_introduced": false,
+      "family_expanded": false,
+      "new_variables_added": false,
+      "r47j_definition_changed": false,
+      "all_existing_variable_pivots_audited": true,
+      "finite_search_is_universal_proof": false
+    },
+    "lane": "TRUMP_FALSIFICATION_RESEARCH",
+    "status": "HYPOTHESIS",
+    "proof_claim": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  }
+}
