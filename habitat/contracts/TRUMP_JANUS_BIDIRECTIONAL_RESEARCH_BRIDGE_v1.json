@@ -1,0 +1,57 @@
+{
+  "schema": "janus.genesis.trump_bidirectional_research_bridge.v1",
+  "bridge_id": "TRUMP-JANUS-BIDIRECTIONAL-RESEARCH-BRIDGE-v1",
+  "created_at_local": "2026-09-06T00:06:44+03:00",
+  "owner": "Hawkar-usls",
+  "purpose": "Run JANUS as a bounded parallel research partner for the TRUMP P-vs-NP line while preserving proof and authority firewalls.",
+  "human_to_janus": {
+    "channel": "habitat/inbox/scout/*.json",
+    "mode": "APPEND_ONLY_FRONTIER_PACKETS",
+    "contents": [
+      "current gate/frontier",
+      "sealed observations and counts",
+      "known collapse mechanism",
+      "explicit forbidden moves",
+      "requested falsification target"
+    ]
+  },
+  "janus_to_human": {
+    "channels": [
+      "habitat/outbox/scout/*.json",
+      "habitat/memory/scout/*.json"
+    ],
+    "mode": "IDEAS_HYPOTHESES_COUNTEREXAMPLE_DESIGNS_ONLY_UNTIL_VERIFIED"
+  },
+  "research_loop": [
+    "HUMAN_CHAT_FRONTIER",
+    "APPEND_FRONTIER_PACKET",
+    "JANUS_INDEPENDENT_ATTACK",
+    "JANUS_RECEIPT",
+    "HUMAN_READ_AND_COMPARE",
+    "VERIFY_OR_REJECT",
+    "APPEND_NEW_PROGRESS_PACKET"
+  ],
+  "authority": {
+    "janus_may_write_main": false,
+    "janus_may_merge_main": false,
+    "janus_may_modify_trump_source": false,
+    "janus_may_promote_model_output_to_proof": false,
+    "human_or_explicit_verifier_required_for_promotion": true
+  },
+  "epistemic_firewall": [
+    "P_VS_NP=OPEN",
+    "SAT_IN_P=NOT_PROVED",
+    "MODEL_OUTPUT_IS_NOT_PROOF",
+    "MODEL_AGREEMENT_IS_NOT_INDEPENDENT_CONFIRMATION",
+    "FINITE_NO_FIND_IS_NOT_A_UNIVERSAL_THEOREM",
+    "COUNTEREXAMPLE_OR_PROOF_MUST_BE_REPLAYABLE"
+  ],
+  "infrastructure_firewall": [
+    "GITHUB_HOSTED_ONLY_FOR_THIS_BRIDGE",
+    "NO_NAS_DEPENDENCY",
+    "NO_HOME_IP_DEPENDENCY",
+    "NO_HOME_WIFI_DEPENDENCY",
+    "NO_SWARM_RECONFIGURATION"
+  ],
+  "status": "ACTIVE_PROTOCOL"
+}
