@@ -1,7 +1,7 @@
 {
   "schema": "janus.genesis.trump_research_request.v1_9",
   "request_id": "TRUMP-R50G31-MINIMUM-TWO-OCCURRENCE-NONSWAP-REWIRE-009",
-  "status": "QUEUED",
+  "status": "RESOURCE_LIMIT_SUPERSEDED_BY_CHUNKED_REPLAY",
   "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
   "source_repo": "Hawkar-usls/Janus-Fundamentum",
   "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
@@ -12,6 +12,17 @@
     "objective": "Exhaust the minimum nonzero occurrence-histogram-drift two-occurrence sign-preserving nonswap grammar x->y, z->x on the same frozen 1424 R50G24 pair states and audit all existing R47J pivots with independent replay.",
     "pass_condition": "AT_LEAST_ONE_MUTANT_HAS_NO_REPLAY_VERIFIED_R47J_CANDIDATE_FOR_ANY_EXISTING_PIVOT",
     "resource_limit_semantics": "UNKNOWN_RESOURCE_LIMIT_NOT_FINITE_NEGATIVE"
+  },
+  "monolithic_attempt": {
+    "github_run_id": 34002884773,
+    "github_run_attempt": 2,
+    "job_id": 101404851069,
+    "engine_started_utc": "2026-09-06T01:03:50Z",
+    "cancelled_utc": "2026-09-06T01:23:57Z",
+    "conclusion": "UNKNOWN_RESOURCE_LIMIT",
+    "receipt_created": false,
+    "reason": "WORKFLOW_20_MINUTE_HARD_CEILING",
+    "next_gate": "R50G31_CHUNKED_MINIMUM_NONSWAP_LOAD_TRANSFER_REPLAY"
   },
   "constraints": {
     "family_expansion": false,
