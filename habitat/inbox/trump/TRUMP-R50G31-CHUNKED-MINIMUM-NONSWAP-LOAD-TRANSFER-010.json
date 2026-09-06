@@ -1,0 +1,26 @@
+{
+  "schema": "janus.genesis.trump_chunked_research_request.v1",
+  "request_id": "TRUMP-R50G31-CHUNKED-MINIMUM-NONSWAP-LOAD-TRANSFER-010",
+  "status": "QUEUED_MATRIX",
+  "purpose": "PARALLEL_TRUMP_CHUNKED_RESEARCH",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "frontier": {
+    "gate": "R50G31_CHUNKED_MINIMUM_NONSWAP_LOAD_TRANSFER_REPLAY",
+    "supersedes_request": "TRUMP-R50G31-MINIMUM-TWO-OCCURRENCE-NONSWAP-REWIRE-009",
+    "superseded_outcome": "UNKNOWN_RESOURCE_LIMIT",
+    "partition_rule": "SORTED_PAIR_HASH_POSITION_MOD_16",
+    "chunk_count": 16,
+    "expected_parent_states_per_chunk": 89,
+    "expected_exact_parent_coverage": 1424,
+    "grammar": "x->y,z->x; x,y,z pairwise distinct; signs/clauses/widths/variable-universe/R47J frozen; occurrence-histogram L1 drift exactly 2",
+    "pass_condition": "ANY_CHUNK_CONTAINS_A_MUTANT_WITH_NO_REPLAY_VERIFIED_R47J_CANDIDATE_FOR_ANY_EXISTING_PIVOT",
+    "finite_negative_condition": "ALL_16_CHUNKS_EXHAUSTIVE_AND_EXACT_1424_PARENT_COVERAGE_AND_ZERO_ALL_PIVOT_CLOSED_AUDITS"
+  },
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "proof_authority": false,
+    "finite_search_is_universal_proof": false
+  }
+}
