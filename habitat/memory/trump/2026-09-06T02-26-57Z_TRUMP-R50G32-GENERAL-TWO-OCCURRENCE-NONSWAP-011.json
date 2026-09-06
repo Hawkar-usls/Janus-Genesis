@@ -1,0 +1,382 @@
+{
+  "schema": "janus.genesis.trump_research_receipt.v1_11",
+  "lane_id": "JANUS_TRUMP_R50G32_GENERAL_TWO_OCCURRENCE_ROLE_QUOTIENT_LANE",
+  "request_id": "TRUMP-R50G32-GENERAL-TWO-OCCURRENCE-NONSWAP-011",
+  "processed_at_utc": "2026-09-06T02:26:56Z",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "source_commit": "73f282dc77b6d95bb166c1c425facb66b2833aa8",
+  "github_run_id": "34005173608",
+  "authority": "RESEARCH_HYPOTHESIS_ONLY",
+  "truth_boundary": {
+    "model_output_is_proof": false,
+    "deterministic_finite_search_is_universal_proof": false,
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED"
+  },
+  "report": {
+    "status": "FINITE_NEGATIVE_WITHIN_COMPLETE_TWO_OCCURRENCE_REWIRE_ROLE_QUOTIENT",
+    "proof_claim": false,
+    "parent_seal": {
+      "pair_path_count": 1774,
+      "unique_pair_state_count": 1424,
+      "unique_pair_rule_partition": {
+        "R33:BOUNDED_VARIABLE_ELIMINATION": 589,
+        "R33:BLOCKED_CLAUSE_ELIMINATION": 736,
+        "R33:PURE_LITERAL_AUTARKY": 94,
+        "R33:UNIT_PROPAGATION_WITH_RECONSTRUCTION_TRACE": 5
+      },
+      "exact_parent_partition_coverage": true,
+      "parent_state_coverage_count": 1424
+    },
+    "chunk_count": 32,
+    "partition_rule": "SORTED_PAIR_HASH_POSITION_MOD_32",
+    "all_chunks_exhaustive": true,
+    "resource_limit_reached": false,
+    "remaining_role_patterns": [
+      "SHARED_SOURCE_DOUBLE_TO_ONE",
+      "SHARED_SOURCE_SPLIT_TO_TWO",
+      "DISTINCT_SOURCES_MERGE_ONE",
+      "FOUR_DISTINCT_REROUTE"
+    ],
+    "histogram_l1_drift": 4,
+    "raw_valid_general_nonswap_path_count": 12228600,
+    "raw_role_pattern_partition": {
+      "FOUR_DISTINCT_REROUTE": 8292548,
+      "SHARED_SOURCE_DOUBLE_TO_ONE": 373107,
+      "SHARED_SOURCE_SPLIT_TO_TWO": 1789175,
+      "DISTINCT_SOURCES_MERGE_ONE": 1773770
+    },
+    "within_chunk_unique_formula_audit_count": 11768069,
+    "within_chunk_first_seen_role_pattern_partition": {
+      "FOUR_DISTINCT_REROUTE": 7871884,
+      "SHARED_SOURCE_DOUBLE_TO_ONE": 369281,
+      "SHARED_SOURCE_SPLIT_TO_TWO": 1771734,
+      "DISTINCT_SOURCES_MERGE_ONE": 1755170
+    },
+    "cross_chunk_formula_deduplication_claimed": false,
+    "duplicate_valid_path_count_within_chunks": 460531,
+    "audited_pivot_edge_count_until_first_open": 12046817,
+    "missing_pivot_edge_count_before_first_open": 278748,
+    "mutant_with_replay_verified_open_r47j_pivot_count": 11768069,
+    "mutant_all_r47j_pivots_closed_count": 0,
+    "first_open_pivot_frequency": {
+      "1": 11489585,
+      "2": 278220,
+      "3": 264
+    },
+    "first_open_terminal_partition": {
+      "DIRECT_EMPTY_CNF": 11767904,
+      "DIRECT_EMPTY_CLAUSE": 165
+    },
+    "first_open_round_partition": {
+      "1": 11768069
+    },
+    "all_r47j_pivots_closed_samples": [],
+    "chunk_manifest": [
+      {
+        "chunk_index": 0,
+        "parent_state_count": 45,
+        "receipt_sha256": "22a346f11f884d387fc76c4bfa88d8643c011bf5d8c2aa331e78541a82763d32",
+        "raw_paths": 385237,
+        "within_chunk_unique_audits": 370386,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 1,
+        "parent_state_count": 45,
+        "receipt_sha256": "b85cf3eef902f48cefd933110d40af405683be8066551c4f32fbca67f06f8789",
+        "raw_paths": 383407,
+        "within_chunk_unique_audits": 369887,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 2,
+        "parent_state_count": 45,
+        "receipt_sha256": "87acbaecfa7c8000d0a696becbf0b69ae049faa2355a60576ba48eb10e3d0907",
+        "raw_paths": 390061,
+        "within_chunk_unique_audits": 376242,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 3,
+        "parent_state_count": 45,
+        "receipt_sha256": "5292a8f7daedc9c0034d28c2223703b7a6dbae6782364b26d084f21fe50cc038",
+        "raw_paths": 375056,
+        "within_chunk_unique_audits": 359986,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 4,
+        "parent_state_count": 45,
+        "receipt_sha256": "66bebcdc35ae821410148a3c50e787532ddcc6e7ff979660dca7e1ef5a1e9a86",
+        "raw_paths": 386310,
+        "within_chunk_unique_audits": 371688,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 5,
+        "parent_state_count": 45,
+        "receipt_sha256": "594249d8e164518c9738b5d54ce9fe1ec7e70b99ec3d19857d0312b773247591",
+        "raw_paths": 383971,
+        "within_chunk_unique_audits": 368228,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 6,
+        "parent_state_count": 45,
+        "receipt_sha256": "9e0030abd51e850637fefe25e9e6d4f30a9060bc4eab7162befc66da9332fe10",
+        "raw_paths": 394130,
+        "within_chunk_unique_audits": 378006,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 7,
+        "parent_state_count": 45,
+        "receipt_sha256": "4c0da45b612f09e9bff391dffa1e045ce9b76ad0b54d82a298edd9ba36d8b5ef",
+        "raw_paths": 383938,
+        "within_chunk_unique_audits": 370378,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 8,
+        "parent_state_count": 45,
+        "receipt_sha256": "0e0d880dea100ae09fc11a6df70d1e9337fa0bb5702a3d7a5a062a257dbcd850",
+        "raw_paths": 381142,
+        "within_chunk_unique_audits": 364384,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 9,
+        "parent_state_count": 45,
+        "receipt_sha256": "785ec31671d3f64a93e161927f57d10768c5fedb3a573bcd7434595ad64a93eb",
+        "raw_paths": 397049,
+        "within_chunk_unique_audits": 383102,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 10,
+        "parent_state_count": 45,
+        "receipt_sha256": "bc1ebafc779ec10fde2640f29d28df5e831240e4b51864225ed29356f0e4f27e",
+        "raw_paths": 381159,
+        "within_chunk_unique_audits": 366395,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 11,
+        "parent_state_count": 45,
+        "receipt_sha256": "23daf1f9d708fb09e90b4b2d91d549fb4a8615bfef3a8a0df7802a98579cc7e2",
+        "raw_paths": 382483,
+        "within_chunk_unique_audits": 368262,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 12,
+        "parent_state_count": 45,
+        "receipt_sha256": "f50f5ec715d41bc7f0224a8b7c72b6d69b1bd2dc88baae7cd2bff98801d1f281",
+        "raw_paths": 391795,
+        "within_chunk_unique_audits": 375229,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 13,
+        "parent_state_count": 45,
+        "receipt_sha256": "68437ba53365c7560185449d9e4766357c01d4702dfff0b5915b114dbafba43e",
+        "raw_paths": 391423,
+        "within_chunk_unique_audits": 378408,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 14,
+        "parent_state_count": 45,
+        "receipt_sha256": "5a4abbcde179b36e89a78ab01e17f6effb9ba8407bfbb945d93259948d6b074d",
+        "raw_paths": 389582,
+        "within_chunk_unique_audits": 376897,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 15,
+        "parent_state_count": 45,
+        "receipt_sha256": "860b6469c6ecb9c7b105570660ed8f1b73ba66c8568337b006131e952c34cfaf",
+        "raw_paths": 385683,
+        "within_chunk_unique_audits": 370635,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 16,
+        "parent_state_count": 44,
+        "receipt_sha256": "33d606d5df37a60973cb6b8e87fe3c5418a9a7c68a3efd8a82466ae651b45c7a",
+        "raw_paths": 382102,
+        "within_chunk_unique_audits": 367680,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 17,
+        "parent_state_count": 44,
+        "receipt_sha256": "f1cea063df69e0a57311d6e8e46ceb6e0adaba050d6edabb111d7f5184cc036e",
+        "raw_paths": 383643,
+        "within_chunk_unique_audits": 368665,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 18,
+        "parent_state_count": 44,
+        "receipt_sha256": "d420f1efa6dc7873793e43e0503d0a4777338c94ff2c61c843ed0995c3c41bc3",
+        "raw_paths": 385726,
+        "within_chunk_unique_audits": 370398,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 19,
+        "parent_state_count": 44,
+        "receipt_sha256": "e857d9476b6de76fb4b8919ba875b421dc469374a82b086dbba78d8f24b44ac2",
+        "raw_paths": 375710,
+        "within_chunk_unique_audits": 361402,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 20,
+        "parent_state_count": 44,
+        "receipt_sha256": "1169fe2c7376c52c1452c758f45aa61d727b3e969ffd504b98a02b82eb5ac904",
+        "raw_paths": 373293,
+        "within_chunk_unique_audits": 359219,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 21,
+        "parent_state_count": 44,
+        "receipt_sha256": "1ae6aa1f253f21d303382b4343d7d4c0a2e17dbfe77dd201ec5e576c1e0ffdd4",
+        "raw_paths": 385203,
+        "within_chunk_unique_audits": 370986,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 22,
+        "parent_state_count": 44,
+        "receipt_sha256": "9039446e558509a889c172db2ff3af1fc59142334ab3da7c76417ab22c3efd72",
+        "raw_paths": 369222,
+        "within_chunk_unique_audits": 355928,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 23,
+        "parent_state_count": 44,
+        "receipt_sha256": "9dac3904cbc6b2365697c9b8c1cbc3762176958c2c5b60be72bbf70962698ae6",
+        "raw_paths": 375637,
+        "within_chunk_unique_audits": 362273,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 24,
+        "parent_state_count": 44,
+        "receipt_sha256": "e51367225af69b1ff4f0da688644324b814a204eb39091c3d92d7243dcd4ac6c",
+        "raw_paths": 379725,
+        "within_chunk_unique_audits": 365780,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 25,
+        "parent_state_count": 44,
+        "receipt_sha256": "469c527926dda0464cbd3ff3011463f86f63aa27de47444cb2705cf376621a42",
+        "raw_paths": 363463,
+        "within_chunk_unique_audits": 348608,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 26,
+        "parent_state_count": 44,
+        "receipt_sha256": "39dd717901628548116d0f28822bdc3755ce23e48ea8a21b7666642a46e40952",
+        "raw_paths": 376077,
+        "within_chunk_unique_audits": 362711,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 27,
+        "parent_state_count": 44,
+        "receipt_sha256": "6c9a7d0b9584c211db027c54cb40d665f9310a58725eac404a109667cb16c75a",
+        "raw_paths": 381866,
+        "within_chunk_unique_audits": 367713,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 28,
+        "parent_state_count": 44,
+        "receipt_sha256": "417d5bfb7bcecfd48c6226855a0ed49cd7169b004481f30f84fb474fb480281d",
+        "raw_paths": 370115,
+        "within_chunk_unique_audits": 356354,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 29,
+        "parent_state_count": 44,
+        "receipt_sha256": "98457f35ee4e8104e7fd841093199ce9111482b8cae74a9c041155f2987a939e",
+        "raw_paths": 378768,
+        "within_chunk_unique_audits": 363626,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 30,
+        "parent_state_count": 44,
+        "receipt_sha256": "e6e9ebee8e49ba0eb5990ad8d1e0be82b2305c6684b8e214044584e37865cb00",
+        "raw_paths": 379698,
+        "within_chunk_unique_audits": 365507,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      },
+      {
+        "chunk_index": 31,
+        "parent_state_count": 44,
+        "receipt_sha256": "e0947b0b8a9b9bcbb896b2f495c2522d56fac4be8a8a0fc54d2a8e8a3b8b5a2d",
+        "raw_paths": 385926,
+        "within_chunk_unique_audits": 373106,
+        "all_pivots_closed": 0,
+        "resource_limit_reached": false
+      }
+    ],
+    "recommended_next_gate": "R50G33_TWO_OCCURRENCE_REWIRE_EXHAUSTED__MINIMUM_THREE_OCCURRENCE_ROLE_CYCLE",
+    "answer": "R50G32 exactly covered all 1424 frozen parent states across 32 exhaustive chunks. All 11768069 within-chunk unique audits in the four remaining L1=4 role patterns retained a replay-verified R47J door. Together with R50G30 reciprocal swaps and R50G31 one-relay rewires, the declared two-occurrence sign-preserving role quotient is finite-negative. Cross-chunk formula uniqueness is intentionally not claimed.",
+    "scope_firewall": {
+      "family_expanded": false,
+      "clauses_added": false,
+      "clauses_deleted": false,
+      "new_variables_added": false,
+      "variable_universe_preserved": true,
+      "literal_signs_preserved": true,
+      "clause_width_preserved": true,
+      "clause_count_preserved": true,
+      "r47j_definition_changed": false,
+      "histogram_l1_drift": 4,
+      "finite_search_is_universal_proof": false
+    }
+  }
+}
