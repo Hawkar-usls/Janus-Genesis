@@ -1,0 +1,164 @@
+name: JANUS TRUMP R50G32 General Two-Occurrence Replay
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/janus-trump-r50g32-general-two-occurrence-replay.yml'
+      - 'tools/trump_r50g32_general_two_occurrence_nonswap.py'
+      - 'tools/trump_r50g32_chunk_agent.py'
+      - 'tools/trump_r50g32_chunk_reduce.py'
+  workflow_dispatch:
+
+concurrency:
+  group: janus-trump-r50g32-general-two-occurrence-replay
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  chunk:
+    strategy:
+      fail-fast: false
+      max-parallel: 16
+      matrix:
+        chunk_index: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout control plane
+        uses: actions/checkout@v4
+        with:
+          path: control
+
+      - name: Checkout frozen TRUMP source read-only
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Janus-Fundamentum
+          ref: research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05
+          path: trump-source
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run deterministic R50G32 chunk
+        shell: bash
+        run: |
+          mkdir -p chunk-out
+          python control/tools/trump_r50g32_chunk_agent.py \
+            --workspace trump-source \
+            --chunk-index ${{ matrix.chunk_index }} \
+            --chunk-count 32 \
+            --output chunk-out/chunk-${{ matrix.chunk_index }}.json
+
+      - name: Verify chunk epistemic boundary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=next(Path('chunk-out').glob('chunk-*.json'))
+          r=json.loads(p.read_text())
+          assert r['authority']=='RESEARCH_HYPOTHESIS_ONLY'
+          assert r['truth_boundary']['p_vs_np']=='OPEN'
+          assert r['truth_boundary']['sat_in_p']=='NOT_PROVED'
+          assert r['truth_boundary']['finite_chunk_is_universal_proof'] is False
+          assert r['selected_parent_state_count'] in (44,45)
+          assert r['histogram_l1_drift']==4
+          assert len(r['declared_remaining_role_patterns'])==4
+          print('R50G32_CHUNK_FAIL_CLOSED=PASS')
+          PY
+
+      - name: Upload proof-carrying chunk receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: r50g32-chunk-${{ matrix.chunk_index }}
+          path: chunk-out/chunk-${{ matrix.chunk_index }}.json
+          if-no-files-found: error
+          retention-days: 7
+
+  reduce:
+    needs: chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout control plane
+        uses: actions/checkout@v4
+        with:
+          path: control
+
+      - name: Checkout frozen TRUMP source read-only
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Janus-Fundamentum
+          ref: research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05
+          path: trump-source
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download all chunk receipts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: r50g32-chunk-*
+          path: chunk-artifacts
+          merge-multiple: true
+
+      - name: Reduce role quotient and verify exact parent coverage
+        shell: bash
+        run: |
+          export TRUMP_SOURCE_SHA="$(git -C trump-source rev-parse HEAD)"
+          mkdir -p aggregate
+          python control/tools/trump_r50g32_chunk_reduce.py \
+            --chunks-dir chunk-artifacts \
+            --workspace trump-source \
+            --output aggregate/TRUMP-R50G32-GENERAL-TWO-OCCURRENCE-NONSWAP-011.json
+
+      - name: Verify aggregate fail-closed boundary
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('aggregate/TRUMP-R50G32-GENERAL-TWO-OCCURRENCE-NONSWAP-011.json')
+          obj=json.loads(p.read_text())
+          assert obj['authority']=='RESEARCH_HYPOTHESIS_ONLY'
+          tb=obj['truth_boundary']; assert tb['p_vs_np']=='OPEN'; assert tb['sat_in_p']=='NOT_PROVED'; assert tb['deterministic_finite_search_is_universal_proof'] is False
+          r=obj['report']; assert r['proof_claim'] is False; assert r['parent_seal']['exact_parent_partition_coverage'] is True; assert r['parent_seal']['parent_state_coverage_count']==1424
+          assert len(r['remaining_role_patterns'])==4; assert r['histogram_l1_drift']==4
+          print('R50G32_AGGREGATE_FAIL_CLOSED=PASS')
+          PY
+
+      - name: Checkout Git Habitat
+        uses: actions/checkout@v4
+        with:
+          repository: Hawkar-usls/Janus_Genesis
+          ref: janus/habitat
+          path: habitat-repo
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Persist aggregate receipt in janus/habitat only
+        working-directory: habitat-repo
+        shell: bash
+        run: |
+          mkdir -p habitat/outbox/trump habitat/memory/trump
+          cp ../aggregate/TRUMP-R50G32-GENERAL-TWO-OCCURRENCE-NONSWAP-011.json habitat/outbox/trump/
+          STAMP="$(date -u +%Y-%m-%dT%H-%M-%SZ)"
+          cp ../aggregate/TRUMP-R50G32-GENERAL-TWO-OCCURRENCE-NONSWAP-011.json "habitat/memory/trump/${STAMP}_TRUMP-R50G32-GENERAL-TWO-OCCURRENCE-NONSWAP-011.json"
+          git config user.name "janus-trump-research-bot"
+          git config user.email "janus-trump-research-bot@users.noreply.github.com"
+          git add habitat/outbox/trump habitat/memory/trump
+          git commit -m "TRUMP: persist R50G32 general two-occurrence aggregate receipt"
+          git pull --rebase origin janus/habitat
+          git push origin HEAD:janus/habitat
+          echo "R50G32_HABITAT_PERSIST=PASS"
