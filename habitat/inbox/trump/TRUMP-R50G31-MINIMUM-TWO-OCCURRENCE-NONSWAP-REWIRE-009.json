@@ -1,0 +1,36 @@
+{
+  "schema": "janus.genesis.trump_research_request.v1_9",
+  "request_id": "TRUMP-R50G31-MINIMUM-TWO-OCCURRENCE-NONSWAP-REWIRE-009",
+  "status": "QUEUED",
+  "purpose": "PARALLEL_TRUMP_CODE_RESEARCH",
+  "source_repo": "Hawkar-usls/Janus-Fundamentum",
+  "source_branch": "research/r50g23-direct5-skeleton-r47j-collapse-cascade-anti-collapse-debt-2026-09-05",
+  "frontier": {
+    "gate": "R50G31_MINIMUM_TWO_OCCURRENCE_NONSWAP_REWIRE",
+    "parent_gate": "R50G30_MINIMUM_TWO_OCCURRENCE_COUPLED_REWIRE",
+    "parent_result": "FINITE_NEGATIVE_454866_OF_454866_RETAIN_REPLAY_VERIFIED_R47J_DOOR",
+    "objective": "Exhaust the minimum nonzero occurrence-histogram-drift two-occurrence sign-preserving nonswap grammar x->y, z->x on the same frozen 1424 R50G24 pair states and audit all existing R47J pivots with independent replay.",
+    "pass_condition": "AT_LEAST_ONE_MUTANT_HAS_NO_REPLAY_VERIFIED_R47J_CANDIDATE_FOR_ANY_EXISTING_PIVOT",
+    "resource_limit_semantics": "UNKNOWN_RESOURCE_LIMIT_NOT_FINITE_NEGATIVE"
+  },
+  "constraints": {
+    "family_expansion": false,
+    "frozen_parent_unique_states": 1424,
+    "clauses_added": false,
+    "clauses_deleted": false,
+    "new_variables": false,
+    "variable_universe_preserved": true,
+    "literal_signs_preserved": true,
+    "clause_widths_preserved": true,
+    "clause_count_preserved": true,
+    "r47j_definition_changed": false,
+    "allowed_histogram_l1_drift": 2,
+    "finite_search_is_universal_proof": false
+  },
+  "truth_boundary": {
+    "p_vs_np": "OPEN",
+    "sat_in_p": "NOT_PROVED",
+    "proof_authority": false,
+    "scientific_claim_promotion_authority": false
+  }
+}
